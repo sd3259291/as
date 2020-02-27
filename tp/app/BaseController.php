@@ -6,6 +6,7 @@ namespace app;
 use think\App;
 use think\exception\ValidateException;
 use think\Validate;
+use think\facade\Session;
 
 /**
  * 控制器基础类
@@ -52,7 +53,10 @@ abstract class BaseController
 
     // 初始化
     protected function initialize()
-    {}
+    {	
+
+
+	}
 
     /**
      * 验证数据
