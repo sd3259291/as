@@ -27,7 +27,7 @@ class CheckAuth
 
 			$auth = Session::get('auth');
 			
-			if(!$auth[$u]){
+			if(!$auth['user_id']){
 
 				return redirect( (string) url('Login/index')->suffix('') );
 
