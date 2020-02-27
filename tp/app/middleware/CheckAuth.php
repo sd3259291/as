@@ -20,10 +20,9 @@ class CheckAuth
 
 		$controller = strtolower($request->controller());
 
-		//$action = strtolower($request->action());
+	
 
 		if($controller != 'login'){
-			//$u = md5( strtolower($controller.$action) );
 
 			$auth = Session::get('auth');
 			
@@ -34,7 +33,7 @@ class CheckAuth
 			}
 
 		}
-	
+		
     	return $response;
 
 		
