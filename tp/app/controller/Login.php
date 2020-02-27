@@ -10,6 +10,8 @@ class Login
 {
     public function index()
     {
+
+		dump($_SERVER['SCRIPT_NAME']);
 		Session::clear();
 
 
