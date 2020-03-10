@@ -19,14 +19,11 @@ class CheckAuth
 		$response = $next($request);
 
 		$controller = strtolower($request->controller());
-
 	
 
 		if($controller != 'login'){
-
-			$auth = Session::get('auth');
 			
-			if(!$auth['user_id']){
+			if(!Session::get('userinfo')){
 
 				return redirect( (string) url('Login/index')->suffix('') );
 

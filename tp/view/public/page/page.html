@@ -1,0 +1,18 @@
+<style type="text/css">
+	img.icon_page{cursor:pointer;height:24px;margin-top:-3px}
+	img.icon_page:hover{background:#6699cc}
+</style>
+<!--<div class = 'page-container' style = 'height:24px;margin-top:0px;font-size:12px;b1order:1px solid red;line-height:24px;vertical-align:middle'>-->
+	<div class = 'row' style = 'line-height:24px;height:36px;line-height:36px;-moz-user-select: none' id = 'page'>
+		<div class = 'col s4 center'>共 <span id = 'totles'> {$page.totles ?? '-'} </span> 条记录 </div>
+		<div class = 'col s4 center'>
+			每页显示 <input id = 'number_page' type = 'text' class = 'aya-input'  style = 'text-indent:1px;width:48px;height:24px;text-align:center' value = '{$page.n ?? 1000}' data-d = '{$page.n ?? "1000"}' /> 条 <button class = 'btn btn-default btn-noshadow height32 margin-top-3' style = 'padding-left:7px;padding-right:7px;height:26px;line-height:24px;padding-top:0' id = 'modify_number_page'>GO</button>
+		</div>
+		<div class = 'col s4 center'>
+			<img title = '首页' src = '__PUBLIC__/image/first_page.png' id = 'first_page' class = 'icon_page' /><img title = '上一页' src = '__PUBLIC__/image/prev_page.png' id = 'prev_page' class = 'icon_page' />
+			<span id = 'current_page'>  {$page.current_page ?? '1'} </span> 
+			<span> / </span>
+			<span id = 'totle_page'>  {$page.totle_page ?? '1'} </span>
+			<img id = 'next_page' title = '下一页' src = '__PUBLIC__/image/next_page.png' class = 'icon_page' /><img id = 'last_page' title = '尾页' src = '__PUBLIC__/image/last_page.png' class = 'icon_page' />
+		</div>
+	</div>

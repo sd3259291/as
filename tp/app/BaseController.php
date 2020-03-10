@@ -8,6 +8,7 @@ use think\exception\ValidateException;
 use think\Validate;
 use think\facade\Session;
 
+
 /**
  * 控制器基础类
  */

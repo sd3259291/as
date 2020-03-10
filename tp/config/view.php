@@ -23,7 +23,8 @@ return [
     // 标签库标签结束标记
     'taglib_end'    => '}',
 	'tpl_replace_string'  =>  [
-		'__PUBLIC__' => 'HTTP://'.$_SERVER['HTTP_HOST'].( dirname($_SERVER['SCRIPT_NAME']) == '/'? '': dirname($_SERVER['SCRIPT_NAME']) ) .'/tp/view/public'
+		'__PUBLIC__' => 'HTTP://'.$_SERVER['HTTP_HOST'].( dirname($_SERVER['SCRIPT_NAME']) == '/'? '': dirname($_SERVER['SCRIPT_NAME']) ) .'/tp/view/public',
+		'__APP__'    =>$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'],
 	]
 
 ];

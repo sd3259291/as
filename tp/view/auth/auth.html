@@ -1,0 +1,188 @@
+
+  <script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+ <link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+			<div class = 'col s6' >
+				<div class = 'relative left'>
+					<input type = 'text' class = 'width-200' id = 'search_table' placeholder = '表单内搜索 - 按回车搜索' />
+					<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
+				</div>
+			</div>
+			<div class = 'col s6' >
+				<div class="btn-group left  margin-right-100" role="group" >
+					<button class = 'btn btn-default btn-default-1' id = 'save'>  <i class="material-icons text-color2" style = 'color:' >save</i> 保存</button>			
+				</div>
+				
+			</div>
+		</div>
+
+		<div class = 'row row-body'>
+			
+			<div class = 'col s5' >
+				<table class = 'dataTable cell-border table-small centered stripe noselect' id = 'table'>
+					<thead><tr><th>组名/姓名</th><th>用户名</th><th>类别</th></thead>
+					<tbody id = 'tbody'>
+						{volist name = 'role' id = 'r'}
+						<tr data-id = '{$r.id}' ><td>{$r.name}</td><td></td><td>组</td></tr>
+						{/volist}
+						{volist name = 'user' id = 'u'}
+						<tr data-id = '{$u.id}' ><td>{$u.name}</td><td>{$u.username}</td><td>用户</td></tr>
+						{/volist}
+					</tbody>
+				</table>
+			</div>
+			
+			<div class = 'col s7' id = 'll' style = 'padding-left:50px'>
+				 <ul id="tree" class="ztree"></ul>
+			</div>
+		</div>
+		
+
+
+		
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+	var app = {
+		
+		
+
+		zTreeObj : {},
+
+		node : null,
+		
+		ini : function(){
+			max_height('ll');
+
+			let table = d_table();
+			
+			let zNodes = {$tree|raw};
+
+			$('#table tbody tr').click(function(){
+				let o = {};
+				o.type = $(this).children().eq(2).text();
+				o.id = $(this).data('id');
+				$.post('__APP__/Auth/getAuth',o,function(d){
+					if(d.status == 's'){
+						app.zTreeObj.checkAllNodes(false);
+
+						let treeObj = $.fn.zTree.getZTreeObj("tree");
+
+						var nodes = treeObj.transformToArray(treeObj.getNodes());
+
+						var p = new Array();
+
+						for(var i in d.data){
+
+							p.push(d.data[i].node_id);
+
+						}
+						
+						for(var i in nodes){
+							
+							if( $.inArray(nodes[i].node_id,p) >= 0 ){
+
+								treeObj.checkNode(nodes[i], true, false);
+
+								if(nodes[i].title == 2){
+									if(nodes[i].getParentNode().checked == false){
+										treeObj.checkNode(nodes[i].getParentNode(), true, false);
+
+
+									}
+								}
+
+							}
+						}
+
+					}
+				});
+			});
+
+			let setting = {
+				callback:{
+					onClick:function(event, treeId, treeNode){
+						app.node = treeNode;
+					},
+				},
+				check:{
+					enable:true
+				}
+			};
+
+
+			if(zNodes.length == 0){
+				
+			}else{
+				
+				app.zTreeObj = $.fn.zTree.init($("#tree"), setting, zNodes);
+
+			
+
+				let treeObj = $.fn.zTree.getZTreeObj("tree");
+
+				treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
+
+
+			}
+
+			
+			
+			$('#search_table').keypress(function(e){
+				let text = $.trim($(this).val());
+				if(e.keyCode == 13){
+					table.search(text).draw();
+				}
+			});
+
+	
+			$('#save').click(function(){
+
+				if($('#tbody tr.selected').length < 1) return false;
+
+
+				let o = {};
+				
+				o.type = $('#tbody tr.selected').eq(0).children().eq(2).text();
+				o.id   = $('#tbody tr.selected').eq(0).data('id');
+
+			
+				var p = new Array();
+				let treeObj = $.fn.zTree.getZTreeObj("tree");
+				var nodes = treeObj.transformToArray(treeObj.getNodes());
+				for(var i in nodes){
+					if(nodes[i].checked === true) p.push(nodes[i].node_id);
+				}
+			
+				o.p = JSON.stringify(p);
+				
+				$.post('__APP__/Auth/editAuth',o,function(d){
+					
+					if(d.status == 's'){			
+						layer_success();
+					}else{
+						Materialize.toast(d.info, 4000);
+					}
+				});
+			});
+			
+
+
+
+		},	
+
+
+
+	}
+	app.ini();
+</script>
+
+
+

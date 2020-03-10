@@ -1,0 +1,205 @@
+
+  <script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+ <link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+			<div class = 'col s12' >
+				<div class="btn-group left  margin-right-100" role="group" >
+					<button class = 'btn btn-default btn-default-1' id = 'edit'>  <i class="material-icons text-color2"  >create</i> 编辑</button>
+		
+					<button class = 'btn btn-default btn-default-1' id = 'dlt'>  <i class="material-icons text-color3"  >clear</i> 删除</button>
+			
+			
+				</div>
+				
+			</div>
+		</div>
+
+		<div class = 'row row-body'>
+			
+			<div class = 'col s5' style = 'border-right:3px solid #117a8b;border-radius: .25rem;' >
+				<div class = 'row new-container' >
+					<div class = 'col s4'>上级</div><div class = 'col s8'><input id = 'pname' class = 'aya-input' type = 'text' readonly/></div>
+					<div class = 'col s4'>目录名称</div><div class = 'col s8'><input id = 'name' class = 'aya-input' type = 'text' /></div>
+					<div class = 'col s4'>ICON</div><div class = 'col s8'><input id = 'icon' class = 'aya-input' type = 'text' /></div>
+					<div class = 'col s4'>目录等级</div><div class = 'col s8'><input  value = '1' id = 'level' class = 'aya-input' type = 'text' readonly /></div>
+					<div class = 'col s4'>页面地址</div><div class = 'col s8'><input id = 'url' class = 'aya-input' type = 'text' /></div>
+					<div class = 'col s4'>排序</div><div class = 'col s8'><input id = 'sort' class = 'aya-input' type = 'text' /></div>
+					<div class = 'col s12' style = 'text-align:center'><button class = 'btn btn-primary height32' id = 'add'>新增</button></div>
+					<input type = 'hidden' id = 'pid' />
+				</div>
+			</div>
+			
+			<div class = 'col s7' id = 'll' style = 'padding-left:40px'>
+				 <ul id="tree" class="ztree"></ul>
+			</div>
+		</div>
+		
+
+
+		
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+	var app = {
+		
+		field : ['pid','name','icon','url','level','sort'],
+
+		zTreeObj : {},
+
+		node : null,
+		
+		ini : function(){
+
+			max_height('ll');
+			
+			$('#add').click(function(){
+
+				let o = {};
+
+				for(a of app.field){
+
+					o[a] = $('#' + a).val();
+
+				}
+			
+				$.post('__APP__/Auth/addLayout',o,function(d){
+					
+					if(d.status == 's'){
+
+						let tmp = d.data;
+						let icon  = o['level'] == '2'?'__PUBLIC__/image/tree_level_2.png':'__PUBLIC__/image/tree_level_1.png';
+						let level = o['level'] == '2'?'2':'1';
+						
+						app.zTreeObj.addNodes( tmp.pid == 0 ? null : app.node , {name : tmp.name+' - '+tmp.sort,title:level,layout_id:tmp.id,icon:icon } );
+
+					}else{
+
+						layer_error(d);
+
+					}
+				});
+			});
+			
+			let zNodes = {$tree|raw};
+
+			let setting = {
+				callback:{
+					onClick:function(event, treeId, treeNode){
+						$("#pname").val(treeNode.true_name);
+						$('#pid').val(treeNode.layout_id);
+						$("#level").val(parseInt(treeNode.title) + 1);
+						nodeId = treeNode.layout_id;
+						app.node = treeNode;	
+					},
+				}
+			};
+
+		
+			app.zTreeObj = $.fn.zTree.init($("#tree"), setting, zNodes);
+
+			let treeObj = $.fn.zTree.getZTreeObj("tree");
+
+			treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
+			
+		
+			$('#dlt').click(function(){
+
+				if(app.node == null) return false;
+
+				parent.layer.confirm('确定删除?', { icon: 3, title:'提示',offset : ['10%' ] }, function(index){
+
+					let o = {};
+
+					o.id = app.node.layout_id;
+
+					$.post('__APP__/Auth/dltLayout',o,function(d){
+
+						if(d.status == 's'){
+
+							app.zTreeObj.removeNode(app.node);
+
+							parent.layer.close(index);
+
+							layer_success();
+
+						}else{
+
+							layer_error(d);
+
+						}
+
+					});
+				});
+
+			});
+
+			$('#edit').click(function(){
+				if(app.node == null) return false;
+
+				let id = app.node.layout_id;
+
+				let div = [
+					{ 'name' : '目录名称：' ,'id' : 'name_edit' ,'type' : 'text'},
+					{ 'name' : 'ICON：' ,'id' : 'icon_edit' ,'type' : 'text'},
+					{ 'name' : '页面地址：' ,'id' : 'url_edit' ,'type' : 'text'},
+					{ 'name' : '排序：' ,'id' : 'sort_edit' ,'type' : 'text'},
+				];
+
+				parent.layer.open({
+					skin: 'layer-edit-container',
+					title : '编辑节点',
+					offset : ['40px'],
+					area  : ['600px',"400px"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					content : create_new_div( div ),
+					success : function(){
+						$('#name_edit').val( app.node.true_name );
+						$('#url_edit').val(app.node.u);
+						$('#sort_edit').val( app.node.sort );
+						$('#icon_edit').val( app.node.i );
+					},
+					yes : function(index){
+						let o = {};
+						o.id = id;
+						o.name = $.trim($('#name_edit').val());
+						o.url = $.trim($('#url_edit').val());
+						o.sort = $.trim($('#sort_edit').val());
+						o.icon = $.trim($('#icon_edit').val());
+						$.post('__APP__/Auth/editLayout',o,function(d){
+							if(d.status == 's'){
+								parent.layer.close(index);
+								layer_success('操作成功，刷新页面显示修改结果',2000);
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+
+			});
+
+
+			
+			
+
+
+
+		},	
+
+
+
+	}
+	app.ini();
+</script>
+
+
+

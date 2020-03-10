@@ -1,0 +1,259 @@
+<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
+<link rel="stylesheet" href="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.min.css" type="text/css">
+
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+			<div class = 'col s12'>
+				<div class="btn-group left  margin-right-100" role="group" >
+					<button class = 'btn btn-default btn-default-1' id = 'new' >  <i class="material-icons text-color2"  >add_box</i> 新增</button>
+					<button class = 'btn btn-default btn-default-1' id = 'edit'>  <i class="material-icons text-color5"  >create</i> 编辑</button>
+					<button class = 'btn btn-default btn-default-1' id = 'dlt' >  <i class="material-icons text-color3"  >clear</i> 删除</button>
+					<button class = 'btn btn-default btn-default-1' id = 'change_status'>  <i class="material-icons text-color4"  >transform</i> 禁用/启用</button>
+					<button class = 'btn btn-default btn-default-1' id = 'search'>  <i class="material-icons text-color1"  >search</i> 搜索</button>
+				</div>
+				<div class = 'relative left'>
+					<input type = 'text' id = 'search_table' class = 'width-400' placeholder = '表单内搜索' />
+					<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
+				</div>
+			</div>
+
+			
+		</div>
+
+		<div class = 'row row-body'>
+			<div class = 'col s12'>
+				<table class = 'dataTable centered dataTable centered table-gray-header cell-border stripe' id = 'table'>
+					<thead>
+						<tr><th>登录名</th><th>姓名</th><th>用户组</th><th>状态</th><th>最后登录时间</th></tr>
+					</thead>
+					<tbody>
+						{$tbody|raw}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		
+		
+		
+		{include file='public/page/page' /}
+	
+		
+
+
+		
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+
+	
+
+	var app = {
+		searchOption : {},
+
+		ini : function(){
+
+			let table = d_table();
+
+			let div = [
+				{ 'name' : '登录名：' ,'id' : 'username' ,'type' : 'text'},
+				{ 'name' : '用户名：' ,'id' : 'name' ,'type' : 'text'},
+				{ 'name' : '密码：' ,'id' : 'password' ,'type' : 'text'},
+				{ 'name' : '用户组：' ,'id' : 'role' ,'type' : 'select' ,'data' : {$role|raw} ,'mul' : true}  
+			];
+
+			$('#new').click(function(){
+				
+				let index = parent.layer.open({
+					skin: 'layer-new-container',
+					title : '新增用户',
+					offset : ['40px'],
+					area  : ['600px',"70%"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					isOutAnim: false,
+					content : create_new_div( div ),
+					success: function(){
+						$('#role').selectpicker({
+							width:'100%',
+							noneSelectedText:'用户组'
+						});
+					},
+					yes : function(index){
+						let o = {};
+						o.username = $.trim($('#username').val());
+						o.name = $.trim($('#name').val());
+						o.password = $.trim($('#password').val());
+						o.role = $('#role').val();
+						$.post('__APP__/Auth/addUser',o,function(d){
+							if(d.status == 's'){
+								table.rows.add($(d.data)).draw();
+								layer_success();
+								parent.layer.close(index);
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+			});
+
+			$('#edit').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+				let id = $('#table tbody tr.selected').eq(0).data('id');
+
+				parent.layer.open({
+					skin: 'layer-edit-container',
+					title : '编辑用户',
+					offset : ['40px'],
+					area  : ['600px',"700px"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					isOutAnim: false,
+					content : create_new_div( div ),
+					success : function(){
+						$('#username').val($('#table tbody tr.selected').eq(0).children().eq(0).text());
+						$('#name').val($('#table tbody tr.selected').eq(0).children().eq(1).text());
+						let role_id = $('#table tbody tr.selected').eq(0).data('role_id');
+						if(role_id) role_id = role_id.split(',');
+						$('#role').selectpicker({
+							width:'100%',
+							noneSelectedText:'用户组'
+						});
+						$('#role').selectpicker('val',role_id);
+					
+					},
+					yes : function(index){
+						let o = {};
+						o.id = id;
+						o.name = $.trim($('#name').val());
+						o.password = $.trim($('#password').val());
+						o.username = $.trim($('#username').val());
+						o.role = $('#role').val();
+						$.post('__APP__/Auth/editUser',o,function(d){
+							if(d.status == 's'){
+								parent.layer.close(index);
+								$('#table tbody tr.selected').eq(0).children().eq(0).text(o.username);
+								$('#table tbody tr.selected').eq(0).children().eq(1).text(o.name);
+								$('#table tbody tr.selected').eq(0).children().eq(2).text(d.data.role_name);
+								$('#table tbody tr.selected').eq(0).data('role_id',d.data.role_id);
+								layer_success();
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+
+			});
+
+			$('#change_status').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+				let o = {};
+				o.id = $('#table tbody tr.selected').eq(0).data('id');
+				$.post('__APP__/Auth/changeUserStatus',o,function(d){
+					if(d.status == 's'){
+						$('#table tbody tr.selected').eq(0).children().eq(3).text(d.data);
+						layer_success();
+					}else{
+						layer_error(d);
+					}
+				});
+			});
+
+			$('#dlt').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+
+				layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+					let o = {};
+					o.id = $('#table tbody tr.selected').eq(0).data('id');
+					$.post('__APP__/Auth/dltUser',o,function(d){
+						if(d.status == 's'){
+							table.row( $('#table tbody tr.selected').eq(0) ).remove().draw();
+							layer_success();
+						}else{
+							layer_error(d);
+						}
+						layer.close(index);
+					});	
+				});
+			});
+
+			$('#search_table').keypress(function(e){
+				let text = $.trim($(this).val());
+				if(e.keyCode == 13){
+					table.search(text).draw();
+				}
+			});
+
+			page('__APP__/Auth/getUser',table,app.searchOption);
+
+			$('#search').click(function(){
+				let div2 = [
+					{ 'name' : '登录名：' ,'id' : 'username' ,'type' : 'text'},
+					{ 'name' : '用户名：' ,'id' : 'name' ,'type' : 'text'},
+					{ 'name' : '用户组：' ,'id' : 'role_id' ,'type' : 'select' ,'data' : {$role|raw},'empty' : true }  
+				];
+
+				parent.layer.open({
+					skin: 'layer-search-container',
+					title : '搜索用户',
+					offset : ['40px'],
+					area  : ['600px',"300px"],
+					type  : 1,
+					btn   : ['搜索','清除'],
+					shadeClose:true,
+					isOutAnim: false,
+					content : create_new_div( div2 ),
+					success : function(){
+						for(let s of div2){
+							$('#' + s.id).val( app.searchOption[s.id] );
+						}
+					},
+					btn2 : function(){
+						for(let s of div2){
+							$('#' + s.id).val('');
+						}
+						return false;
+					},
+					yes : function(index){
+						let o = get_page();
+						
+						let hasOption = false;
+						for(let s of div2){
+							o[s.id] = $('#' + s.id).val();
+							app.searchOption[s.id] = $('#' + s.id).val();
+							if(app.searchOption[s.id] != '') hasOption = true;
+						}
+
+						if(hasOption){
+							$('#search').addClass('has-option');
+						}else{
+							$('#search').removeClass('has-option');
+						}
+						
+						page_callback(o,'__APP__/Auth/getUser',table);
+						parent.layer.close(index);
+					}
+				});
+
+
+
+
+			});
+
+		},	
+
+	}
+	app.ini();
+</script>
+
+
+

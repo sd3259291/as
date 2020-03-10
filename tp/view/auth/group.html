@@ -1,0 +1,171 @@
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+			<div class = 'col s12'>
+				<div class="btn-group left  margin-right-100" role="group" >
+					<button class = 'btn btn-default btn-default-1' id = 'new'>  <i class="material-icons text-color2"  >add_box</i> 新增</button>
+					<button class = 'btn btn-default btn-default-1' id = 'edit'>  <i class="material-icons text-color5"  >create</i> 编辑</button>
+					<button class = 'btn btn-default btn-default-1' id = 'dlt'>  <i class="material-icons text-color3"  >clear</i> 删除</button>
+					<button class = 'btn btn-default btn-default-1' id = 'change_status'>  <i class="material-icons text-color4"  >transform</i> 禁用/启用</button>
+			
+				</div>
+				<div class = 'relative left'>
+					<input type = 'text' class = 'width-400' id = 'search_table' placeholder = '表单内搜索 - 按回车搜索' />
+					<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
+				</div>
+			</div>
+		</div>
+
+		<div class = 'row row-body'>
+			<div class = 'col s12'>
+				<table class = 'dataTable centered table-gray-header row-border stripe' id = 'table'>
+					<thead>
+						<tr><th>组名</th><th>用户数</th><th>状态</th><th>备注</th></tr>
+					</thead>
+					<tbody>
+						{volist name = 'list' id = 'l'}
+						<tr data-id = {$l.id} ><td>{$l.name}</td><td>-</td><td>{$l.status == 1?'启用':'禁用'}</td><td>{$l.remark}</td></tr>
+						{/volist}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		
+
+
+		
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+	var app = {
+		ini : function(){
+
+			let table = d_table();
+
+			let div = [
+				{ 'name' : '组名：' ,'id' : 'name' ,'type' : 'text'},
+				{ 'name' : '备注：' ,'id' : 'remark' ,'type' : 'text'},
+			];
+
+			$('#new').click(function(){
+				
+				parent.layer.open({
+					skin: 'layer-new-container',
+					title : '新增组',
+					offset : ['40px'],
+					area  : ['600px',"300px"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					content : create_new_div( div ),
+					yes : function(index){
+						let o = {};
+						o.name = $.trim($('#name').val());
+						o.remark = $.trim($('#remark').val());
+						$.post('__APP__/Auth/addGroup',o,function(d){
+							if(d.status == 's'){
+								parent.layer.close(index);
+								table.rows.add($(d.data)).draw();
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+			});
+
+			$('#edit').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+				let id = $('#table tbody tr.selected').eq(0).data('id');
+
+				parent.layer.open({
+					skin: 'layer-edit-container',
+					title : '编辑组',
+					offset : ['40px'],
+					area  : ['600px',"300px"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					content : create_new_div( div ),
+					success : function(){
+						$('#name').val($('#table tbody tr.selected').eq(0).children().eq(0).text());
+						$('#remark').val($('#table tbody tr.selected').eq(0).children().eq(3).text());
+					},
+					yes : function(index){
+						let o = {};
+						o.id = id;
+						o.name = $.trim($('#name').val());
+						o.remark = $.trim($('#remark').val());
+						$.post('__APP__/Auth/editGroup',o,function(d){
+							if(d.status == 's'){
+								parent.layer.close(index);
+								$('#table tbody tr.selected').eq(0).children().eq(0).text(o.name);
+								$('#table tbody tr.selected').eq(0).children().eq(3).text(o.remark);
+								layer_success();
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+
+			});
+
+			$('#change_status').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+				let o = {};
+				o.id = $('#table tbody tr.selected').eq(0).data('id');
+				$.post('__APP__/Auth/changeGroupStatus',o,function(d){
+					if(d.status == 's'){
+						$('#table tbody tr.selected').eq(0).children().eq(2).text(d.data);
+						layer_success();
+					}else{
+						layer_error(d);
+					}
+				});
+			});
+
+			$('#dlt').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+
+				layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+					
+					let o = {};
+					o.id = $('#table tbody tr.selected').eq(0).data('id');
+					$.post('__APP__/Auth/dltGroup',o,function(d){
+						if(d.status == 's'){
+							
+							table.row( $('#table tbody tr.selected').eq(0) ).remove().draw();
+
+							layer_success();
+						}else{
+							layer_error(d);
+						}
+						layer.close(index);
+					});	
+				});	
+			});
+
+
+			$('#search_table').keypress(function(e){
+				let text = $.trim($(this).val());
+				if(e.keyCode == 13){
+					table.search(text).draw();
+				}
+			});
+
+			
+
+		},	
+
+	}
+	app.ini();
+</script>
+
+
+
