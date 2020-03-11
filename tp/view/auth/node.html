@@ -153,6 +153,7 @@
 						o.name = $.trim($('#name_edit').val());
 						o.action = $.trim($('#action_edit').val());
 						o.sort = $.trim($('#sort_edit').val());
+						
 						$.post('__APP__/Auth/editNode',o,function(d){
 							if(d.status == 's'){
 								parent.layer.close(index);

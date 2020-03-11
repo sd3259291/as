@@ -1,0 +1,164 @@
+
+  <script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+ <link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+			<div class = 'col s5' >
+				<div class="btn-group left  margin-right-100" role="group" >
+					<button class = 'btn btn-default btn-default-1' id = 'enum_type_add'>  <i class="material-icons text-color2"  >add_box</i> 枚举类别 - 新增</button>
+
+					<button class = 'btn btn-default btn-default-1' id = 'enum_type_edit'>  <i class="material-icons text-color5"  >create</i> 编辑</button>
+		
+				</div>
+			</div>
+
+			<div class = 'col s7' >
+				<div class="btn-group left  margin-right-100" role="group" >
+					<button class = 'btn btn-default btn-default-1' id = 'add'>  <i class="material-icons text-color2"  >add_box</i> 枚举 - 新增</button>
+
+					<button class = 'btn btn-default btn-default-1' id = 'edit'>  <i class="material-icons text-color5"  >create</i> 编辑</button>
+		
+					<button class = 'btn btn-default btn-default-1' id = 'dlt'>  <i class="material-icons text-color3"  >clear</i> 删除</button>
+				</div>
+			</div>
+
+		</div>
+
+		<div class = 'row row-body'>
+			
+		
+			
+			<div class = 'col s5' id = 'll' >
+				<ul id="tree" class="ztree"></ul>
+			</div>
+
+				<div class = 'col s7' >
+				<div class = 'row new-container' >
+					
+					<div class = 'col s4'>岗位名称</div><div class = 'col s8'><input id = 'name' class = 'aya-input' type = 'text' /></div>
+					<div class = 'col s4'>岗位类型</div><div class = 'col s8'><input id = 'level' class = 'aya-input' type = 'text' readonly value = 1 /></div>
+					
+					
+					<div class = 'col s4'>排序</div><div class = 'col s8'><input id = 'sort' class = 'aya-input' type = 'text' /></div>
+					<!--
+					<div class = 'col s4'>状态</div><div class = 'col s8'>
+						<select id = 'status' class = 'browser-default'>
+							<option value = 1>启用</option>
+							<option value = 0>禁用</option>
+						</select>
+					</div>
+					-->
+					<div class = 'col s12' style = 'text-align:center'><button class = 'btn btn-primary height32' id = 'save'>保 存</button></div>
+					<input type = 'hidden' id = 'pid' />
+				</div>
+			</div>
+		</div>
+		
+
+
+		
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+	var app = {
+		
+		field : ['pid','name','level','sort'],
+
+		zTreeObj : {},
+
+		node : null,
+		
+		ini : function(){
+			
+			max_height('ll');
+			let zNodes = {$tree|raw};
+			let setting = {
+				callback:{
+					onClick:function(event, treeId, treeNode){
+						app.node = treeNode;	
+					},
+				}
+			};
+
+
+			app.zTreeObj = $.fn.zTree.init($("#tree"), setting, zNodes);
+
+			let treeObj = $.fn.zTree.getZTreeObj("tree");
+
+			treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
+			
+
+
+			$('#enum_type_add').click(function(){
+				let div = [
+					{ 'name' : '上级枚举：' ,'id' : 'enum_type_pname' ,'type' : 'text','readonly' : true},
+					{ 'name' : '枚举类别名称：' ,'id' : 'enum_type_name' ,'type' : 'text'},
+					{ 'name' : '排序：' , 'id' : 'enum_type_sort' ,'type' : 'text'},
+					{ 'type' : 'hidden' , 'id' : 'enum_type_pid'}
+				];
+				parent.layer.open({
+					skin: 'layer-edit-container',
+					title : '编辑节点',
+					offset : ['40px'],
+					area  : ['600px',"300px"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					content : create_new_div( div ),
+					success : function(){
+						if(app.node != null){
+							$('#enum_type_pname').val( app.node.name);
+							$('#enum_type_pid').val(app.node.id);
+						}
+					},
+					yes : function(index){
+						let o = {};
+						for(let f of div){
+							o[f.id] = $.trim($('#' + f.id).val());
+						}
+
+
+						$.post('__APP__/Basic/addEnum',o,function(d){
+							if(d.status == 's'){
+
+								let tmp = d.data;
+
+								app.zTreeObj.addNodes( tmp.pid == 0 ? null : app.node , {name : tmp.name,id:tmp.id } );
+								parent.layer.close(index);
+								layer_success();
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+
+			});
+
+			$('#enum_type_edit').click(function(){
+				if(app.node == null) return false;
+				let div = [
+					{ 'name' : '上级枚举：' ,'id' : 'enum_type_pname' ,'type' : 'text','readonly' : true},
+					{ 'name' : '枚举类别名称：' ,'id' : 'enum_type_name' ,'type' : 'text'},
+					{ 'name' : '排序：' , 'id' : 'enum_type_sort' ,'type' : 'text'},
+					{ 'type' : 'hidden' , 'id' : 'enum_type_pid'}
+				];
+			});
+
+
+		},	
+
+
+
+	}
+	app.ini();
+</script>
+
+
+

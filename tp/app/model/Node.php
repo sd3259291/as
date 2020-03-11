@@ -28,13 +28,13 @@ class Node extends Model{
 
 		$pid = array();
 
-		
+		$img_url = img_url();
 
 		foreach($r as $k => $v){
 			if($v['level'] == 1){
-				$list[$v['id']] = array('name' => $v['name'].' - '.$v['action'].($hasSort?' - '.$v['sort']:''),'title' => $v['level'],'node_id' =>$v['id'],'true_name' => $v['name'],'action' => $v['action'],'sort' => $v['sort'],'icon' => 'tp/view/public/image/tree_level_1.png');
+				$list[$v['id']] = array('name' => $v['name'].' - '.$v['action'].($hasSort?' - '.$v['sort']:''),'title' => $v['level'],'node_id' =>$v['id'],'true_name' => $v['name'],'action' => $v['action'],'sort' => $v['sort'],'icon' => $img_url.'/tree_level_1.png');
 			}else if($v['level'] == 2){
-				$list[$v['pid']]['children'][$v['id']] = array('name' => $v['name'].' - '.$v['action'].($hasSort?' - '.$v['sort']:''),'title' => $v['level'],'node_id' =>$v['id'],'true_name' => $v['name'],'action' => $v['action'],'sort' => $v['sort'],'icon' => 'tp/view/public/image/tree_level_2.png');
+				$list[$v['pid']]['children'][$v['id']] = array('name' => $v['name'].' - '.$v['action'].($hasSort?' - '.$v['sort']:''),'title' => $v['level'],'node_id' =>$v['id'],'true_name' => $v['name'],'action' => $v['action'],'sort' => $v['sort'],'icon' => $img_url.'/tree_level_2.png');
 				$pid[$v['id']] = $v['pid'];
 			}else{
 				$list[$pid[$v['pid']]]['children'][$v['pid']]['children'][$v['id']] = array('name' => $v['name'].' - '.$v['action'].($hasSort?' - '.$v['sort']:''),'title' => $v['level'],'node_id' =>$v['id'],'true_name' => $v['name'],'action' => $v['action'],'sort' => $v['sort'] );

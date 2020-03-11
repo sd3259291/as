@@ -269,6 +269,7 @@ class Auth extends BaseController
     * 编辑节点
     */
 	public function editNode(){
+		
 		if(!$_POST['name']) return a('','节点名称不能为空','e');
 		if(!$_POST['action']) return a('','方法不能为空','e');
 		$node = Node::find($_POST['id']);

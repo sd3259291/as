@@ -4,6 +4,7 @@
 function a($data,$info = '',$status = 's'){
 	return json(array('data' => $data,'info' => $info,'status' => $status));
 }
+
 function column($data,$id){
 	if(!is_array($data)) $data = $data->toArray();
 	$r = array();
@@ -11,4 +12,16 @@ function column($data,$id){
 		$r[$v[$id]] = $v;
 	}
 	return $r;
+}
+
+function img_url(){
+	return 'HTTP://'.$_SERVER['HTTP_HOST'].( dirname($_SERVER['SCRIPT_NAME']) == '/'? '': dirname($_SERVER['SCRIPT_NAME']) ) .'/tp/view/public/image';
+}
+
+function sp(){
+	cache('tmp',$_POST);
+}
+
+function gp(){
+	$_POST = cache('tmp');
 }

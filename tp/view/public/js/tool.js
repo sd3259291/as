@@ -4,7 +4,8 @@ function create_new_div( div ){
 	let content = "<div class = 'row new-container' >";
 	for(let d of div){
 		if(d.type == 'text'){
-			content += "<div class = 'col s4 font-bold'>"+d.name+"</div><div class = 'col s8'><input id = '"+d.id+"' class = 'aya-input' type = 'text' /></div>";
+			let readonly = d.readonly?' readonly ' :'';
+			content += "<div class = 'col s4 font-bold'>"+d.name+"</div><div class = 'col s8'><input "+readonly+" id = '"+d.id+"' class = 'aya-input' type = 'text' /></div>";
 		}else if(d.type == 'select'){
 			if(d.mul == true){
 				content += "<div class = 'col s4 font-bold'>"+d.name+"</div><div class = 'col s8'><select multiple class = 'browser-default' id = '"+d.id+"'>";
@@ -16,6 +17,8 @@ function create_new_div( div ){
 				content += "<option value = '"+s.id+"' >"+s.name+"</option>";
 			}
 			content += "</select></div>";
+		}else if(d.type == 'hidden'){
+			content += "<input  id = '"+d.id+"' class = 'aya-input' type = 'hidden' />";
 		}
 	}
 	content += "</div>";

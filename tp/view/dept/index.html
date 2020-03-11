@@ -1,0 +1,223 @@
+
+  <script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+ <link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+			<div class = 'col s12' >
+				<div class="btn-group left  margin-right-100" role="group" >
+					<button class = 'btn btn-default btn-default-1' id = 'add'>  <i class="material-icons text-color2"  >create</i> 新增</button>
+		
+					<button class = 'btn btn-default btn-default-1' id = 'dlt'>  <i class="material-icons text-color3"  >clear</i> 删除</button>
+			
+			
+				</div>
+				
+			</div>
+		</div>
+
+		<div class = 'row row-body'>
+			
+		
+			
+			<div class = 'col s5' id = 'll'>
+				 <ul id="tree" class="ztree"></ul>
+			</div>
+
+				<div class = 'col s7' sty1le = 'border-right:3px solid #117a8b;border-radius: .25rem;' >
+				<div class = 'row new-container' >
+					<div class = 'col s4'>上级部门</div><div class = 'col s8'><input id = 'pname' class = 'aya-input' type = 'text' readonly/></div>
+					<div class = 'col s4'>部门名称</div><div class = 'col s8'><input id = 'name' class = 'aya-input' type = 'text' /></div>
+					<div class = 'col s4'>等级</div><div class = 'col s8'><input id = 'level' class = 'aya-input' type = 'text' readonly value = 1 /></div>
+					<div class = 'col s4'>部门主管</div><div class = 'col s8'><input id = 'bmzg' class = 'aya-input' type = 'text' readonly /></div>
+					<div class = 'col s4'>分管领导</div><div class = 'col s8'><input  id = 'fgld' class = 'aya-input' type = 'text' readonly /></div>
+					
+					<div class = 'col s4'>排序</div><div class = 'col s8'><input id = 'sort' class = 'aya-input' type = 'text' /></div>
+					<!--
+					<div class = 'col s4'>状态</div><div class = 'col s8'>
+						<select id = 'status' class = 'browser-default'>
+							<option value = 1>启用</option>
+							<option value = 0>禁用</option>
+						</select>
+					</div>
+					-->
+					<div class = 'col s12' style = 'text-align:center'><button class = 'btn btn-primary height32' id = 'save'>保 存</button></div>
+					<input type = 'hidden' id = 'pid' />
+				</div>
+			</div>
+		</div>
+		
+
+
+		
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+	var app = {
+		
+		field : ['pid','name','level','sort'],
+
+		zTreeObj : {},
+
+		pname : '',
+
+		pid : '',
+
+		node : null,
+		
+		ini : function(){
+
+			max_height('ll');
+			
+			$('#save').click(function(){
+
+				let o = {};
+
+				for(a of app.field){
+
+					o[a] = $('#' + a).val();
+
+				}
+			
+				$.post('__APP__/Auth/addDept',o,function(d){
+					
+					if(d.status == 's'){
+
+						let tmp = d.data;
+
+						//let icon  = o['level'] == '2'?'__PUBLIC__/image/tree_level_2.png':'__PUBLIC__/image/tree_level_1.png';
+
+						//let level = o['level'] == '2'?'2':'1';
+						
+						app.zTreeObj.addNodes( tmp.pid == 0 ? null : app.node , {name : tmp.name+' - '+tmp.sort,title:level,layout_id:tmp.id,icon:icon } );
+
+					}else{
+
+						layer_error(d);
+
+					}
+				});
+			});
+			
+			let zNodes = {$tree|raw};
+
+			let setting = {
+				callback:{
+					onClick:function(event, treeId, treeNode){
+						log(treeNode);
+						app.pname = treeNode.name
+						$('#pname').val(app.pname);
+						app.pid = treeNode.id;
+						$('#pid').val(app.pid);
+						$("#level").val(treeNode.title);
+						
+						app.node = treeNode;	
+					},
+				}
+			};
+		
+			app.zTreeObj = $.fn.zTree.init($("#tree"), setting, zNodes);
+
+			let treeObj = $.fn.zTree.getZTreeObj("tree");
+
+			treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
+			
+		
+			$('#dlt').click(function(){
+
+				if(app.node == null) return false;
+
+				parent.layer.confirm('确定删除?', { icon: 3, title:'提示',offset : ['10%' ] }, function(index){
+
+					let o = {};
+
+					o.id = app.node.id;
+
+					$.post('__APP__/Dept/dltDept',o,function(d){
+
+						if(d.status == 's'){
+
+							app.zTreeObj.removeNode(app.node);
+
+							parent.layer.close(index);
+
+							layer_success();
+
+						}else{
+
+							layer_error(d);
+
+						}
+
+					});
+				});
+
+			});
+			
+			
+
+			$('#add').click(function(){
+				let div = [
+					{ 'name' : '上级部门：' ,'id' : 'pname_new' ,'type' : 'text','readonly' : true},
+					{ 'name' : '部门名称：' ,'id' : 'name_new' ,'type' : 'text'},
+					{ 'name' : '排序：' ,'id' : 'sort_new' ,'type' : 'text'},
+					{ 'type' : 'hidden' , 'id' : 'pid_new'}
+				];
+
+				parent.layer.open({
+					skin: 'layer-edit-container',
+					title : '编辑节点',
+					offset : ['40px'],
+					area  : ['600px',"300px"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					content : create_new_div( div ),
+					success : function(){
+						
+						$('#pname_new').val( app.pname );
+						$('#pid_new').val( app.pid );
+						
+					},
+					yes : function(index){
+						let o = {};
+						for(let f of div){
+							o[f.id] = $.trim($('#' + f.id).val());
+						}
+
+					
+						
+
+						$.post('__APP__/Dept/addDept',o,function(d){
+							if(d.status == 's'){
+
+								let tmp = d.data;
+
+								app.zTreeObj.addNodes( tmp.pid == 0 ? null : app.node , {name : tmp.name,title:tmp.level,dept_id:tmp.id } );
+								parent.layer.close(index);
+								layer_success();
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+
+			});
+
+
+		},	
+
+
+
+	}
+	app.ini();
+</script>
+
+
+
