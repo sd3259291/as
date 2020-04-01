@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace app\controller;
 
 
@@ -133,7 +134,8 @@ class Login
 		foreach($this->dataBase as $k => $v){
 			Db::execute($v);
 		}
-
+		
+		//增加系统管理员账户
 		$admin = array(
 			'username' => 'admin',
 			'password' => 'duoduo',
@@ -142,6 +144,63 @@ class Login
 			'status' => 1
 		);
 		Db::table('s_user')->insert($admin);
+		
+		//增加系统枚举
+		$tmp = array(
+			'name' => '系统枚举',
+			'pid' => 0,
+			'system' => 1,
+			'sort' => 1
+		);
+		$id = Db::table('s_enum')->insertGetId($tmp);
+		$tmp = array(
+			array(
+				'name' => '岗位类型',
+				'children' =>array(
+					'管理类','技术类','营销类','智能类'
+				)
+			),
+			array(
+				'name' => '工作类型',
+				'children' =>array(
+					'类1','类2','类3','类4'
+				)
+			),
+		);
+		
+		$tmp1 = array();
+		foreach($tmp as $k => $v){
+			$tmp1[] = array(
+				'pid' => $id,
+				'name' => $v['name'],
+				'system' => 1,
+				'sort' => 1
+			);
+		}
+		Db::table('s_enum')->insertAll($tmp1);
+		$enum = Db::table('s_enum')->select()->toArray();
+		$enum_name_to_id = array();
+		foreach($enum as $k => $v){
+			$enum_name_to_id[$v['name']] = $v['id'];
+		}
+		$tmp1 = array();
+		foreach($tmp as $k => $v){
+			foreach($v['children'] as $k1 => $v1){
+				$tmp1[] = array(
+					'enum_id' => $enum_name_to_id[$v['name']],
+					'name' => $v1, 
+					'value' => $k1,
+					'status' => 1,
+					'sort' => 1
+				);
+			}
+		}
+		Db::table('s_enum_detail')->insertAll($tmp1);
+
+
+		
+
+
 		
 	}
 
@@ -209,31 +268,30 @@ class Login
 		  `user_id` int(11) DEFAULT NULL
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8;",
 		//流程后台数据
-		'flow' => "CREATE TABLE `s_flow2` (
+		'flow' => "CREATE TABLE `s_flow` (
 		  `id` int(11) NOT NULL AUTO_INCREMENT,
-		  `name` varchar(50) DEFAULT NULL,
-		  `datetime` datetime DEFAULT NULL,
-		  `table_resource` varchar(50) DEFAULT NULL,
-		  `table_name` varchar(255) DEFAULT NULL,
-		  `tip_id` int(11) DEFAULT NULL,
-		  `tip_name` varchar(50) DEFAULT NULL,
+		  `title` varchar(100) DEFAULT NULL,
+		  `create_datetime` datetime DEFAULT NULL,
+		  `modify_datetime` datetime DEFAULT NULL,
 		  `done` varchar(50) DEFAULT NULL,
 		  `show` varchar(50) DEFAULT NULL,
-		  `title` varchar(100) DEFAULT NULL,
 		  `node` text,
 		  `p` text,
 		  `max_id` int(11) DEFAULT NULL,
 		  `before_dlt` varchar(255) DEFAULT NULL,
+		  `form` mediumtext,
+		  `maker` varchar(20) DEFAULT NULL,
+		  `status` int(2) NOT NULL DEFAULT '0',
 		  PRIMARY KEY (`id`)
-		) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;",
+		) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;",
 		//流程分组
-		'flow_group' => "CREATE TABLE `s_flow2_group` (
+		'flow_group' => "CREATE TABLE `s_flow_group` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT,
 			  `name` varchar(50) DEFAULT NULL,
 			  PRIMARY KEY (`id`)
 			) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;",
 		//流程分组明细
-		'flow_group_list' => "CREATE TABLE `s_flow2_group_list` (
+		'flow_group_list' => "CREATE TABLE `s_flow_group_list` (
 		  `autoid` int(11) NOT NULL AUTO_INCREMENT,
 		  `id` int(11) DEFAULT NULL,
 		  `number` varchar(50) DEFAULT NULL,
@@ -243,7 +301,7 @@ class Login
 		  PRIMARY KEY (`autoid`)
 		) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;",
 		//流程节点
-		'flow2_node' => "CREATE TABLE `s_flow2_node` (
+		'flow_node' => "CREATE TABLE `s_flow_node` (
 		  `id` int(11) NOT NULL AUTO_INCREMENT,
 		  `name` varchar(100) DEFAULT NULL,
 		  `sort` tinyint(3) DEFAULT NULL,
@@ -252,7 +310,7 @@ class Login
 		  PRIMARY KEY (`id`)
 		) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;",
 		//流程
-		'flows2' => "CREATE TABLE `s_flows2` (
+		'flows' => "CREATE TABLE `s_flows` (
 		  `id` int(11) NOT NULL AUTO_INCREMENT,
 		  `maker` varchar(10) DEFAULT NULL,
 		  `datetime` datetime DEFAULT NULL,
@@ -273,7 +331,7 @@ class Login
 		  PRIMARY KEY (`id`)
 		) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;",
 		//流程评论
-		'flows2_comment' => "CREATE TABLE `s_flows2_comment` (
+		'flows_comment' => "CREATE TABLE `s_flows_comment` (
 		  `id` int(11) NOT NULL AUTO_INCREMENT,
 		  `name` varchar(10) DEFAULT NULL,
 		  `datetime` datetime DEFAULT NULL,
@@ -296,6 +354,36 @@ class Login
 		  `hidenav` int(1) NOT NULL DEFAULT '0' COMMENT '是否隐藏导航栏',
 		  PRIMARY KEY (`id`)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8;",
+		//枚举
+		'enum' => "CREATE TABLE `s_enum` (
+		  `id` int(11) NOT NULL AUTO_INCREMENT,
+		  `name` varchar(255) DEFAULT NULL,
+		  `system` int(1) DEFAULT '0',
+		  `sort` int(11) NOT NULL DEFAULT '0',
+		  `pid` int(11) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;",
+		//枚举明细
+		'enum_detail' => "CREATE TABLE `s_enum_detail` (
+		  `id` int(11) NOT NULL AUTO_INCREMENT,
+		  `enum_id` int(11) DEFAULT NULL,
+		  `name` varchar(255) DEFAULT NULL,
+		  `value` varchar(255) DEFAULT NULL,
+		  `status` varchar(255) DEFAULT NULL,
+		  `sort` int(11) DEFAULT NULL,
+		  PRIMARY KEY (`id`)
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8;",
+		//组织
+		'department' => "CREATE TABLE `s_department` (
+		  `id` int(11) NOT NULL AUTO_INCREMENT,
+		  `name` varchar(255) DEFAULT NULL,
+		  `pid` int(11) DEFAULT NULL,
+		  `status` int(1) DEFAULT NULL,
+		  `level` int(1) DEFAULT NULL,
+		  `sort` int(11) NOT NULL DEFAULT '0',
+		  `icon` int(1) DEFAULT '0',
+		  PRIMARY KEY (`id`)
+		) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;",
 		
 
 		

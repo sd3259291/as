@@ -1,0 +1,216 @@
+
+
+<style type="text/css">
+	table tbody tr td a{
+		cursor:pointer;
+		text-decoration:none
+	}
+	table tbody tr td a:hover{
+	
+		text-decoration:none
+	}
+</style>
+<script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+<link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+			<div class = 'col s12' >
+				<div class="btn-group left  margin-right-100" role="group" >
+					<button class = 'btn btn-default btn-default-1' id = 'add'>  <i class="material-icons text-color2"  >create</i> 新增</button>
+
+					<button class = 'btn btn-default btn-default-1' id = 'dlt'>  <i class="material-icons text-color3"  >clear</i> 删除</button>
+					<button class = 'btn btn-default btn-default-1' id = 'search'>  <i class="material-icons text-color1"  >search</i> 搜索</button>
+					
+
+			
+				</div>
+
+				<div class = 'relative width-200' style = 'display:inline-block'>
+					<input type = 'text' id = 'search_table' class = 'width-200' placeholder = '表单内搜索 - 按回车键' />
+					<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
+				</div>
+
+				<div style = 'float:right;width:100px'>
+					<img src = '__PUBLIC__/image/employee_totle.png' /> <span id = 'employee_totle'></span>
+				</div>
+
+			</div>
+
+		
+
+
+		</div>
+
+		<div class = 'row row-body'>
+			
+		
+			
+			<div class = 'col s3' id = 'll'>
+				 <ul id="tree" class="ztree"></ul>
+			</div>
+
+			<div class = 'col s9'  >
+				
+				<table class = 'dataTable centered  row-border stripe' id = 'table'>
+					<thead>
+						<tr><th>工号</th><th>姓名</th><th>部门</th><th>岗位</th><th>性别</th><th>入职日期</th></tr>
+					</thead>
+					<tbody>
+
+					</tbody>
+
+				</table>
+			
+				
+			</div>
+		</div>
+		
+
+
+		
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+	var app = {
+
+		table : {},
+		
+		ini : function(){
+			app.table = d_table();
+			let zNodes = {$tree|raw};
+			let setting = {
+				callback:{
+					onClick:function(event, treeId, treeNode){
+						let o = {};
+						o.id = treeNode.id;
+						$.post('__APP__/Hr/getList',o,function(d){
+							if(d.status == 's'){
+								app.table.clear();
+								app.table.rows.add($(d.data)).draw();
+								$('#employee_totle').text( d.info + "人" );
+							}
+						});
+					},
+				}
+			};
+			app.zTreeObj = $.fn.zTree.init($("#tree"), setting, zNodes);
+			let treeObj = $.fn.zTree.getZTreeObj("tree");
+			treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
+			$('#add').click(function(){
+				parent.layer.open({					
+					type: 2,
+					isOutAnim: false ,
+					title: '新增员工',
+					maxmin: true,
+					shadeClose: true, //点击遮罩关闭层
+					area : [parent.mainPage.layerWidth,'100%'],
+					content: '__APP__/Hr/add',
+				
+				});
+			});
+
+			$('#table').on('click','a',function(d){
+				let number = $(this).parents('tr').children().eq(0).text();
+				parent.layer.open({					
+					type: 2,
+					isOutAnim: false ,
+					title: '员工信息',
+					maxmin: true,
+					shadeClose: true, //点击遮罩关闭层
+					area : [parent.mainPage.layerWidth,'100%'],
+					content: '__APP__/Hr/info?number='+number
+				});
+			});
+
+			$('#dlt').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+				layer.confirm('确定删除员工（'+$('#table tbody tr.selected').eq(0).children().eq(1).text()+'）?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+					let o = {};
+					o.number = $('#table tbody tr.selected').eq(0).children().eq(0).text();
+					$.post('__APP__/Hr/dlt',o,function(d){
+						if(d.status == 's'){
+							app.table.row( $('#table tbody tr.selected').eq(0) ).remove().draw();
+							layer_success();
+						}else{
+							layer_error(d);
+						}
+						layer.close(index);
+					});	
+				});	
+			});
+
+
+			$('#search_table').keypress(function(e){
+				let text = $.trim($(this).val());
+				if(e.keyCode == 13){
+					app.table.search(text).draw();
+				}
+			});
+
+
+			$('#search').click(function(){
+
+				let div2 = [
+					{ 'name' : '工号：' ,'id' : 'number' ,'type' : 'text'},
+					{ 'name' : '姓名：' ,'id' : 'name' ,'type' : 'text'},
+					{ 'name' : '部门：' ,'id' : 'department_id' ,'type' : 'select' ,'data' : {$post|raw},'empty' : true },
+					{ 'name' : '岗位：' ,'id' : 'post_id' ,'type' : 'select' ,'data' : {$department|raw},'empty' : true },
+				];
+
+				parent.layer.open({
+					skin: 'layer-search-container',
+					title : '搜索员工',
+					offset : ['40px'],
+					area  : ['600px',"400px"],
+					type  : 1,
+					btn   : ['搜索','清除'],
+					shadeClose:true,
+					isOutAnim: false,
+					content : create_new_div( div2 ),
+					btn2 : function(){
+						for(let s of div2){
+							$('#' + s.id).val('');
+						}
+						return false;
+					},
+					yes : function(index){
+						let o = {};
+						for(let f of div2){
+							o[f.id] = $.trim($('#' + f.id).val());
+						}
+						$.post('__APP__/Hr/search',o,function(d){
+							if(d.status == 's'){
+								app.table.clear();
+								app.table.rows.add($(d.data)).draw();
+								$('#employee_totle').text( d.info + "人" );
+								parent.layer.close(index);
+							}
+						});
+					}
+				});
+
+			});
+
+		},
+
+
+		
+		
+
+		save_success : function(){
+			alert(5);
+		},
+
+
+	}
+	app.ini();
+</script>
+
+
+

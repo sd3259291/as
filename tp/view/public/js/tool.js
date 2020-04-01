@@ -3,6 +3,7 @@
 function create_new_div( div ){
 	let content = "<div class = 'row new-container' >";
 	for(let d of div){
+	
 		if(d.type == 'text'){
 			let readonly = d.readonly?' readonly ' :'';
 			content += "<div class = 'col s4 font-bold'>"+d.name+"</div><div class = 'col s8'><input "+readonly+" id = '"+d.id+"' class = 'aya-input' type = 'text' /></div>";
@@ -30,6 +31,8 @@ function layer_error(d,time = 2000){
 }
 function layer_success(info = '操作成功',time = 1000){
 	layer.msg(info,{icon:1,time:time,offset:'30%'});
+
+	
 }
 
 function d_table(setting = {},id = 'table',select = select_tr){
@@ -43,10 +46,14 @@ function d_table(setting = {},id = 'table',select = select_tr){
 		order : []
 	};
 
+	
+
 	if(select_tr != ''){
 	
 		select_tr(id);
 	}
+	
+	
 
 	return $('#' + id).DataTable($.extend(setting1,setting));
 }
@@ -95,6 +102,7 @@ function get_parent(){
 
 function maxheight(cont = '',scroll = true){
 	let tmpheight = parent.$('#page-inner').height() - 6;
+
 	if(scroll){
 		$('.card').eq(0).css('overflow-y','scroll');
 	}
@@ -106,13 +114,16 @@ function maxheight(cont = '',scroll = true){
 	}
 }
 
-function max_height(id,scroll = true){
+function max_height(id,scroll = true,percent = 1){
 	if(scroll){
 		$('#' + id).css('overflow-y','scroll');
 	}
-
 	
-	let tmpheight = parent.mainPage.height - $('#' + id).offset().top + 38;
+	height = parent.mainPage?parent.mainPage.height:$(window).height();
+	
+	let tmpheight = height - $('#' + id).offset().top + 38;
+	
+	tmpheight = tmpheight * percent;
 
 	$('#' + id).css('minHeight',tmpheight).css('maxHeight',tmpheight);
 }
@@ -185,7 +196,9 @@ function reindex(id,type = 'id',P = window){
 }
 
 function select_tr(tableid,selectClass = 'selected',callback = function(){}){
+
 	$('#'+tableid+' tbody').on('click','tr',function(){
+
 		$('#'+tableid+' tbody tr').removeClass(selectClass);
 		$('#'+tableid+' tbody tr td input').prop('checked',false);
 		$(this).addClass(selectClass).children().eq(0).find('input').prop('checked',true);
@@ -565,12 +578,30 @@ function flowsave(save,executor = '' ){
 
 		}
 	});
-	
+}
 
+function select_employee(id,callback){
+	let url = window.location.href.substring(0,window.location.href.indexOf('.php') + 4);
 	
-	
-	
-
+	$(id).click(function(){
+		let that = this;
+		parent.layer.open({					
+			type: 2,
+			isOutAnim: false ,
+			title: '选择员工',
+			maxmin: true,
+			shadeClose: true, //点击遮罩关闭层
+			area : ['800px','100%'],
+			content: url+'/S/select_employee',
+			btn : ['确定'],
+			yes : function(index,layero){
+				let selected = window[layero.find('iframe')[0]['name']].app.selected;
+				callback(selected,that);
+				parent.layer.close(index);
+			}
+				
+		});
+	});
 }
 
 

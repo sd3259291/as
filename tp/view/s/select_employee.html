@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <!-- Bootstrap Styles-->
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+    <!-- FontAwesome Styles-->
+    <link href="__PUBLIC__/css/font-awesome.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+	<link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/bootstrap-select/dist/css/bootstrap-select.min.css" type="text/css">
+
+	<style type="text/css">
+		body{background:#fff;font-size:12px}
+		
+	</style>
+	<script src="__PUBLIC__/js/jquery-2.0.3.min.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+
+	<script src="__PUBLIC__/js/bootstrap.min.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
+
+	<script src="__PUBLIC__/js/tool.js"></script>
+	
+</head>
+
+<body>
+<div class = 'container-fluid' style = 'padding:0 0 0px 0;margin:0;border-bottom:1px solid #bdbdbd'>
+
+	<div class = 'row'>
+		<div class = 'col s6'>
+			<div id = 'department'>
+				<div class = 'relative width-200' style = 'display:inline-block'>
+						<input type = 'text' id = 'search_table' class = 'width-200' placeholder = '输入姓名，工号 - 按回车键' />
+						<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
+					</div>
+				 <ul id="tree" class="ztree"></ul>
+			 </div>
+			
+			<div style = 'height:16px;border-bottom:1px solid #bdbdbd;margin-bottom:16px'></div>
+
+			 <div id = 'employee'>
+				<table class = 'dataTable row-border'>
+					<tbody id = 'tbody-employee'>
+						
+					</tbody>
+
+				</table>
+			 </div>
+		</div>
+
+
+		<div class = 'col s6'>
+			<table class = 'dataTable row-border centered'>
+				<thead><tr><th>工号</th><th>姓名</th><th>部门</th><th>岗位</th></thead>
+				<tbody id = 'tbody-data'>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+</div>
+
+<!--<input id = 'lzrq' value = '{e.lzrq}' style = 'padding:0;margin:0;border:0;font-size:12px;text-align:center' readonly />-->
+
+<script>
+
+
+var app = {
+	table : {},
+	selected : new Map(),
+	ini : function(){
+
+		max_height('employee',true,0.4);
+		max_height('department',true,0.4);
+		
+		let zNodes = {$tree|raw};
+		let setting = {
+			callback:{
+				onClick:function(event, treeId, treeNode){
+					let o = {};
+					o.id = treeNode.id;
+					$.post('__APP__/S/select_employee_get',o,function(d){
+						if(d.status == 's'){
+							let tmp = "";
+							$('#tbody-employee').empty();
+							for(let o of d.data){
+								tmp += "<tr data-id = "+o.id+" data-dname = '"+o.dname+"' data-number = '"+o.number+"'><td>"+o.name+"</td><td>"+o.pname+"</td></tr>";
+							}
+							$('#tbody-employee').append(tmp);			
+				
+
+						}
+					});
+				},
+			}
+		};
+		this.zTreeObj = $.fn.zTree.init($("#tree"), setting, zNodes);
+		let treeObj = $.fn.zTree.getZTreeObj("tree");
+		treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
+
+		$('#tbody-employee').on('dblclick','tr',function(){
+
+			let o = {};
+			o.id = $(this).data('id');
+			o.number = $(this).data('number');
+			o.dname  = $(this).data('dname');
+			o.name  = $(this).children().eq(0).text();
+			o.pname = $(this).children().eq(1).text();
+			app.selected.set(o.number,o);
+
+			app.make_data();
+			
+		});
+
+
+
+	},
+
+	make_data:function(){
+
+		$('#tbody-data').empty();
+
+		let tmp = '';
+
+		app.selected.forEach(function(s,k){
+		
+			tmp += "<tr><td>"+s.number+"</td><td>"+s.name+"</td><td>"+s.dname+"</td><td>"+s.pname+"</td></tr>";
+		});
+				
+		$('#tbody-data').append(tmp);
+	}
+};
+app.ini();
+	
+
+
+
+
+		
+	
+
+	
+	
+</script>
+
+</body>
+
+</html>

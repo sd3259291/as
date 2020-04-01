@@ -1,0 +1,190 @@
+<style type="text/css">
+	table img{
+		cursor:pointer
+	}
+</style>
+
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+			<div class = 'col s12'>
+				<div class="btn-group left  margin-right-100" role="group" >
+					
+					<button class = 'btn btn-default btn-default-1' id = 'check'>  <i class="material-icons text-color5"  >create</i> 审核</button>
+					<button class = 'btn btn-default btn-default-1' id = 'flow' >  <i class="material-icons text-color3"  >repeat</i> 流程</button>
+					
+					<button class = 'btn btn-default btn-default-1' id = 'search'>  <i class="material-icons text-color1"  >search</i> 搜索</button>
+				</div>
+				<div class = 'relative left'>
+					<input type = 'text' id = 'search_table' class = 'width-400' placeholder = '表单内搜索' />
+					<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
+				</div>
+			</div>
+
+			
+		</div>
+
+		<div class = 'row row-body'>
+			<div class = 'col s12'>
+				<table class = 'dataTable centered table-small dataTable centered table-gray-header cell-border stripe' id = 'table'>
+					<thead>
+						<tr><th></th><th>标题</th><th>发起人</th><th>发起时间</th><th>接受时间</th><th>上一处理人</th><th>类型</th><th>当前处理人</th><th>处理状态</th><th>流程日志</th></tr>
+					</thead>
+					<tbody id = 'tbody'>
+						{$tbody|raw}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		
+		
+		
+		{include file='public/page/page' /}
+	
+		
+
+
+		
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+
+	
+
+	var app = {
+		searchOption : {},
+
+		ini : function(){
+
+			let table = d_table();
+
+
+			$('#check').click(function(){
+				
+			});
+
+			
+
+			$('#flow').click(function(){
+				//if($('#tbody tr.'+app.selectedClass).length == 0) return false;
+				let flowid = $('#tbody tr.'+app.selectedClass).eq(0).children().eq(1).find('a').eq(0).data('flow_id');
+				parent.layer.open({
+					title:'<span style = "font-size:12px">流程查看</span>',
+					type: 2,
+					shadeClose:true,
+					offset:'5%',
+					area: ['90%','70%'],
+					content: "__APP__/Fs/see?id=1596",
+					isOutAnim: false,
+				});
+
+			});
+
+			$('#change_status').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+				let o = {};
+				o.id = $('#table tbody tr.selected').eq(0).data('id');
+				$.post('__APP__/Auth/changeUserStatus',o,function(d){
+					if(d.status == 's'){
+						$('#table tbody tr.selected').eq(0).children().eq(3).text(d.data);
+						layer_success();
+					}else{
+						layer_error(d);
+					}
+				});
+			});
+
+			$('#dlt').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+
+				layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+					let o = {};
+					o.id = $('#table tbody tr.selected').eq(0).data('id');
+					$.post('__APP__/Auth/dltUser',o,function(d){
+						if(d.status == 's'){
+							table.row( $('#table tbody tr.selected').eq(0) ).remove().draw();
+							layer_success();
+						}else{
+							layer_error(d);
+						}
+						layer.close(index);
+					});	
+				});
+			});
+
+			$('#search_table').keypress(function(e){
+				let text = $.trim($(this).val());
+				if(e.keyCode == 13){
+					table.search(text).draw();
+				}
+			});
+
+			page('__APP__/Fs/research',table,app.searchOption);
+
+			$('#search').click(function(){
+				let div2 = [
+					{ 'name' : '登录名：' ,'id' : 'username' ,'type' : 'text'},
+					{ 'name' : '用户名：' ,'id' : 'name' ,'type' : 'text'},
+					
+				];
+
+				parent.layer.open({
+					skin: 'layer-search-container',
+					title : '搜索用户',
+					offset : ['40px'],
+					area  : ['600px',"300px"],
+					type  : 1,
+					btn   : ['搜索','清除'],
+					shadeClose:true,
+					isOutAnim: false,
+					content : create_new_div( div2 ),
+					success : function(){
+						for(let s of div2){
+							$('#' + s.id).val( app.searchOption[s.id] );
+						}
+					},
+					btn2 : function(){
+						for(let s of div2){
+							$('#' + s.id).val('');
+						}
+						return false;
+					},
+					yes : function(index){
+						let o = get_page();
+						
+						let hasOption = false;
+						for(let s of div2){
+							o[s.id] = $('#' + s.id).val();
+							app.searchOption[s.id] = $('#' + s.id).val();
+							if(app.searchOption[s.id] != '') hasOption = true;
+						}
+
+						if(hasOption){
+							$('#search').addClass('has-option');
+						}else{
+							$('#search').removeClass('has-option');
+						}
+						
+						page_callback(o,'__APP__/Auth/getUser',table);
+						parent.layer.close(index);
+					}
+				});
+
+
+
+
+			});
+
+		},	
+
+	}
+	app.ini();
+</script>
+
+
+

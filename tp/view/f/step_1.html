@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/bootstrap-select/dist/css/bootstrap-select.min.css" type="text/css">
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+	
+
+	<script src="__PUBLIC__/js/jquery-2.0.3.min.js"></script>
+	<script src="__PUBLIC__/js/bootstrap.min.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	<script src="__PUBLIC__/js/paigusu.min.js"></script>
+
+	<style type="text/css">
+		body{background:#fff;font-size:12px}
+		div#tool div.row{
+			
+			margin:20px
+		}
+		div#tool div.row div.col{
+			height:32px;
+			line-height:32px
+		}
+
+		div#tool div.row div.col button{
+			margin:0;
+		}
+		
+		div.flow-container{
+			border:1px solid #330000;
+			height:48px;
+			line-height:48px
+		}
+
+		div.flow-container-over{
+			border-color:#dedede
+		}
+		.oper1{
+			position:absolute;
+			top:0;right:0;
+			font-size:16px
+		}
+		.oper2{
+			position:absolute;
+			top:16px;right:0;
+			font-size:16px
+		}
+		
+		table.table-form{
+			
+		}
+
+		table.table-form tbody tr td{
+			border:1px solid #727272;
+			height:32px;
+			padding:5px 0 5px 0;
+			word-break:break-all;
+			word-wrap:break-word;
+		}
+		
+		table.table-form tbody tr{
+			height:36px
+		}
+	
+		table.table-form tbody tr td{
+			background:rgb(255,255,255)
+		}
+		.table-form-td-selected{
+			background:#66ccff !important
+		}
+
+		img.img-text-align{
+			margin:0 6px;
+			border:1px solid #fff;
+		}
+
+		img.img-text-align:hover{
+			border:1px solid #ff6600
+		}
+
+		img.img-text-align-selected{
+			border:1px solid #ff6600
+		}
+
+
+		.form-input{
+			background:#ffebbf !important;
+			margin:0 4px !important;
+			width:calc(100% - 10px) !important;
+			min-height:16px;
+			height:100% !important;
+
+		}
+		.browser-default{
+			margin:0 
+		}
+
+		#form_body select{
+			height:24px;
+			padding:0 5px
+		}
+		
+		table.table-mul{
+			width: calc(100% - 10px);
+			margin:0 auto
+		}
+
+		table.table-mul thead tr{
+			height:24px
+		}
+		table.table-mul tbody tr{
+			height:28px;
+			
+		}
+
+		table.table-mul thead tr th{
+			text-align:center;
+			border:1px solid #b4b4b4;
+			padding:0;
+			background:#dbf2fb;
+			font-weight:400
+		}
+		table.table-mul tbody tr td{
+			
+		}
+			
+
+		.contextmenu li:hover {
+			background: #91C9F7
+		}
+
+		.contextmenu {
+			display: none;
+			position: absolute;
+			width: 150px;
+			border:1px solid #e0e0e0;
+			background: #f5f5f5;
+	
+			overflow: hidden;
+			z-index: 99;
+			font-size:11px
+		}
+
+		
+		.contextmenu li{ 
+			transition: ease 0.3s;
+			white-space:nowrap;
+		}
+
+		.contextmenu li:not(:last-of-type){ 
+			border-bottom:1px solid #d3d3d3
+		}
+		
+
+	
+		.contextmenu li a {
+			display: inline-block;
+			padding: 6px 6px 6px 20px;
+			width:150px;
+			min-width:150px;
+		
+			color: #000000;
+			text-decoration: none;
+			transition: ease 0.3s;
+			
+		}
+			
+		
+		
+	</style>
+	
+</head>
+
+<body>
+
+<div class = 'row'>
+	
+	<div class = 'col s12'  id = 'tool'>
+
+		<div class = 'row'>
+			
+			<div class = 'col s6'>
+				
+				<button class = 'btn btn-default' id = 'new_table'> 新增表格 </button>
+				<button class = 'btn btn-default' id = 'merge' > 合并 </button>
+				<button class = 'btn btn-default' id = 'restore'  > 还原 </button>
+				<button class = 'btn btn-default' id = 'insert' disabled > 插入重复表 </button>
+				<button class = 'btn btn-primary' id = 'next' > 下一步 </button>
+			</div>
+			<div class = 'col s1'>流程名称</div>
+			<div class = 'col s5' >
+				<input type = 'text' id = 'flow_name' class = 'aya-input' style = 'width:100%' value = '{$form.title}'/>
+			</div>
+		</div>
+	</div>
+
+	<div class = 'col s12' id = 'form_body' style = 'padding:0 50px'>
+		{$form.form|raw}
+	</div>
+</div>
+
+<input type = 'hidden' id = 'id' value = '{$form.id}'/>
+
+		<ul class="contextmenu" id = 'contextmenu1'>
+			<li><a href="javascript:void(0)" id = 'line-height'>行高</a></li>
+			<li><a href="javascript:void(0)" id = 'row-width'>列宽</a></li>
+			<li><a href="javascript:void(0)" id = 'insert-col-down'>插入一行（下边）</a></li>
+			<li><a href="javascript:void(0)" id = 'insert-col-up'>插入一行（上边）</a></li>
+			<li><a href="javascript:void(0)" id = 'insert-row-right'>插入一列（右边）</a></li>
+			<li><a href="javascript:void(0)" id = 'insert-row-left'>插入一列（左边）</a></li>
+			<li><a href="javascript:void(0)" id = 'dlt-col'>删除行</a></li>
+			<li><a href="javascript:void(0)" id = 'dlt-row'>删除列</a></li>
+		</ul>
+
+
+		<ul class="contextmenu" id = 'contextmenu2'>
+			<li><a href="javascript:void(0)" id = 'line-height-mul'>行高（重复表）</a></li>
+			<li><a href="javascript:void(0)" id = 'row-width-mul'>列宽（重复表）</a></li>
+			<li><a href="javascript:void(0)" id = 'insert-col-mul'>插入一行</a></li>
+		</ul>
+
+<script>
+
+	//function get_parent(){
+		//return {app:1}
+	//}
+
+	//top.mainPage = 1;
+	
+	let app = {
+
+		rightClickedO : {},
+
+		rightClickedOriginWidth : 0,
+
+		id : {$form.id},
+
+		c : {},
+
+		add : function(){
+			let tmp = "<div class = 'col s12 noselect relative flow-container' data-width = 's12' data-type = 'text'>请输入文字</div>";
+			$('#form').append(tmp);
+		},
+
+		layerIndex : 0,	
+		
+		option : '',
+
+		cornerClicked : false,
+
+		isShift: false,
+
+		isCtrl : false,
+
+		startTd : null,
+
+		endTd : null,
+
+		colrow : new Map(),
+
+		tdWidth : {$form.td_width|raw},
+
+		showXY : function(){
+			$('td').each(function(){
+				let tmp = $(this).attr('data-x') + ':' + $(this).attr('data-y');
+				$(this).text(tmp);
+			});
+		},
+		
+
+		//选择TD后判断 是merge 还是 restor 的按钮可以显示
+
+		set_merge_restore_button : function( merge = true, restore = true){
+			$('#merge').attr('disabled',merge);
+			$('#restore').attr('disabled',restore);
+		},
+
+		checkInsert : function(){
+			if( $('.table-form-td-selected').length == 1 ){
+				 $('#insert').attr('disabled',false);
+			}else{
+				 $('#insert').attr('disabled',true);
+			}
+		},
+
+		checkMR: function(){
+			app.checkInsert();
+			app.set_merge_restore_button();
+			if( $('.table-form-td-selected').length == 0 ) return false;
+			$('.table-form-td-selected').each(function(){
+				if( parseInt($(this).attr('colspan')) > 1 || parseInt($(this).attr('rowspan')) > 1 ){
+					app.set_merge_restore_button(true,false);
+					return false;
+				}	
+			});	
+			if( $('.table-form-td-selected').length == 1 ) return false;
+			let firstTd = $('.table-form-td-selected').eq(0);
+			let lastTd  = $('.table-form-td-selected').eq( $('.table-form-td-selected').length - 1 );
+			let top = parseInt(firstTd.attr('data-y'));
+			let left = parseInt(firstTd.attr('data-x'));
+			let right = parseInt(lastTd.attr('data-x'));
+			let bottom = parseInt(lastTd.attr('data-y'));
+			let canMerge = true;
+			if(left > right) return false;
+			$('.table-form-td-selected').each(function(){
+				let x = parseInt($(this).attr('data-x'));
+				let y = parseInt($(this).attr('data-y'));
+				if( x < left || x > right || y < top || y > bottom ){
+					canMerge = false;
+					return false;
+				}
+			});
+
+			if( (bottom - top + 1) * (right - left + 1) != $('.table-form-td-selected').length ){
+				canMerge = false;
+			}
+
+			if(canMerge) app.set_merge_restore_button(false,true);
+		},
+		
+
+		// 增加 TD 选择标识
+		create_current_border : function(){
+			app.create_current_border_do(app.startTd,app.endTd);
+			app.checkMR();
+		},
+
+		create_current_border_do : function(start,end){
+
+			let index1 = $(start).parents('table').attr('data-index');
+			let index2 = $(end).parents('table').attr('data-index');
+
+			if(index1 != index2) return false;
+
+			let left = parseInt($(start).attr('data-x'));
+			let top = parseInt($(start).attr('data-y'));
+			let right = parseInt($(end).attr('data-x'));
+			let bottom = parseInt($(end).attr('data-y'));
+
+			
+			$(start).parents('table').find('td').each(function(){
+				let x = parseInt($(this).attr('data-x'));
+				let y = parseInt($(this).attr('data-y'));
+				if( x >= left && x <= right && y >= top && y <= bottom) $(this).addClass('table-form-td-selected');
+			});
+
+		},
+		// 创建新表
+		create_table:function(w,h,width){
+
+			//app.tdWidth = new Map();
+		
+			width = Math.round(width / w) * w;
+
+			let tdWidth = width / w - 2;
+
+			
+
+			let tmp = "<table class = 'table-form table noselect' style = 'margin:auto;width:"+(width+ 1)+"px'><tbody>";
+			for(let i = 0 ; i < h ; i++){
+				tmp += "<tr>";
+
+				for(let j = 0; j < w ; j++){
+					tmp += "<td  style = 'text-align:center;vertical-align:middle;max-width:"+tdWidth+"px;min-width:"+tdWidth+"px' colspan = 1 rowspan = 1 data-x = "+j+" data-y = "+i+" data-type = 'text' ></td>";
+				}
+				tmp += "</tr>";
+			}
+			tmp += "</tbody></table>";
+			$('#form_body').append(tmp);
+			app.table_index();
+			
+
+
+		},
+		// 创建 table index
+		table_index : function(){
+			let max = -1;
+			let newTableIndex = 0;
+
+			for(let i = 0 ; i < $('.table-form').length; i++){
+				if( $('.table-form').eq(i).attr('data-index') ){
+					let tmp = parseInt($('.table-form').eq(i).attr('data-index'));
+					if( tmp > max) max = tmp;
+				}else{
+					newTableIndex = i;
+				}
+			}
+			max++;
+			$('.table-form').eq(newTableIndex).attr('data-index',max);
+			let minWidth = $('.table-form').eq(newTableIndex).find('td').eq(0).width();
+			let tdLength = $('.table-form').eq(newTableIndex).find('tr').eq(0).children().length;
+			
+			let tmp = {};
+			for(let i = 0; i < tdLength; i++){
+				tmp[i] = minWidth;
+			}
+			app.tdWidth[newTableIndex] = tmp;
+		},
+
+		// 合并 TD
+		merge : function(){			
+			let firstTd = $('.table-form-td-selected').eq(0);
+			let lastTd = $('.table-form-td-selected').eq( $('.table-form-td-selected').length - 1 );
+			let colspan = firstTd.parent().find('.table-form-td-selected').length;
+			let firstTrIndex = firstTd.parent().index();
+			let lastTrIndex = lastTd.parent().index();
+			let rowspan = lastTrIndex - firstTrIndex + 1;
+			firstTd.attr('colspan',colspan).attr('rowspan',rowspan);
+			$('.table-form-td-selected:not(:first)').remove();
+			app.set_merge_restore_button(true,false);
+			app.checkInsert();
+			app.re_draw($(firstTd).parents('table').attr('data-index'));
+
+		},
+		// 还原 TD
+		restore : function(){
+			$('.table-form-td-selected').each(function(){
+				if( parseInt($(this).attr('colspan')) > 1 || parseInt($(this).attr('rowspan')) > 1){
+					app.restore_td(this);
+				}
+			});
+			//$('#form_body').html( $('#form_body').html() );
+			//app.recal_colrow();
+			app.checkInsert();
+			app.re_draw($('.table-form-td-selected').eq(0).parents('table').attr('data-index'));
+		},
+
+		restore_td : function( td ){
+			let x = parseInt($(td).attr('data-x'));
+			let y = parseInt($(td).attr('data-y'));
+			let colspan = parseInt($(td).attr('colspan'));
+			let rowspan = parseInt($(td).attr('rowspan'));
+			let table = $(td).parents('table');
+			let trs = table.find('tbody').eq(0).children();
+			let tdHTML = "";
+			let tableIndex =  $(td).parents('.table-form').data('index');
+			
+			let xs = 0;
+			$.each(app.tdWidth[tableIndex],function(i,v){
+				xs++;
+			});
+		
+			
+			for( let j = y ; j < y + rowspan ; j++){
+				
+				tdHTML = '';
+				for( let i = x ; i < x + colspan; i++){
+					tdHTML += "<td style = 'text-align:center;vertical-align:middle;min-width:"+app.tdWidth[tableIndex][x]+"px;max-width:"+app.tdWidth[tableIndex][x]+"px'  colspan = 1 rowspan = 1 data-x = '"+i+"' data-y = '"+j+"' data-type = 'text' ></td>";
+				}
+				let tds = trs.eq(j).children();
+				if( x + colspan == xs){
+					trs.eq(j).append(tdHTML);
+				}else{
+					
+					for(let i = 0; i < tds.length; i++){
+						let thisX = parseInt(tds.eq(i).attr('data-x'));
+						if( thisX == x + colspan){
+							tds.eq(i).before(tdHTML);
+							break;
+						}else if( i + 1 == tds.length){
+							tds.eq(i).after(tdHTML);
+							break;
+						}
+					}
+				}
+				
+			}
+			$(td).remove();
+			
+		},
+
+		type_content : function(type){
+			let content = "";
+			
+			// 文字
+			content += "<div class = 'row content-type' id = 'type-text'><div class = 'col s3'>文字内容</div><div class = 'col s9'><input type = 'text' class = 'aya-input' id = 'text' /></div></div>";
+			content += "<div class = 'row content-type' id = 'type-input'><div class = 'col s3'>输入框属性</div><div class = 'col s9'><input type = 'text' class = 'aya-input' id = 'input' /></div></div>";
+				
+			let selectType = {$select|raw};
+				
+			let option = "";
+			for( let s of selectType ){
+				option += "<option value = '"+s.id+"'>"+s.name+"</option>";
+			}
+
+			content += "<div class = 'row content-type' id = 'type-select'><div class = 'col s3'>选择框类型</div><div class = 'col s9'><select id = 'select' class = 'browser-default'>"+option+"</select></div></div>";
+
+			content += "<div class = 'row content-type' id = 'type-checkbox'><div class = 'col s3'>复选框</div><div class = 'col s4'><select id = 'checkbox' class = 'browser-default'></select></div><div class = 'col s5'  style = 'text-align:left;padding-top:6px'><i class='material-icons text-color2' id = 'check-add' >add_box</i><i class='material-icons text-color5' style = 'margin-left:20px' id = 'check-edit' >build</i><i class='material-icons text-color3' style = 'margin-left:20px' id = 'check-dlt' >clear</i></div></div>";
+
+			content += "<div class = 'row content-type' id = 'type-radio'><div class = 'col s3'>单选框</div><div class = 'col s4'><select id = 'radio' class = 'browser-default'></select></div><div class = 'col s5'  style = 'text-align:left;padding-top:6px'><i class='material-icons text-color2' id = 'radio-add' >add_box</i><i class='material-icons text-color5' style = 'margin-left:20px' id = 'radio-edit' >build</i><i class='material-icons text-color3' style = 'margin-left:20px' id = 'radio-dlt' >clear</i></div></div>";
+
+			return content;
+		},
+
+		select_type_content : function(type = 'text'){
+			$('.content-type').hide();
+			$('#type-' + type).show();
+			if(type == 'text'){
+				$('#text').focus();
+			}else if(type == 'input'){
+				$('#input').focus();
+			}
+		},
+
+		edit : function(){
+			let that = $('.table-form-td-selected').eq(0);
+			$('.table-form-td-selected').addClass('table-form-td-selected2').removeClass('table-form-td-selected');
+				
+			let tdType = that.attr('data-type');
+			let content = "<div class = 'row new-container' >";
+			let align = [
+				{ title: '左对齐' , img : 'text_align_left' , align : 'left', id : 'text-align'},
+				{ title: '水平居中' , img : 'text_align_center' , align : 'center',id : 'text-align'},
+				{ title: '右对齐' , img : 'text_align_right' , align : 'right',id : 'text-align'},
+				{ title: '顶端对齐' , img : 'text_align_top' , align : 'top',id : 'vertical-align'},
+				{ title: '垂直居中' , img : 'text_align_middle' , align : 'middle',id : 'vertical-align'},
+				{ title: '底部对齐' , img : 'text_align_bottom' , align : 'bottom',id : 'vertical-align'}
+			];
+			
+			let fontSize = [12,14,16,18,20,22,24,26,28,30,32,36,48];		
+			content += "<div class = 'col s3 font-bold'>对齐方式</div>";
+			// 对齐方式
+			for(let i in align){
+
+				if(i % 3 == 0) content += "<div class = 'col s4' style = 'text-align:center'>";
+				content += "<img  class = 'img-text-align' src = '__PUBLIC__/image/"+align[i].img+".png' data-css = '"+align[i].id+"' data-align = '"+align[i].align+"' title = '"+align[i].title+"'  />";
+				if(i % 3 == 2) content += "</div>";
+			}
+
+			//字体大小
+			content += "<div class = 'col s3 font-bold' STYLE = 'text-align:center;padding:0;'>文字大小</div><div class = 'col s3'><select id = 'font-size' class = 'browser-default'>";
+			for(let i in fontSize){
+				content += "<option value = '"+fontSize[i]+"px'>"+fontSize[i]+"</option>";
+			}
+			content += "</select></div>";
+
+			//文字粗细
+			content += "<div class = 'col s3 font-bold'>文字粗细</div><div class = 'col s3'><select id = 'font-weight'  class = 'browser-default' ><option value = '200'>偏细</option><option value = '400'>正常</option><option value = '600'>加粗</option></select></div>";
+	
+			//文字颜色
+			content += "<div class = 'col s3 font-bold'>文字颜色</div><div class = 'col s3' style = 'vertical-align:middle'><div  id = 'edit-color' style = 'height:24px;margin-top:3px ;background:"+that.css('color')+";width:100%;'></div></div>";
+
+			//背景颜色
+			content += "<div class = 'col s3 font-bold'>背景颜色</div><div class = 'col s3'><div id = 'edit-background'  style = 'border:1px solid #000;height:24px;background:"+that.css('background-color')+";display:inline-block;width:100%;margin-top:3px'></div></div>";
+			
+			//类型
+			let type = [
+				{ name : '文字' ,value : 'text'},
+				{ name : '输入框' , value : 'input'},
+				{ name : '选择框' , value : 'select' },
+				{ name : '复选框' , value : 'checkbox'},
+				{ name : '单选框' , value : 'radio'},
+			];
+
+			content += "<div class = 'col s3 font-bold'>类型</div><div class = 'col s3'><select id = 'type' class = 'browser-default'>";
+					
+			for( let t of type){
+				content += "<option value = '"+t.value+"' >"+t.name+"</option>";
+			}
+			content += "</select></div>";
+
+
+			//类型对应内容
+			
+			if( $('.table-form-td-selected2').length == 1){
+				content += "<div class = 'col s12' id = 'type_content' >"+app.type_content('text')+"</div>";
+			}
+
+
+			content += "<input type = 'hidden' id = 'text-align' /><input type = 'hidden' id = 'vertical-align' /><input type = 'hidden' id = 'background' /><input type = 'hidden' id = 'color' />";
+
+			content += "</div>";
+
+			
+
+			layer.open({
+				skin: 'layer-edit-container',
+				title : '编辑',
+				offset : ['0px'],
+				area  : ['600px',"100%"],
+				type  : 1,
+				btn   : ['确定'],
+				isOutAnim: false,
+				content : content,
+				shadeClose:true,
+				success : function(layero,index){
+					app.layerIndex = index;
+					
+					//文字对齐方式
+					$('.new-container img').click(function(){
+						$(this).parent().children().removeClass('img-text-align-selected');
+						$(this).addClass('img-text-align-selected');
+						$('.table-form-td-selected').css($(this).data('css'),$(this).data('align'));
+						$('#'+$(this).data('css')).val($(this).data('align'));
+					});
+					$('#text-align').val($('.table-form-td-selected2').eq(0).css('text-align'));
+					$('#vertical-align').val($('.table-form-td-selected2').eq(0).css('vertical-align'));
+
+					let tdTextAlign = $('.table-form-td-selected2').eq(0).css('text-align');
+					let tdVerticalAlign = $('.table-form-td-selected2').eq(0).css('vertical-align');
+					let fontSize = $('.table-form-td-selected2').eq(0).css('font-size');
+					let fontWeight = $('.table-form-td-selected2').eq(0).css('font-weight');
+
+					$('.img-text-align').each(function(){
+						if( $(this).data('align') == tdTextAlign || $(this).data('align') == tdVerticalAlign){
+							$(this).addClass('img-text-align-selected');
+						}
+					});
+
+					$('#font-size').val(fontSize);
+					$('#font-weight').val(fontWeight);
+
+						
+				
+					//文字颜色 调色板
+					let color = rgb2hex($('#edit-color').css('background-color'));
+					$('#color').val( color );
+					$('#edit-color').paigusu({
+						color : color
+					},function(event,obj){
+						$(event).css('background','#' + obj.hex);
+						$('#color').val('#' + obj.hex);
+						$('.table-form-td-selected').css('color','#' + obj.hex);
+					});
+						
+					//背景颜色 调色板
+					let backgroundColor = rgb2hex($('#edit-background').css('background-color'));
+					$('#edit-background').paigusu({
+						color : backgroundColor
+					},function(event,obj){
+						$(event).css('background','#' + obj.hex);
+						$('#background').val('#' + obj.hex);
+						$('.table-form-td-selected').css('background','#' + obj.hex);						
+					});
+
+					$('#background').val( backgroundColor );
+					
+
+				
+					app.select_type_content(tdType);
+					$('#type').val(tdType);
+
+					// 文字
+					let option = '';
+					if( $('.table-form-td-selected2').length == 1 ){
+						
+						switch(tdType){
+							case 'text':
+								$('#text').val($('.table-form-td-selected2').eq(0).text()).focus();
+							break;
+							case 'input':
+								$('#input').val($('.table-form-td-selected2').eq(0).attr('data-attr')).focus();
+							break;
+							case 'checkbox':
+								option = '';
+								$('.table-form-td-selected2').eq(0).find('input').each(function(){
+									let tmp = $(this).data('i');
+									if(tmp){
+										option += "<option data-i = '"+tmp+"'>"+$(this).data('name')+"</option>";
+									}else{
+										option += "<option>"+$(this).data('name')+"</option>";
+									}
+								});
+								if(option != '') $('#checkbox').append(option);
+							break;
+							case 'radio':
+								option = '';
+								$('.table-form-td-selected2').eq(0).find('input').each(function(){
+									let tmp = $(this).data('i');
+									if(tmp){
+										option += "<option data-i = '"+tmp+"'>"+$(this).data('name')+"</option>";
+									}else{
+										option += "<option>"+$(this).data('name')+"</option>";
+									}
+								});
+								if(option != '') $('#radio').append(option);
+							break;
+							default:
+
+						}
+
+
+					}
+
+					// checkbox 增加事件
+					$('#check-add').click(function(){
+						layer.open({
+							skin: 'layer-search-container',
+							title : '增加复选框选项',
+							offset : ['30%'],
+							shadeClose:true,
+							area  : ['400px',"200px"],
+							content : "<div class = 'row'><div class = 'col s4'>复选框选项：</div><div class = 'col s8'><input type = 'text' class = 'aya-input' id = 'checkbox-name' /></div></div>",
+
+							yes : function (index,layero){
+								let tmp = $.trim($('#checkbox-name').val());
+								if(tmp != ''){
+									$('#checkbox').append("<option value = '"+tmp+"'>" + tmp + "</option>").val(tmp);
+									$('#checkbox-name').val('');
+								}
+							}
+						});
+					});
+
+					$('#check-edit').click(function(){
+
+						layer.prompt( {
+							title : '修改复选框',
+							offset : ['20%'],
+							value : $('#checkbox option:selected').text(),
+						},function(value,index){
+							value = $.trim(value);
+							if(value == '') return false;
+							$('#checkbox option:selected').text(value);
+							layer.close(index);
+						} );
+					});
+
+					$('#check-dlt').click(function(){
+						$('#checkbox option:selected').remove();
+					});
+
+					// radio 增加事件
+					$('#radio-add').click(function(){
+						layer.open({
+							skin: 'layer-search-container',
+							title : '增加单选框选项',
+							offset : ['30%'],
+							shadeClose:true,
+							area  : ['400px',"200px"],
+							content : "<div class = 'row'><div class = 'col s4'>单选框选项：</div><div class = 'col s8'><input type = 'text' class = 'aya-input' id = 'radio-name' /></div></div>",
+							
+							yes : function (index,layero){
+								let tmp = $.trim($('#radio-name').val());
+								if(tmp != ''){
+									$('#radio').append("<option value = '"+tmp+"'>" + tmp + "</option>").val(tmp);
+									$('#radio-name').val('');
+								}
+								
+							}
+						});
+					});
+
+					$('#radio-edit').click(function(){
+						layer.prompt( {
+							title : '修改单选框',
+							offset : ['20%'],
+							value : $('#radio option:selected').text(),
+						},function(value,index){
+							value = $.trim(value);
+							if(value == '') return false;
+							$('#radio option:selected').text(value);
+							layer.close(index);
+						} );
+					});
+
+					$('#radio-dlt').click(function(){
+						$('#radio option:selected').remove();
+					});
+
+					// 文字模式下，按回车事件
+					$('#text').keypress(function(e){
+						if(e.charCode == 13){
+							app.yes();
+						}
+					});
+
+					// 输入框模式下，按回车事件
+					$('#input').keypress(function(e){
+						if(e.charCode == 13){
+							app.yes();
+						}
+					});
+
+
+
+					$('#type').change(function(){
+						app.select_type_content($(this).val());
+					});
+					
+
+					$('.table-form-td-selected2').addClass('table-form-td-selected').removeClass('table-form-td-selected2');
+
+				},
+					
+				yes : function(index,layero){
+					app.yes();
+					
+				},
+				cancel : function(index,layero){
+					layer.close(index);
+					
+				}
+			});
+		},
+
+		yes : function(){
+			
+			let css = ['font-size','font-weight','color','background','text-align','vertical-align',];
+			let css2 = {};
+			for( let i in css){
+				css2[ css[i] ] = $('#' + css[i]).val();
+			}
+			
+			$('td.table-form-td-selected').css(css2);
+			let type = $('#type').val();
+
+			switch( type ){
+				case 'text' :
+					let text = $('#text').val();
+					$('td.table-form-td-selected').text( text ).attr('data-type','text');
+				break;
+				case 'input' :
+					let inputAttr = $.trim($('#input').val());
+					if(inputAttr == ''){
+						//layer_error({info:'输入框属性不能为空'});
+						//return false;
+					}
+					$('td.table-form-td-selected').html("<input readonly noselect type = 'text' class = 'aya-input form-input' />").attr('data-attr',inputAttr).attr('data-type','input');
+				break;
+				case 'select' :
+					$('td.table-form-td-selected').html("<select class='browser-default'><option>"+$("#select").find("option:selected").text()+"</option></select>");
+					$('td.table-form-td-selected').attr('data-select',$('#select').val()).attr('data-type','select').attr('data-name',$("#select").find("option:selected").text());
+				break;
+				case 'checkbox' : 
+					let checkboxHTML = '';
+					$('#checkbox option').each(function(i,v){
+						let checkboxName  = $(this).text();
+						let thisI = $(this).data('i')?$(this).data('i'):'';
+						
+						if(i + 1 == $('#checkbox option').length){
+							checkboxHTML += $(this).text() + " <input data-i = '"+thisI+"' data-name = '"+checkboxName+"' type='checkbox' class = 'aya-checkbox'> ";
+						}else{
+							checkboxHTML += $(this).text() + " <input data-i = '"+thisI+"'  data-name = '"+checkboxName+"' type='checkbox' class = 'aya-checkbox' style = 'margin-right:24px'> ";
+						}
+					});
+					$('td.table-form-td-selected').html(checkboxHTML);
+					$('td.table-form-td-selected').attr('data-type','checkbox');
+				break;
+				case 'radio' : 
+					let radioHTML = '';
+					let date = new Date();
+					let radioGrou = 'r' + date.getTime();
+					$('#radio option').each(function(i,v){
+						let radioName  = $(this).text();
+						let thisI = $(this).data('i')?$(this).data('i'):'';
+						
+						if(i + 1 == $('#checkbox option').length){
+							radioHTML += "<p style = 'display:inline-block'>" + $(this).text() + " <input data-i = '"+thisI+"' name = '"+radioGrou+"' data-name = '"+radioName+"' type='radio' class = 'aya-radio'></p> ";
+						}else{
+							radioHTML += "<p style = 'display:inline-block'>" + $(this).text() + " <input data-i = '"+thisI+"' name = '"+radioGrou+"' data-name = '"+radioName+"' type='radio' class = 'aya-radio' style = 'margin-right:24px'></p> ";
+						}
+								
+					});
+					$('td.table-form-td-selected').html(radioHTML);
+					$('td.table-form-td-selected').attr('data-type','radio');;
+
+				break;
+				default:
+			}
+			$('.table-form-td-selected').attr('data-type',type);
+			$('.table-form-td-selected').removeClass('table-form-td-selected');
+	
+			layer.close(app.layerIndex);
+		},
+
+		re_draw : function(tableIndex){
+			let tdWidth = app.tdWidth[tableIndex];
+			$('.table-form').each(function(){
+				if( $(this).attr('data-index') == tableIndex ){
+					$(this).find('td').each(function(){
+						let colspan = parseInt($(this).attr('colspan'));
+						let x = parseInt($(this).attr('data-x'));
+						if(colspan == 1){
+
+							$(this).css('min-width',tdWidth[x]).css('max-width',tdWidth[x]);
+						}else{
+							let tmp = 0;
+							for(let i = x; i < x + colspan; i++){
+								tmp += tdWidth[i];
+							}
+							$(this).css('min-width',tmp).css('max-width',tmp);
+						}
+						
+					});
+				}
+			});
+		},
+
+		ini : function(){
+			// 右键菜单	
+			$('#form_body').on('contextmenu','td',function(e){
+				$(".contextmenu").hide();
+
+				app.rightClickedO = this;
+				
+				if($(this).parents('table').hasClass('table-mul')){
+					
+					var mouseX = e.pageX;
+					var mouseY = e.pageY;
+					$("#contextmenu2").css({
+						"left": mouseX,
+						"top":  mouseY
+					}).show();
+					return false;
+					
+				}else{
+					var mouseX = e.pageX;
+					var mouseY = e.pageY;
+					$("#contextmenu1").css({
+						"left": mouseX,
+						"top":  mouseY
+					}).show();
+					return false;
+				}
+				
+			});
+
+			
+			$('#form_body').on('contextmenu','th',function(e){
+				$(".contextmenu").hide();
+				if($(this).parents('table').hasClass('table-mul')){
+					app.rightClickedO = this;
+					var mouseX = e.pageX;
+					var mouseY = e.pageY;
+					$("#contextmenu2").css({
+						"left": mouseX,
+						"top":  mouseY
+					}).show();
+					return false;
+				}
+				
+			});
+
+			$(document).click(function() {
+				$(".contextmenu").hide();
+			});
+			// 右键菜单	- 结束
+
+			//删除列
+			$('#dlt-row').click(function(){
+				let tableIndex = $(app.rightClickedO).parents('.table-form').data('index');
+				let x = parseInt($(app.rightClickedO).data('x'));
+				let width = app.tdWidth[tableIndex][x];
+
+				let borderLeftWidth = parseInt($(app.rightClickedO).css('border-left-width'));
+				let borderRightWidth = parseInt($(app.rightClickedO).css('border-right-width'));
+			
+			
+				$('.table-form').each(function(){
+					if($(this).data('index') != tableIndex) return true;
+					let tr = $(this).find('tbody').eq(0).children();
+					tr.each(function(){
+						$(this).children().each(function(){
+							let thisX = parseInt($(this).attr('data-x'));
+							let thisC = parseInt($(this).attr('colspan'));
+							if( thisX <= x && thisX + thisC - 1 >= x){
+								if( thisC == 1){
+									$(this).remove();
+									return false;
+								}else{
+									$(this).attr('colspan',--thisC).css('min-width',width).css('max-width',width);
+								}
+							} 
+						});
+						
+					});
+
+					$(this).find('td').each(function(){
+						if( $(this).parents('table').hasClass('table-mul') ) return true;
+						let thisX = parseInt($(this).attr('data-x'));
+						if(thisX > x) $(this).attr('data-x',--thisX);
+					});
+
+					$(this).width( $(this).width() - app.tdWidth[tableIndex][x] - borderLeftWidth - borderRightWidth);
+
+					log( $(this).width(),false);
+					log(app.tdWidth[tableIndex][x],false);
+					
+				});
+
+				
+				
+
+				let tmp = {};
+
+				$.each(app.tdWidth[tableIndex],function(i,v){
+					if( i < x){
+						tmp[i] = v;
+					}else if(i > x){
+						tmp[i - 1] = v;
+					}
+				});
+				app.tdWidth[tableIndex] = tmp;
+
+			
+			});
+
+			//删除列 - 结束
+
+
+			//删除行
+
+			$('#dlt-col').click(function(){
+				let tableIndex = $(app.rightClickedO).parents('.table-form').data('index');
+				let y = parseInt($(app.rightClickedO).data('y'));
+				$('.table-form').each(function(){
+					if($(this).data('index') != tableIndex) return true;
+					let tr = $(this).find('tbody').eq(0).children().eq(y);
+					tr.children().each(function(){
+						let thisR = parseInt($(this).attr('rowspan'));
+						if(thisR > 1){
+							let thisX = parseInt( $(this).attr('data-x') );
+							let thisW = $(this).width();
+							let thisC = $(this).attr('colspan');
+							let thisY = $(this).attr('data-y');
+							tr.next().children().each(function(){
+								let x = parseInt( $(this).attr('data-x') );
+								let c = parseInt( $(this).attr('colspan'));
+								let y = $(this).attr('data-y');
+								
+								if( x + c == thisX ){
+									$(this).after("<td style='text-align:center;vertical-align:middle;max-width:"+thisW+"px;min-width:"+thisW+"px' data-x = '"+thisX+"' data-y = '"+thisY+"' data-type = 'text' colspan = '"+thisC+"' rowspan = '"+(thisR-1)+"'></td>");
+									return false;
+								}
+							});
+						}
+					});
+
+					$(this).find('td').each(function(){
+						if( $(this).parents('table').hasClass('table-mul') ) return true;
+						let thisR = parseInt($(this).attr('rowspan'));
+						let thisY = parseInt($(this).attr('data-y'));
+						if( thisY < y && thisY + thisR > y){
+							$(this).attr('rowspan',--thisR);
+						}
+					});
+
+
+					$(this).find('td').each(function(){
+						if( $(this).parents('table').hasClass('table-mul') ) return true;
+						let thisY = parseInt($(this).attr('data-y'));
+						if( thisY > y ){
+
+							
+							
+							$(this).attr('data-y',--thisY);
+						}
+						
+					});
+
+					$(this).find('tbody').eq(0).children().eq(y).remove();
+
+					
+				});
+			});
+
+			//删除行 - 结束
+
+			// 下面插入一行
+			$('#insert-col-down').click(function(){
+				let tableIndex = $(app.rightClickedO).parents('.table-form').data('index');
+				let y = parseInt($(app.rightClickedO).data('y'));
+				let rowspan = $(app.rightClickedO).attr('rowspan');
+				let tmpTdWidth = {};
+				$(app.rightClickedO).parents('tr').children().each(function(){
+					let tmpX = $(this).attr('data-x');
+					let tmpC = $(this).attr('colspan');
+					let tmpR = $(this).attr('rowspan');
+					let tmpW = $(this).width();
+					tmpTdWidth[tmpX] = {x:tmpX,c:tmpC,r:tmpR,w:tmpW} ;
+				});
+				$('.table-form').each(function(){
+					if($(this).data('index') != tableIndex) return true;
+					$(this).find('td').each(function(){
+						if( $(this).parents('table').hasClass('table-mul') ) return true;
+
+						let thisY = parseInt($(this).attr('data-y'));
+						let thisR = parseInt($(this).attr('rowspan'));
+
+						if( thisY > y ){
+							$(this).attr('data-y',++thisY);
+						}
+
+						if( thisR  > 1){
+							if( thisY <= y && thisY + thisR - 1 >= y ){
+								$(this).attr('rowspan',++thisR);
+							}
+						}
+					});
+
+					let tmp = "<tr>";
+					$.each(tmpTdWidth,function(i,v){
+						if(v.r > 1) return true;
+						tmp += "<td data-x = '"+v.x+"' data-y = '"+(y+1)+"' colspan = '"+v.c+" rowspan = '1' style = 'text-align:center;vertical-align:middle;max-width:"+v.w+"px;min-width:"+v.w+"px'></td>";
+					});
+					tmp += "</tr>";
+					$(app.rightClickedO).parents('tr').after(tmp);
+
+				});
+				
+			});
+			// 下面插入一行 - 结束
+
+			// 上面插入一行
+			$('#insert-col-up').click(function(){
+				let tableIndex = $(app.rightClickedO).parents('.table-form').data('index');
+				let y = parseInt($(app.rightClickedO).data('y'));
+				let rowspan = $(app.rightClickedO).attr('rowspan');
+				let tmpTdWidth = {};
+				$(app.rightClickedO).parents('tr').children().each(function(){
+					let tmpX = $(this).attr('data-x');
+					let tmpC = $(this).attr('colspan');
+					let tmpR = $(this).attr('rowspan');
+					let tmpW = $(this).width();
+					tmpTdWidth[tmpX] = {x:tmpX,c:tmpC,r:tmpR,w:tmpW} ;
+				});
+				$('.table-form').each(function(){
+					if($(this).data('index') != tableIndex) return true;
+					$(this).find('td').each(function(){
+						if( $(this).parents('table').hasClass('table-mul') ) return true;
+
+						let thisY = parseInt($(this).attr('data-y'));
+						let thisR = parseInt($(this).attr('rowspan'));
+
+						if( thisY >= y ){
+							$(this).attr('data-y',++thisY);
+						}
+
+						if( thisR  > 1){
+							if( thisY < y && thisY + thisR - 1 >= y ){
+								$(this).attr('rowspan',++thisR);
+							}
+						}
+					});
+
+					let tmp = "<tr>";
+					$.each(tmpTdWidth,function(i,v){
+						//if(v.r > 1) return true;
+						tmp += "<td data-x = '"+v.x+"' data-y = '"+(y)+"' colspan = '"+v.c+" rowspan = '1' style = 'text-align:center;vertical-align:middle;max-width:"+v.w+"px;min-width:"+v.w+"px'></td>";
+					});
+					tmp += "</tr>";
+					$(app.rightClickedO).parents('tr').before(tmp);
+
+				});
+				
+			});
+			// 上面插入一行 - 结束
+			
+
+			// 右边插入一列 
+			$('#insert-row-right').click(function(){
+				let tableIndex = $(app.rightClickedO).parents('.table-form').data('index');
+				let min = 99999999;
+				$.each(app.tdWidth[tableIndex],function(i,v){
+					if( v < min) min = v;
+				});
+				let newTdWidth = {};
+				let x = parseInt($(app.rightClickedO).attr('data-x'));
+				$.each(app.tdWidth[tableIndex],function(i,v){
+					i = parseInt(i);
+					if( i <= x){
+						newTdWidth[i] = v;
+					}else{
+						newTdWidth[i+1] = v;
+					}
+				});
+				newTdWidth[x+1] = min;
+				app.tdWidth[tableIndex] = newTdWidth;
+				let colspan = $(app.rightClickedO).attr('colspan');
+				$('.table-form').each(function(){
+					if($(this).data('index') != tableIndex) return true;
+					let thisTable = this;
+					$(this).find('td').each(function(){
+						if( $(this).parents('table').hasClass('table-mul') ) return true;
+						
+						let thisX = parseInt($(this).attr('data-x'));
+						let thisY = $(this).attr('data-y');
+						let thisC = parseInt($(this).attr('colspan'));
+						if(thisX == x){
+							if(thisC == 1 ){
+								$(this).after("<td style='text-align:center;vertical-align:middle;max-width:"+min+"px;min-width:"+min+"px' data-x = '"+(thisX+1)+"' data-y = '"+thisY+"' data-type = 'text'></td>");
+							}else{
+								$(this).attr('colspan',++thisC)
+							}
+						}else{	
+							if( thisX > x ){
+							
+								$(this).attr('data-x',++thisX);
+							
+								
+							}else{
+
+								if( thisX + thisC - 1 > x){
+									$(this).attr('colspan',++thisC)
+								}else if(thisX + thisC - 1 == x){
+									$(this).after("<td style='text-align:center;vertical-align:middle;max-width:"+min+"px;min-width:"+min+"px' data-x = '"+(thisX+thisC)+"' data-y = '"+thisY+"' data-type = 'text'></td>");
+								}
+							}
+						}	
+					});
+					
+					$(this).find('td').each(function(){
+						let thisR = parseInt($(this).attr('rowspan'));
+						let thisC = parseInt($(this).attr('colspan'));
+						let thisX = parseInt($(this).attr('data-x'));
+						let thisY = parseInt($(this).attr('data-y'));
+						if(thisR == 1) return true;
+						if(thisX > x) return true;
+						if(thisX == x){
+							if( thisC > 1) return true;
+							for( let i = thisY + 1; i < thisY + thisR ; i++){
+								let tmp = 0;
+								for(let j = 0 ; j < $(thisTable).find('tbody').eq(0).children().eq(i).children().length; j++){
+									let xx = parseInt($(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j).attr('data-x'));
+									let cc = parseInt($(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j).attr('colspan'));
+									if(xx > thisX){
+										log( xx + ':' + cc + ':' + thisC)
+										$(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j-1).after("<td style='text-align:center;vertical-align:middle;max-width:"+min+"px;min-width:"+min+"px' data-x = '"+xx+"' data-y = '"+i+"' data-type = 'text'></td>");
+										
+										break;
+									} 
+								}
+							}
+						}else{
+							if( thisX + thisC - 1 < x) return true;
+							for( let i = thisY + 1; i < thisY + thisR ; i++){
+								let tmp = 0;
+								for(let j = 0 ; j < $(thisTable).find('tbody').eq(0).children().eq(i).children().length; j++){
+									let xx = parseInt($(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j).attr('data-x'));
+									let cc = parseInt($(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j).attr('colspan'));
+									if(xx > thisX){
+										$(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j-1).after("<td style='text-align:center;vertical-align:middle;max-width:"+min+"px;min-width:"+min+"px' data-x = '"+(xx-1)+"' data-y = '"+i+"' data-type = 'text'></td>");
+										break;
+									} 
+								}
+							}
+						}
+
+
+					});
+				});
+
+
+
+			});
+			// 右边插入一列 - 结束
+
+			// 左边插入一列 
+			$('#insert-row-left').click(function(){
+				let tableIndex = $(app.rightClickedO).parents('.table-form').data('index');
+				let min = 99999999;
+				$.each(app.tdWidth[tableIndex],function(i,v){
+					if( v < min) min = v;
+				});
+
+				
+				let newTdWidth = {};
+				let x = parseInt($(app.rightClickedO).attr('data-x'));
+				$.each(app.tdWidth[tableIndex],function(i,v){
+					i = parseInt(i);
+					if( i < x){
+						newTdWidth[i] = v;
+					}else{
+						newTdWidth[i+1] = v;
+					}
+				});
+		
+				newTdWidth[x] = min;
+				app.tdWidth[tableIndex] = newTdWidth;
+				let colspan = $(app.rightClickedO).attr('colspan');
+				$('.table-form').each(function(){
+					if($(this).data('index') != tableIndex) return true;
+					let thisTable = this;
+					$(this).find('td').each(function(){
+						if( $(this).parents('table').hasClass('table-mul') ) return true;
+						
+						let thisX = parseInt($(this).attr('data-x'));
+						let thisY = $(this).attr('data-y');
+						let thisC = parseInt($(this).attr('colspan'));
+						if(thisX == x){
+							$(this).before("<td style='text-align:center;vertical-align:middle;max-width:"+min+"px;min-width:"+min+"px' data-x = '"+thisX+"' data-y = '"+thisY+"' colspan = 1 rowspan = 1 data-type = 'text'></td>");
+							$(this).attr('data-x',++thisX);
+
+						
+						}else{	
+							
+							if( thisX > x ){
+								$(this).attr('data-x',++thisX);
+							}else{
+								
+								if( thisX + thisC > x){
+									$(this).attr('colspan',++thisC)
+								}
+							}
+						}	
+					});
+	
+					x++;
+					$(this).find('td').each(function(){
+						
+						let thisR = parseInt($(this).attr('rowspan'));
+						let thisC = parseInt($(this).attr('colspan'));
+						let thisX = parseInt($(this).attr('data-x'));
+						let thisY = parseInt($(this).attr('data-y'));
+						if(thisR == 1) return true;
+						if(thisX > x) return true;
+
+					
+						if(thisX == x){
+							
+							for( let i = thisY + 1; i < thisY + thisR ; i++){
+								
+								let tmp = 0;
+								for(let j = 0 ; j < $(thisTable).find('tbody').eq(0).children().eq(i).children().length; j++){
+									let xx = parseInt($(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j).attr('data-x'));
+									let cc = parseInt($(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j).attr('colspan'));
+									if(xx > thisX){
+										let xxx = parseInt($(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j-1).attr('data-x'));
+										let ccc = parseInt($(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j-1).attr('colspan'));
+
+										$(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j-1).after("<td style='text-align:center;vertical-align:middle;max-width:"+min+"px;min-width:"+min+"px' data-x = '"+(xxx + ccc)+"' data-y = '"+i+"' data-type = 'text' colspan = 1 rowspan = 1></td>");
+										
+										break;
+									} 
+								}
+							}
+						}else{
+							if( thisX + thisC - 1 < x) return true;
+							for( let i = thisY + 1; i < thisY + thisR ; i++){
+								let tmp = 0;
+								for(let j = 0 ; j < $(thisTable).find('tbody').eq(0).children().eq(i).children().length; j++){
+									let xx = parseInt($(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j).data('x'));
+									let cc = parseInt($(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j).attr('colspan'));
+									if(xx > thisX){
+										//$(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j-1).after("<td style='text-align:center;vertical-align:middle;max-width:"+min+"px;min-width:"+min+"px' data-x = '"+xx+"' data-y = '"+i+"' data-type = 'text'></td>");
+										break;
+									} 
+								}
+							}
+						}
+
+
+					});
+
+
+				});
+
+
+
+				//log(app.tdWidth);
+
+
+				
+			});
+			// 左边插入一列 - 结束
+
+
+			//列宽 重复表
+
+			$('#row-width-mul').click(function(e){
+
+				$(".contextmenu").hide();
+				let width = $(app.rightClickedO).width();
+				
+				
+				$(app.rightClickedO).parents('table').find('th').each(function(){
+					let width = $(this).width;
+					$(this).css('min-width',width).css('max-width',width).css('width',width);
+				});
+					
+
+				
+			
+				layer.open({
+					title: '请输入列宽（重复表）',
+					offset: ['10%'],
+					area  : ['450px',"230px"],
+					shadeClose:true,
+					content : "<div class = 'row'><div class = 'col s6'>宽度 ：</div><div class = 'col s6'><input type = 'text' class = 'aya-input' id = 'td_width' value = '"+width+"' /></div><div class = 'col s12'>&nbsp;</div><div class = 'col s6'>影响相邻列宽位置：</div><div class = 'col s2'>左边 <input value ='l'  name = 'influence_lr' type='radio' class = 'aya-radio' /></div><div class = 'col s2'>右边 <input value = 'r' name = 'influence_lr' type='radio' class = 'aya-radio' /></div><div class = 'col s2'>全部 <input value = 'a' name = 'influence_lr' type='radio' class = 'aya-radio' checked /></div></div>",
+
+					success : function(){
+						let index = $(app.rightClickedO).index();
+						if(index == 0){
+							$("input[name='influence_lr']").eq(0).attr('disabled',true);
+							$("input[name='influence_lr']").eq(1).attr('checked',true);
+						}else if(index == $(app.rightClickedO).parents('table.table-mul').find('th').length - 1){
+							$("input[name='influence_lr']").eq(1).attr('disabled',true);
+							$("input[name='influence_lr']").eq(0).attr('checked',true);
+						}
+						app.rightClickedOriginWidth = parseInt($('#td_width').val());
+						
+
+						//$('#td_width').val('309');
+					},
+
+					yes : function (index,layero){
+						let width = parseInt($('#td_width').val());
+						if(!isNaN(width)){
+							if(width < 50) return false;
+							let index = $(app.rightClickedO).index();
+							let lr = $("input[name='influence_lr']:checked").val();
+							
+							if(lr == 'r'){
+								let nextWidth = $(app.rightClickedO).next().width();
+								if( width - app.rightClickedOriginWidth > nextWidth - 50 ){
+									width = app.rightClickedOriginWidth + nextWidth - 50;
+								}
+								$(app.rightClickedO).parents('table.table-mul').find('th').eq(index).css('min-width',width).css('max-width',width).css('width',width);
+								nextWidth = nextWidth - ( width - app.rightClickedOriginWidth);
+								$(app.rightClickedO).parents('table.table-mul').find('th').eq(index+1).css('min-width',nextWidth).css('max-width',nextWidth).css('width',nextWidth);
+								app.rightClickedOriginWidth = width;
+							}else if(lr == 'l'){
+								let prevWidth = $(app.rightClickedO).prev().width();
+								if( width - app.rightClickedOriginWidth > prevWidth - 50 ){
+									width = app.rightClickedOriginWidth + prevWidth - 50;
+								}
+								$(app.rightClickedO).parents('table.table-mul').find('th').eq(index).css('min-width',width).css('max-width',width).css('width',width);
+								prevWidth = prevWidth - ( width - app.rightClickedOriginWidth);
+								$(app.rightClickedO).parents('table.table-mul').find('th').eq(index-1).css('min-width',prevWidth).css('max-width',prevWidth).css('width',prevWidth);
+								app.rightClickedOriginWidth = width;
+							}else{
+								let pWidth = Math.trunc( ( width - app.rightClickedOriginWidth) / ($(app.rightClickedO).parents('table.table-mul').find('th').length - 1));
+
+								let canReduce = 0;
+								$(app.rightClickedO).parents('table.table-mul').find('th').each(function(i,v){
+									if(i == index) return true;
+									let tmp = $(this).width();
+									if( tmp > 50) canReduce += tmp - 50;
+								});
+								
+								if(width - app.rightClickedOriginWidth > canReduce){
+									width = app.rightClickedOriginWidth + canReduce;
+								}
+								
+								let toReduce = width - app.rightClickedOriginWidth;
+
+								
+							
+								let l = $(app.rightClickedO).parents('table.table-mul').find('th').length - 1;
+
+								let flag = true;
+
+								$(app.rightClickedO).parents('table.table-mul').find('th').each(function(i,v){
+
+									if(toReduce == 0){
+										 flag == false;
+										 return false;
+									}
+
+
+									if( i == index){
+										$(this).css('min-width',width).css('max-width',width).css('width',width);
+									}else{
+										l--;
+										let thWidth = $(this).width();
+
+
+										//log('TH的宽度:' + thWidth,false);
+
+										//log('需减少的宽度:' + pWidth,false);
+
+										if(thWidth - pWidth < 50){
+										
+											$(this).css('min-width',50).css('max-width',50).css('width',50);
+											toReduce = toReduce - (thWidth - 50);
+
+											//log("共需要减少:" + toReduce,false);
+
+
+
+											pWidth = Math.trunc(toReduce / l);
+
+											
+											
+
+										}else{
+											let tmp = thWidth - pWidth;
+											
+											$(this).css('min-width',tmp).css('max-width',tmp).css('width',tmp);
+											toReduce -= pWidth;
+										}
+									}
+								});
+
+
+								
+								
+							}
+							
+						}
+						layer.close(index);
+					},
+				});
+				return false;
+			});
+			//列宽 - 重复表 - 结束
+
+
+			//行高
+			$('#line-height').click(function(){
+				
+				$(".contextmenu").hide();
+				let height = $('.table-form-td-selected').eq(0).parents('tr').eq(0).height();
+				layer.prompt(
+					{
+						value: height,
+						title: '请输入行高',
+						offset: ['10%']
+					}, 
+					function(value, index, elem){
+						let h = parseInt(value);
+						if( !isNaN(h) && h > 0 ){
+							$('.table-form-td-selected').each(function(){
+								let tmpTr = $(this).parents('tr');
+								for(let i = 0; i < $(this).attr('rowspan'); i++){
+									tmpTr.css('height',h);
+									tmpTr = tmpTr.next();
+								}
+							});
+						} 
+						layer.close(index);
+					}
+				);
+			});
+			//行高 - 结束
+
+			//列宽
+			$('#row-width').click(function(){
+				$(".contextmenu").hide();
+				let width = app.tdWidth[$('.table-form-td-selected').eq(0).parents('table').attr('data-index')][$('.table-form-td-selected').eq(0).data('x')];
+				layer.open({
+					title: '请输入列宽',
+					offset: ['10%'],
+					area  : ['300px',"230px"],
+					shadeClose:true,
+					content : "<div class = 'row'><div class = 'col s6'>宽度 ：</div><div class = 'col s6'><input type = 'text' class = 'aya-input' id = 'td_width' value = '"+width+"' /></div><div class = 'col s12'>&nbsp;</div><div class = 'col s6'>影响表格宽度：</div><div class = 'col s6'><input id = ' influence_table_width' type = 'checkbox' class = 'aya-checkbox' checked /></div></div>",
+					yes : function (index,layero){
+
+						let w = parseInt($.trim($(layero).find('#td_width').val()));
+						
+						if( !isNaN(w) && w > 0 ){
+							let changed = [];
+							$('.table-form-td-selected').each(function(){
+								let tableIndex = $(this).parents('table').attr('data-index');
+								let x = parseInt($(this).attr('data-x'));
+								let colspan = parseInt($(this).attr('colspan'));
+								for(let i = x; i < x + colspan; i++){
+
+									app.tdWidth[tableIndex][i] = w;
+								}
+
+								
+								if( $.inArray( tableIndex,changed ) < 0 ) changed.push(tableIndex);
+								
+							});
+
+							for(let i = 0; i < changed.length; i++){
+								app.re_draw(changed[i]);
+							}
+						} 
+
+						layer.close(index);
+					},
+				});
+				return false;
+			});
+			//列宽 - 结束
+
+			
+
+
+
+
+
+			
+			
+			if ( get_parent().app.step_1_html != '' ){
+				$('#form_body').html( get_parent().app.step_1_html );
+				$('#flow_name').val( get_parent().app.flow_name );
+				app.tdWidth = get_parent().app.tdWidth;
+
+				
+			}
+
+			
+
+			let selectType = {$select|raw};
+			for( let s of selectType ){
+				app.option += "<option value = '"+s.id+"'>"+s.name+"</option>";
+			}
+
+			app.set_merge_restore_button();
+
+			$('#next').click(function(){	
+				get_parent().app.step_1_html = $('#form_body').html();
+				get_parent().app.tdWidth = app.tdWidth;
+				
+				let flow_name = $.trim($('#flow_name').val());
+				if(flow_name == ''){
+					layer_error({info:'流程名称不能为空'});
+				}else{
+					get_parent().app.flow_name = flow_name;
+					parent.app.step_2( app.id );
+				}
+			});
+			
+			app.checkInsert();
+
+			$('#insert').click(function(){
+				let div = "<div class = 'row'><div class = 'col s12' style = 'padding:10px 20px;border-bottom:1px solid #cfcfcf'>重复表列数：<input type = 'text width-200' class = 'aya-input'/> <i id = 'add_new_row_mul' title = '加一列' class='material-icons text-color1' style = 'vertical-align:middle;' >add_box</i> </div><div class = 'col s12'><table id = 'table-mul-field' class = 'dataTable centered cell-border ' style = ''><thead><tr><th style = 'width:30px'>序号</th><th>列名</th><th>类型</th><th>枚举类型</th><th style = 'width:30px !important'></th></tr></thead><tbody id = 'tbody-mul'>";
+
+				let selectType = {$select|raw};
+				
+				let option = "";
+				for( let s of selectType ){
+					option += "<option value = '"+s.id+"'>"+s.name+"</option>";
+				}
+
+				let tr = "<tr><td></td><td><input type = 'text' class = 'aya-input' /> </td><td><select class = 'browser-default type-mul'><option value = 'input'>输入框</option><option value = 'select'>选择框</option><option value = 'index'>序号</option></select></td><td><select class = 'browser-default' style = 'display:none'>"+option+"</select></td><td> <i id = 'add_new_row_mul' title = '删除列' class='material-icons text-color3' style = 'vertical-align:middle;font-size:12px' >clear</i></td></tr>";
+				
+				for(let i = 1; i <= 5; i++){
+					div += tr;
+				}
+
+				div += "</tbody></table></div></div>";
+
+				
+
+				layer.open({
+					skin: 'layer-search-container',
+					title : '重复表',
+					offset : [0],
+					area  : ['600px',"100%"],
+					type  : 1,
+					btn   : ['确定'],
+					isOutAnim: false,
+					content : div,
+					shadeClose:true,
+					success : function(){
+						
+						$('#tbody-mul').on('change','.type-mul',function(){
+							
+							if($(this).val() == 'select'){
+								$(this).parent().next().eq(0).find('select').show();
+							}else{
+								$(this).parent().next().eq(0).find('select').hide();
+							}
+						});
+						
+						reindex('table-mul-field');
+						
+						$('#add_new_row_mul').click(function(){
+							$('#tbody-mul').append(tr);
+							reindex('table-mul-field');
+						});
+
+						$('#table-mul-field').on('click','i',function(){
+							$(this).parents('tr').remove();
+							reindex('table-mul-field');
+						});
+
+					},
+					yes : function(index,layero){
+						let table = "<table class = 'table-mul'>";
+						let head = "<thead><tr>";
+						let body = "<tbody>";
+
+						
+
+						$('#tbody-mul tr').each(function(){
+							head += "<th>"+$(this).children().eq(1).find('input').val()+"</th>";
+							let tmp = $(this).children().eq(2).find('select').val();
+							if(tmp == 'input'){
+								body += "<td data-type = 'text-mul'><input type = 'text' class = 'aya-input' /></td>";
+							}else if (tmp == 'select'){
+								//attr('data-select',$('#select').val()).attr('data-type','select').attr('data-name',$("#select").find("option:selected").text())
+								body += "<td data-type = 'select-mul' data-select = '"+$(this).children().eq(3).find('select').val()+"'><select class = 'browser-default'><option value = '"+$(this).children().eq(3).find('select').val()+"'>"+$(this).children().eq(3).find('select').find('option:selected').text()+"</option></select></td>";
+							}else{
+								body += "<td data-type = 'index-mul'>序号</td>";
+							}
+						});
+
+						head += "</tr></head>";
+						body += "</body>";
+						table = table + head + body + "</table>";
+						
+
+						$('.table-form-td-selected').eq(0).html(table);
+
+						layer.close(index);
+						
+					},
+					cancel : function(index,layero){
+						layer.close(index);
+						
+					}
+				});
+
+			});
+
+			
+
+			$('#merge').click(function(){app.merge()});
+
+			$('#restore').click(function(){app.restore()});
+			
+			$('#form_body').on('mousedown','td',function(){app.startTd = this});
+
+			$('#form_body').on('mouseover','td',function(){
+				if(app.startTd != null){
+					if(!app.isCtrl) $('.table-form-td-selected').removeClass('table-form-td-selected');
+					app.endTd = this;
+					app.create_current_border();
+				}
+			});
+			
+			$('#form_body').on('mouseup','td',function(){
+				app.endTd = this;
+				if(!app.isCtrl) $('.table-form-td-selected').removeClass('table-form-td-selected');
+				app.create_current_border();
+				app.startTd = null;
+			});
+
+			$(window).keydown(function(e){
+				if(e.keyCode == 16){
+					app.isShift = true;
+				}else if(e.keyCode == 17){
+					app.isCtrl = true;
+				}
+			});
+
+			$(window).keyup(function(e){
+				app.isShift = false;
+				app.isCtrl  = false;
+			});
+	
+			$('#form_body').on('click','td',function(){
+				log($(this).attr('data-x')+ ':' + $(this).attr('data-y'));
+			
+				if(!app.isCtrl) $('.table-form-td-selected').removeClass('table-form-td-selected');
+				$(this).addClass('table-form-td-selected');
+			});
+			
+
+			$('#new_table').click(function(){
+				
+				layer.open({
+					
+					skin: 'layer-edit-container',
+					title : '自定义表格',
+					offset : ['40px'],
+					area  : ['400px',"230px"],
+					shadeClose:true,
+					content : "<div class = 'row'><div class = 'col s3'>长 * 宽 ：</div><div class = 'col s4'><input type = 'text' class = 'aya-input' id = 'table_col' value = '6' /></div><div class = 'col s1'>*</div><div class = 'col s4'><input type = 'text' class = 'aya-input'  id = 'table_row' value = 6 /></div><div class = 'col s12'>&nbsp;</div><div class = 'col s3'>表格宽度：</div><div class = 'col s4'><input type = 'text' class = 'aya-input' id = 'table_width' value = '600' /></div><div class = 'col s4'>px</div></div>",
+					yes : function (index,layero){
+						let w = parseInt($('#table_col').val());
+						let h = parseInt($('#table_row').val());
+						let width = parseInt($('#table_width').val());
+						if(!isNaN(w) && !isNaN(h)){
+							app.create_table(w,h,width);
+						}
+						
+						layer.close(index);
+						
+					},
+					cancel : function(index,layero){
+						layer.close(index);
+						
+					}
+
+
+				});
+
+			});
+
+			$('#form_body').on('dblclick','td',function(){
+				app.edit();
+			});
+		},
+	}
+	
+	app.ini();
+	
+	//app.create_table(8,9,700);
+
+	//$('tr').eq(0).html("<td colspan = 8><table class = 'table-mul'><thead><tr><th>序号</th><th>姓名</th><th>发生发撒</th><th>试试</th><th>飞洒发</th></tr></head><tbody><td>输入框</td><td>选择框</td><td>输入框</td><td>输入框</td><td>输入框</td></body></table></td>");
+	
+
+	//$('td').eq(14).html("<p style = 'font-size:12px;display:inline-block;margin:0'>支付宝 <input type='radio' class = 'aya-radio' style = 'margin-right:24px'></p> <p style = 'display:inline-block;margin:0'>微信 <input type='radio' class = 'aya-radio' style = 'margin-right:24px'></p> ");
+
+
+function rgb2hex (rgb){    
+	if(rgb.substring(0,4) == 'rgba'){
+		rgb = colorRGB2Hex(rgb);
+	}else{
+		if(rgb >= 0){
+			return rgb;    //如果是一个hex值则直接返回
+		}else{
+			rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+			
+			function hex(x) {return ("0" + parseInt(x).toString(16)).slice(-2);}
+			rgb= "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+		}
+	}
+	return rgb;
+}
+function colorRGB2Hex(color) {
+    var rgb = color.split(',');
+    var r = parseInt(rgb[0].split('(')[1]);
+    var g = parseInt(rgb[1]);
+    var b = parseInt(rgb[2].split(')')[0]);
+    var hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    return hex;
+}
+
+	
+
+
+
+
+
+	
+</script>
+
+</body>
+
+</html>

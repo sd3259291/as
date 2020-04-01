@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <!-- Bootstrap Styles-->
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+    <!-- FontAwesome Styles-->
+    <link href="__PUBLIC__/css/font-awesome.css" rel="stylesheet" />
+	
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/bootstrap-select/dist/css/bootstrap-select.min.css" type="text/css">
+	<style type="text/css">
+		body{background:#fff;font-size:12px}
+		table{table-layout:fixed}
+		table tbody tr td{padding:0;height:36px;}
+		
+		table tbody tr td input{margin:0;height:32px !important;border:0 !important}
+		table tbody tr td select{margin:0;height:32px !important;border:1px solid #dfdfdf !important;display:inline-block !important;width:98%	}
+		table thead tr th{padding:8px 0 8px 0;font-weight:normal}
+		table tbody tr td.edit{padding:0;margin:0}
+	
+		table.employee_update{table-layout:auto}
+		table.employee_update tbody td{padding:5px 20px 5px 20px}
+
+		.bootstrap-select{
+			float:left !important
+		}
+
+		table.a2 thead tr th{padding:20px 0}
+		table.a2 tbody tr td{padding:10px 0}
+	</style>
+	<script src="__PUBLIC__/js/jquery-2.0.3.min.js"></script>
+	<script src="__PUBLIC__/js/bootstrap.min.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	
+</head>
+
+<body>
+<div class = 'container-fluid' style = 'padding:0 20px;margin:0'>
+
+	<div class="row border">
+		<table class = ' centered bordered' id = 'info'>
+			<thead>
+
+			</thead>
+			<tbody>
+				<tr>
+					<td class = 'teal lighten-2 white-text'>基本信息</td>
+					<td colspan = 5>
+							
+					</td>
+				</tr>
+				<tr>
+				<td rowspan = 9 style='padding-top:33px;vertical-align:top'><img src = '/a1/photo/employee/{e.number}.jpg' alt = '-' style = 'width:136px;margin-top:0'/></td>
+					<td class = 'grey lighten-3'>姓名</td>
+					<td class = 'blue-text text-darken-2 field' >
+						<input id = 'name' type = 'text' class = 'aya-input '/>
+					</td>
+					<td class = 'grey lighten-3'>部门</td>
+					<td class = ' text-darken-2'  >
+						<select id = 'department_id' data-live-search = 'true'>
+							{volist name = 'department' id = 'd'}
+							<option value = '{$d.id}'>{$d.name}</option>
+							{/volist}
+						</select>
+					</td>
+
+					<td class = 'grey lighten-3'>岗位</td>
+					<td class = 'blue-text text-darken-2'>
+						<select id = 'post_id' data-live-search = 'true'>
+							{volist name = 'post' id = 'd'}
+								<option value = '{$d.id}'>{$d.name}</option>
+							{/volist}
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td class = 'grey lighten-3'>性别</td><td class = 'blue-text text-darken-2 field' style = 'text-align:left'>
+						<select id = 'sex' class = 'browser-default'>
+							<option value = 1 >男</option>
+							<option value = 0 >女</option>
+						</select>
+					</td>
+					<td class = 'grey lighten-3'>婚姻状况</td><td class = 'blue-text text-darken-2 field' style = 'text-align:left' >
+						<select id = 'married' class = 'browser-default'>
+							<option value = 1 >已婚</option>
+							<option value = 0 >未婚</option>
+						</select>
+					</td>
+					<td class = 'grey lighten-3'>政治面貌</td><td class = 'blue-text text-darken-2 field'  style = 'text-align:left'>
+						<select id = 'affiliation' class = 'browser-default'>
+							<option value = 1 >群众</option>
+							<option value = 0 >党员</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td class = 'grey lighten-3'>身份证号</td>
+					<td class = 'blue-text text-darken-2'>
+						<input id = 'idcard' type = 'text' class = 'aya-input  field' data-field = 'idcard'/>
+					</td>
+					<td class = 'grey lighten-3'>工号</td><td class = 'blue-text text-darken-2'>
+						<input id = 'number' type = 'text' class = 'aya-input  field' data-field = 'number'/>
+					</td>
+					<td class = 'grey lighten-3'>是否住宿</td>
+					<td class = 'blue-text text-darken-2 field'  style = 'text-align:left'>
+						<select id = 'is_zs' class = 'browser-default'>
+							<option value = 0 >否</option>
+							<option value = 1 >是</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+				
+					<td class = 'grey lighten-3'>入职日期</td>
+					<td class = 'blue-text text-darken-2'>
+						<input id = 'entry_date' type = 'text' class = 'aya-input  field' data-field = 'entry_date' value = '' readonly />
+					</td>
+
+					<td class = 'grey lighten-3'>身份证有效日期</td>
+					<td class = 'blue-text text-darken-2'>
+						<input id = 'idcard_date' type = 'text' class = 'aya-input  field' data-field = 'resign_date' readonly />
+					</td>
+					
+				</tr>
+				<tr>
+					<td class = 'grey lighten-3'>电话</td>
+					<td class = 'blue-text text-darken-2'>
+						<input id = 'tel' type = 'text' class = 'aya-input  field' data-field = 'tel'/>
+					</td>
+					<td class = 'grey lighten-3'>紧急联系人</td><td class = 'blue-text text-darken-2'>
+						<input id = 'emergency_contact' type = 'text' class = 'aya-input  field' data-field = 'emergency_contact'/>
+					</td>
+					<td class = 'grey lighten-3'>紧急联系人电话</td>
+					<td class = 'blue-text text-darken-2'>
+						<input id = 'emergency_contact_tel' type = 'text' class = 'aya-input  field' data-field = 'emergency_contact_tel'/>
+					</td>
+				</tr>
+				<!--
+				<tr>
+					<td class = 'grey lighten-3'>合同签订日期</td>
+					<td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input  field' data-field = 'resign_date' value = '' readonly />
+					</td>
+					<td class = 'grey lighten-3'>合同截止日期</td>
+					<td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input  field' data-field = 'resign_date' readonly />
+					</td>
+					
+
+				</tr>
+				-->
+
+				
+				<tr>
+					<td class = 'grey lighten-3'>家庭住址</td>
+					<td class = 'blue-text text-darken-2' colspan = 5 >
+						<input id = 'addr1' type = 'text' class = 'aya-input  field' data-field = 'add1'/>
+					</td>
+				</tr>
+				<tr>
+					<td class = 'grey lighten-3'>现住址</td>
+					<td class = 'blue-text text-darken-2' colspan = 5 >
+						<input id = 'addr2' type = 'text' class = 'aya-input  field' data-field = 'add2'/>
+					</td>
+				</tr>
+				
+			</tbody>
+		</table>
+		
+		<table class = ' centered bordered' >
+			<tbody>
+				<tr><td class = 'teal lighten-2 white-text'>公司经历 </td><td></td><td></td><td></td><td></td><td></td><td></td>
+				</tr>
+			</tbody>
+		</table>
+		<table  class = ' centered bordered a1'>
+			<thead></thead><tbody></tbody>
+		</table>
+
+		<table class = ' centered bordered' >
+			<tbody>
+				<tr><td class = 'teal lighten-2 white-text noselect' id='education' style = 'cursor:pointer'>教育经历</td>
+				<td></td><td></td><td></td><td></td><td></td><td></td>
+				</tr>
+			</tbody>
+		</table>
+
+
+
+		<table  class = ' centered bordered a1' id='educationTable'>
+			<tbody>
+				
+			</tbody>
+		</table>
+
+
+		<table class = ' centered bordered' >
+			<tbody>
+				<tr><td class = 'teal lighten-2 white-text' id='workexperience' style = 'cursor:pointer'>工作经历</td>
+				<td></td><td></td><td></td><td></td><td></td><td></td>
+				</tr>
+			</tbody>
+		</table>
+		<table class = ' centered bordered a1' id = 'workexperienceTable'>
+			<tbody>
+				
+			</tbody>
+		</table>
+		
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s12' style = 'text-align:center;padding:10px'>
+			<button class = 'btn btn-default btn-default-1' id = 'save'>  <i class="material-icons text-color2" style = 'color:' >save</i> 保存</button>
+		</div>
+	</div>
+
+</div>
+
+<input id = 'id'  type = 'hidden' />
+
+
+
+
+<script>
+
+
+	let employee = {$employee|raw};
+
+	let education = {$education|raw};
+
+	let workexperience = {$workexperience|raw};
+
+	var tmp = "";
+	
+	let i = 0;
+	for(e of education){
+		let xl =  e.xl;
+		let zy =  e.zy
+		if(xl != '') xl = " 学历 <span>" + xl + "</span>，";
+		if(zy != '') zy = " 专业 <span>" + zy + "</span>，";
+		tmp += "<tr><td style = 'text-align:right'>"+(++i)+"</td><td style = 'text-indent:24px;text-align:left' colspan = 6>从 <span>"+e.start+"</span> 到 <span>"+e.end+"</span>，就读于 <span>"+e.school+"</span>，"+xl+zy+"</td></tr>";
+	}
+	if(tmp == ''){
+		$('#educationTable').hide();
+	}else{
+		$('#educationTable').show();
+	}
+	$('#educationTable tbody').empty().append(tmp);
+
+
+	i = 0;
+	tmp = '';
+	for(w of workexperience){
+		
+		let department =  w.department?w.department:'';
+		let post =  w.post?w.post:'';
+		
+		if(department) department = " 部门 <span>" + department + "</span>，";
+		if(post) post = " 岗位 <span>" + post + "</span>，";
+		tmp += "<tr><td style = 'text-align:right'>"+(++i)+"</td><td style = 'text-indent:24px;text-align:left' colspan = 6>从 <span>"+w.start+"</span> 到 <span>"+w.end+"</span>，工作于 <span>"+w.company+"</span>，"+department+post+"</td></tr>";
+	}
+	if(tmp == ''){
+		$('#workexperienceTable').hide();
+	}else{
+		$('#workexperienceTable').show();
+	}
+	$('#workexperienceTable tbody').empty().append(tmp);
+
+
+	
+
+	for(let f in employee){
+		$('#' + f).val(employee[f]);
+
+	}
+
+	
+	$('#save').click(function(){
+		let o = {};
+		let field = ['id','name','department_id','post_id','sex','married','affiliation','idcard','number','entry_date','idcard_date','tel','emergency_contact','emergency_contact_tel','addr1','addr2','is_zs'];
+
+
+		for(let f of field){
+			o[f] = $.trim($('#' + f).val());
+		}
+		
+		o.education = [];
+
+		$('#educationTable tbody tr').each(function(){
+			let tmp = {};
+			let span = $(this).children().eq(1).find('span');
+			tmp.start = span.eq(0).text();
+			tmp.end   = span.eq(1).text();
+			tmp.school = span.eq(2).text();
+			tmp.xl = span.eq(3).text();
+			tmp.zy = span.eq(4).text();
+			o.education.push(tmp);
+		});
+
+		o.workexperience = [];
+
+		$('#workexperienceTable tbody tr').each(function(){
+			let tmp = {};
+			let span = $(this).children().eq(1).find('span');
+			tmp.start = span.eq(0).text();
+			tmp.end   = span.eq(1).text();
+			tmp.company = span.eq(2).text();
+			tmp.department = span.eq(3).text();
+			tmp.post = span.eq(4).text();
+			o.workexperience.push(tmp);
+		});
+
+
+		$.post('__APP__/Hr/edit',o,function(d){
+			if(d.status == 's'){
+				layer_success();
+			}else{
+				layer_error(d);
+			}
+		});
+
+	});
+	
+	$('#department_id').selectpicker({'width':'98%'});
+	$('#post_id').selectpicker({'width':'98%'});
+	
+	laydate.render({elem: '#entry_date'});
+	laydate.render({elem: '#idcard_date'});
+
+	$('#education').click(function(){
+		let emptyTr = "<tr><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td><a href='javascript:void(0)'>删</a></td></tr>";
+
+		let tmp = "<table  class = ' centered bordered a1 a2' id='educationTable2'><thead><tr><th>入学日期</th><th>毕业日期</th><th>毕业院校</th><th>学历</th><th>专业</th><tr></thead><tbody>";
+		$('table#educationTable tbody tr').each(function(){
+			let tmp1 = $(this).children().eq(1).find('span');
+			tmp += "<tr><td contenteditable = 'true'>"+tmp1.eq(0).text()+"</td><td contenteditable = 'true'>"+tmp1.eq(1).text()+"</td><td contenteditable = 'true'>"+tmp1.eq(2).text()+"</td><td contenteditable = 'true'>"+tmp1.eq(3).text()+"</td><td contenteditable = 'true'>"+tmp1.eq(4).text()+"</td><td><a href='javascript:void(0)'>删</a></td></tr>";
+		});
+		for(let i = 0; i < 5 - $('table#educationTable tbody tr').length; i++){
+			tmp += emptyTr;	
+		}
+		tmp += "</tbody></table>";
+		layer.open({
+			type: 1,
+			title:'修改教育经历',
+			offset:'10%',
+			area:['900px','50%'],
+			btn:['确定','增加'],
+			shadeClose:true,
+			btn2:function(){
+				$('table#educationTable2 tbody').append(emptyTr);
+				return false;
+			},
+			yes:function(index){
+				var tmp = "";
+				$('table#educationTable2 tbody').children().each(function(ii,v){
+					if($.trim($(this).children().eq(0).text()) == '' || $.trim($(this).children().eq(1).text()) == '' || $.trim($(this).children().eq(2).text()) == '') return true;
+					let xl =  $.trim($(this).children().eq(3).text()) == ''?'':$.trim($(this).children().eq(3).text());
+					let zy =  $.trim($(this).children().eq(4).text()) == ''?'':$.trim($(this).children().eq(4).text());
+					if(xl != '') xl = " 学历 <span>" + xl + "</span>，";
+					if(zy != '') zy = " 专业 <span>" + zy + "</span>，";
+					tmp += "<tr><td style = 'text-align:right'>"+(ii+1)+"</td><td style = 'text-indent:24px;text-align:left' colspan = 6>从 <span>"+$.trim($(this).children().eq(0).text())+"</span> 到 <span>"+$.trim($(this).children().eq(1).text())+"</span>，就读于 <span>"+$.trim($(this).children().eq(2).text())+"</span>，"+xl+zy+"</td></tr>";
+				});
+				if(tmp == ''){
+					$('#educationTable').hide();
+				}else{
+					$('#educationTable').show();
+				}
+				$('#educationTable tbody').empty().append(tmp);
+				layer.close(index);
+			},
+			content:tmp //这里content是一个普通的String
+		});
+
+		$("table#educationTable2 tbody").on('click','a',function(){
+			$(this).parent().parent().remove();
+		});
+
+	});
+
+	$('#workexperience').click(function(){
+		let emptyTr = "<tr><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td><a href='javascript:void(0)'>删</a></td></tr>";
+
+		let tmp = "<table  class = ' centered bordered a1 a2' id='workexperienceTable2'><thead><tr><th>开始时间</th><th>结束时间</th><th>工作单位</th><th>部门</th><th>担任职务</th><tr></thead><tbody>";
+		$('table#workexperienceTable tbody tr').each(function(){
+			let tmp1 = $(this).children().eq(1).find('span');
+			tmp += "<tr><td contenteditable = 'true'>"+tmp1.eq(0).text()+"</td><td contenteditable = 'true'>"+tmp1.eq(1).text()+"</td><td contenteditable = 'true'>"+tmp1.eq(2).text()+"</td><td contenteditable = 'true'>"+tmp1.eq(3).text()+"</td><td contenteditable = 'true'>"+tmp1.eq(4).text()+"</td><td><a href='javascript:void(0)'>删</a></td></tr>";
+		});
+		for(let i = 0; i < 5 - $('table#workexperienceTable tbody tr').length; i++){
+			tmp += emptyTr;	
+		}
+		tmp += "</tbody></table>";
+		layer.open({
+			type: 1,
+			title:'修改工作经历',
+			offset:'10%',
+			area:['900px','50%'],
+			btn:['确定','增加'],
+			shadeClose:true,
+			btn2:function(){
+				$('table#workexperienceTable2 tbody').append(emptyTr);
+				return false;
+			},
+			yes:function(index){
+				var tmp = "";
+				$('table#workexperienceTable2 tbody').children().each(function(ii,v){
+					if($.trim($(this).children().eq(0).text()) == '' || $.trim($(this).children().eq(1).text()) == '' || $.trim($(this).children().eq(2).text()) == '') return true;
+					let xl =  $.trim($(this).children().eq(3).text()) == ''?'':$.trim($(this).children().eq(3).text());
+					let zy =  $.trim($(this).children().eq(4).text()) == ''?'':$.trim($(this).children().eq(4).text());
+					if(xl != '') xl = " 部门 <span>" + xl + "</span>，";
+					if(zy != '') zy = " 岗位 <span>" + zy + "</span>，";
+					tmp += "<tr><td style = 'text-align:right'>"+(ii+1)+"</td><td style = 'text-indent:24px;text-align:left' colspan = 6>从 <span>"+$.trim($(this).children().eq(0).text())+"</span> 到 <span>"+$.trim($(this).children().eq(1).text())+"</span>，工作于 <span>"+$.trim($(this).children().eq(2).text())+"</span>，"+xl+zy+"</td></tr>";
+				});
+				if(tmp == ''){
+					$('#workexperienceTable').hide();
+				}else{
+					$('#workexperienceTable').show();
+				}
+				$('#workexperienceTable tbody').empty().append(tmp);
+				layer.close(index);
+			},
+			content:tmp //这里content是一个普通的String
+		});
+
+		$("table#workexperienceTable2 tbody").on('click','a',function(){
+			$(this).parent().parent().remove();
+		});
+
+	});
+
+
+		
+	
+
+	
+	
+</script>
+
+</body>
+
+</html>

@@ -20,26 +20,45 @@
 			
 		
 			
-			<div class = 'col s5' id = 'll' >
-				
+			<div class = 'col s7' style = 'border-right:1px solid #cfcfcf'>
+				<div class = 'relative left'>
+						<input type = 'text' id = 'search_table' class = 'width-200' placeholder = '按回车搜索' />
+						<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
+					</div>
+					<table class = 'dataTable centered  row-border stripe' id = 'table'>
+						<thead>
+							<tr><th>岗位名称</th><th>岗位类型</th><th>排序</th><th>状态</th></tr>
+						</thead>
+						<tbody>
+						{volist name = 'list' id = 'p'}
+						<tr data-id = '{$p.id}'><td>{$p.name}</td><td>{$p.type_name}</td><td>{$p.sort}</td><td>{$p.status?'启用':'禁用'}</td></tr>
+						{/volist}
+						</tbody>
+					</table>
 			</div>
 
-				<div class = 'col s7' >
+				<div class = 'col s5' >
 				<div class = 'row new-container' >
 					
 					<div class = 'col s4'>岗位名称</div><div class = 'col s8'><input id = 'name' class = 'aya-input' type = 'text' /></div>
-					<div class = 'col s4'>岗位类型</div><div class = 'col s8'><input id = 'level' class = 'aya-input' type = 'text' readonly value = 1 /></div>
+					<div class = 'col s4'>岗位类型</div><div class = 'col s8'>
+						<select class = 'browser-default' id = 'type_id'>
+						{volist name = 'post_type' id = 'p'}
+						<option value = '{$p.id}'>{$p.name}</option>
+						{/volist}
+						</select>
+					</div>
 					
 					
 					<div class = 'col s4'>排序</div><div class = 'col s8'><input id = 'sort' class = 'aya-input' type = 'text' /></div>
-					<!--
+					
 					<div class = 'col s4'>状态</div><div class = 'col s8'>
 						<select id = 'status' class = 'browser-default'>
-							<option value = 1>启用</option>
-							<option value = 0>禁用</option>
+							<option value = '1'>启用</option>
+							<option value = '0'>禁用</option>
 						</select>
 					</div>
-					-->
+					
 					<div class = 'col s12' style = 'text-align:center'><button class = 'btn btn-primary height32' id = 'save'>保 存</button></div>
 					<input type = 'hidden' id = 'pid' />
 				</div>
@@ -52,9 +71,7 @@
 					
 	</div>
 </div>
-<style type="text/css">
-	
-</style>
+
 
 <script>
 	var app = {
@@ -63,37 +80,69 @@
 
 		zTreeObj : {},
 
-		pname : '',
-
-		pid : '',
-
 		node : null,
+
+		maxSort : {$sortmax},
 		
 		ini : function(){
 			
-			max_height('ll');
+			let table = d_table();
+
+			$('#search_table').keypress(function(e){
+				let text = $.trim($(this).val());
+				if(e.keyCode == 13){
+					table.search(text).draw();
+				}
+			});
+
+
+			$('#table').on('click','tr',function(){
+				$('#name').val($(this).children().eq(0).text());
+
+				$('#sort').val($(this).children().eq(2).text());
+
+				let status = $(this).children().eq(3).text();
+				let type   = $(this).children().eq(1).text();
+
+				$('#status option').each(function(){
+					if($(this).text() == status){
+						$('#status').val($(this).attr('value'));
+					}
+				});
+
+				$('#type_id option').each(function(){
+					if($(this).text() == type){
+						$('#type_id').val($(this).attr('value'));
+					}
+				});
+			});
+
+			
 
 			$('#save').click(function(){
 
+				if($('#table tbody tr.selected').length == 0) return false;
+
 				let o = {};
-
-				for(a of app.field){
-
-					o[a] = $('#' + a).val();
-
-				}
+				o.id = $('#table tbody tr.selected').eq(0).data('id');
+				o.name = $.trim($('#name').val());
+				o.sort = $.trim($('#sort').val());
+				o.type_id = $.trim($('#type_id').val());
+				o.status = $.trim($('#status').val());
+				
+				
 			
-				$.post('__APP__/Auth/addDept',o,function(d){
+				$.post('__APP__/Pst/editPst',o,function(d){
 					
 					if(d.status == 's'){
+						let tmp = $('#table tbody tr.selected').eq(0).children();
 
-						let tmp = d.data;
-
-						//let icon  = o['level'] == '2'?'__PUBLIC__/image/tree_level_2.png':'__PUBLIC__/image/tree_level_1.png';
-
-						//let level = o['level'] == '2'?'2':'1';
+						tmp.eq(0).text(d.data.name);
+						tmp.eq(1).text(d.data.type_name);
+						tmp.eq(2).text(d.data.sort);
+						tmp.eq(3).text(d.data.status == 1?'启用':'禁用');
 						
-						app.zTreeObj.addNodes( tmp.pid == 0 ? null : app.node , {name : tmp.name+' - '+tmp.sort,title:level,layout_id:tmp.id,icon:icon } );
+						layer_success()
 
 					}else{
 
@@ -143,43 +192,49 @@
 
 			$('#add').click(function(){
 				let div = [
-					{ 'name' : '上级部门：' ,'id' : 'pname_new' ,'type' : 'text','readonly' : true},
-					{ 'name' : '部门名称：' ,'id' : 'name_new' ,'type' : 'text'},
+					{ 'name' : '岗位名称：' ,'id' : 'name_new' ,'type' : 'text'},
+					{ 'name' : '岗位类型：' ,'id' : 'type_id_new' ,'type' : 'select','data' : {$post_type|raw} },
 					{ 'name' : '排序：' ,'id' : 'sort_new' ,'type' : 'text'},
-					{ 'type' : 'hidden' , 'id' : 'pid_new'}
+				
 				];
 
 				parent.layer.open({
+
 					skin: 'layer-edit-container',
+
 					title : '编辑节点',
+
 					offset : ['40px'],
+
 					area  : ['600px',"300px"],
+
 					type  : 1,
+
 					btn   : ['确定'],
+
 					shadeClose:true,
+
 					content : create_new_div( div ),
+
 					success : function(){
-						
-						$('#pname_new').val( app.pname );
-						$('#pid_new').val( app.pid );
-						
+						$('#sort_new').val( app.maxSort + 1);
 					},
+
 					yes : function(index){
+
 						let o = {};
+
 						for(let f of div){
 							o[f.id] = $.trim($('#' + f.id).val());
 						}
 
-					
-						
-
-						$.post('__APP__/Dept/addDept',o,function(d){
+						$.post('__APP__/Pst/addPst',o,function(d){
 							if(d.status == 's'){
-
-								let tmp = d.data;
-
-								app.zTreeObj.addNodes( tmp.pid == 0 ? null : app.node , {name : tmp.name,title:tmp.level,dept_id:tmp.id } );
+								
+								table.rows.add($(d.data)).draw();
+								app.maxSort = d.info;
 								parent.layer.close(index);
+							
 								layer_success();
 							}else{
 								layer_error(d);

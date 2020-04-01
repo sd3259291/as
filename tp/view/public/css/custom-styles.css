@@ -374,11 +374,12 @@ i.material-icons.hover-cyan-darken-4:hover{color:#006064}
 	height:3rem;
 	line-height:3rem;
 }
+input[type=radio].aya-radio{opacity:1;position:static;vertical-align:text-bottom;margin-bottom:1px}
+input[type=checkbox].aya-checkbox{position:static;height:12px;margin:0;;opacity:1;vertical-align:middle;margin-bottom:2px;display:inline-block}
 .relative{position:relative}
 .absolute{position:absolute}
 .padding-0{padding:0 !important}
 input[type=text]{
-	
 	background-color:transparent;
 	border-radius:0;
 	outline:none;
@@ -407,6 +408,7 @@ input[type=text]:focus:not([readonly]){
 .nav-second-level li a{color:#c2c2c2 !important}
 
 .auto-width{width:auto}
+.width-100{width:100px !important}
 .width-200{width:200px !important}
 .width-400{width:400px !important}
 .font-right{text-align:right}
@@ -613,11 +615,13 @@ table.nowrap tbody tr td{
 	white-space:nowrap;
 }
 
-.layui-layer-title span{font-size:12px !important}
+.layui-layer-title{font-size:12px !important}
 
 .noselect {-moz-user-select: none}
 
 .height12{height:12px;}
+.height14{height:14px;}
+.height16{height:16px;}
 .height18{height:18px;}
 .input-hint{
 	top:7px;
@@ -684,6 +688,12 @@ body .layer-edit-container .layui-layer-btn0{
 	background:#3d9970;
 	border-color:#3d9970;
 }
+body .layer-edit-container .layui-layer-btn1{
+	padding:0 16px;
+	height:32px;
+	color:#343a40;
+	border-color:#a0a0a0;
+}
 body .layer-edit-container .layui-layer-content{
 	border-bottom:1px solid #3d9970;
 }
@@ -720,7 +730,13 @@ table.table-small tbody tr td input{font-size:11px}
 .card .card-content{
 	padding-bottom:6px
 }
-
+ul.dropdown-menu li{
+	font-size:12px;
+	color:#1976D2
+}
+table.dataTable thead th{
+	border-bottom-color:#939393
+}
 
 
 

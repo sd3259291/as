@@ -18,31 +18,41 @@
 
 		<div class = 'row row-body'>
 			
-		
-			
 			<div class = 'col s5' id = 'll'>
 				 <ul id="tree" class="ztree"></ul>
 			</div>
 
 				<div class = 'col s7' sty1le = 'border-right:3px solid #117a8b;border-radius: .25rem;' >
 				<div class = 'row new-container' >
-					<div class = 'col s4'>上级部门</div><div class = 'col s8'><input id = 'pname' class = 'aya-input' type = 'text' readonly/></div>
+					
 					<div class = 'col s4'>部门名称</div><div class = 'col s8'><input id = 'name' class = 'aya-input' type = 'text' /></div>
 					<div class = 'col s4'>等级</div><div class = 'col s8'><input id = 'level' class = 'aya-input' type = 'text' readonly value = 1 /></div>
-					<div class = 'col s4'>部门主管</div><div class = 'col s8'><input id = 'bmzg' class = 'aya-input' type = 'text' readonly /></div>
-					<div class = 'col s4'>分管领导</div><div class = 'col s8'><input  id = 'fgld' class = 'aya-input' type = 'text' readonly /></div>
+					<div class = 'col s4'>部门主管</div><div class = 'col s8'>
+						<div class = 'relative'>
+						<input id = 'bmzg' class = 'aya-input' type = 'text' data-id = '' readonly />
+						<img src = '__PUBLIC__/image/employee_select.png' class = 'absolute select-employee' style = 'top:7px;right:-24px;height:18px;cursor:pointer' />
+						</div>
+					</div>
+					<div class = 'col s4'>分管领导</div><div class = 'col s8'>
+					
+						<div class = 'relative'>
+							<input  id = 'fgld' class = 'aya-input' type = 'text' data-id = '' readonly />
+							<img src = '__PUBLIC__/image/employee_select.png' class = 'absolute select-employee' style = 'top:7px;right:-24px;height:18px;cursor:pointer' />
+						</div>
+					
+					</div>
 					
 					<div class = 'col s4'>排序</div><div class = 'col s8'><input id = 'sort' class = 'aya-input' type = 'text' /></div>
-					<!--
+					
 					<div class = 'col s4'>状态</div><div class = 'col s8'>
 						<select id = 'status' class = 'browser-default'>
 							<option value = 1>启用</option>
 							<option value = 0>禁用</option>
 						</select>
 					</div>
-					-->
+				
 					<div class = 'col s12' style = 'text-align:center'><button class = 'btn btn-primary height32' id = 'save'>保 存</button></div>
-					<input type = 'hidden' id = 'pid' />
+					<input type = 'hidden' id = 'id' />
 				</div>
 			</div>
 		</div>
@@ -60,7 +70,7 @@
 <script>
 	var app = {
 		
-		field : ['pid','name','level','sort'],
+		
 
 		zTreeObj : {},
 
@@ -73,34 +83,46 @@
 		ini : function(){
 
 			max_height('ll');
+
+			select_employee( '.select-employee' , function(selected,that){
+
+				let input = $(that).parent().find('input');
+
+				let selectName   = '';
+				let selectId = '';
+
+				selected.forEach(function(v,k){
+					selectName += v.name + ',';
+					selectId += v.id + ',';
+				});
+
+				log(selected);
+
+				input.val(selectName);
+				input.attr('data-id',selectId);
+
+			});
 			
 			$('#save').click(function(){
-
+				if(!app.node) return false;
 				let o = {};
-
-				for(a of app.field){
-
+				let field =  ['id','name','sort','status'];
+				for(a of field){
 					o[a] = $('#' + a).val();
-
 				}
-			
-				$.post('__APP__/Auth/addDept',o,function(d){
-					
+				o.fgld = $('#fgld').data('id');
+				o.bmzg = $('#bmzg').data('id');
+				o.fgld_name = $('#fgld').val();
+				o.bmzg_name = $('#bmzg').val();
+		
+				$.post('__APP__/Dept/editDept',o,function(d){
+	
 					if(d.status == 's'){
-
-						let tmp = d.data;
-
-						//let icon  = o['level'] == '2'?'__PUBLIC__/image/tree_level_2.png':'__PUBLIC__/image/tree_level_1.png';
-
-						//let level = o['level'] == '2'?'2':'1';
-						
-						app.zTreeObj.addNodes( tmp.pid == 0 ? null : app.node , {name : tmp.name+' - '+tmp.sort,title:level,layout_id:tmp.id,icon:icon } );
-
+						layer_success();
 					}else{
-
 						layer_error(d);
-
 					}
+
 				});
 			});
 			
@@ -109,12 +131,23 @@
 			let setting = {
 				callback:{
 					onClick:function(event, treeId, treeNode){
-						log(treeNode);
+					
 						app.pname = treeNode.name
-						$('#pname').val(app.pname);
 						app.pid = treeNode.id;
-						$('#pid').val(app.pid);
-						$("#level").val(treeNode.title);
+						let o = {};
+						o.id = app.pid;
+
+						$.post('__APP__/Dept/info',o,function(d){
+						
+							$('#name').val(d.data.name);
+							$("#level").val(d.data.level);
+							$("#sort").val(d.data.sort);
+							$("#status").val(d.data.status);
+							$("#id").val(d.data.id);
+							$('#fgld').val(d.data.fgld_name).attr('data-id',d.data.fgld);
+							$('#bmzg').val(d.data.bmzg_name).attr('data-id',d.data.bmzg);
+						});
+
 						
 						app.node = treeNode;	
 					},
@@ -125,8 +158,7 @@
 
 			let treeObj = $.fn.zTree.getZTreeObj("tree");
 
-			treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
-			
+			treeObj.expandNode( treeObj.getNodeByTId("tree_1"), true, false, false );
 		
 			$('#dlt').click(function(){
 
@@ -159,8 +191,6 @@
 
 			});
 			
-			
-
 			$('#add').click(function(){
 				let div = [
 					{ 'name' : '上级部门：' ,'id' : 'pname_new' ,'type' : 'text','readonly' : true},
@@ -190,9 +220,6 @@
 							o[f.id] = $.trim($('#' + f.id).val());
 						}
 
-					
-						
-
 						$.post('__APP__/Dept/addDept',o,function(d){
 							if(d.status == 's'){
 
@@ -209,6 +236,8 @@
 				});
 
 			});
+
+			
 
 
 		},	

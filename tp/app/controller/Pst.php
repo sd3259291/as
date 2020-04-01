@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace app\controller;
 
 use app\BaseController;
@@ -11,54 +12,78 @@ use app\model\Department;
 
 use think\facade\Cache;
 
-class Pst extends BaseController{
+use app\model\Enum;
+use app\model\EnumDetail;
+use app\model\Post;
 
+class Pst extends BaseController{
+	/**
+     * 岗位管理首页
+     */
     public function index(){
 		
+		$lastPost = Post::order('id desc')->field('id')->find();
+		$sortMax = $lastPost?$lastPost->id:0;
+
+		$enum = Enum::where(" name = '岗位类型' ")->find();
+
+		View::assign('list',Post::order('sort asc')->field('id,name,type_name,sort,status')->select());
+		View::assign('post_type',EnumDetail::where('enum_id ='.$enum->id)->select());
+		View::assign('sortmax',$sortMax);
 		return View::fetch();
 	}
 
+	/**
+     * 增加岗位
+     */
+	public function addPst(){
+	
+		if(!$_POST['name_new']) return a('','岗位名称不能为空','e');
+		
+		$type_name = EnumDetail::find($_POST['type_id_new']);
 
-	public function addDept(){
-		if(!$_POST['pid_new']){
-			$_POST['pid_new'] = 0;
-		}
-		if(!$_POST['name_new']) return a('','部门名称不能为空','e');
-		$dept = new Department;
-		$dept->name = $_POST['name_new'];
-		$dept->status = 1;
-		$dept->sort = $_POST['sort_new']?$_POST['sort_new']:0;
-		$dept->pid  = $_POST['pid_new'];
-		if($_POST['pid_new'] == 0){
-			$dept->level = 1;
-		}else{
-			$pd = Department::where('id = '.$_POST['pid_new'])->field('level')->find();
-			if(!$pd) return a('','上级部门不存在','e');
-			$dept->level = $pd->level + 1 ;
-		}
-		$dept->save();	
-		return a($dept,'','s');
+		$_POST['sort_new'] = (int)$_POST['sort_new'];
+		$p = new Post;
+		$p->name = $_POST['name_new'];
+		$p->sort = $_POST['sort_new'];
+		$p->type_id   = $_POST['type_id_new'];
+		$p->type_name = $type_name->name;
+
+		$p->save();
+		
+		$tbody = "<tr><td>".$p->name."</td><td>".$p->type_name."</td><td>".$p->sort."</td><td>启用</td></tr>";
+		return a($tbody,$p->id,'s');
+
 	}
 
-	public function dltDept(){
+	/**
+     * 编辑岗位
+     */
+
+	public function editPst(){
 		
-		$id = $_POST['id'];
+		if(!$_POST['name']) return a('','岗位名称不能为空','e');
+		$type_name = EnumDetail::find($_POST['type_id']);
+		$_POST['sort'] = (int)$_POST['sort'];
+		$post = Post::find($_POST['id']);
+	
+		$post->name = $_POST['name'];
+		$post->sort = $_POST['sort'];
+		$post->type_id = $_POST['type_id'];
+		$post->type_name = $type_name->name;
+		$post->status = $_POST['status'];
 
-		// 检查部门里有没有人
+		$post->save();
 
+		return a($post,'','s');
+
+	}
+	
+	/**
+     * 删除岗位
+     */
+	public function dltPst(){
 		
-
-		// 检查有没有下级部门
-
-
-		$child_dept = Department::where('pid = '.$id)->find();
-
-		if($child_dept) return a('','存在子部门，不能删除','e');
-
-
-		Department::destroy($id);
-
-		return a('','','s');
 
 		
 	}

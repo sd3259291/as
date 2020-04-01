@@ -1,0 +1,113 @@
+<script type="text/javascript" src="__PUBLIC__/js/ue/ueditor.config.js"></script>
+<script type="text/javascript" src="__PUBLIC__/js/ue/ueditor.all.js"></script>
+<script type="text/javascript" charset="utf-8" src="__PUBLIC__/js/ue/lang/zh-cn/zh-cn.js"></script>
+<link rel="stylesheet" href="__PUBLIC__/js/ue/themes/default/css/ueditor.css">
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+
+			<div class = 'col s6'>
+				标题：<input type = 'text' class = 'aya-input width-200' id = 'title' />
+			</div>
+
+			<div class = 'col s6'>
+				
+					
+					
+					<button class = 'btn btn-default btn-default-1' id = 'edit-form'>  <i class="material-icons text-color5"  >share</i> 编辑流程</button>
+
+					<button class = 'btn btn-default btn-default-1' id = 'select-form'>  <i class="material-icons text-color5"  >subject</i> 流程模板</button>
+
+					<button class = 'btn btn-default btn-default-1' id = 'send' >  <i class="material-icons text-color3"  >add_box</i> 发送</button>
+
+			</div>
+		</div>
+
+		<div class = 'row row-body' id = 'form_content' style = 'background:#fff;text-align:center;padding:10px 0 0 0'>
+			<textarea style = 'border-color: #fff;margin:0 auto;display:inline-block' id = 'form_content_textarea'></textarea>
+		</div>
+		
+		
+		
+		
+
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+
+	var app = {
+
+		flow_template_id : 0,
+
+		flow_node : '',
+
+		flow_p : '',
+
+		ue : {},
+
+		template_id : 0,
+
+		ini : function(){
+
+
+			$('#send').click(function(){
+				let o = {};
+				if(app.template_id == 0){  // 自定义流程
+					o.title = $.trim($('#title').val());
+					o.p = JSON.stringify(app.flow_p);
+					o.node = JSON.stringify(app.flow_node);
+					o.form = app.ue.getContent();
+				}
+
+				$.post('__APP__/Fs/send',o,function(d){
+					
+				});
+			});
+			
+
+			
+			max_height('form_content',false);
+
+			app.ue = UE.getEditor('form_content_textarea',{
+				initialFrameHeight: (parent.mainPage?parent.mainPage.height:$(window).height()) - $('#form_content').offset().top -100
+			});
+
+
+			$('#edit-form').click(function(){
+				layer.open({					
+					type: 2,
+					isOutAnim: false ,
+					title: '<span class = "text-color2">编辑流程</span>',
+					maxmin: true,
+					shadeClose: true, //点击遮罩关闭层
+					area : [parent.mainPage.layerWidth,'100%'],
+					content: '__APP__/Fs/customFlow',
+					success : function (layero,index){
+						let top = ($('.layui-layer-title').eq($('.layui-layer').length - 1).height() - 32) / 2;
+						let left = ($('.layui-layer-title').eq($('.layui-layer').length - 1).width() - 51) / 2;
+						if(top < 0) top = 4.5;
+						parent.$('.layui-layer').eq($('.layui-layer').length - 1).append('<button id = "flow_save" style = "position:absolute;top:'+top+'px;left:'+left+'px;z-index:9999999999;cursor:pointer" class = "btn btn-default height32 btn-noshadow">保存</button>');
+
+						$('#flow_save').click(function(){
+							var iframeWin = window[layero.find('iframe')[0]['name']];
+							iframeWin.flow.save();
+						});
+					}
+				});
+			});
+		}
+
+		
+
+	}
+	app.ini();
+	
+</script>
+
+
+

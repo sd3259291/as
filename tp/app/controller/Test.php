@@ -1,4 +1,5 @@
 <?php
+
 namespace app\controller;
 use app\BaseController;
 use think\facade\View;
@@ -7,8 +8,9 @@ use think\facade\Cache;
 use app\model\Role;
 use app\model\User;
 use app\model\RoleUser;
+use think\facade\Db;
 
-class Test extends BaseController
+class Test
 {
 	/**
      * 用户管理
@@ -19,6 +21,12 @@ class Test extends BaseController
 
 
     }
+
+	public function test(){
+
+		echo 1;
+	
+	}
 
 	
 

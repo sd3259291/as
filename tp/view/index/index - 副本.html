@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <!-- Bootstrap Styles-->
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+    <!-- FontAwesome Styles-->
+    <link href="__PUBLIC__/css/font-awesome.css" rel="stylesheet" />
+    
+    <!-- Custom Styles-->
+    
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/extensions/AutoFill/css/dataTables.autoFill.min.css">
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/FixedColumns-3.2.4/css/fixedColumns.bootstrap.css">
+    <!-- Google Fonts-->
+	
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+
+
+	<style type="text/css" media='print'>
+		.printno:not(.print){display:none;}
+		 #page-wrapper{margin:0}
+		 .print_block{display:block !important};
+		 .print_inline{display:inline !important};
+	</style>
+
+</head>
+
+<body style = 'overflow-y:hidden1'>
+
+    <div id="wrapper">
+        <!--<nav class="navbar navbar-default top-navbar printno" role="navigation" style = ''>-->
+		<nav class="top-navbar printno" role="navigation" style = ''>
+            <div class="navbar-header">
+                <a id = 'indexflowsindex' class="navbar-brand waves-effect waves-dark a_url" data-url = '__APP__/index/Flows/index' href="javascript:void(0)"><i class="large material-icons" style = 'padding-top:5px'>insert_chart</i><span class='top_company_name' ></span></a>
+				<div id="sideNav"><i class="material-icons noselect" style = 'padding-top:10px'>toc</i><span></span></div>
+            </div>
+			<span  href="javascript:void(0)" id='ttl' style = 'float:left'><span class = 'text-color1'>Home</span></span>
+
+            <ul class="nav navbar-top-links navbar-right" style='margin-right:0px;'> 
+			<!--<span style = 'display:inline-block;border:1px s1olid red;'></span>-->
+				  <li><a class="dropdown-button waves-effect waves-dark" href="#!" data-activates="dropdown1"> <b>{$Request.session.userinfo.name}</b> <i class="material-icons right">arrow_drop_down</i></a></li>
+            </ul>
+
+        </nav>
+
+		
+
+
+		<!-- Dropdown Structure -->
+		<ul id="dropdown1" class="dropdown-content printno">
+
+			<li><a href="javascript:void(0)" class='a_url' data-url = '__APP__/index/P/modify_password'><i class="fa fa-sign-out fa-fw"></i>个人信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li>
+
+			<li><a href="__APP__/index/Login"><i class="fa fa-sign-out fa-fw"></i>注销</a></li>
+		</ul>
+
+
+	    <!--/. NAV TOP  -->
+		
+        <nav class="navbar-default navbar-side printno" role="navigation" id = 'leftmenu'>
+            <div class="sidebar-collapse">
+                <ul class="nav" id="main-menu" >
+				
+					{volist name="lists" id="li"}
+						<li>
+							<a class="active-menu waves-effect waves-dark" >
+								<i class="material-icons" >{$li.icon}</i>{$li.name}
+							</a>
+							<ul class="nav nav-second-level">
+							{volist name = 'li.children' id = 'l'}
+								<li style='display:relative;padd1ing-left:10px'>
+									<a href="javascript:void(0)" data-url = '__APP__/{$l.url}'  class='a_url' data-ttl = '{$l.name}' data-ttl2 = '{$li.name}'>{$l.name}</a>
+								</li>
+							{/volist}
+							</ul>
+						</li>
+					{/volist}
+				
+                </ul>
+            </div>
+        </nav>
+	
+
+
+      
+      
+		<div id="page-wrapper" class = 'printno'>
+			
+			<!-- 多窗口表头 -->
+			<div class="header" id='page-header' style = ''>
+               <h1 class="page-header" style='padding:0;position:relative' id = 'multi-head' ></h1>
+			</div>
+			<!-- 多窗口表头 结束 -->
+            <div id="page-inner" style = ''>
+
+				
+
+				
+
+			</div>
+           
+        </div>
+
+
+
+
+
+
+
+       
+    </div>
+	<div id='ajax_pop' style='position:fixed;width:100%;z-index:99999999999;top:40px;height:100%;display:none;text-align:right;padding:2px;color:#ff6600'>
+		
+		<img src = '__PUBLIC__/image/loading-0.gif' class = 'height12 noselect' />
+		
+	</div>
+    <script src="__PUBLIC__/js/jquery-2.0.3.min.js"></script>
+	<!-- Bootstrap Js -->
+    <script src="__PUBLIC__/js/bootstrap.min.js"></script>
+	
+    <!-- Metis Menu Js -->
+    <script src="__PUBLIC__/js/jquery.metisMenu.js"></script>
+    <!-- Custom Js -->
+	<script src="__PUBLIC__/js/tool.js"></script>
+    
+	<script type="text/javascript" src="__PUBLIC__/js/DataTables-1.10.0/media/js/jquery.dataTables.min.js"></script>
+	<script src="__PUBLIC__/js/DataTables-1.10.0/FixedColumns-3.2.4/js/dataTables.fixedColumns.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<!--<script src="__PUBLIC__/Js/echarts.js"></script>
+	<script src="__PUBLIC__/Js/echarts_theme1.js"></script>-->
+	<script type="text/javascript" src="__PUBLIC__/js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
+	<script src="__PUBLIC__/js/form.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/jquery.nicescroll-master/jquery.nicescroll.min.js"></script>
+	<script src="__PUBLIC__/js/custom-scripts.js"></script>
+
+	<style type="text/css">
+		div.mul-page{display:inline-block;height:24px;background:#fff;padding:0 0 0 10px;cursor:pointer;border-right:1px solid #e0e0e0}
+		div.mul-page div{display:inline-block;height:24px;}
+		div.mul-page-div1{color:#7c7c7c}
+		div.mul-page-div2{width:24px;text-align:center;font-size:14px;}
+		div.mul-dlt{height:16px !important;width:16px;line-height:16px;vertical-align:middle;color:#a3a3a3}
+		div.mul-dlt:hover{color:#E85244}
+		.show-iframe{border-bottom:2px solid #2aa515;height:25px !important}
+		.show-iframe div.mul-page-div1{color:#2a2a2a}
+	</style>
+
+	<script>
+
+
+	
+	
+
+	window.layerWidth = '1200px';
+
+	var mainPage = {
+		
+		loadIndex : 0,
+		homePage : { 
+			url : '__APP__/F/manage' ,
+			name : "我的桌面",
+			id : 'indexdeptindex'
+		},
+		mainFlag : 1,
+		mainHeight : $('#page-inner').height() + parseInt(($('#page-inner').css('marginTop'))),
+		height : $('#page-inner').height()  + parseInt(($('#page-inner').css('marginTop'))),
+		multiType : 0,  // 1 多窗口   0 单窗口
+		layerWidth : 0,
+		iframes : new Map(),
+		lastPageId : '',
+		currentPageId : '',
+		show_iframe(id){
+			$('.mul-page-div1').parent().removeClass('show-iframe');
+			$('#l' + id).parent().addClass('show-iframe');
+
+		},
+		change_iframe : function(url,name,args,id = ''){
+			if(top.mainPage.multiType == 0){
+				$.post(url,args,function(d){
+					$('#page-inner').html(d);
+					$('#ttl').text(name);
+				});
+			}else{
+
+				if( id == ''){
+					id = mainPage.currentPageId;
+				}
+				
+				top.$('#l' + id).attr('data-name',name);
+				top.$('#l' + id).attr('data-url' ,url);
+				//top.$('#l' + id).attr('data-id','l' + id);
+				
+				top.$('#l' + id).text(name);
+				let tmp = mainPage.iframes.get(id);
+				tmp.url = url;
+				mainPage.iframes.set(id,tmp);
+
+
+				if(args == ''){
+					get_parent().location = url;
+				}else{
+					let form = $("<form method='post'></form>");
+					form.attr({"action":url});
+					for (arg in args)
+					{
+						var input = $("<input type='hidden'>");
+						input.attr({"name":arg});
+						input.val(args[arg]);
+						form.append(input);
+					}
+					get_parent().$("html").append(form);
+					form.submit();
+				}
+
+				
+			}
+		},
+		dlt_iframe: function(id){
+
+			if(id == this.homePage.id) return false;
+			this.iframes.delete(id);
+
+
+			if(id == this.currentPageId){
+				let prevId = $('#l' + id).parent().prev().find('.mul-page-div1').eq(0).data('id');
+	
+				this.add_iframe('','',prevId);
+			} 
+			$('#l' + id).parent().remove();
+			$('#i' + id).remove();
+			return false;
+		},
+		add_iframe : function(url,name,id = '',ddh = '') {
+
+			if(id == '') id = url.substr(url.lastIndexOf('/',  url.lastIndexOf( '/', url.lastIndexOf('/') - 1 ) - 1)+1 ).toLowerCase().replace('/','').replace('/','');
+			
+			this.currentPageId = id;
+			if($('#multi-head').children().length == 0){
+				
+				$('#multi-head').append("<div id = 'multipage' style = 'font-size:12px;font-weight:normal;position:absolute;top:6px;left:30px;width:100%;height:24px;line-height:24px'></div>");
+
+				$('#multipage').width(($(window).width() - $('#multipage').offset().left));
+
+				$('#multipage').on('click','.mul-page-div1',function(){
+					mainPage.add_iframe($(this).data('url'),$(this).data('name'),$(this).data('id'));
+				});
+
+				$('#multipage').on('click','.mul-dlt',function(){
+					
+					mainPage.dlt_iframe($(this).parent().prev().data('id'));
+				});
+			}
+			$('.iframe').hide();
+
+
+			
+			
+				
+			if(mainPage.iframes.get(id) != undefined && mainPage.iframes.get(id).exist == 1){
+				
+				if(ddh != ''){
+					frames[id].$('#ddh').val(ddh);
+					frames[id].form.ddh();
+				}
+				$('#i'+id).show();
+
+	
+
+				if(url == '' || url == mainPage.iframes.get(id).url){
+					
+				}else{
+
+					mainPage.change_iframe(url,name,'',id);
+				}
+			}else{
+				mainPage.iframes.set(id,{exist : 1,id : id ,url : url});
+				if( id == mainPage.homePage.id){
+					$('#multipage').append("<div class = 'mul-page' ><div class = 'mul-page-div1' id = 'l"+id+"' data-name = '"+name+"' data-url = '"+url+"' data-id = '"+id+"'>"+name+"</div><div class = 'mul-page-div2' style = 'width:10px'><div class = 'mul-dlt'></div></div></div>");
+				}else{
+					$('#multipage').append("<div class = 'mul-page' ><div class = 'mul-page-div1' id = 'l"+id+"' data-name = '"+name+"' data-url = '"+url+"' data-id = '"+id+"'>"+name+"</div><div class = 'mul-page-div2'><div class = 'mul-dlt'>×</div></div></div>");
+				}
+				mainPage.loadIndex = layer.load(2,{offset:['20%']});
+				$('#page-inner').append("<iframe id = 'i"+id+"' class = 'iframe' style = 'margin:0;padding:0;height:"+mainPage.mainHeight+"px;width:100%' src = '"+url+"' name = '"+id+"' frameborder = '0' scrolling='no' ></iframe>");
+			}
+			
+			mainPage.show_iframe(id);
+
+			
+		},
+
+		ini : function(){
+			
+			
+			
+
+			this.layerWidth = $(document).width() * 0.98;
+
+			if(this.layerWidth > 1200){
+				this.layerWidth = '1200px'; 
+			}else{
+				this.layerWidth = '98%';
+			}
+			if(this.multiType == 0 ){   // 单页面模式
+				
+				
+				
+				$.post(mainPage.homePage.url,'',function(d){
+					//$('#page-inner').html(d);
+				});
+			}else{		//多页面模式
+				this.height -= 58;
+				//this.add_iframe(this.homePage.url,this.homePage.name,this.homePage.id);
+				//this.add_iframe('__APP__/index/C/thd_list','Test','fafasf');
+			}
+			
+
+			$('body').on('click','a.a_url',function(){
+				if(mainPage.multiType == 1 ){
+					let url  = $(this).data('url');
+					let name = $(this).text();
+					let id   = $(this).prop('id');
+					mainPage.add_iframe(url,name,id);
+				}else{
+					var ttl = $(this).data('ttl');
+					$('#ttl').html("<span class = 'text-color1'>"+$(this).data('ttl2')+"</span> / "+$(this).data('ttl'));
+					$('.clone_thead').remove();
+					$('#research_background').remove();
+					$.post($(this).data('url'),'',function(d){
+						$('#page-inner').html(d);
+						
+					});
+				}
+			});
+
+
+
+		},
+
+	};
+	
+	//mainPage.ini();
+
+	
+	
+	
+	</script>
+</body>
+
+</html>
+
+

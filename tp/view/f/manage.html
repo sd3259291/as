@@ -1,0 +1,250 @@
+<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
+<link rel="stylesheet" href="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.min.css" type="text/css">
+
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+			<div class = 'col s12'>
+				<div class="btn-group left  margin-right-100" role="group" >
+					<button class = 'btn btn-default btn-default-1' id = 'new' >  <i class="material-icons text-color2"  >add_box</i> 新增</button>
+					<button class = 'btn btn-default btn-default-1' id = 'edit-form'>  <i class="material-icons text-color5"  >create</i> 编辑表单</button>
+					<button class = 'btn btn-default btn-default-1' id = 'edit-flow'>  <i class="material-icons text-color5"  >create</i> 编辑流程</button>
+					<button class = 'btn btn-default btn-default-1' id = 'dlt' >  <i class="material-icons text-color3"  >clear</i> 删除</button>
+					<button class = 'btn btn-default btn-default-1' id = 'change_status'>  <i class="material-icons text-color4"  >transform</i> 禁用/启用</button>
+					<button class = 'btn btn-default btn-default-1' id = 'search'>  <i class="material-icons text-color1"  >search</i> 搜索</button>
+				</div>
+				<div class = 'relative left'>
+					<input type = 'text' id = 'search_table' class = 'width-200' placeholder = '表单内搜索' />
+					<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
+				</div>
+			</div>
+
+			
+		</div>
+
+		<div class = 'row row-body'>
+			<div class = 'col s12'>
+				<table class = 'dataTable centered dataTable centered table-gray-header cell-border stripe' id = 'table'>
+					<thead>
+						<tr><th>类型</th><th>表单名</th><th>创建人</th><th>状态</th><th>创建时间</th><th>修改时间</th></tr>
+					</thead>
+					<tbody>
+						{volist name = 'flow' id = 'f'}
+						<tr data-id = '{$f.id}'><td>类型</td><td>{$f.title}</td><td>{$f.maker}</td><td>{$f.status ? '发布':'未发布'}</td><td>{$f.create_datetime}</td><td>{$f.modify_datetime}</td></tr>
+						{/volist}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		
+		
+		
+		{include file='public/page/page' /}
+	
+
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+
+	var app = {
+
+		searchOption : {},
+
+		flow_name : '',
+
+		step_1_html : '',
+
+		flow_id : 0,
+
+		tdWidth : '',
+
+		table : {},
+
+		step_1 : function(){
+			parent.layer.open({					
+				type: 2,
+				isOutAnim: false ,
+				title: '<span class = "text-color2">第一步</span> - 流程表格',
+				maxmin: true,
+				shadeClose: true, //点击遮罩关闭层
+				area : [ parent.mainPage.layerWidth , '100%' ],
+				content: '__APP__/F/step_1?id=' + app.flow_id,
+			});
+		},
+
+		step_2 : function( id = 0 ){
+			parent.layer.closeAll();
+			parent.layer.open({					
+				type: 2,
+				isOutAnim: false ,
+				title: '<span class = "text-color3">第二步</span> - 数据管理',
+				maxmin: true,
+				shadeClose: true, //点击遮罩关闭层
+				area : [parent.mainPage.layerWidth,'100%'],
+				content: '__APP__/F/step_2?id=' + id,
+			});
+		},
+
+		add_new_flow(data){
+			let tr = $("<tr><td>类型</td><td>"+data.title+"</td><td>"+data.maker+"</td><td>未发布</td><td>"+data.create_datetime+"</td><td></td></tr>");
+			app.table.row.add(tr).draw();
+		},
+
+		ini : function(){
+
+			app.table = d_table();
+
+			let div = [
+				{ 'name' : '登录名：' ,'id' : 'username' ,'type' : 'text'},
+				{ 'name' : '用户名：' ,'id' : 'name' ,'type' : 'text'},
+				{ 'name' : '密码：' ,'id' : 'password' ,'type' : 'text'},
+			];
+
+			$('#new').click(function(){
+				app.step_1_html = '';
+				parent.layer.open({
+					type: 2,
+					isOutAnim: false ,
+					title: '<span class = "text-color2">第一步</span> - 创建表格 ',
+					maxmin: true,
+					shadeClose: true, //点击遮罩关闭层
+					area : [parent.mainPage.layerWidth,'100%'],
+					content: '__APP__/F/step_1?id=0',
+					success : function(){
+						app.flow_id = 0;
+						app.tdWidth = '';
+					},
+				});
+			});
+
+			$('#edit-form').click(function(){
+				app.step_1_html = '';
+				if($('#table tbody tr.selected').length == 0) return false;
+				let id = $('#table tbody tr.selected').eq(0).data('id');
+				let title = $('#table tbody tr.selected').eq(0).children().eq(1).text()
+				parent.layer.open({
+					skin: 'layer-edit-container',
+					type: 2,
+					isOutAnim: false ,
+					title: '编辑表单 - ' + title,
+					maxmin: true,
+					shadeClose: true, //点击遮罩关闭层
+					area : [parent.mainPage.layerWidth,'100%'],
+					content: '__APP__/F/step_1?id='+id,
+					success : function(){
+						app.flow_id = id;
+					},
+					
+				});
+			});
+
+
+			$('#edit-flow').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+				let id = $('#table tbody tr.selected').eq(0).data('id');
+				let index = parent.layer.open({
+					type:2,
+					isOutAnim:false,
+					title:'制作流程',
+					maxmin:true,
+					shadeClose:true,
+					area:[parent.mainPage.layerWidth,'100%'],
+					offset:'1px',
+					content:'__APP__/F/flow?id='+id,
+					success : function (layero,index){
+						let top = ($('.layui-layer-title').eq($('.layui-layer').length - 1).height() - 32) / 2;
+						let left = ($('.layui-layer-title').eq($('.layui-layer').length - 1).width() - 51) / 2;
+
+						
+
+						if(top < 0) top = 4.5;
+
+
+						parent.$('.layui-layer').eq($('.layui-layer').length - 1).append('<button id = "flow_save" style = "position:absolute;top:'+top+'px;left:'+left+'px;z-index:9999999999;cursor:pointer" class = "btn btn-default height32 btn-noshadow">保存</button>');
+
+						$('#flow_save').click(function(){
+							
+							var iframeWin = window[layero.find('iframe')[0]['name']];
+							iframeWin.flow.save();
+						});
+					}
+				});
+			});
+
+		
+			$('#search_table').keypress(function(e){
+				let text = $.trim($(this).val());
+				if(e.keyCode == 13){
+					app.table.search(text).draw();
+				}
+			});
+
+			page('__APP__/Auth/getUser',app.table,app.searchOption);
+
+			$('#search').click(function(){
+				let div2 = [
+					{ 'name' : '登录名：' ,'id' : 'username' ,'type' : 'text'},
+					{ 'name' : '用户名：' ,'id' : 'name' ,'type' : 'text'}, 
+				];
+
+				parent.layer.open({
+					skin: 'layer-search-container',
+					title : '搜索用户',
+					offset : ['40px'],
+					area  : ['600px',"300px"],
+					type  : 1,
+					btn   : ['搜索','清除'],
+					shadeClose:true,
+					isOutAnim: false,
+					content : create_new_div( div2 ),
+					success : function(){
+						for(let s of div2){
+							$('#' + s.id).val( app.searchOption[s.id] );
+						}
+					},
+					btn2 : function(){
+						for(let s of div2){
+							$('#' + s.id).val('');
+						}
+						return false;
+					},
+					yes : function(index){
+						let o = get_page();
+						
+						let hasOption = false;
+						for(let s of div2){
+							o[s.id] = $('#' + s.id).val();
+							app.searchOption[s.id] = $('#' + s.id).val();
+							if(app.searchOption[s.id] != '') hasOption = true;
+						}
+
+						if(hasOption){
+							$('#search').addClass('has-option');
+						}else{
+							$('#search').removeClass('has-option');
+						}
+						
+						page_callback(o,'__APP__/Auth/getUser',table);
+						parent.layer.close(index);
+					}
+				});
+			});
+
+			$('#table tr').eq(4).addClass('selected');
+
+			$('#edit-form').trigger('click');
+
+		},	
+
+	}
+	app.ini();
+	//app.step_1();
+</script>
+
+
+

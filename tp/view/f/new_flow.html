@@ -1,0 +1,74 @@
+<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
+<link rel="stylesheet" href="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.min.css" type="text/css">
+
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+
+			<div class = 'col s6'>
+				标题：<input type = 'text' class = 'aya-input width-200' />
+			</div>
+
+			<div class = 'col s6'>
+				
+					
+					
+					<button class = 'btn btn-default btn-default-1' id = 'edit-form'>  <i class="material-icons text-color5"  >share</i> 编辑流程</button>
+
+					<button class = 'btn btn-default btn-default-1' id = 'select-form'>  <i class="material-icons text-color5"  >subject</i> 流程模板</button>
+
+					<button class = 'btn btn-default btn-default-1' id = 'new' >  <i class="material-icons text-color3"  >add_box</i> 发送</button>
+
+
+
+			</div>
+		</div>
+
+		<div class = 'row row-body' >
+			
+		</div>
+		
+		
+		
+		
+
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+
+	var app = {
+
+		flow_template_id : 0,
+
+		flow_node : [],
+
+		flow_p : [],
+
+		ini : function(){
+			$('#edit-form').click(function(){
+				layer.open({					
+					type: 2,
+					isOutAnim: false ,
+					title: '<span class = "text-color2">编辑流程</span>',
+					maxmin: true,
+					shadeClose: true, //点击遮罩关闭层
+					area : [parent.mainPage.layerWidth,'100%'],
+					content: '__APP__/F/customFlow',
+				});
+			});
+		}
+
+		
+
+	}
+	app.ini();
+	//app.step_1();
+</script>
+
+
+

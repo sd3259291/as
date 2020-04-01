@@ -131,10 +131,13 @@ var layer = {
   },
   
   msg: function(content, options, end){ //最常用提示层
+	
     var type = typeof options === 'function', rskin = ready.config.skin;
     var skin = (rskin ? rskin + ' ' + rskin + '-msg' : '')||'layui-layer-msg';
     var anim = doms.anim.length - 1;
+
     if(type) end = options;
+
     return layer.open($.extend({
       content: content,
       time: 3000,
@@ -154,7 +157,8 @@ var layer = {
          options.skin = skin + ' ' + (options.skin||'layui-layer-hui');
        }
        return options;
-    }()));  
+    }()));
+	
   },
   
   load: function(icon, options){
@@ -184,6 +188,7 @@ var Class = function(setings){
   var that = this;
   that.index = ++layer.index;
   that.config = $.extend({}, that.config, ready.config, setings);
+
   document.body ? that.creat() : setTimeout(function(){
     that.creat();
   }, 30);
@@ -216,6 +221,8 @@ Class.pt.config = {
   scrollbar: true, //是否允许浏览器滚动条
   tips: 2
 };
+
+  
 
 //容器
 Class.pt.vessel = function(conType, callback){
@@ -265,6 +272,9 @@ Class.pt.creat = function(){
   ,content = config.content
   ,conType = typeof content === 'object'
   ,body = $('body');
+
+
+ 
   
   if(config.id && $('#'+config.id)[0])  return;
 
@@ -342,6 +352,8 @@ Class.pt.creat = function(){
     });
   }
   
+	
+
   config.time <= 0 || setTimeout(function(){
     layer.close(that.index)
   }, config.time);
@@ -688,6 +700,8 @@ Class.pt.callback = function(){
   });
 
   config.end && (ready.end[that.index] = config.end);
+
+  
 };
 
 //for ie6 恢复select
@@ -902,8 +916,13 @@ layer.title = function(name, index){
 
 //关闭layer总方法
 layer.close = function(index){
+	
   var layero = $('#'+ doms[0] + index), type = layero.attr('type'), closeAnim = 'layer-anim-close';
+ 
   if(!layero[0]) return;
+
+  layero.remove();
+ 
   var WRAP = 'layui-layer-wrap', remove = function(){
     if(type === ready.type[1] && layero.attr('conType') === 'object'){
       layero.children(':not(.'+ doms[5] +')').remove();
@@ -912,6 +931,7 @@ layer.close = function(index){
         wrap.unwrap();
       }
       wrap.css('display', wrap.data('display')).removeClass(WRAP);
+
     } else {
       //低版本IE 回收 iframe
       if(type === ready.type[2]){
@@ -925,6 +945,7 @@ layer.close = function(index){
       layero[0].innerHTML = '';
       layero.remove();
     }
+	
     typeof ready.end[index] === 'function' && ready.end[index]();
     delete ready.end[index];
   };
@@ -1275,7 +1296,11 @@ ready.run = function(_$){
   win = $(window);
   doms.html = $('html');
   layer.open = function(deliver){
+	 
     var o = new Class(deliver);
+	
+	
+	
     return o.index;
   };
 };

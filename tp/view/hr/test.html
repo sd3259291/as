@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+	
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <!-- Bootstrap Styles-->
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+    <!-- FontAwesome Styles-->
+    <link href="__PUBLIC__/css/font-awesome.css" rel="stylesheet" />
+	
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/bootstrap-select/dist/css/bootstrap-select.min.css" type="text/css">
+	<style type="text/css">
+		body{background:#fff;font-size:12px}
+		table{table-layout:fixed}
+		table tbody tr td{padding:0;height:36px	}
+		
+		table tbody tr td input{margin:0;height:32px !important;border:0 !important}
+		table tbody tr td select{margin:0;height:32px !important;border:1px solid #dfdfdf !important;width:auto	}
+		table thead tr th{padding:8px 0 8px 0;font-weight:normal}
+		table tbody tr td.edit{padding:0;margin:0}
+	
+		table.employee_update{table-layout:auto}
+		table.employee_update tbody td{padding:5px 20px 5px 20px}
+	</style>
+	<script src="__PUBLIC__/js/jquery-2.0.3.min.js"></script>
+	<script src="__PUBLIC__/js/layer-v3.1.1/layer/layer.js"></script>
+	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+	
+</head>
+
+<body>
+<div class = 'container-fluid' style = 'padding:0 20px;margin:0'>
+	<div>&nbsp;</div>
+	<div class="row border">
+		<table class = ' centered bordered' id = 'info'>
+			<thead>
+
+			</thead>
+			<tbody>
+				<tr>
+					<td class = 'teal lighten-2 white-text'>基本信息</td>
+					<td colspan = 5>
+						<button class = 'btn btn-default btn-default-1' id = 'save'>  <i class="material-icons text-color2" style = 'color:' >save</i> 保存</button>	
+					</td>
+				</tr>
+				<tr>
+				<td rowspan = 9 style='padding-top:33px;vertical-align:top'><img src = '/a1/photo/employee/{e.number}.jpg' alt = '-' style = 'width:136px;margin-top:0'/></td>
+					<td>姓名</td>
+					<td class = 'blue-text text-darken-2 field' >
+						<input type = 'text' class = 'aya-input height32'/>
+					</td>
+					<td>部门</td>
+					<td class = 'blue-text text-darken-2'>
+						<select id = 'department_id' >
+							{volist name = 'department' id = 'd'}
+							<option value = '{$d.id}'>{$d.name}</option>
+							{/volist}
+						</select>
+					</td>
+
+					<td>岗位</td>
+					<td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'post_id' readonly />
+					</td>
+				</tr>
+				<tr>
+					<td>性别</td><td class = 'blue-text text-darken-2 field'>
+						<select id = 'sex' class = 'browser-default'>
+							<option value = 1 >男</option>
+							<option value = 0 >女</option>
+						</select>
+					</td>
+					<td>婚姻状况</td><td class = 'blue-text text-darken-2 field' >
+						<select id = 'married' class = 'browser-default'>
+							<option value = 1 >已婚</option>
+							<option value = 0 >未婚</option>
+						</select>
+					</td>
+					</td><td>政治面貌</td><td class = 'blue-text text-darken-2 field'>
+						<select id = 'zzmm' class = 'browser-default'>
+							<option value = 1 >群众</option>
+							<option value = 0 >党员</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>身份证号</td>
+					<td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'idcard'/>
+					</td>
+					<td>工号</td><td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'number'/>
+					</td>
+					</td><td>是否住宿</td><td class = 'blue-text text-darken-2 field'>
+						<select id = 'zs' class = 'browser-default'>
+							<option value = 0 >否</option>
+							<option value = 1 >是</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+				
+					<td>入职日期</td>
+					<td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'entry_date' value = '{$date}'/>
+					</td>
+					</td><td>离职日期</td>
+					<td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'resign_date'/>
+					</td>
+				</tr>
+				<tr>
+					<td>电话</td>
+					<td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'tel'/>
+					</td>
+					<td>紧急联系人</td><td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'emergency_contact'/>
+					</td>
+					</td><td>紧急联系人电话</td>
+					<td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'emergency_contact_tel'/>
+					</td>
+				</tr>
+				<tr>
+					<td>合同签订日期</td>
+					<td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'resign_date' value = '{$date}'/>
+					</td>
+					<td>合同截止日期</td>
+					<td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'resign_date'/>
+					</td>
+					</td><td>身份证有效日期</td>
+					<td class = 'blue-text text-darken-2'>
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'resign_date'/>
+					</td>
+
+				</tr>
+				
+
+				
+				<tr>
+					<td>家庭住址</td>
+					<td class = 'blue-text text-darken-2' colspan = 5 >
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'resign_date'/>
+					</td>
+				</tr>
+				<tr>
+					<td>现住址</td>
+					<td class = 'blue-text text-darken-2' colspan = 5 >
+						<input type = 'text' class = 'aya-input height32 field' data-field = 'resign_date'/>
+					</td>
+				</tr>
+				<tr>
+					
+				</tr>
+			</tbody>
+		</table>
+		
+		<table class = ' centered bordered' >
+			<tbody>
+				<tr><td class = 'teal lighten-2 white-text'>公司经历</td><td></td><td></td><td></td><td></td><td></td><td></td>
+				</tr>
+			</tbody>
+		</table>
+		<table  class = ' centered bordered a1'>
+			<thead>
+				<!--<tr><th>序号</th><th>日期</th><th class = 'center' colspan = 5>内容</th><tr>-->
+			</thead>
+			<tbody>
+				
+				
+
+				
+			</tbody>
+		</table>
+
+
+
+		<table class = ' centered bordered' >
+			<tbody>
+				<tr><td class = 'teal lighten-2 white-text' id='education'>教育经历</td><td></td><td></td><td></td><td></td><td></td><td></td>
+				</tr>
+			</tbody>
+		</table>
+		<table  class = ' centered bordered a1' id='educationTable'>
+			<thead>
+				<tr><th>入学日期</th><th>毕业日期</th><th>毕业院校</th><th>专业</th><th>学历</th><th>最高学历</th><tr>
+			</thead>
+			<tbody>
+				
+			</tbody>
+		</table>
+
+
+		<table class = ' centered bordered' >
+			<tbody>
+				<tr><td class = 'teal lighten-2 white-text' id='workexperience'>工作经历</td>
+				<td></td><td></td><td></td><td></td><td></td><td></td>
+				</tr>
+			</tbody>
+		</table>
+		<table class = ' centered bordered a1' id = 'workexperienceTable'>
+			<thead>
+				<tr><th>开始日期</th><th>结束日期</th><th colspan = 2>工作单位</th><th>部门</th><th>担任职务</th><tr>
+			</thead>
+			<tbody>
+				
+			</tbody>
+		</table>
+		
+	</div>
+
+</div>
+
+<!--<input id = 'lzrq' value = '{e.lzrq}' style = 'padding:0;margin:0;border:0;font-size:12px;text-align:center' readonly/>-->
+
+<script>
+
+	
+	$('#department_id').selectpicker({'width':'auto'});
+
+
+	var focus_object = {};
+	
+	$('table.a1').each(function(){
+		if($(this).children().eq(1).children().length == 0) $(this).hide();
+
+	});
+	
+	
+	
+
+	$('#save').click(function(){
+		var o = {};
+		
+		o.id = $('#id').val();
+
+		$('.field2').each(function(){
+			o[$(this).attr('id')] = $(this).val();
+		});
+		
+		var tmp = [];
+		$('#educationTable tbody tr').each(function(){
+			var tmp1 = {};
+			tmp1.rxrq = $.trim($(this).children().eq(0).text());
+			tmp1.byrq = $.trim($(this).children().eq(1).text());
+			tmp1.byyx = $.trim($(this).children().eq(2).text());
+			tmp1.zy = $.trim($(this).children().eq(3).text());
+			tmp1.xl = $.trim($(this).children().eq(4).text());
+			tmp1.zgxl = $.trim($(this).children().eq(5).text());
+			tmp.push(tmp1);
+		});
+		o.education = tmp;
+		
+		tmp = [];
+		$('#workexperienceTable tbody tr').each(function(){
+			var tmp1 = {};
+			tmp1.start = $.trim($(this).children().eq(0).text());
+			tmp1.end = $.trim($(this).children().eq(1).text());
+			tmp1.gzdw = $.trim($(this).children().eq(2).text());
+			tmp1.bm = $.trim($(this).children().eq(3).text());
+			tmp1.drzw = $.trim($(this).children().eq(4).text());
+			tmp.push(tmp1);
+		});
+		o.workexperience = tmp;
+	
+		
+		$.post('__URL__/save',o,function(d){
+			if(d.status == 's'){
+				parent.layer.msg('保存成功！', {shade: 0.3,time:1000,icon: 1})
+			}else{
+				
+				parent.layer.msg(d.info, {shade: 0.3,time:4000,icon: 2})
+			}
+		});
+	});
+
+	$('#dlt').click(function(){
+		var o = {};
+		o.id = $('#id').val();
+		$.post('__URL__/dlt',o,function(d){
+			if(d.status == 's'){
+				parent.layer.msg('删除成功！', {shade: 0.3,time:1000,icon: 1})
+			}else{
+				parent.layer.msg(d.info, {shade: 0.3,time:1000,icon: 2})
+			}
+		});
+	});
+
+	$('#edit').click(function(){
+		
+		if($(this).hasClass('gray')) return false;
+		$(this).removeClass('oran').addClass('gray');
+		$('#save').removeClass('gray').addClass('oran').css('visibility','visible');
+		$('#dlt').removeClass('gray').addClass('oran').css('visibility','visible');
+		layer.load();
+		
+		var o = [];
+		$('.enum_id').each(function(){
+			o.push($(this).val());
+		});
+		
+		
+		$.post('__APP__/index/P/get_enum',{enum_id:o},function(d){
+			layer.closeAll('loading');
+			if(d.status == 's'){
+				$('td.field').each(function(){
+					var tmp = $(this).text();
+					var field = this.dataset.field;
+					$(this).addClass('edit');
+					
+					if(this.dataset.type == 'date'){	
+						$(this).empty().append("<input class = 'field2' id = '"+field+"' value = '"+tmp+"' style = 'padding:0;margin:0;border:0;font-size:12px;text-align:center' readonly/>");
+						laydate.render({
+							elem: '#'+field
+						});	
+					}else if(this.dataset.type == 'text'){
+						$(this).empty().append("<input class = 'field2'  id = '"+field+"' value = '"+tmp+"' style = 'padding:0;margin:0;border:0;font-size:12px;text-align:"+this.dataset.align+"'/>");
+					}else if(this.dataset.type == 'enum'){
+						var select = "<select id = '"+field+"' class = 'browser-default field2' style='display:inline;width:auto;text-align:center'>";
+						for(var i in d.data[this.dataset.enum_id]){
+							if(d.data[this.dataset.enum_id][i] == tmp){
+								select += "<option value = '"+d.data[this.dataset.enum_id][i]+"' selected>"+d.data[this.dataset.enum_id][i]+"</option>";
+							}else{
+								select += "<option value = '"+d.data[this.dataset.enum_id][i]+"'>"+d.data[this.dataset.enum_id][i]+"</option>";
+							}
+						}
+						select += "</select>";
+						
+						$(this).empty().append(select);
+					}else if(this.dataset.type == 'bm'){
+						
+					}else if(this.dataset.type == 'gw'){
+						
+					}
+				});
+
+				$('.select_certifacation').click(function(){
+					focus_object = this;
+					layer.open({
+						type: 2,
+						isOutAnim: false ,
+						title: '选择证书',
+						shadeClose: true,
+						offset:'30px',
+						area : ['800px','600px'],
+						content: '__APP__/index/P/select_certification',
+					});
+
+				});
+
+
+			}else{
+				parent.layer.msg('读取数据失败！'+d.info, {shade: 0.3,time:10000,icon: 1})
+			}		
+		});
+
+		$('#education').css('cursor','pointer');
+		$('#workexperience').css('cursor','pointer');
+		$('#education').click(function(){
+			var tmp = "<table  class = ' centered bordered a1' id='educationTable2'><thead><tr><th>入学日期</th><th>毕业日期</th><th>毕业院校</th><th>专业</th><th>学历</th><th>最高学历</th><tr></thead><tbody>";
+			$('table#educationTable tbody tr').each(function(){
+				tmp += "<tr><td contenteditable = 'true'>"+$(this).children().eq(0).text()+"</td><td contenteditable = 'true'>"+$(this).children().eq(1).text()+"</td><td contenteditable = 'true'>"+$(this).children().eq(2).text()+"</td><td contenteditable = 'true'>"+$(this).children().eq(3).text()+"</td><td contenteditable = 'true'>"+$(this).children().eq(4).text()+"</td><td contenteditable = 'true'>"+$(this).children().eq(5).text()+"</td><td><a href='javascript:void(0)'>删</a></td></tr>";
+			});
+			
+			
+
+			tmp += "</tbody></table>";
+			layer.open({
+				type: 1,
+				title:'修改教育经历',
+				offset:'0px',
+				area:['900px','300px'],
+				btn:['增加','确定'],
+				yes:function(){
+					$('table#educationTable2 tbody').append("<tr><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'></td><td><a href='javascript:void(0)'>删</a></td></tr>");	
+				},
+				btn2:function(){
+					var tmp = ""
+					$('table#educationTable2 tbody').children().each(function(){
+						var tmp1 = '';
+						for(var i = 0; i < 6; i++){
+							tmp1 += $.trim($(this).children().eq(i).text());
+						}
+						if(tmp1 != ''){
+							tmp += "<tr><td>"+$.trim($(this).children().eq(0).text())+"</td><td>"+$.trim($(this).children().eq(1).text())+"</td><td>"+$.trim($(this).children().eq(2).text())+"</td><td>"+$.trim($(this).children().eq(3).text())+"</td><td>"+$.trim($(this).children().eq(4).text())+"</td><td>"+$.trim($(this).children().eq(5).text())+"</td></tr>";
+						}
+					});
+					if(tmp == ''){
+						$('#educationTable').hide();
+					}else{
+						$('#educationTable').show();
+					}
+					$('#educationTable tbody').empty().append(tmp);
+				},
+				content:tmp //这里content是一个普通的String
+			});
+
+			$("table#educationTable2 tbody").on('click','a',function(){
+				$(this).parent().parent().remove();
+			});
+
+
+		});
+
+		$('#workexperience').click(function(){
+			var tmp = "<table class = ' centered bordered a1' id = 'workexperienceTable2'><thead><tr><th>开始日期</th><th>结束日期</th><th>工作单位</th><th>部门</th><th>担任职务</th><th></th></tr></thead><tbody>";
+			$('table#workexperienceTable tbody tr').each(function(){
+				tmp += "<tr><td contenteditable = 'true'>"+$(this).children().eq(0).text()+"</td><td contenteditable = 'true'>"+$(this).children().eq(1).text()+"</td><td contenteditable = 'true'>"+$(this).children().eq(2).text()+"</td><td contenteditable = 'true'>"+$(this).children().eq(3).text()+"</td><td contenteditable = 'true'>"+$(this).children().eq(4).text()+"</td><td><a href='javascript:void(0)'>删</a></td></tr>";
+			});
+			
+
+			tmp += "</tbody></table>";
+			layer.open({
+				type: 1,
+				title:'修改工作经历',
+				offset:'0px',
+				area:['900px','300px'],
+				btn:['增加','确定'],
+				yes:function(){
+					$('table#workexperienceTable2 tbody').append("<tr><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'>&nbsp;</td><td contenteditable = 'true'></td><td contenteditable = 'true'><a href='javascript:void(0)'>删</a></td></tr>");	
+				},
+				btn2:function(){
+
+					var tmp = "";
+					$('table#workexperienceTable2 tbody').children().each(function(){
+						var tmp1 = '';
+						for(var i = 0; i < 5; i++){
+							tmp1 += $.trim($(this).children().eq(i).text());
+						}
+						if(tmp1 != ''){
+							tmp += "<tr><td>"+$.trim($(this).children().eq(0).text())+"</td><td>"+$.trim($(this).children().eq(1).text())+"</td><td colspan = 2>"+$.trim($(this).children().eq(2).text())+"</td><td>"+$.trim($(this).children().eq(3).text())+"</td><td>"+$.trim($(this).children().eq(4).text())+"</td></tr>";
+
+						}
+					});
+
+					if(tmp == ''){
+						$('#workexperienceTable').hide();
+					}else{
+						$('#workexperienceTable').show();
+					}
+					
+					$('#workexperienceTable tbody').empty().append(tmp);
+					
+				},
+				content:tmp //这里content是一个普通的String
+			});
+
+			$("#workexperienceTable2 tbody").on('click','a',function(){
+				$(this).parent().parent().remove();
+			});
+
+
+		});
+
+
+	});
+
+	$('#modified').click(function(){
+		var o = {};
+		o.id = this.dataset.id;
+		$.post('__URL__/get_employee_update',o,function(d){
+			if(d.status == 's'){
+				layer.open({
+					area:['auto'],
+					type: 1,
+					offset:'17px',
+					isOutAnim: false ,
+					shadeClose: true,
+					title:'信息修改记录',
+					content: d.data
+				});
+			}else{
+				
+				parent.layer.msg(d.info, {shade: 0.3,time:4000,icon: 2});
+			}
+		});
+	});
+	
+</script>
+
+</body>
+
+</html>

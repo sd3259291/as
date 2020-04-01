@@ -10,13 +10,12 @@ class Enum extends Model{
 		'name' => 'varchar',
 		'system' => 'int',
 		'sort' => 'int',
-		'pid' => 'int',
-		'has_detail' => 'int'
+		'pid' => 'int'
 	];
 
 	public function tree(){
 		
-		$r = $this->order('sort asc,id asc')->select()->toArray();
+		$r = $this->order('system asc,sort asc,id asc')->select()->toArray();
 		if(!$r) return json_encode(array());
 
 		$attr = $first_level = $pid = array();
@@ -25,7 +24,6 @@ class Enum extends Model{
 
 		foreach($r as $k => $v){
 			$attr[$v['id']] = $v;
-			$attr[$v['id']]['icon'] = $v['has_detail'] == 1?$img_url.'/tree_level_1.png':$img_url.'/tree_level_2.png';
 			if($v['pid'] == 0){
 				$first_level[] = $v['id'];
 			}else{
@@ -36,7 +34,7 @@ class Enum extends Model{
 		$key = array(
 			'name' => 'name',
 			'id' => 'id',
-			'icon' => 'icon'
+			'sort' => 'sort'
 			
 		);
 		$tree = $this->create_tree($attr,$pid,$first_level,$key);
@@ -57,6 +55,12 @@ class Enum extends Model{
 			}
 			$r[] = $tmp;
 		}
+		return $r;
+	}
+
+	public function mySelect(){
+		$r = $this->where(" `system` = 0 && pid > 0 ")->order('sort asc,id asc')->field('id,name')->select();
+		if(!$r) return json_encode(array());
 		return $r;
 	}
 

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/bootstrap-select/dist/css/bootstrap-select.min.css" type="text/css">
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+
+	<script src="__PUBLIC__/js/jquery-2.0.3.min.js"></script>
+	<script src="__PUBLIC__/js/bootstrap.min.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	<script src="__PUBLIC__/js/paigusu.min.js"></script>
+
+	<style type="text/css">
+		body{background:#fff;font-size:12px}
+		table tbody tr td{
+			padding:0 !important;
+			height:32px !important;
+
+			
+		}
+		input[type='text']{width:50px;margin:0;height:18px;}
+	</style>
+	
+</head>
+
+<body>
+
+<div class = 'row'>
+	<div class = 'col s12' style = 'text-align:center;'>
+		
+	
+			<button class = 'btn btn-default' id = 'back'>返回</button>
+		
+
+		
+			<button class = 'btn btn-primary' id = 'save'>确定</button>
+	
+		
+		
+		
+	</div>
+	<div class = 'col s12'>
+		<table class = 'dataTable centered cell-border table-small'>
+			<thead>
+				<tr><th>序号</th><th>数据表</th><th>字段名</th><th></th><th>名称</th><th>类型</th><th>字段类型</th><th>长度</th><th>枚举类型</th></tr>
+			</thead>
+			<tbody id = 'tbody'>
+
+			</tbody>
+		</table>
+	</div>
+	
+</div>
+
+
+
+
+
+
+<script>
+	let app = {
+
+		form_body : $(get_parent().app.step_1_html),
+		
+		flow_name : get_parent().app.flow_name,
+
+		field : '',
+
+		aIndex : {$maxI},
+
+		field : {$field|raw},
+
+		tmpPre : 'ffoorrmm', //临时前缀
+
+		rempreIndex : 0,
+
+		get_aindex : function(){
+			app.aIndex++;
+			if(app.aIndex < 10){
+				return 'i00' + app.aIndex;
+			}else if(app.aIndex < 100){
+				return 'i0' + app.aIndex;
+			}else{
+				return 'i' + app.aIndex;
+			}
+		},
+
+		get_type2 : function(field,i){
+			if(i){
+				return '-';
+			}else{
+				return "<span class = 'text-color2' >新</span>";
+			}
+			
+		},
+
+		
+		ini : function(){
+
+	
+
+			$('#back').click(function(){
+				get_parent().app.step_1();
+				var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+				parent.layer.close(index); //再执行关闭   
+			});
+
+			let tbody = "";
+			let trIndex = 1;
+			let field = '';
+			let type2 = ''; //新field 还是已存在的，或是弃用的
+			
+			let fieldType = "<select class = 'browser-default'><option value = 'varchar'>文本</option><option value = 'decimal'>小数</option></select>";
+
+			$(app.form_body).find('td').each(function(i,v){
+				let type =  $(this).data('type');
+				let parentTable = $(this).parent().parent().parent();
+				
+				if (type == 'text' || type == 'text-mul' || type == 'select-mul' || type == 'index-mul' || parentTable.hasClass('table-mul') ) return true;
+				
+				table = parentTable.attr('data-table')?parentTable.attr('data-table'):'mainform';
+
+				let length1 = '',length2 = '';
+
+				switch (type){
+					case 'input' :
+						field = $(this).attr('data-i')?$(this).attr('data-i'):app.get_aindex();
+						type2 = app.get_type2(field,$(this).attr('data-i'));
+
+						length1 = app.field[field]?app.field[field].length1:255;
+						
+						tbody += "<tr data-type = 'input' data-table = 'mainform'><td>"+(trIndex++)+"</td><td>"+(table == 'mainform'?'主表':table)+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+$(this).data('attr')+"</td><td>输入框</td><td>"+fieldType+"</td><td><input type = 'text' class = 'aya-input' value = '"+length1+"' /></td><td></td></tr>";
+						$(this).attr('data-i',field);
+					break;
+					case 'select' :
+						field = $(this).attr('data-i')?$(this).attr('data-i'):app.get_aindex();
+						type2 = app.get_type2(field,$(this).attr('data-i'));
+						tbody += "<tr data-type = 'select' data-table = 'mainform' data-select = '"+$(this).data('select')+"' ><td>"+(trIndex++)+"</td><td>"+(table == 'mainform'?'主表':table)+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+$(this).data('name')+"</td><td>选择框</td><td></td><td></td><td>"+$(this).data('name')+"</td></tr>";
+						$(this).attr('data-i',field);
+					break;
+					case 'checkbox':
+						$(this).find('input').each(function(){
+							field = $(this).attr('data-i')?$(this).attr('data-i'):app.get_aindex();
+							type2 = app.get_type2(field,$(this).attr('data-i'));
+							tbody += "<tr data-type = 'select' data-table = 'mainform'><td>"+(trIndex++)+"</td><td>"+(table == 'mainform'?'主表':table)+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+$(this).data('name')+"</td><td>复选框</td><td>整数</td><td>1</td><td></td></tr>";
+							$(this).attr('data-i',field);
+						});
+					break;
+					case 'radio' :
+						$(this).find('input').each(function(){
+							field = $(this).attr('data-i')?$(this).attr('data-i'):app.get_aindex();
+							type2 = app.get_type2(field,$(this).attr('data-i'));
+							tbody += "<tr data-type = 'select' data-table = 'mainform'><td>"+(trIndex++)+"</td><td>"+(table == 'mainform'?'主表':table)+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+$(this).data('name')+"</td><td>单选框</td><td>整数</td><td>1</td><td></td></tr>";
+							$(this).attr('data-i',field);
+						});
+					break;
+					default:
+				}
+				
+				
+
+				parentTable.attr('data-table',table);
+			});
+
+			$(app.form_body).find('.table-mul').each(function(){
+				
+				let theadTds = $(this).find('thead').eq(0).find('tr').eq(0).children();
+				let name = [];
+				for(let i = 0; i < theadTds.length ; i++){
+					name.push(theadTds.eq(i).text());
+				}
+
+				let tbodyTds = $(this).find('tbody').eq(0).find('tr').eq(0).children();
+				let type = [];
+
+				let table = $(this).data('table')?$(this).data('table'):('new' + (++app.rempreIndex));
+
+				for(let i = 0; i < tbodyTds.length ; i++){
+					let type1 = tbodyTds.eq(i).data('type');
+
+					field =tbodyTds.eq(i).data('i')?tbodyTds.eq(i).data('i'):app.get_aindex();
+					
+					type2 = app.get_type2(field,tbodyTds.eq(i).data('i'));
+
+
+					switch(type1){
+						case 'text-mul' :
+							length1 = app.field[field]?app.field[field].length1:255;
+							tbody += "<tr data-type = 'input' data-table = '"+table+"'><td>"+(trIndex++)+"</td><td>"+table+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+name[i]+"</td><td>输入框</td><td>"+fieldType+"</td><td><input type = 'text' class = 'aya-input' value = '"+length1+"' /></td><td></td></tr>";
+						break;
+						case 'select-mul' :
+							tbody += "<tr data-type = 'select' data-table = '"+table+"' data-select = '"+tbodyTds.eq(i).find('select').val()+"'><td>"+(trIndex++)+"</td><td>"+table+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+name[i]+"</td><td>选择框</td><td></td><td></td><td>"+tbodyTds.eq(i).text()+"</td></tr>";
+						break;
+						case 'index-mul' :
+							tbody += "<tr data-type = 'input' data-table = '"+table+"'><td>"+(trIndex++)+"</td><td>"+table+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+name[i]+"</td><td>序号</td><td>整数</td><td>4</td><td></td></tr>";
+						break;
+						default:
+
+						
+
+					}
+
+
+					
+					tbodyTds.eq(i).parent().parent().parent().attr('data-table',table);
+
+					tbodyTds.eq(i).attr('data-i',field);
+
+				}
+				
+			});
+
+
+			
+
+			$('#tbody').html(tbody);
+
+
+			$('#save').click(function(){
+				let o = {};
+				o.flow_name = app.flow_name;
+				o.form = $(app.form_body).prop('outerHTML');
+				o.td_width = JSON.stringify(get_parent().app.tdWidth);
+
+				o.data = [];
+				o.flow_id = '{$Request.get.id}';
+				
+				$('#tbody tr').each(function(){
+					let tmp = {};
+					let c = $(this).children();
+					tmp.table = c.eq(1).text();
+					tmp.i = c.eq(2).text();
+					tmp.type2 = c.eq(3).text();
+					tmp.label = c.eq(4).text();
+					tmp.length1 = null;
+					tmp.length2 = null;
+					tmp.enum_name = c.eq(8).text();
+					tmp.enum_id = $(this).data('select')?$(this).data('select'):null;
+
+					switch( $(this).children().eq(5).text() ){
+						case '输入框' :
+							tmp.type  = c.eq(6).find('select').val();
+							tmp.length1 = c.eq(7).find('input').val();
+						break;
+						case '选择框' :
+							tmp.type  = 'enum';
+							
+						break;
+						case '复选框' :
+							tmp.type  = 'checkbox';
+							
+						break;
+						case '单选框' :
+							tmp.type  = 'radio';
+						break;
+						case '序号' :
+							tmp.type  = 'index';
+						break;
+						default:
+					}
+
+
+					o.data.push(tmp);
+				});
+
+				
+				layer.load(2,{offset:['30%'],success:function(){
+					
+					
+					
+					
+					$.post('__APP__/F/save_table',o,function(d){
+						
+						if(d.status == 's'){
+							if(o.flow_id > 0){
+								parent.$('tr.selected').eq(0).children().eq(1).text(d.data.title);
+								parent.$('tr.selected').eq(0).children().eq(5).text(d.data.modify_datetime);
+							}else{
+								parent.app.add_new_flow(d.data);
+							}
+ 
+							
+							
+							
+							
+							var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+							
+							parent.layer.close(index); //再执行关闭 
+						}else{
+							parent.layer_error(d);
+						}
+
+						layer.closeAll('loading');
+						  
+					});
+
+				}});
+
+				
+
+
+			});
+
+		}
+	}
+	
+	
+	app.ini();
+
+	
+
+
+</script>
+
+</body>
+
+</html>

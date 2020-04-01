@@ -9,6 +9,8 @@
 					<button class = 'btn btn-default btn-default-1' id = 'enum_type_add'>  <i class="material-icons text-color2"  >add_box</i> 枚举类别 - 新增</button>
 
 					<button class = 'btn btn-default btn-default-1' id = 'enum_type_edit'>  <i class="material-icons text-color5"  >create</i> 编辑</button>
+
+					<button class = 'btn btn-default btn-default-1' id = 'enum_type_dlt'>  <i class="material-icons text-color3"  >clear</i> 删除</button>
 		
 				</div>
 			</div>
@@ -34,24 +36,17 @@
 			</div>
 
 				<div class = 'col s7' >
-				<div class = 'row new-container' >
-					
-					<div class = 'col s4'>岗位名称</div><div class = 'col s8'><input id = 'name' class = 'aya-input' type = 'text' /></div>
-					<div class = 'col s4'>岗位类型</div><div class = 'col s8'><input id = 'level' class = 'aya-input' type = 'text' readonly value = 1 /></div>
-					
-					
-					<div class = 'col s4'>排序</div><div class = 'col s8'><input id = 'sort' class = 'aya-input' type = 'text' /></div>
-					<!--
-					<div class = 'col s4'>状态</div><div class = 'col s8'>
-						<select id = 'status' class = 'browser-default'>
-							<option value = 1>启用</option>
-							<option value = 0>禁用</option>
-						</select>
+					<div class = 'relative left'>
+						<input type = 'text' id = 'search_table' class = 'width-200' placeholder = '按回车搜索' />
+						<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
 					</div>
-					-->
-					<div class = 'col s12' style = 'text-align:center'><button class = 'btn btn-primary height32' id = 'save'>保 存</button></div>
-					<input type = 'hidden' id = 'pid' />
-				</div>
+					<table class = 'dataTable centered  row-border stripe' id = 'table'>
+						<thead>
+							<tr><th>枚举名称</th><th>枚举值</th><th>排序</th><th>状态</th></tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
 			</div>
 		</div>
 		
@@ -77,11 +72,27 @@
 		ini : function(){
 			
 			max_height('ll');
+
+			let table = d_table();
+
+			$('#search_table').keypress(function(e){
+				let text = $.trim($(this).val());
+				if(e.keyCode == 13){
+					table.search(text).draw();
+				}
+			});
+
 			let zNodes = {$tree|raw};
 			let setting = {
 				callback:{
 					onClick:function(event, treeId, treeNode){
-						app.node = treeNode;	
+						app.node = treeNode;
+						let o = {};
+						o.id = treeNode.id;
+						$.post('__APP__/Basic/getEnumDetail',o,function(d){
+							table.clear();
+							table.rows.add($(d.data)).draw();
+						});
 					},
 				}
 			};
@@ -93,18 +104,16 @@
 
 			treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
 			
-
-
 			$('#enum_type_add').click(function(){
 				let div = [
-					{ 'name' : '上级枚举：' ,'id' : 'enum_type_pname' ,'type' : 'text','readonly' : true},
+					{ 'name' : '上级枚举类别：' ,'id' : 'enum_type_pname' ,'type' : 'text','readonly' : true},
 					{ 'name' : '枚举类别名称：' ,'id' : 'enum_type_name' ,'type' : 'text'},
 					{ 'name' : '排序：' , 'id' : 'enum_type_sort' ,'type' : 'text'},
 					{ 'type' : 'hidden' , 'id' : 'enum_type_pid'}
 				];
 				parent.layer.open({
-					skin: 'layer-edit-container',
-					title : '编辑节点',
+					skin: 'layer-new-container',
+					title : '新建枚举类别',
 					offset : ['40px'],
 					area  : ['600px',"300px"],
 					type  : 1,
@@ -144,13 +153,190 @@
 			$('#enum_type_edit').click(function(){
 				if(app.node == null) return false;
 				let div = [
-					{ 'name' : '上级枚举：' ,'id' : 'enum_type_pname' ,'type' : 'text','readonly' : true},
-					{ 'name' : '枚举类别名称：' ,'id' : 'enum_type_name' ,'type' : 'text'},
+					{ 'name' : '枚举类别名称：' , 'id' : 'enum_type_name' , 'type' : 'text'},
 					{ 'name' : '排序：' , 'id' : 'enum_type_sort' ,'type' : 'text'},
-					{ 'type' : 'hidden' , 'id' : 'enum_type_pid'}
+					{ 'type' : 'hidden' , 'id' : 'enum_type_id'}
 				];
+
+				parent.layer.open({
+					skin: 'layer-new-container',
+					title : '编辑枚举类别',
+					offset : ['40px'],
+					area  : ['600px',"250px"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					content : create_new_div( div ),
+					success : function(){
+						$('#enum_type_name').val( app.node.name);
+						$('#enum_type_id').val(app.node.id);
+						$('#enum_type_sort').val(app.node.sort);
+					},
+					yes : function(index){
+						let o = {};
+						for(let f of div){
+							o[f.id] = $.trim($('#' + f.id).val());
+						}
+						$.post('__APP__/Basic/editEnum',o,function(d){
+							if(d.status == 's'){
+
+								parent.layer.close(index);
+								layer_success('操作成功，刷新页面显示修改结果',2000);
+
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+
 			});
 
+			$('#enum_type_dlt').click(function(){
+				if(app.node == null) return false;
+				layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+					let o = {};
+					o.id = app.node.id;
+					$.post('__APP__/Basic/dltEnum',o,function(d){
+						if(d.status == 's'){
+							app.zTreeObj.removeNode(app.node);
+							layer_success();
+						}else{
+							layer_error(d);
+						}
+						layer.close(index);
+					});	
+				});
+
+			});
+
+
+			$('#add').click(function(){
+				if(app.node == null) return false;
+				let div = [
+					{ 'name' : '上级枚举类别：' ,'id' : 'enum_type_pname' ,'type' : 'text','readonly' : true},
+					{ 'name' : '名称：' ,'id' : 'name' ,'type' : 'text'},
+					{ 'name' : '值：' ,'id' : 'value' ,'type' : 'text'},
+					{ 'name' : '排序：' , 'id' : 'sort' ,'type' : 'text'},
+					{ 'type' : 'hidden' , 'id' : 'enum_type_pid'}
+				];
+				parent.layer.open({
+					skin: 'layer-new-container',
+					title : '新建枚举明细',
+					offset : ['40px'],
+					area  : ['600px',"400px"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					content : create_new_div( div ),
+					success : function(){
+						if(app.node != null){
+							$('#enum_type_pname').val( app.node.name);
+							$('#enum_type_pid').val(app.node.id);
+						}
+					},
+					yes : function(index){
+						let o = {};
+						for(let f of div){
+							o[f.id] = $.trim($('#' + f.id).val());
+						}
+
+
+						$.post('__APP__/Basic/addEnumDetail',o,function(d){
+							if(d.status == 's'){
+
+								table.rows.add($(d.data)).draw();
+
+								
+								layer_success();
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+			});
+
+
+			$('#edit').click(function(){
+				if($('#table tbody tr.selected').length == 0 ) return false;
+				if( !$('#table tbody tr.selected').eq(0).data('id') ) return false;
+				let div = [
+					{ 'name' : '名称：' , 'id' : 'name' , 'type' : 'text'},
+					{ 'name' : '值：' , 'id' : 'value' , 'type' : 'text'},
+					{ 'name' : '排序：' , 'id' : 'sort' ,'type' : 'text'},
+					{ 'name' : '状态：' , 'id' : 'status' ,'type' : 'select','data' : [{'id' : 1,'name' : '启用'},{'id' : 0 , 'name' :'禁用'}]},
+					{ 'type' : 'hidden' , 'id' : 'enum_type_id'}
+				];
+
+				parent.layer.open({
+					skin: 'layer-new-container',
+					title : '编辑枚举明细',
+					offset : ['40px'],
+					area  : ['600px',"400px"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					content : create_new_div( div ),
+					success : function(){
+						let tmp = $('#table tbody tr.selected').eq(0).children();
+						$('#name').val(tmp.eq(0).text());
+						$('#value').val(tmp.eq(1).text());
+						$('#sort').val(tmp.eq(2).text());
+						$('#status').val( tmp.eq(3).text() == '启用'?1:0 );
+						$('#enum_type_pid').val($('#table tbody tr.selected').eq(0).data('id'));
+					},
+					yes : function(index){
+						let o = {};
+						for(let f of div){
+							o[f.id] = $.trim($('#' + f.id).val());
+						}
+						o.id = $('#table tbody tr.selected').eq(0).data('id');
+						log(o);
+						$.post('__APP__/Basic/editEnumDetail',o,function(d){
+							if(d.status == 's'){
+
+								parent.layer.close(index);
+
+								let tmp = $('#table tbody tr.selected').eq(0).children();
+
+								tmp.eq(0).text(o.name);
+
+								tmp.eq(1).text(o.value);
+
+								tmp.eq(2).text(o.sort);
+
+								tmp.eq(3).text(o.status == 1 ? '启用' : '禁用' );
+
+								layer_success();
+
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+
+			});
+
+
+			$('#dlt').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+
+				layer.confirm('删除可能会造成不可预知的错误<br />确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+					let o = {};
+					o.id = $('#table tbody tr.selected').eq(0).data('id');
+					$.post('__APP__/Basic/dltEnumDetail',o,function(d){
+						if(d.status == 's'){
+							table.row( $('#table tbody tr.selected').eq(0) ).remove().draw();
+							layer_success();
+						}else{
+							layer_error(d);
+						}
+						layer.close(index);
+					});	
+				});
+			});
 
 		},	
 

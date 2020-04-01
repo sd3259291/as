@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+
+	<script src="__PUBLIC__/js/jquery-2.0.3.min.js"></script>
+	<script src="__PUBLIC__/js/jsplumb/dist/js/jsplumb.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<script src="__PUBLIC__/js/uuid.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	<style type="text/css">
+		#creator{
+			left:10px;
+			top:30px
+		}
+		#item_left,#item_right,#item_right2{
+			 position:absolute;
+		}
+
+		div.item{
+			line-height:32px;
+			height:32px;width:96px;
+			text-align:center;
+			border-radius:3px;
+			background:#4cae4c;
+			-moz-user-select: none;
+			CURSOR:POINTER;
+			position:absolute;
+			font-size:11px;
+			color:#ffffff;
+			padding:0;
+		
+		}
+
+
+		div.item .material-icons{
+			font-size:30px;
+			color:#e8e8e8;
+			font-weight:300
+
+		}
+
+		ul.oper{
+			position:absolute;
+			list-style:none;
+			background:#ffffff;
+			padding:0;
+			cursor:default;
+			-moz-user-select: none;
+			border:1px solid #ccc
+		}
+
+		ul.oper li{
+			padding:2px 10px;
+			text-align:left;
+			font-size:11px;	
+		}
+		ul.oper li:hover{
+			background:#929292;
+			color:#fff
+		}
+		
+		div.item-in{
+			float:right;
+			width:74px;
+			padding:0;
+			height:32px;
+			line-height:32px;
+
+		}
+
+
+		.item-in-icon{
+			float:left;
+			padding:0;
+			width:18px;
+			padding-top:3px;
+
+		}
+		.item-in-icon img.icon1{
+			height:18px;
+			width:18px;
+			
+			
+			
+		}
+
+		div.item-in2{
+			position:relative;
+			display:inline-block;
+			width:74px;
+			padding:0;
+			line-height:16px;
+		}
+
+		span.item-in-in{
+			position:absolute;
+			top:-15px;
+			left:-40px;
+			color:red;
+		}
+		
+		.item-in-icon img.icon2{
+			height:16px;
+			margin-top:3px;
+
+		}
+		.item-in-icon img.icon3{
+			height:18px;
+			
+		}
+		div.item_creator{
+			width:60px
+		}
+		div.item_creator img{
+			width:24px;
+			margin-top:3px
+		}
+		div.point{
+			position:absolute;
+			border:2px solid #2aa515;
+			border-radius:4px;
+			width:4px;
+			height:4px;
+			cursor:pointer
+		}
+		div.point2{
+			position:absolute;
+			border:2px solid #2aa515;
+			width:0px;
+			height:0px;
+		}
+		div.point3{
+			1background: #2aa515;
+			1cursor:default
+		}
+		.list-group-item{
+			text-align:center
+		}
+		div.branch-end{
+			border-color:#d81e06;
+		}
+		div.no-add-branch{
+			cursor:default
+		}
+		body{
+			background:url('/a1/index/view/public/Image/flow/bg.png') 13px 12px
+		}
+	</style>
+</head>
+
+<body>
+
+<div id="diagramContainer">
+
+</div>
+
+</body>
+<script>
+
+
+
+
+var flow = {
+
+	department : {$dep},  //  部门  ID => NAME
+
+	post : {$pst},
+
+	addBranchStatus : false,
+
+	flowId : {$flow.id},
+	
+	count : {$flow.max_id},
+
+	defaultJdqx : {$jdqx},
+
+	L : {},
+
+	H : {},  //记录 占了多少行
+	
+	itemWidth : 0,
+
+	pointWidth: 0,
+
+	unitHeight : 60,    //单位高度
+
+	unitWidth  : 50,    //单位宽度
+
+	selectedNode : {},  //当前选中的节点
+
+	selectedNode2 : {},  //增加分支时候的END节点
+
+	nH : new Map(), //下一节点累计高度  nextHeight
+
+	point : {},
+
+	isDrawed : new Map(),
+	
+	nodeToPoint : {},
+
+	p : {$flow.p|raw},             // 父级关系     father include children
+
+	node : {$flow.node|raw},
+
+	c : {},               // 子级关系     child belones which father
+
+	common : {
+		isSource: true,
+		isTarget: true,
+		connector: ['Flowchart'],
+		maxConnections: -1,
+		fill: 'pink',
+		outlineColor: '',
+		outlineWidth: '',
+		lineWidth: 2,
+		endpoint:'Blank',
+		paintStyle: { stroke: '#1296db', strokeWidth:2},
+		endpointStyle: { fill: 'orange', outlineStroke: 'red', outlineWidth: 5 }
+	},
+	
+
+	hasCaled : {},    // 临时，用于记录哪些点或者块已经计算过
+
+	adjustLeft : function(id,px,first = true){
+		if(first == true) flow.hasCaled = {};
+
+		if(flow.isDrawed.get(id) == true && flow.hasCaled[id] == undefined){
+			flow.hasCaled[id] = true;
+			$('#' + id).css('left' , $('#' + id).offset().left + px);
+			for(let i in flow.p[id]){
+				flow.adjustLeft(flow.p[id][i],px,false);
+			}
+		}
+	},
+
+	get_H_N : function(p1,p2){
+		
+		if(flow.isDrawed.get(p2) == undefined){
+
+
+
+			let tmp = flow.get_drawed_node(p2);
+
+
+			if(tmp == false){
+
+				return 0;
+			}else{
+				
+				p2 = tmp;
+			}
+
+
+			
+		}
+
+		
+		return flow.get_H_N2(p1,p2);
+	},
+
+
+
+
+	get_H_N2 : function(p1,p2,f = true,first = true){
+
+		if(first) flow.hasCaled = {};
+		
+
+		//if(p1 == 'id27' && p2 == 'id93') alert(1);
+		let r = 0;
+		for(let i in flow.p[p1]){
+			if(flow.isDrawed.get(flow.p[p1][i])){
+				if(f){
+					if(flow.hasCaled[flow.p[p1][i]] == undefined){
+						flow.hasCaled[flow.p[p1][i]] = 1;
+						r++;
+					}
+					
+				}else{
+					if(i > 0){
+						if(flow.hasCaled[flow.p[p1][i]] == undefined){
+							flow.hasCaled[flow.p[p1][i]] = 1;
+							r++;
+						}
+					}
+				}
+			}else{
+				break;
+			}
+		}
+		
+		if(flow.p[p1][0] == p2){
+			return r;
+		}else{
+			
+			for(let i in flow.p[p1]){
+				if( flow.p[p1][i] != 'end'){
+					r += flow.get_H_N2(flow.p[p1][i],p2,false,false);
+				}
+			}
+			return r;
+		}
+	},
+
+	get_drawed_node : function(id){
+		if(flow.p[id] == undefined) return false;
+		for(let i in flow.p[id]){
+			if(flow.isDrawed.get(flow.p[id][i]) == true){
+				return flow.p[id][i];
+			}else{
+				return flow.get_drawed_node(flow.p[id][i]);
+			}
+		}
+	},
+
+	draw : function( id ){
+
+		let imgUrl = '__PUBLIC__/image/flow/';
+		if( $('#creator').length == 0 ){
+			$('#diagramContainer').empty().append("<div class = 'item item_creator' id = 'creator'><img src = '"+imgUrl+"o75.png' class = 'icon2' /></div>");
+		}	
+		flow.H[id] = -1;	
+		
+		let offset = $('#' + id).offset();
+
+		let top,left;
+
+		for(let i in flow.p[id]){
+
+			flow.H[id]++;
+			
+			let N = flow.node[flow.p[id][i]];  //节点id的 next 节点
+
+			
+		
+			if(N.S == 'p'){
+	
+				let tmpPointClass = '';
+
+				let noAddBranchClass = '';
+
+				if(N.noaddbranch != undefined){
+					noAddBranchClass = 'no-add-branch';
+				} 
+
+				//top = offset.top + flow.nH.get(N.id
+				if(flow.node[id].S == 'n'){
+					// 块 => 点
+					left = offset.left + $('#'+id).width() + flow.unitWidth / 2;
+					top  = offset.top  + flow.H[id] * flow.unitHeight + 12;   // 32 / 2 - 8 / 2
+
+					
+					
+
+				}else{
+					// 点 => 点
+					left = offset.left + $('#'+id).width() + flow.unitWidth / 2;
+					top  = offset.top  + flow.H[id] * flow.unitHeight ;   // 32 / 2 - 8 / 2
+					tmpPointClass = 'point3';
+				}
+
+				if(flow.isDrawed.get(flow.p[id][i]) == true){
+
+					
+					if(left > $('#' + flow.p[id][i]).offset().left){
+
+						let tmp = left - $('#' + flow.p[id][i]).offset().left;
+						
+						flow.adjustLeft(flow.p[id][i],tmp);
+					}
+					continue;
+				}
+				$('#diagramContainer').append("<div class = 'point "+tmpPointClass+" " + noAddBranchClass + "' style = 'top:"+top+"px;left:"+left+"px' id = '"+N.id+"'></div>");
+				flow.isDrawed.set(flow.p[id][i],true);
+				let tmp = flow.draw(N.id);
+				flow.H[id] += tmp;
+				continue;
+			}
+			
+
+			//只有在画NODE的时候，才考虑nH
+			
+			let nextId;
+
+			if(N.id != 'end'){
+				
+
+				nextId = flow.p[N.id][0];
+				
+
+				/*
+				if(flow.isDrawed.get(nextId) == undefined && i > 0 ){
+					
+				}
+				
+				if(flow.nH.get(nextId) == undefined){
+					flow.nH.set(nextId,0);
+				}else{
+					flow.nH.set(nextId,flow.nH.get(nextId) + 1);
+				}*/
+			}
+			
+			let HNum = 0;	
+			if(N.S == 'n'){
+				if(N.id != 'end' && id != 'end' ){
+					HNum = flow.get_H_N(id,flow.p[N.id][0]);
+				} 
+			}
+
+
+			
+			if(flow.node[id].S == 'p'){
+				if(N.id == 'end'){
+					top = offset.top - 12;
+				}else{
+					top  = offset.top + HNum * flow.unitHeight - 12;
+				}
+				
+				left = offset.left + $('#' + id).width()  + flow.unitWidth / 2;
+
+				
+			}else{
+				
+				
+				
+				top  = offset.top  + flow.nH.get(nextId) * flow.unitHeight;
+				left = offset.left + $('#'+id).width() + flow.unitWidth;
+			}
+					
+			if(N['id'] == 'end'){
+				$('#diagramContainer').append("<div  style = 'width:60px;top:"+top+"px;left:"+left+"px' class = 'item' data-key = '' id = 'end'>结束</div>");
+			}else if(N['T'] == 'P'){
+				$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o69.png' class = 'icon1' title = '个人' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
+				
+			}else if(N['T'] == 'R'){
+				if(N['V'] == 'F'){
+					$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o73.png' class = 'icon2' title = '分管领导' /></div><div  class = 'item-in' >"+N['B']+"</div></div>");
+				}else{
+					$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o74.png' class = 'icon2' title = '部门主管' /></div><div  class = 'item-in' >"+N['B']+"</div></div>");
+				}
+			}else if(N['T'] == 'G'){
+				$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o76.png' class = 'icon1' title = '岗位' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
+			}else if(N['T'] == 'D'){
+				$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o120.png' class = 'icon1' title = '部门' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
+			}else if(N['T'] == 'Z'){
+				$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o77.png' class = 'icon1' title = '组' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
+				
+			}else if(N['T'] == 'X'){
+				let tmp = '';
+				if(N['K'] == 2 || N['K'] == 4){
+					
+					if(N['K'] == 2){
+						tmp = "发起者部门<br />分管领导";
+					}else{
+						tmp = '执行者部门<br />分管领导';
+					}
+
+					$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o73.png' class = 'icon3' title = '"+N['K']+"' /></div><div  class = 'item-in2' >"+tmp+"</div></div>");
+				}else if(N['K'] == 1 || N['K'] == 3){
+					
+					if(N['K'] == 1){
+						tmp = "发起者<br />部门主管";
+					}else{
+						tmp = '执行者<br />部门主管';
+					}
+
+					$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o74.png' class = 'icon3' title = '"+N['V']+"' /></div><div  class = 'item-in2' >"+tmp+"</div></div>");
+				}else if(N['K'] == 9){
+					$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o87.png' class = 'icon2' title = '空' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
+				}else if(N['K'] == 5){
+					$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o69.png' class = 'icon2' title = '发起者' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
+				}
+			}
+
+			flow.isDrawed.set(flow.p[id][i],true);
+			
+			
+			
+			if(typeof flow.p[N.id] != 'undefined'){
+				let tmp = flow.draw(N.id);
+				flow.H[id] += tmp;
+			}
+		}
+		
+
+
+		return flow.H[id];
+
+	},
+
+	insert_node : function(node ,type , ID = 0 ,isDraw = false , addBranch = 0 ){ // 1.并发   2.串发
+		layer.closeAll();
+		if(addBranch == 0){
+			
+			let startNodeId;
+
+			if(ID == 0){
+				startNodeId = $(flow.selectedNode).prop('id');
+			}else{
+				startNodeId = ID;
+			}
+			
+			if(type == 1){        //并发
+				let point1,point2;
+				point1 = {
+					'id' : flow.get_id(),
+					'S' : 'p',
+				};
+				flow.node[point1.id] = point1;
+				let nextId = flow.p[startNodeId][0];
+				if(flow.node[nextId]['S'] == 'n'){
+					point2 = {
+						'id' : flow.get_id(),
+						'S' : 'p',
+					};
+					flow.node[point2.id] = point2;
+					flow.p[point2.id] = [];
+					flow.p[point2.id].push(nextId);
+				}else{
+					point2 = flow.node[nextId];	
+				}
+				flow.p[startNodeId] = [];
+				flow.p[startNodeId].push(point1.id);
+				flow.p[point1.id] = [];
+
+				for(let i in node){
+					node[i]['S'] = 'n',
+					node[i]['Z'] = 1;
+					node[i]['X'] = [];
+					node[i]['C'] = flow.defaultJdqx;
+					node[i]['id']   = flow.get_id();
+					flow.p[node[i]['id']] = [];
+					flow.p[node[i]['id']].push(point2.id);
+					flow.node[node[i]['id']] = node[i];
+					flow.p[point1.id].push(node[i]['id']);
+				}
+			}else{
+				for(let i in node){
+					node[i]['S'] = 'n',
+					node[i]['Z'] = 1;
+					node[i]['X'] = [];
+					node[i]['C'] = flow.defaultJdqx;
+					node[i]['id']= flow.get_id();
+					let a = [];
+					a.push(node[i]);
+					flow.insert_node(a,1,startNodeId,false);
+					startNodeId = node[i]['id'];
+				}
+			}
+		}else{
+			for(let i in node){
+				node[i]['S'] = 'n',
+				node[i]['Z'] = 1;
+				node[i]['X'] = [];
+				node[i]['C'] = flow.defaultJdqx;
+				node[i]['id']   = flow.get_id();
+				flow.node[node[i]['id']] = node[i];
+				flow.p[$(flow.selectedNode).prop('id')].push(node[i]['id']);
+				flow.p[node[i]['id']] = [];
+				flow.p[node[i]['id']].push($(flow.selectedNode2).prop('id'));
+			}
+
+			flow.addBranchStatus = false;			
+		}
+		if(isDraw) flow.re_draw();
+	},
+
+
+
+	ini : function(){
+
+		
+		
+		if(flow.count == 0 ){         //新建
+			flow.node = {};
+			flow.p = {};
+			flow.node['creator'] = {
+				'S' : 'n',  //S 节点 还是 块 
+				'id' : 'creator',
+				'X' : {}
+			};
+
+			flow.node['end'] = {
+				'S' : 'n',
+				'id' : 'end',
+				'X' : {}
+			};
+
+			flow.node['f'] = {
+				'S' : 'p',
+				'id' : 'f'
+			};
+			
+			flow.p['creator'] = ['f'];
+			flow.p['f'] = ['end'];
+			
+		}
+
+		for(let i in flow.node){
+			flow.node[i].id = i;
+
+		}
+
+		
+		flow.re_draw();
+
+		$('#diagramContainer').on('click','div.item',function(e){
+			if(flow.addBranchStatus == true) return false;
+			if($(this).prop('id') == 'end') return false;
+			$('ul.oper').remove();
+			let offset = $(this).offset();
+			let left = offset.left + $(this).width();
+			let top  = offset.top  + 10;
+			let tmp = "<ul class = 'oper list-group' style = 'left:"+left+"px;top:"+top+"px'><li class = 'list-group-item add'>增加</li><li class = 'list-group-item dlt'>删除</li><li class = 'list-group-item'>替换</li><li class = 'list-group-item attr'>属性</li></ul>";
+			$('#diagramContainer').append(tmp);
+			e.stopPropagation();
+			flow.selectedNode = this;
+		});
+
+		$('#diagramContainer').on('click','div.point',function(e){
+			if(flow.addBranchStatus == true){
+				if(this == flow.selectedNode){
+					
+					flow.addBranchStatus = false;
+					$('div.branch-end').removeClass('branch-end');
+				}else{
+					flow.selectedNode2 = this;
+					layer.open({
+						title:"<span style = 'font-size:12px'>选择审批人</span>",
+						area: ['900px','100%'],
+						offset:'0%',
+						shadeClose:true,
+						isOutAnim: false ,
+						maxmin: true,
+						type: 2, 
+						content:'__APP__/F/flow_select?addbranch=1',
+					
+					});
+				}
+			}else{
+				$('ul.oper').remove();
+				let offset = $(this).offset();
+				let left = offset.left + $(this).width();
+				let top  = offset.top - 10;
+				let tmp ;
+				if($(this).prop('id').substr(0,3) == 'tmp'){
+					tmp = "<ul class = 'oper list-group' style = 'left:"+left+"px;top:"+top+"px'><li class = 'list-group-item add-branch'>增加分支</li></ul>";
+				}else if($(this).hasClass('no-add-branch') || flow.p[$(this).prop('id')][0] == 'end'){
+					tmp = "<ul class = 'oper list-group' style = 'left:"+left+"px;top:"+top+"px'><li class = 'list-group-item add'>增加</li><li class = 'list-group-item attr2'>属性</li></ul>";
+				}else{
+					
+					if(flow.p[$(this).prop('id')].length == 1){
+						tmp = "<ul class = 'oper list-group' style = 'left:"+left+"px;top:"+top+"px'><li class = 'list-group-item add'>增加</li><li class = 'list-group-item attr2'>属性</li></ul>";
+					}else{
+						tmp = "<ul class = 'oper list-group' style = 'left:"+left+"px;top:"+top+"px'><li class = 'list-group-item add-branch'>增加分支</li><li class = 'list-group-item attr2'>属性</li></ul>";
+					}
+
+					
+				}
+
+				
+				$('#diagramContainer').append(tmp);
+				e.stopPropagation();
+				flow.selectedNode = this;
+			}
+			
+		})
+
+		$(document).click(function(){
+			$('ul.oper').remove();
+		});
+
+		$('#diagramContainer').on('click','li.add',function(e){
+			layer.open({
+				title:"<span style = 'font-size:12px'>选择审批人</span>",
+				area: ['900px','100%'],
+				offset:'0%',
+				shadeClose:true,
+				isOutAnim: false ,
+				maxmin: true,
+				type: 2, 
+				content:'__APP__/F/flow_select?addbranch=0',
+			
+			});
+		});
+
+		$('#diagramContainer').on('click','li.dlt',function(e){
+			flow.dlt_node($(flow.selectedNode).prop('id'));
+		});
+
+
+		$('#diagramContainer').on('click','li.add-branch',function(e){
+			flow.addBranchStatus = true;
+			let left = $(flow.selectedNode).offset().left;
+			let top  = $(flow.selectedNode).offset().top;
+			$('div.point').each(function(){
+				let fs = $(this).offset();
+				if(fs.top == top && fs.left > left){
+					$(this).addClass('branch-end');
+				}
+			});
+		});
+		
+
+
+		$('#diagramContainer').on('click','li.attr',function(e){
+			if($(flow.selectedNode).prop('id') == 'creator') return false;
+			layer.open({
+				title:"<span style = 'font-size:12px'>属性设置</span>",
+				area: ['700px','100%'],
+				offset:'0%',
+				shadeClose:true,
+				isOutAnim: false ,
+				maxmin: true,
+				type: 2, 
+				content:'__URL__/flow_attr?flowid='+flow.flowId,
+			});
+		});
+
+		$('#diagramContainer').on('click','li.attr2',function(e){
+			if($(flow.selectedNode).prop('id') == 'creator') return false;
+			layer.open({
+				title:"<span style = 'font-size:12px'>属性设置</span>",
+				area: ['700px','100%'],
+				offset:'0%',
+				shadeClose:true,
+				isOutAnim: false ,
+				maxmin: true,
+				type: 2, 
+				content:'__URL__/flow_attr2?flowid='+flow.flowId,
+			});
+		});	
+	},
+
+	save : function(){
+
+		for(let i in flow.node){
+			if(flow.node[i]['X'] != undefined && flow.node[i]['X'].length == 0){
+				delete flow.node[i]['X'];
+			}
+			if(flow.node[i]['P'] != undefined && flow.node[i]['P'].length == 0){
+				delete flow.node[i]['P'];
+			}
+			if(flow.node[i]['A'] != undefined && flow.node[i]['A'].length == 0){
+				delete flow.node[i]['A'];
+			}
+			if(flow.node[i]['E'] != undefined && flow.node[i]['E'].length == 0){
+				delete flow.node[i]['E'];
+			}
+			if(flow.node[i]['Q'] != undefined && flow.node[i]['Q'].length == 0){
+				delete flow.node[i]['Q'];
+			}
+
+			flow.node[i]['D'] = 0;
+			delete flow.node[i]['id'];
+
+			if(i.substr(0,3) == 'tmp'){
+				flow.p[flow.c[i][0]] = flow.p[i];
+				delete flow.node[i];
+				delete flow.p[i];
+			}
+
+			if(flow.node[i]['noaddbranch'] != undefined){
+				delete flow.node[i]['noaddbranch'];
+			}
+		}
+
+		let o = {};
+		o.p = JSON.stringify(flow.p);
+		o.node = JSON.stringify(flow.node);
+		o.id = '{$Request.get.id}';
+		o.max_id = flow.count;
+
+		
+		$.post('__APP__/F/flow_save',o,function(d){	
+			if(d.status == 's'){
+				var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+				parent.layer.close(index); //再执行关闭   
+			}else{
+				
+			}
+		});
+	},
+
+	dlt_node : function(id){
+			
+			let prev1,prev2;
+		
+			if( id == 'creator'){
+				layer.msg('根节点不能删除',{icon:2,time:1500,offset:'30%'});
+				return false;
+			}else if(typeof flow.p[id] != 'undefined'){
+							
+				prev1 = flow.get_prev_id(id)[0];
+				
+			
+				if(flow.p[prev1].length > 1){
+
+
+					flow.p[prev1] = flow.p[prev1].filter(function(x){return x != id;});
+					
+					let nextId = flow.p[id][0];
+
+
+					
+
+
+					if(flow.c[nextId].length > 1){
+						
+					}else{
+						for(let i in flow.p[nextId]){
+							flow.p[prev1].push(flow.p[nextId][i]);
+						}
+						delete flow.node[nextId];
+						delete flow.p[nextId];
+					}
+					
+					delete flow.node[id];
+
+	
+					delete flow.p[id];
+
+					if(flow.c[nextId].length > 1){
+						
+					}
+
+					
+					
+					
+				}else{
+
+					
+
+					prev2 = flow.get_prev_id(prev1);
+
+					for(let i in prev2){
+						flow.p[prev2[i]] = [];
+						for(let j in flow.p[id]){
+							flow.p[prev2[i]].push(flow.p[id][j]);
+						}
+					}
+					if(flow.node[id].S == 'n') delete flow.p[prev1];
+					if(flow.node[id].S == 'n') delete flow.node[prev1];
+					delete flow.node[id];
+					delete flow.p[id];
+				}
+				
+			}
+			
+			
+			
+			flow.re_draw();
+		
+	},
+
+	get_prev_id : function(id){
+		let prev = [];
+		for(let i in flow.p){
+			for(let j in flow.p[i]){
+				if(flow.p[i][j] == id){
+					prev.push(i);
+					found = true;
+					break;
+				}
+			}
+		}
+		return prev;
+	},
+
+	re_get_c : function(){
+		flow.c = {};
+
+		for(let i in flow.p){
+			for(let j in flow.p[i]){
+				if(flow.c[flow.p[i][j]] == undefined){
+					flow.c[flow.p[i][j]] = [];
+				}
+				if(flow.node[i] != undefined) flow.c[flow.p[i][j]].push(i);
+			}
+		}
+	},
+
+	re_draw:function(){
+
+
+		flow.hasConnected = new Map();
+
+		flow.nH = new Map();
+
+		$('#diagramContainer').empty();
+		flow.isDrawed = new Map();
+
+		flow.re_get_c();
+
+		let needReGetC = false;
+		
+		for(let i in flow.node){
+			let nodeId = flow.node[i]['id'];
+			if(flow.p[nodeId] != undefined && flow.p[nodeId].length > 1 && flow.c[nodeId] != undefined && flow.c[nodeId].length > 1){
+				let newPoint = {
+					'S' : 'p',
+					'id' : 'tmp' + i
+				};
+				flow.node[i]['noaddbranch'] = 1;
+				flow.node[newPoint.id] = newPoint;
+				flow.p[newPoint.id] = flow.p[nodeId];
+				flow.p[nodeId] = [];
+				flow.p[nodeId].push(newPoint.id	);
+				needReGetC = true;
+			}
+		}
+
+		if(needReGetC) flow.re_get_c();
+		
+		
+
+		for(let i in flow.node){
+			if(flow.node[i]['S'] == 'n') continue;
+		
+			if(flow.node[flow.p[i][0]]['S'] == 'p'){
+			
+				if(flow.c[i].length == 1 || flow.p[flow.p[i][0]].length == 1){
+					if(flow.p[flow.p[i][0]].length == 1){
+						let tmp = flow.p[i][0];
+						let prev = flow.c[tmp][0];
+						flow.p[prev] = flow.p[tmp];
+						delete flow.node[tmp];
+						delete flow.p[tmp];
+					}else{
+
+						let next = flow.p[i][0];
+
+						flow.p[i] = flow.p[next];
+
+						delete flow.node[next];
+						delete flow.p[next];
+
+						//let prev = flow.c[i][0];
+
+						//flow.p[i] = flow.p[prev];
+
+
+						//delete flow.node[prev];
+						//delete flow.p[prev];
+
+						
+					}
+				}
+			}
+		}
+		
+		flow.draw( 'creator' );
+
+		flow.add_x();
+
+		flow.plumb();
+		
+
+		/*
+		for (let i in flow.node){
+			
+			$('#'+i).hover(function(){
+				tmp = layer.tips(i, '#' + i, {
+				  time : 100000,
+				  tips: [3, '#4cae4c']
+				})
+			},function(){
+				layer.close(tmp);
+			});
+		}*/
+
+
+	},
+
+	add_x : function(){
+		for(let i in flow.node){
+
+			
+			if(flow.node[i]['X'] != undefined && flow.node[i]['X'].length > 0){
+				let offset = $('#' + i).offset();
+				let left = offset.left;
+				let top  = offset.top - 16;
+				let c = "";
+				
+			
+
+				let tmp = flow.node[i]['X'][0];	
+
+				if(tmp[1] == 'aya1'){
+					let tmp2 = tmp[3].substr(0,tmp[3].length - 2);
+					c = "发起者部门" + tmp[2] +  flow.department[tmp2];
+				}else if(tmp[1] == 'aya2'){
+					let tmp2 = tmp[3].substr(0,tmp[3].length - 2);
+					c = "发起者岗位 " + tmp[2] +  flow.post[tmp2];
+				}else if(tmp[1] == 'aya3'){
+					let tmp2 = tmp[3].substr(0,tmp[3].length - 2);
+					c = "执行者部门 " + tmp[2] +  flow.department[tmp2];
+				}else if(tmp[1] == 'aya4'){
+					let tmp2 = tmp[3].substr(0,tmp[3].length - 2);
+					c = "执行者部门 " + tmp[2] +  flow.post[tmp2];
+				}else{
+					c = tmp[1] +  tmp[2] +  tmp[3];
+				}
+				
+				let c1 = '';
+
+				if(flow.node[i]['X'].length > 1){
+					for(let j in flow.node[i]['X']){
+						let tmp2 = flow.node[i]['X'][j];
+						if(tmp2[1] == 'aya1'){
+							c1 += tmp2[0] + "发起者部门" + tmp2[2] + flow.department[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
+						}else if(tmp2[1] == 'aya2'){
+							c1 += tmp2[0] + "发起者岗位" + tmp2[2] + flow.post[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
+						}else if(tmp2[1] == 'aya3'){
+							c1 += tmp2[0] + "执行者岗位" + tmp2[2] + flow.department[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
+						}else if(tmp2[1] == 'aya4'){
+							c1 += tmp2[0] + "执行者部门" + tmp2[2] + flow.post[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
+						}else{
+							c1 +=  tmp2[0] + tmp2[1] + tmp2[2] + flow.post[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
+						}
+					}
+					
+					$('#diagramContainer').append("<div title = '"+c1+"' style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+c+"...</div>");
+				}else{
+					$('#diagramContainer').append("<div style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+c+"</div>");
+				}
+			}else if(flow.node[i]['Q'] != undefined){
+				
+				let offset = $('#' + i).offset();
+				let left = offset.left;
+				let top  = offset.top - 16;
+				$('#diagramContainer').append("<div style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+flow.node[i]['Q']+"</div>");
+			}
+			
+
+			
+			
+		}
+	},
+
+	set_attr(Z,X,P,A,E,C,Q){
+		flow.node[$(this.selectedNode).prop('id')]['Z'] = Z;
+		flow.node[$(this.selectedNode).prop('id')]['X'] = X;
+		flow.node[$(this.selectedNode).prop('id')]['P'] = P;
+		flow.node[$(this.selectedNode).prop('id')]['A'] = A;
+		flow.node[$(this.selectedNode).prop('id')]['E'] = E;
+		flow.node[$(this.selectedNode).prop('id')]['C'] = C;
+		flow.node[$(this.selectedNode).prop('id')]['Q'] = Q;
+
+		
+	},
+
+	set_attr2(P,A){
+		flow.node[$(this.selectedNode).prop('id')]['P'] = P;
+		flow.node[$(this.selectedNode).prop('id')]['A'] = A;
+	},
+
+	get_id : function(){
+		return 'id' + flow.count++;
+	},
+
+
+	createEndpoint : function( uuid ){
+
+		for(let i in flow.node){
+						
+			jsPlumb.addEndpoint( i , {
+				anchors: ['Right'],
+				uuid:i + 'r',
+			}, flow.common);
+
+			jsPlumb.addEndpoint( i , {
+				anchors: ['Left'],
+				uuid:i + 'l',
+			}, flow.common);
+		}
+
+
+	},
+
+	createLine : function( id ){
+
+		for(let i in flow.p[id]){
+			flow.connect( id , flow.p[id][i] );
+			if(flow.p[flow.p[id][i]] != undefined){
+				flow.createLine(flow.p[id][i]);
+			}
+
+		}
+
+	},
+	
+	hasConnected : new Map(),
+
+	connect : function(l,r){
+		
+		let o1 = $('#' + l).offset().top + $('#' + l).outerHeight() / 2;
+		let o2 = $('#' + r).offset().top + $('#' + r).height() / 2;
+	
+		if(Math.abs(o1 - o2 ) > 5){
+
+			let left1,top1;
+
+
+			if( o2 > o1){
+
+				left1 = $('#' + l).offset().left + $('#' + l).width() / 2 ;
+				top1  = $('#' + r).offset().top + ($('#'+r).height()  - $('#' + l).height() ) / 2;
+
+				let id1 = l + top1 ;
+
+				let d1 = "<div class = 'point2' style = 'top:" + top1 + "px;left:" + left1 + "px' id = '" + id1 + "'></div>";
+
+				$('#diagramContainer').append(d1);
+
+				jsPlumb.addEndpoint( id1 , {
+					anchors: ['Top'],
+					uuid:id1 + 't',
+				}, flow.common);
+
+				jsPlumb.addEndpoint( id1 , {
+					anchors: ['Right'],
+					uuid:id1 + 'r',
+				}, flow.common);
+
+				if(flow.hasConnected.get(l) == undefined){
+					
+					flow.hasConnected.set(l,top1);
+					jsPlumb.addEndpoint( l , {
+						anchors: ['Bottom'],
+						uuid:l + 'b',
+					}, flow.common);
+
+					jsPlumb.connect({ uuids: [ l + 'b' , id1 + 't'] },flow.common);
+				}else{
+					if(flow.hasConnected.get(l) < top1){
+
+						jsPlumb.addEndpoint( l + flow.hasConnected.get(l) , {
+							anchors: ['Bottom'],
+							uuid:l + flow.hasConnected.get(l) + 'b',
+						}, flow.common);
+
+						jsPlumb.connect({ uuids: [ l + flow.hasConnected.get(l) + 'b' , id1 + 't'] },flow.common);
+
+						flow.hasConnected.set(l,top1);
+					}else{
+						
+					}
+				}
+
+				jsPlumb.connect({ uuids: [ id1 + 'r' , r + 'l'] },flow.common);
+		
+
+			}else{
+
+			
+
+				left1 = $('#' + r).offset().left + $('#' + r).width() / 2 ;
+				top1  = $('#' + l).offset().top + ($('#'+l).height()  - $('#' + r).height() ) / 2;
+
+				let id1 = r + top1 ;
+
+				let d1 = "<div class = 'point2' style = 'top:" + top1 + "px;left:" + left1 + "px' id = '" + id1 + "'></div>";
+
+				$('#diagramContainer').append(d1);
+
+				jsPlumb.addEndpoint( id1 , {
+					anchors: ['Top'],
+					uuid:id1 + 't',
+				}, flow.common);
+
+				jsPlumb.addEndpoint( id1 , {
+					anchors: ['Left'],
+					uuid:id1 + 'l',
+				}, flow.common);
+
+				if(flow.hasConnected.get(r) == undefined){
+					flow.hasConnected.set(r,top1);
+					jsPlumb.addEndpoint( r , {
+						anchors: ['Bottom'],
+						uuid:r + 'b',
+					}, flow.common);
+
+					jsPlumb.connect({ uuids: [ r + 'b' , id1 + 't'] },flow.common);
+				}else{
+					if(flow.hasConnected.get(r) < top1){
+
+						jsPlumb.addEndpoint( r + flow.hasConnected.get(r) , {
+							anchors: ['Bottom'],
+							uuid:r + flow.hasConnected.get(r) + 'b',
+						}, flow.common);
+
+						jsPlumb.connect({ uuids: [ r + flow.hasConnected.get(r) + 'b' , id1 + 't'] },flow.common);
+
+						flow.hasConnected.set(r,top1);
+					}else{
+						
+					}
+				}
+				jsPlumb.connect({ uuids: [ id1 + 'l' , l + 'r'] },flow.common);
+			}
+		}else{
+			jsPlumb.connect({ uuids: [ l + 'r' , r + 'l' ] },flow.common);
+		}
+	},
+
+	plumb : function(){
+		jsPlumb.ready(function(){
+			
+			jsPlumb.deleteEveryEndpoint();
+
+			jsPlumb.setContainer('diagramContainer');
+					
+			flow.createEndpoint('creator');		
+			
+			flow.createLine('creator');
+		});
+	}
+};
+
+
+flow.ini();
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+</html>

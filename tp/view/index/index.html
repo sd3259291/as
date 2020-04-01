@@ -44,7 +44,7 @@
 
             <ul class="nav navbar-top-links navbar-right" style='margin-right:0px;'> 
 			<!--<span style = 'display:inline-block;border:1px s1olid red;'></span>-->
-				  <li><a class="dropdown-button waves-effect waves-dark" href="#!" data-activates="dropdown1"> <b>{$Think.session.userinfo.name}</b> <i class="material-icons right">arrow_drop_down</i></a></li>
+				  <li><a class="dropdown-button waves-effect waves-dark" href="#!" data-activates="dropdown1"> <b>{$Request.session.userinfo.name}</b> <i class="material-icons right">arrow_drop_down</i></a></li>
             </ul>
 
         </nav>
@@ -120,7 +120,7 @@
 		<img src = '__PUBLIC__/image/loading-0.gif' class = 'height12 noselect' />
 		
 	</div>
-    <script src="__PUBLIC__/Js/jquery-2.0.3.min.js"></script>
+    <script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
 	<!-- Bootstrap Js -->
     <script src="__PUBLIC__/js/bootstrap.min.js"></script>
 	
@@ -129,16 +129,16 @@
     <!-- Custom Js -->
 	<script src="__PUBLIC__/js/tool.js"></script>
     
-	<script type="text/javascript" src="__PUBLIC__/Js/DataTables-1.10.0/media/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/DataTables-1.10.0/media/js/jquery.dataTables.min.js"></script>
 	<script src="__PUBLIC__/js/DataTables-1.10.0/FixedColumns-3.2.4/js/dataTables.fixedColumns.js"></script>
 	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
 	<!--<script src="__PUBLIC__/Js/echarts.js"></script>
 	<script src="__PUBLIC__/Js/echarts_theme1.js"></script>-->
-	<script type="text/javascript" src="__PUBLIC__/Js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
-	<script src="__PUBLIC__/Js/laydate/laydate.js"></script>
-	<script src="__PUBLIC__/js/form.js"></script>
-	<script type="text/javascript" src="__PUBLIC__/Js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
-	<script type="text/javascript" src="__PUBLIC__/Js/jquery.nicescroll-master/jquery.nicescroll.min.js"></script>
+	<!--<script type="text/javascript" src="__PUBLIC__/js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>-->
+	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
+	
+	<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
+	<!--<script type="text/javascript" src="__PUBLIC__/js/jquery.nicescroll-master/jquery.nicescroll.min.js"></script>-->
 	<script src="__PUBLIC__/js/custom-scripts.js"></script>
 
 	<style type="text/css">
@@ -154,8 +154,6 @@
 
 	<script>
 
-
-	
 	
 
 	window.layerWidth = '1200px';
@@ -164,7 +162,7 @@
 		
 		loadIndex : 0,
 		homePage : { 
-			url : '__APP__/Basic/enum' ,
+			url : '__APP__/Fs/newFlow' ,
 			name : "我的桌面",
 			id : 'indexdeptindex'
 		},
@@ -223,11 +221,8 @@
 			}
 		},
 		dlt_iframe: function(id){
-
 			if(id == this.homePage.id) return false;
 			this.iframes.delete(id);
-
-
 			if(id == this.currentPageId){
 				let prevId = $('#l' + id).parent().prev().find('.mul-page-div1').eq(0).data('id');
 	
@@ -245,7 +240,6 @@
 			if($('#multi-head').children().length == 0){
 				
 				$('#multi-head').append("<div id = 'multipage' style = 'font-size:12px;font-weight:normal;position:absolute;top:6px;left:30px;width:100%;height:24px;line-height:24px'></div>");
-
 				$('#multipage').width(($(window).width() - $('#multipage').offset().left));
 
 				$('#multipage').on('click','.mul-page-div1',function(){
@@ -295,10 +289,16 @@
 			
 		},
 
+
+		
+
 		ini : function(){
 			
 			
-			
+		
+
+
+
 
 			this.layerWidth = $(document).width() * 0.98;
 
