@@ -26,6 +26,7 @@
 					<div class = 'col s4'>目录等级</div><div class = 'col s8'><input  value = '1' id = 'level' class = 'aya-input' type = 'text' readonly /></div>
 					<div class = 'col s4'>页面地址</div><div class = 'col s8'><input id = 'url' class = 'aya-input' type = 'text' /></div>
 					<div class = 'col s4'>排序</div><div class = 'col s8'><input id = 'sort' class = 'aya-input' type = 'text' /></div>
+					<div class = 'col s4'>公共页面</div><div class = 'col s8' style = 'text-align:left'><input id = 'public' class = 'aya-checkbox' type = 'checkbox' /></div>
 					<div class = 'col s12' style = 'text-align:center'><button class = 'btn btn-primary height32' id = 'add'>新增</button></div>
 					<input type = 'hidden' id = 'pid' />
 				</div>
@@ -49,7 +50,7 @@
 <script>
 	var app = {
 		
-		field : ['pid','name','icon','url','level','sort'],
+		field : ['pid','name','icon','url','level','sort','public'],
 
 		zTreeObj : {},
 
@@ -68,6 +69,9 @@
 					o[a] = $('#' + a).val();
 
 				}
+				o.public = $('#public').is(':checked');
+
+				
 			
 				$.post('__APP__/Auth/addLayout',o,function(d){
 					
@@ -143,6 +147,7 @@
 			$('#edit').click(function(){
 				if(app.node == null) return false;
 
+			
 				let id = app.node.layout_id;
 
 				let div = [
@@ -150,13 +155,14 @@
 					{ 'name' : 'ICON：' ,'id' : 'icon_edit' ,'type' : 'text'},
 					{ 'name' : '页面地址：' ,'id' : 'url_edit' ,'type' : 'text'},
 					{ 'name' : '排序：' ,'id' : 'sort_edit' ,'type' : 'text'},
+					{ 'name' : '公共目录' , 'id' : 'public_edit' , 'type' : 'checkbox'}
 				];
 
 				parent.layer.open({
 					skin: 'layer-edit-container',
 					title : '编辑节点',
 					offset : ['40px'],
-					area  : ['600px',"400px"],
+					area  : ['600px',"450px"],
 					type  : 1,
 					btn   : ['确定'],
 					shadeClose:true,
@@ -166,6 +172,8 @@
 						$('#url_edit').val(app.node.u);
 						$('#sort_edit').val( app.node.sort );
 						$('#icon_edit').val( app.node.i );
+						
+						$('#public_edit').attr('checked',app.node.public == 1?true:false);
 					},
 					yes : function(index){
 						let o = {};
@@ -174,6 +182,7 @@
 						o.url = $.trim($('#url_edit').val());
 						o.sort = $.trim($('#sort_edit').val());
 						o.icon = $.trim($('#icon_edit').val());
+						o.public = $('#public_edit').is(':checked')?1:0;
 						$.post('__APP__/Auth/editLayout',o,function(d){
 							if(d.status == 's'){
 								parent.layer.close(index);

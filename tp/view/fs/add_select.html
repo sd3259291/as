@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>{__NOLAYOUT__}
 <html>
 
 <head>
@@ -6,11 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>A</title>
 	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
-	<link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
-	
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
 	<link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
-
-	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/extensions/AutoFill/css/dataTables.autoFill.min.css">
 	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
 
 	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
@@ -55,7 +53,7 @@
 		}
 		.aya-tab-content-research input{
 			width:90% !important;
-			text-indent:32px !important
+			 text-indent:32px !important
 		}
 		.aya-tab-content-research{
 			
@@ -130,7 +128,7 @@
 		<div class = 'aya-tab-content-research'>
 			<span style = 'position:relative'>
 				<input type = 'text' class = 'browser-default aya-input' placeholder = '搜索姓名' id = 'research1'/>
-				<img src = '__PUBLIC__/image/search.png'  />
+				<img src = '{$Think.config.templete_public}/Image/o25.png'  />
 			</span>
 			
 
@@ -166,13 +164,13 @@
 		<div class = 'aya-tab-content-research'>
 			<span style = 'position:relative'>
 				<input type = 'text' class = 'browser-default aya-input' placeholder = '搜索组名' id = 'research2'/>
-				<img src = '__PUBLIC__/image/search.png'  />
+				<img src = '{$Think.config.templete_public}/Image/o25.png'  />
 			</span>
 		</div>
 		<div class = 'aya-tab-content-top'>
 			<ul class = 'group' id = 'group'>
 				{volist name = 'group' id = 'g'}
-				<li data-id = '{$g.id}'>{$g.name}<img src = '__PUBLIC__/image/erase.png'  /></li>
+				<li data-id = '{$g.id}'>{$g.name}<img src = '{$Think.config.templete_public}/Image/erase.png'  /></li>
 				{/volist}
 
 			</ul>
@@ -199,14 +197,13 @@
 		<div class = 'aya-tab-content-research'>
 			<span style = 'position:relative'>
 				<input type = 'text' class = 'browser-default aya-input' placeholder = '搜索岗位' id = 'research3'/>
-				<img src = '__PUBLIC__/image/search.png'  />
+				<img src = '{$Think.config.templete_public}/Image/o25.png'  />
 			</span>
 		</div>
 		<div class = 'aya-tab-content-top'>
 			<ul class = 'post' id = 'post'>
-				
-				{volist name = 'post1' id = 'p'}
-				<li data-id = '{p.id}'>{$p.name}</li>
+				{volist name = 'post' id = 'p'}
+				<li data-id = '{$p.id}'>{$p.name}</li>
 				{/volist}
 
 			</ul>
@@ -233,7 +230,7 @@
 		<div class = 'aya-tab-content-research'>
 			<span style = 'position:relative'>
 				<input type = 'text' class = 'browser-default aya-input' placeholder = '' id = 'research3'/>
-				<img src = '__PUBLIC__/image/search.png'  />
+				<img src = '{$Think.config.templete_public}/Image/o25.png'  />
 			</span>
 		</div>
 		<div class = 'aya-tab-content-top' style = 'overflow-y:hidden'>
@@ -243,7 +240,6 @@
 				<li data-id = '2'>发起者部门分管领导</li>
 				<li data-id = '3'>执行者部门主管</li>
 				<li data-id = '4'>执行者部门分管领导</li>
-				<li data-id = '5'>发起者</li>
 				<li data-id = '9'>空节点</li>
 			
 
@@ -266,8 +262,10 @@
 	<div class = 'col s6 aya-tab-select' id = 'aya-tabl-selected'>
 		<div style = 'border-bottom:1px solid #d0d0d0'>
 			<div id = 'save_as_group'>
-				<img src = '__PUBLIC__/image/employee_select.png'   style = 'height:16px' />
+			<!--
+				<img src = '{$Think.config.templete_public}/Image/o60.png'  class = 'icon4' style = '' />
 				保存为组
+			-->
 			</div>
 		</div>
 		<table class = 'dataTable table-small centered hover stripe row-border' style = 'table-layout:fixed'>	
@@ -277,17 +275,10 @@
 		</table>
 	</div>
 	
-	<div class = 'col s12 aya-tab-confirm' style = 'height:50px;background:#4b4b4b'>
+	<div class = 'col s12 aya-tab-confirm' style = 'height:50px;background:#f4f4f4'>
 		<div class = 'row' style = 'margin:0'>
 			<div class = 'col s10'>
-				<p>
-					<input name="group2" type="radio" id="test3"  data-type = '1' checked />
-					<label for="test3">并发</label>
-				</p>
-				<p>
-					<input name="group2" type="radio" id="test4" data-type = '2' />
-					<label for="test4">串发</label>
-				</p>
+				
 			</div>
 			<div class = 'col s2' style = 'line-height:50px'>
 					<button class = 'btn btn-primary height32' id = 'flow_confirm'>确定</button>
@@ -359,20 +350,20 @@
 			$('#p_flow_selected_tbody').append("<tr data-id = '"+$(tr).data('id')+"' ><td>"+number+"</td><td>"+name+"</td><td>角色</td></tr>");
 		}else{
 			
-		}	
+		}
+		
+		
+			
 	}
 
-	let zNodes = {$tree|raw};
+	let zNodes = {$ztreeData};
 	var setting = {
 		callback:{
 			onClick:function(event, treeId, treeNode){
 				var o = {};
-			
-				$this.depId   = treeNode.id;
+				$this.depId   = treeNode.bmid;
 				$this.dep_name = treeNode.name;
 				$this.query();
-
-				
 			},
 			onDblClick:function(event, treeId, treeNode){
 				let bmName = treeNode.name;
@@ -413,14 +404,20 @@
 
 	$('#research1').keypress(function(e){
 		if(e.keyCode == 13){
-			let o = {};
-			o.keyword = $.trim($('#research1').val());
-			if(o.keyword != ''){
-				$.post('__URL__/get_employee_by_name',o,function(d){
+			
+			let keyword = $.trim($('#research1').val());
+			
+
+			if(keyword != ''){
+				let o = {};
+				o.w = { name:['like','%' + keyword + '%'],active:['=',1]};
+				o.f = 'number,name,gw';
+
+				$.post('__APP__/index/Get/get_employees',o,function(d){
 					$('#p_flow_select_tbody1').empty();
 					let tmp = '';
-					for(let i in d.data){
-						tmp += "<tr data-type = '个人'><td>"+d.data[i]['number']+"</td><td>"+d.data[i]['name']+"</td><td>"+d.data[i]['gw']+"</td></tr>";
+					for(let i in d){
+						tmp += "<tr data-type = '个人'><td>"+d[i]['number']+"</td><td>"+d[i]['name']+"</td><td>"+d[i]['gw']+"</td></tr>";
 					}
 					$('#p_flow_select_tbody1').append(tmp);
 				});
@@ -450,57 +447,11 @@
 		$(this).remove();
 	});
 
-	$('#save_as_group').click(function(){
-		let oo = [];
-		flag = true;
-		$('#p_flow_selected_tbody tr').each(function(){
-			let tmp = {};
-			let type = $(this).children().eq(2).text();
-			if(type == '个人'){
-				tmp.type = 'P';
-				tmp.number = $(this).children().eq(0).text();
-				tmp.name   = $(this).children().eq(1).text();
-				tmp.value  = '';
-			}else{
-				flag = false;
-			}
-			oo.push(tmp);
-		});
-		let o = {};
-		o.data = JSON.stringify(oo);
-		if(flag == false){
-			layer.msg('组成员只能是员工！',{icon:2,time:2000,offset:'30%'});
-			return false;
-		}
-		//return false;
-		layer.prompt(
-			{
-				offset:'10%',
-				value: '',
-				title: '请输入组名',
-			}, 
-			function(value, index, elem){
-				o.name = $.trim(value);
-				$.post('__URL__/flow_group_save',o,function(d){
-					//log(d);
-					if(d.status == 's'){
-						layer.msg('保存成功！',{icon:1,time:1000,offset:'30%'});
-					}else{
-						layer.msg(d.info,{icon:2,time:2000,offset:'30%'});
-					}
-					layer.close(index);
-				});
-				
-		});
-
-		
-	});
 	
 	$('ul#post').on('dblclick','li',function(){
 		let post = $(this).text();
 		let flag = false;
 		let id = $(this).data('id');
-		log(id);
 		$('#p_flow_selected_tbody tr').each(function(){
 			if($(this).children().eq(1).text() == post ){
 				flag = true;
@@ -508,14 +459,13 @@
 			}
 		});
 		if(flag == true) return false;
-		$('#p_flow_selected_tbody').append("<tr data-id = '"+id+"' data-type = '岗位' ><td></td><td>"+post+"</td><td>岗位</td></tr>");
+		$('#p_flow_selected_tbody').append("<tr data-id = '"+id+"' data-type = '岗位' ><td>-</td><td>"+post+"</td><td>岗位</td></tr>");
 	});
 	
-	$('ul#post').on('click','li',function(){
 
+	$('ul#post').on('click','li',function(){
 		$('ul#post li').removeClass('li-selected');
-		$(this).addClass('li-selected');
-		
+		$(this).addClass('li-selected');	
 		let post = $(this).text();
 		let o = {post:post};
 		$.post('__URL__/get_employee_by_post',o,function(d){
@@ -524,10 +474,7 @@
 			for(let i in d.data){
 				tmp += "<tr data-type = '个人'><td>"+d.data[i]['number']+"</td><td>"+d.data[i]['name']+"</td><td>"+d.data[i]['gw']+"</td></tr>";
 			}
-
 			$('#p_flow_select_tbody3').append(tmp);
-
-
 		});
 	});
 
@@ -542,14 +489,12 @@
 			}
 		});
 		if(flag == true) return false;
-		$('#p_flow_selected_tbody').append("<tr data-id = '"+id+"' data-type = '组' ><td></td><td>"+post+"</td><td>组</td></tr>");
+		$('#p_flow_selected_tbody').append("<tr data-id = '"+id+"' data-type = '组' ><td>-</td><td>"+post+"</td><td>组</td></tr>");
 	});
 	
 	$('ul#group').on('click','li',function(){
-
 		$('ul#group li').removeClass('li-selected');
 		$(this).addClass('li-selected');
-		
 		let id = $(this).data('id');
 		let o = {id:id};
 		$.post('__URL__/get_employee_by_group',o,function(d){
@@ -563,13 +508,9 @@
 					
 				}
 			}
-
 			$('#p_flow_select_tbody2').append(tmp);
-
-
 		});
 	});
-
 
 	$('ul#group').on('mouseenter','li',function(){
 		$(this).find('img').show();
@@ -579,18 +520,7 @@
 		$(this).find('img').hide();
 	});
 
-	$('ul#group').on('click','img',function(){
-		let id = $(this).parents('li').data('id');
-		let t = this;
-		layer.confirm('确定删除组？',{offset:['20%'],btn : ['确定']},function(index,layerno){
-			$.post('__URL__/flow_group_dlt',{id:id},function(){
-				$(t).parents('li').remove();
-				layer.close(index);
-				layer.msg('删除成功！',{icon:1,time:1000,offset:'30%'});
-			});
-			
-		});
-	});
+	
 
 	$('ul#x').on('dblclick','li',function(){
 		let x = $(this).text();
@@ -603,7 +533,7 @@
 			}
 		});
 		if(flag == true) return false;
-		$('#p_flow_selected_tbody').append("<tr data-id = '"+id+"' data-type = '相对角色' ><td></td><td>"+x+"</td><td>相对角色</td></tr>");
+		$('#p_flow_selected_tbody').append("<tr data-id = '"+id+"' data-type = '相对角色' ><td>-</td><td>"+x+"</td><td>相对角色</td></tr>");
 	});
 
 
@@ -614,15 +544,18 @@
 		
 		query : function(){
 			if($this.depId == 0) return false;
-			
 			$('#p_flow_select_tbody1').empty();
-			let o = {dep_id:$this.depId};
+			let o = {};
+			o.w = {bmid:['=',$this.depId],active:['=',1]};
+			o.f = 'number,name,gw';
+
+
+
 			if($this.type == 1){
-				
-				$.post('__APP__/PublicGet/get_employee_by_dept_id',o,function(d){
+				$.post('__APP__/index/Get/get_employees',o,function(d){
 					let tmp = '';
-					for(let i in d.data){
-						tmp += "<tr data-type = '个人'><td>"+d.data[i].number+"</td><td>"+d.data[i].name+"</td><td>"+d.data[i].pname+"</td></tr>";
+					for(let i in d){
+						tmp += "<tr data-type = '个人'><td>"+d[i]['number']+"</td><td>"+d[i]['name']+"</td><td>"+d[i]['gw']+"</td></tr>";
 					}
 					$('#p_flow_select_tbody1').append(tmp);
 				});
@@ -634,7 +567,7 @@
 	};
 
 	$('#flow_confirm').click(function(){
-		
+
 		let type = $("input[name='group2']:checked").data('type');
 
 		let node = [];
@@ -645,52 +578,64 @@
 				tmp.T  = 'P';
 				tmp.K   = $(this).children().eq(0).text();
 				tmp.V = $(this).children().eq(1).text();
+				tmp.info = tmp.V;
 			}else if($(this).children().eq(2).text() == '角色'){
 				tmp.T = 'R';
 				tmp.K   = $this.depId;
 				tmp.V = $(this).children().eq(1).text() == '部门主管'?'B':'F';
 				tmp.B = $(this).children().eq(0).text();
-				
+				tmp.info = tmp.B + $(this).children().eq(1).text();
 			}else if($(this).children().eq(2).text() == '岗位'){
+				
 				tmp.T = 'G';
 				tmp.K   = $(this).data('id');
 				tmp.V = $(this).children().eq(1).text();
+				tmp.info = tmp.V + '（岗位）';
+				
 			}else if($(this).children().eq(2).text() == '组'){
+				
 				tmp.T = 'Z';
 				tmp.K   = $(this).data('id');
 				tmp.V = $(this).children().eq(1).text();
+				tmp.info = tmp.V + '（组）';
+				
 			}else if($(this).children().eq(2).text() == '部门'){
 				tmp.T = 'D';
 				tmp.K   = $(this).data('id');
 				tmp.V = $(this).children().eq(1).text();
+				tmp.info = tmp.V + '（部门）';
+				log(tmp);
 			}else if($(this).children().eq(2).text() == '相对角色'){
 				tmp.T = 'X';
 				tmp.K  = $(this).data('id');
 				if(tmp.K == '1' || tmp.K == '2'){
 					tmp.V = $(this).children().eq(2).text();
+					if(tmp.K == 1) tmp.info = '发起者部门主管';
+					if(tmp.K == 2) tmp.info = '发起者部门分管领导';
 				}else if(tmp.K == '3' || tmp.K == '4'){
 					tmp.V = $(this).children().eq(2).text();
+					if(tmp.K == 3) tmp.info = '执行者部门主管';
+					if(tmp.K == 4) tmp.info = '执行者部门分管领导';
 				}else if(tmp.K == '9'){
 					tmp.V = '空';
-				}else if(tmp.K == '5'){
-					tmp.V = '发起者';
+					tmp.info = '空节点';
 				}
 			}
 				
 			node.push(tmp);
+
 		});
 
 		
 		
-		parent.flow.insert_node(node,type,0,true,addBranchStatus);
-
+		top[top.mainPage.tmp.find('iframe')[0]['name']].app.set_node(node);
 		let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
 		parent.layer.close(index); //再执行关闭   
 	
 	});
 
 
-
+	
 
 </script>
 </html>

@@ -15,7 +15,8 @@ class Layout extends Model{
 		'node_id' => 'int',
 		'newwindow' => 'int',
 		'icon' => 'varchar',
-		'hidenav' => 'int'
+		'hidenav' => 'int',
+		'public' => 'int'
 
 	];
 
@@ -34,11 +35,11 @@ class Layout extends Model{
 		foreach($r as $k => $v){
 			if($v['level'] == 1){
 
-				$list[$v['id']] = array('name' => $v['name'].($hasSort?' - '.$v['sort']:''),'title' => $v['level'],'layout_id' =>$v['id'],'true_name' => $v['name'] , 'u' => $v['url'] , 'sort' => $v['sort'],'icon' => $img_url.'/tree_level_1.png','i' => $v['icon']);
+				$list[$v['id']] = array('public' => $v['public'],'name' => $v['name'].($hasSort?' - '.$v['sort']:''),'title' => $v['level'],'layout_id' =>$v['id'],'true_name' => $v['name'] , 'u' => $v['url'] , 'sort' => $v['sort'],'icon' => $img_url.'/tree_level_1.png','i' => $v['icon']);
 
 			}else if($v['level'] == 2){
 
-				$list[$v['pid']]['children'][$v['id']] = array('name' => $v['name'].($hasSort?' - '.$v['sort']:''),'title' => $v['level'],'layout_id' =>$v['id'],'true_name' => $v['name'],'u' => $v['url'],'sort' => $v['sort'],'icon' => $img_url.'/tree_level_2.png','i' => $v['icon']);
+				$list[$v['pid']]['children'][$v['id']] = array('public' => $v['public'],'name' => $v['name'].($hasSort?' - '.$v['sort']:''),'title' => $v['level'],'layout_id' =>$v['id'],'true_name' => $v['name'],'u' => $v['url'],'sort' => $v['sort'],'icon' => $img_url.'/tree_level_2.png','i' => $v['icon']);
 
 				$pid[$v['id']] = $v['pid'];
 

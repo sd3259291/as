@@ -31,6 +31,10 @@ class Employee extends Model{
 		return $this->hasOne(Department::class,'id','department_id');
 	}
 
+	public function post(){
+		return $this->hasOne(Post::class,'id','post_id');
+	}
+
 	public function education(){
 		return $this->hasMany(EmployeeEducation::class);
 	}

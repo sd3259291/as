@@ -7,18 +7,11 @@
 	
 	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
 	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
-    <!-- Bootstrap Styles-->
     <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
-    <!-- FontAwesome Styles-->
     <link href="__PUBLIC__/css/font-awesome.css" rel="stylesheet" />
-    
-    <!-- Custom Styles-->
-    
 	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
 	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/extensions/AutoFill/css/dataTables.autoFill.min.css">
-	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/FixedColumns-3.2.4/css/fixedColumns.bootstrap.css">
-    <!-- Google Fonts-->
-	
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/FixedColumns-3.2.4/css/fixedColumns.bootstrap.css">	
 	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
 
 
@@ -134,12 +127,17 @@
 	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
 	<!--<script src="__PUBLIC__/Js/echarts.js"></script>
 	<script src="__PUBLIC__/Js/echarts_theme1.js"></script>-->
-	<!--<script type="text/javascript" src="__PUBLIC__/js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>-->
+	
 	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
 	
 	<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
-	<!--<script type="text/javascript" src="__PUBLIC__/js/jquery.nicescroll-master/jquery.nicescroll.min.js"></script>-->
+
 	<script src="__PUBLIC__/js/custom-scripts.js"></script>
+	
+
+<script src = '__PUBLIC__/js/ue/ueditor.config.js'></script>
+<script src = '__PUBLIC__/js/ue/ueditor.all.min.js'></script>
+<script src = '__PUBLIC__/js/ue/lang/zh-cn/zh-cn.js'></script>
 
 	<style type="text/css">
 		div.mul-page{display:inline-block;height:24px;background:#fff;padding:0 0 0 10px;cursor:pointer;border-right:1px solid #e0e0e0}
@@ -155,14 +153,14 @@
 	<script>
 
 	
-
+	
 	window.layerWidth = '1200px';
 
 	var mainPage = {
 		
 		loadIndex : 0,
 		homePage : { 
-			url : '__APP__/Fs/newFlow' ,
+			url : '__APP__/F/manage' ,
 			name : "我的桌面",
 			id : 'indexdeptindex'
 		},
@@ -174,6 +172,8 @@
 		iframes : new Map(),
 		lastPageId : '',
 		currentPageId : '',
+		tmp : {},
+		tmp2 : {},
 		show_iframe(id){
 			$('.mul-page-div1').parent().removeClass('show-iframe');
 			$('#l' + id).parent().addClass('show-iframe');
@@ -313,6 +313,9 @@
 				
 				$.post(mainPage.homePage.url,'',function(d){
 					$('#page-inner').html(d);
+
+					
+
 				});
 			}else{		//多页面模式
 				this.height -= 58;
@@ -347,8 +350,10 @@
 	
 	mainPage.ini();
 
-	
-	
+		
+
+
+
 	
 	</script>
 </body>

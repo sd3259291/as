@@ -388,6 +388,7 @@ class Auth extends BaseController
 		$layout->pid  = $_POST['pid'];
 		$layout->sort = $_POST['sort'];
 		$layout->icon = $_POST['icon'];
+		$layout->public = $_POST['public'] == 'true'?1:0;
 
 		if($_POST['level'] == 2){
 			$tmp = explode('/',$_POST['url']);
@@ -425,14 +426,14 @@ class Auth extends BaseController
     * 编辑目录
     */
 	public function editLayout(){
-		//Cache::set('tmp',$_POST);
-		//$_POST = Cache::get('tmp');
+		
 		$layout = Layout::find($_POST['id']);
 		if(!$layout) return a('','目录不存在','e');
 		$layout->name = $_POST['name'];
 		$layout->url = $_POST['url'];
 		$layout->sort = $_POST['sort'];
 		$layout->icon = $_POST['icon'];
+		$layout->public = $_POST['public'];
 		if($_POST['url']){
 			$tmp = explode('/',$_POST['url']);
 			$controller = $tmp[0];

@@ -13,7 +13,8 @@
 					<button class = 'btn btn-default btn-default-1' id = 'change_status'>  <i class="material-icons text-color4"  >transform</i> 禁用/启用</button>
 					<button class = 'btn btn-default btn-default-1' id = 'search'>  <i class="material-icons text-color1"  >search</i> 搜索</button>
 				</div>
-				<div class = 'relative left'>
+				<button class = 'btn btn-default btn-default-1 left' id = 'type'>  <i class="material-icons text-color5"  >list</i> 类型管理</button>
+				<div class = 'relative left' style = 'margin-left:24px'>
 					<input type = 'text' id = 'search_table' class = 'width-200' placeholder = '表单内搜索' />
 					<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
 				</div>
@@ -30,7 +31,7 @@
 					</thead>
 					<tbody>
 						{volist name = 'flow' id = 'f'}
-						<tr data-id = '{$f.id}'><td>类型</td><td>{$f.title}</td><td>{$f.maker}</td><td>{$f.status ? '发布':'未发布'}</td><td>{$f.create_datetime}</td><td>{$f.modify_datetime}</td></tr>
+							<tr data-id = '{$f.id}'><td>类型</td><td>{$f.title}</td><td>{$f.maker}</td><td>{$f.status ? '发布':'未发布'}</td><td>{$f.create_datetime}</td><td>{$f.modify_datetime}</td></tr>
 						{/volist}
 					</tbody>
 				</table>
@@ -104,6 +105,22 @@
 				{ 'name' : '用户名：' ,'id' : 'name' ,'type' : 'text'},
 				{ 'name' : '密码：' ,'id' : 'password' ,'type' : 'text'},
 			];
+
+			$('#type').click(function(){
+				parent.layer.open({
+					skin: 'layer-edit-container',
+					type: 2,
+					isOutAnim: false ,
+					title: '流程类型管理',
+					maxmin: true,
+					shadeClose: true, //点击遮罩关闭层
+					area : ['500px','100%'],
+					content: '__APP__/F/flow_type',
+					success : function(){
+						
+					},
+				});
+			});
 
 			$('#new').click(function(){
 				app.step_1_html = '';
@@ -235,7 +252,7 @@
 				});
 			});
 
-			$('#table tr').eq(4).addClass('selected');
+			//$('#table tr').eq(4).addClass('selected');
 
 			$('#edit-form').trigger('click');
 

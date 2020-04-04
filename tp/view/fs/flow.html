@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<link href="__PUBLIC__/js/um/themes/default/css/umeditor.css" rel="stylesheet" />
+	
+	<style type="text/css">
+		body{background:#eeeeee}
+		h4{padding-left:50px}
+		h4 span{vertical-align:middle}
+
+		li.edui-combobox-item label{
+			color:#6b6b6b;
+			font-size:12px;
+			height:18px;
+			line-height:18px
+		}
+		.comment-container{
+			padding:0px ;border-BOTTOM:1px solid #e3e3e3
+		}
+		.comment-head-img{
+			display:inline-block;height:48px;width:48px;border:1px solid #cccccc;border-radius:24px
+		}
+		.comment-comment{
+			padding:10px 100PX 24px 20px !important;
+			border-left:1px solid #e3e3e3;min-height:72px !important
+		}
+		.comment-name{
+			position:absolute !important;
+			bottom:0;
+			right:200px;
+			line-height:24px;
+			color:#9FA5AA;
+			display:inline-block !important;
+			height:24px;
+			
+		}
+	</style>
+</head>
+
+<body>
+	<div class = 'row' style = 'margin-top:10px'>
+		<div class = 'col s9' >
+			<div class = 'row  relative' style = 'border-bottom:1px solid #e3e3e3;background:#fff'>
+				<div class = 'col s12' >
+					<h4><span>{$flow.title}</span></h4>
+				</div>
+
+				<span style = 'position:absolute;left:90%;top:20px;display:inline-block;color:#00A65A'>
+					标题
+				</span>
+
+				<span style = 'position:absolute;left:90%;top:46px;display:inline-block;color:#00A65A'>
+						正文
+					</span>
+				
+			</div>
+
+			<div class = 'row' style = 'border-bottom:1px solid #e3e3e3;background:#fff'>
+				<div class = 'col s12 relative' style = 'padding:10px 50px'>
+					{$flow.form|raw}
+				</div>
+			</div>
+
+			<div class = 'row relative' id = 'abc' style = 'border-bottom:1px solid #e3e3e3;background:#fff'>
+				<span style = 'position:absolute;left:90%;top:2px;display:inline-block;color:#00A65A'>
+					处理人意见
+				</span>
+				{volist name = 'comments' id = 'c'}
+					<div class = 'col s12 relative comment-container'>
+						<div class = 'row'>
+							<div class = 'col s1' style = 'padding:10px 0;text-align:center'>
+								<div class = 'comment-head-img'>
+								</div>
+							</div>
+							<div class = 'col s11 relative comment-comment'>
+								<div>{$c.comment|raw}</div>
+								<div class = 'comment-name'>{$c.name} {$c.department} {$c.post} {$c.datetime}</div>
+							</div>
+						</div>
+					</div>
+				{/volist}
+			</div>
+
+
+		</div>
+
+		<div class = 'col s3' >
+			<div class = 'row' style = 'background:#fff'>
+				<div class = 'col s12'>
+					<script type="text/plain" id="comment" style="">
+						同意
+					</script>
+				</div>
+
+				<div class = 'col s12' style = 'padding:10px 10px'>
+					<button class = 'btn btn-primary' id = 'check' style = 'color:#fff;padding:0 5px'>  <i class="material-icons"  >create</i> 审核</button>
+
+					<button class = 'btn btn-warning' id = 'back' style = 'color:#fff;padding:0 5px'>  <i class="material-icons"  >keyboard_backspace</i> 回退</button>
+
+					<button class = 'btn btn-danger' id = 'add' style = 'color:#fff;padding:0 5px'>  <i class="material-icons"  >add_box</i> 加签</button>
+
+					<button class = 'btn btn-success' id = 'flow' style = 'color:#fff;padding:0 5px'>  <i class="material-icons"  >repeat</i> 流程</button>
+				</div>
+
+				<div class = 'col s12'>
+					<div style = 'padding:10px 10px 6px 10px'>
+						<span class = 'text-color2'>发起者</span>：{$flow.maker_name}
+					</div>
+					<div style = 'padding:10px 10px 6px 10px'>
+						<span class = 'text-color2'>发起时间</span>：{$flow.datetime}
+					</div>
+					<div style = 'padding:10px 10px 6px 10px'>
+						<span class = 'text-color2'>接受时间</span>：{$flow.datetime}
+					</div>
+					
+
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+
+</body>
+
+
+
+<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+<script src="__PUBLIC__/js/um/umeditor.config.js"></script>
+<script src="__PUBLIC__/js/um/umeditor.js"></script>
+<script src="__PUBLIC__/js/um/lang/zh-cn/zh-cn.js"></script>
+<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+<script src="__PUBLIC__/js/tool.js"></script>
+
+
+<script>
+
+
+var flow = {
+
+	add : [],
+
+	tmp : new Map(),
+
+	mSelected : '', // 多个执行人需选择的时候，记录是哪个
+
+	flowId :  {$Request.get.flow_id},
+
+	id : {$Request.get.id},
+
+	nodeId : '{$Request.get.node_id}',
+
+	parameter : '?id='+'{$Request.get.id}'+'&&'+'flowid='+'{$Request.get.flow_id}'+'&&nodeid='+'{$Request.get.node_id}',
+
+	um : {},
+
+	mSelected : '',
+
+
+	parameterO : {},
+
+	see : function(){
+		top.layer.open({
+			title:'<span style = "font-size:12px">流程查看</span>',
+			type: 2,
+			shadeClose:true,
+			offset:'5%',
+			area: [top.mainPage.layerWidth,'80%'],
+			content: "__APP__/Fs/see" + flow.parameter,
+			isOutAnim: false,
+		});
+	},
+	
+	ini : function(){
+
+		log($(window).height());
+		log( $('#abc').offset.top , false);
+		$('#abc').css('min-height',350);
+
+		flow.um = UM.getEditor('comment');
+		
+		$('#add').click(function(){
+			top.layer.open({
+				title:'<span style = "font-size:12px">加签</span>',
+				type: 2,
+				shadeClose:true,
+				offset:'5%',
+				area: ['800px' ,'80%'],
+				content: "__APP__/Fs/flow_add"+flow.parameter,
+				isOutAnim: false,
+				success : function(layero, index){
+					top.mainPage.tmp = layero;
+				},
+				btn : ['确定'],
+				yes : function(index,layero){
+					
+					if(top[layero.find('iframe')[0]['name']].app.selected.length > 0){
+						
+						let addWin = top[layero.find('iframe')[0]['name']];
+						
+						
+						if( (addWin.app.type == 1 || addWin.app.type == 2) && addWin.app.back == true){
+							let me = {
+								'C' : 1,
+								'K' : '{$Request.session.userinfo.username}',
+								'V' : '{$Request.session.userinfo.name}',
+								'T' : 'P',
+								'Z' : 1,
+							};
+
+							
+							flow.add.push( [ [me] , 2 , false] );
+						}	
+						flow.add.push([addWin.app.selected,addWin.app.type,addWin.app.back]);	
+						$('#flow_add').css('background','#FFDB91');
+
+						for(let i in flow.add){
+							for(let j in flow.add[i][0]){
+								flow.add[i][0][j]['J'] = '{$Request.session.userinfo.name}';
+							}
+						 }
+					}
+					
+					
+					top.layer.close(index);
+					flow.see();
+				},
+			});
+		});
+
+		
+		$('#flow').click(function(){
+			parent.layer.open({
+				title:'<span style = "font-size:12px">流程查看</span>',
+				type: 2,
+				shadeClose:true,
+				offset:'0',
+				area: ['90%','100%'],
+				content: "__APP__/Fs/see"+flow.parameter,
+				isOutAnim: false,
+			});
+		});
+
+
+		$('#back').click(function(){
+			layer.confirm('确定回退此流程？',{title : '提示',offset:['10%']},function(index){
+				let index2 = layer.load(2);
+				let o = {};
+				o.id = flow.id;
+				o.flowid = flow.flowId;
+				o.nodeid = flow.nodeId;
+				o.opinion = app.um.getContent();
+				$.post('__APP__/Fs/back',o,function(d){
+					layer.close(index2);
+					if(d.status == 's'){
+						parent.app.table.row(parent.$('#tbody tr.selected').eq(0)).remove().draw();
+
+						
+						layer.msg('回退成功',{icon:1,time:1000,offset:'30%'});
+						var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+						parent.layer.close(index); //再执行关闭
+					}else{
+						layer.msg(d.info,{icon:2,time:2000,offset:'30%'});
+					}
+				});
+			});
+		});
+
+		$('#check').click(function(){
+			flow.check()
+		});
+	},
+	
+	
+
+	check : function( exc = '' ){
+		let index1 = layer.load(2);
+		let obj = {};
+		obj.flowid = flow.flowId;
+		obj.id = flow.id;
+		obj.nodeid = flow.nodeId;
+		obj.opinion = flow.um.getContent();
+		if( flow.add.length > 0) obj.add = flow.add;
+		
+			if(exc != '') obj.executor = exc;
+
+			$.post('__APP__/Fs/check',obj,function(d){
+				layer.close(index1);
+				if(d.status == 's'){
+					parent.$('#tbody tr.selected').eq(0).children().eq(8).find('img').eq(0).attr('src', '/a1/index/view/public/Image/o10.png').attr('title','已处理');;
+					parent.layer.msg('审核成功',{icon:1,time:1000,offset:'30%'});
+					var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+					parent.layer.close(index); //再执行关闭   
+				}else if(d.status == 'm'){
+					
+					flow.tmp = new Map();
+					let c = "<div style = 'font-size:12px;'>";
+					for(let i in d.data){
+						let zxmsName = '';
+						if(d.data[i]['zxms'] == 1) zxmsName = '单人执行';
+						if(d.data[i]['zxms'] == 2) zxmsName = '多人执行';
+						c += "<div class = 'row' style = 'margin:0;padding:20px 10px;border-bottom:1px solid #bfbfbf'>"
+						c += "<div class = 'col s3 hint1'>"+d.data[i]['name']+"</div><div class = 'col s3'>"+zxmsName+"</div><div class = 'col s6'><input placeholder = '点击选择执行人' id = '"+i+"' data-id = '"+i+"'  data-zxms = '"+d.data[i]['zxms']+"' type = 'text' class = 'aya-input xzfzclr' style = 'height:24px' readonly /></div>";
+						c += "</div>";
+						flow.tmp.set(i,d.data[i]['list']);
+					}
+					c += "</div>";		
+					
+					let index = parent.layer.open({
+						title : '<span style = "font-size:12px">选择分支处理人</span>',
+						offset : ['48px'],
+						area  : ['900px','660px'],
+						type  : 1,
+						btn   : ['确定'], //aya_mom_moallocate_change
+						shadeClose:true,
+						content : c,
+						yes : function(index){
+							
+							let a = [];
+
+							let allSelected = true;
+							log('');
+							parent.$('input.xzfzclr').each(function(){
+								log(this,false);
+								let tmp = {};
+								tmp.id = $(this).data('id');
+								if($(this).attr('data-executor') == undefined || $(this).attr('data-executor') == '[]'){
+									allSelected = false;
+									return false;
+								}else{
+									tmp.executor = $(this).data('executor');
+								}
+								a.push(tmp);
+							});
+							
+							if(allSelected == false){
+								layer.msg('请选择执行人',{icon:2,time:1500,offset:'30%'});
+								return false;
+							}
+							parent.layer.close(index);
+							flow.check(JSON.stringify(a));
+							
+
+						},
+						success : function(layero, index){
+							parent.$('input.xzfzclr').click(function(){
+
+								let t = $(this).parent().prev().prev().text();
+
+								let id = $(this).data('id');
+
+								flow.mSelected = id;
+
+								let zxms = $(this).data('zxms');
+
+
+								let n = "<div class = 'row' style = 'margin:0'><div class = 'col s12' id = 'top123'><div style = 'display:inline-block;width:50%;position:relative'><input id = 'i20191119' placeholder = '按回车搜索' type = 'text' class = 'aya-input' style = 'height:24px;width:100%' /><img class = 'height18' src = '__PUBLIC__/image/search.png' style = 'position:absolute;right:0;top:3px;'/></div></div><div class = 'col s12'><table id = 't20191119' class = 'centered dataTable row-border noselect table-small'><thead><tr></tr><tr><th></th><th>工号</th><th>姓名</th></tr></thead><tbody>";
+
+								let selected = new Map();
+								if(parent.$('#' + flow.mSelected).data('executor') != undefined){
+									JSON.parse(parent.$('#' + flow.mSelected).data('executor')).forEach(function(v,k){
+										selected.set(v.k,1);	
+									});
+								}
+								
+								let tmp1 = '',tmp2 = '';
+								
+								flow.tmp.get(id).forEach(function(v,k){
+									if(selected.get(v.k) == undefined){
+										tmp1 += "<tr><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td>"+v.k+"</td><td>"+v.v+"</td></tr>";
+									}else{
+										tmp2 += "<tr class = 'selected'><td><input type = 'checkbox' class = 'aya-checkbox' checked /></td><td>"+v.k+"</td><td>"+v.v+"</td></tr>";
+									}
+										
+								});
+
+								n = n + tmp2 + tmp1;
+
+								n += "</tbody></table></div><div class = 'col s12 center' style = 'padding:8px' ><button class = 'btn btn-primary height32' id = 'btn20191119'>确定</button></div></div>";
+
+
+						
+								parent.layer.open({
+									title : '<span class = "hint2" style = "font-size:12px">选择分支处理人（'+t+'）</span>',
+									offset : ['48px'],
+									area  : ['500px','660px'],
+									type  : 1,
+									shadeClose:false,
+									content: n,
+									success : function(layero2, index2){
+										
+										let scrollY = 562 - $('#top123').height()  - top.$('#btn20191119').parent().height();
+										if(top.mainPage.multiType == 1) scrollY -= 26;
+
+										let setting = {
+											paging: false,
+											scrollY: scrollY ,
+											info:false,
+											ordering:false,
+											dom:'t',	
+										};
+
+										let t20191119 = parent.$('#t20191119').DataTable(setting);
+
+										if(zxms == 1){
+											parent.select_tr('t20191119');
+										}else{
+											parent.select_tr2('t20191119');
+										}
+										
+
+											
+										parent.$('#i20191119').keypress(function(e){
+										
+											let text = $.trim(parent.$('#i20191119').val());
+											
+											if(e.keyCode == 13){
+												t20191119.search(text).draw();
+											}
+										});
+											
+										parent.$('#btn20191119').click(function(){
+
+											
+											let a = [];
+											parent.$('#t20191119 tbody tr.selected').each(function(){
+												let tmp = {};
+												tmp.k = $(this).children().eq(1).text();
+												tmp.v = $(this).children().eq(2).text();
+												a.push(tmp);
+											});
+											if(a.length == 0){
+												layer.msg('请选择执行人',{icon:2,time:1500,offset:'30%'});
+											}else{
+												parent.$('#'+flow.mSelected).attr('data-executor',JSON.stringify(a));
+												let tmp = ''
+												for(let i = 0; i < a.length; i++){
+													if( i == a.length - 1){
+														tmp += a[i]['v'];
+													}else{
+														tmp = tmp + a[i]['v'] + ',';
+													}
+												}
+												parent.$('#'+flow.mSelected).val(tmp);
+												
+												parent.layer.close(index2);
+											}
+										});
+
+									}
+										
+								});
+
+							});
+
+						},
+					});
+						
+
+				}else{
+					layer.alert(d.info,{shadeClose:true,'title' : "<span style = 'font-size:12px'>错误信息</span>",area:['500px'],icon:2,offset:'20%'});
+				}		
+			});
+
+		},
+
+};
+
+
+
+
+flow.ini();
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+</html>

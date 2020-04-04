@@ -20,6 +20,8 @@ function create_new_div( div ){
 			content += "</select></div>";
 		}else if(d.type == 'hidden'){
 			content += "<input  id = '"+d.id+"' class = 'aya-input' type = 'hidden' />";
+		}else if(d.type == 'checkbox'){
+			content += "<div class = 'col s4 font-bold'>"+d.name+"</div><div class = 'col s8' style = 'text-align:left'><input id = '"+d.id+"' class = 'aya-checkbox' type = 'checkbox' /></div>";
 		}
 	}
 	content += "</div>";
@@ -391,6 +393,7 @@ function get_page(){
 }
 
 function set_page(page){
+	
 	$('#current_page').text(page.current_page);
 	$('#totles').text(page.totles);
 	$('#totle_page').text(page.totle_page);

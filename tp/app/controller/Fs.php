@@ -13,13 +13,21 @@ use app\model\Flow;
 use app\model\Flows;
 use app\model\FlowTable;
 use app\model\Max;
+use app\model\FlowsComment;
+use app\controller\PublicGet;
 
 class Fs extends BaseController{
-	
+
 
 	 /**
      *  新建流程
      */
+
+	
+	public function __construct(){
+       $this->get = new \app\controller\PublicGet;
+    }
+
 	 public function newFlow(){
 		return View::fetch();
 	 }
@@ -44,11 +52,31 @@ class Fs extends BaseController{
 	 }
 
 	 
+	  /**
+     *  加签
+     */
+	 public function flow_add(){
+		//$jdqx = Db::table('aya_flow2_node')->field('id,name')->select();
+		//$this->assign('jdqx',$jdqx);
+		return View::fetch();
+	 }
+
+	 /**
+     *  加签 选择人员
+     */
+	 public function flow_add_select(){
+		$dept = new Department;
+		$tree = $dept->tree();
+		View::assign('tree',$tree);
+		return View::fetch();
+	 }
+
+	 
 	 /**
      *  发送流程
      */
 	 public function send(){
-		gp();
+
 
 		$d = $_POST;
 		$userinfo = Session::get('userinfo');
@@ -56,24 +84,33 @@ class Fs extends BaseController{
 		$d['maker_name'] = $userinfo['name'];
 		$d['datetime'] = date('Y-m-d H:i:s',time());
 		$d['status'] = 5;
-		$d['p'] = $d['flow_p'];
-		$d['node'] = $d['flow_node'];
+		$d['p'] = $d['p'];
+		$d['node'] = $d['node'];
+		$d['title'] = trim($_POST['title']);
+		$d['form'] = $_POST['form'];
 
+		if(!$d['title']) rt('','标题不能为空','e');
+		if(!$d['form']) rt('','流程内容不能为空','e');
+
+
+		$flows = Flows::create($d);
+		
 		$handleData = array(
-			'flowId' => 1596,
+			'flowId' => $flows->id,
 			'nodeId' => 'creator',
-			'executor' => '',
+			'executor' => isset($_POST['executor'])?$_POST['executor']:'',
 			'createFalseDelete' => true
 		);
 
-		
-
-
-
-
 		$r = $this->handle($handleData);
 		
-		//$flows = Flows::create($d);
+		 if($r['ok'] === false)  return a('',$r['msg'],'e');
+        
+        if($r['ok'] === 'm')    return a($r['data'],'','m');
+ 
+        return a('','','s');
+		
+		
 	 }
 
 
@@ -86,24 +123,37 @@ class Fs extends BaseController{
 		View::assign('tbody',$r['tbody']);
 		return View::fetch();
 	}
+	 /**
+     *  已发事项
+     */
+	public function hasSend(){
+		$r = $this->query(array('page' => 1,'n' => 1000,'type' => 2));
+		View::assign('page',$r['page_return']);
+		View::assign('tbody',$r['tbody']);
+		return View::fetch();
+	}
 
 	public function research(){
+		
         $r = $this->query($_POST);
-        return a($r['tbody'],$r['page_return'],'s');
+        return a(array('tbody' => $r['tbody'],'page' => $r['page_return']),'','s');
     }
  
  
     
  
     public function query($post){
- 
+
+		$post['n'] = (int)$post['n'];
+		$post['page'] = (int)$post['page'];
+		
         $w = "";
  
         if(isset($post['title']) && $post['title'] != ''){
             $w .= " and b.title like '%".$post['title']."%' ";
         }
-        if(isset($post['maker']) && $post['maker'] != ''){
-            $w .= " and b.maker like '%".$post['maker']."%' ";
+        if(isset($post['maker_name']) && $post['maker_name'] != ''){
+            $w .= " and b.maker_name like '%".$post['maker_name']."%' ";
         }
         if(isset($post['start']) && $post['start'] != ''){
             $w .= " and b.datetime >= '".$post['start']."  00:00:00'";
@@ -111,16 +161,16 @@ class Fs extends BaseController{
         if(isset($post['end']) && $post['end'] != ''){
             $w .= " and b.datetime <= '".$post['start']."  23:59:59'";
         }
-        
+       
         if($post['type'] == '1'){
             if($w == ''){
-                $r = Db::query("select count(1) as n from s_flows_executor where status = 0 and number != '".SESSION::get('userinfo')['username']."'");
+                $r = Db::query("select count(1) as n from s_flows_executor where status = 0 and number = '".SESSION::get('userinfo')['username']."'");
             }else{
                 $r = Db::query("select count(1) as n from s_flows_executor a join s_flows b on a.flow_id = b.id where a.status = 0 and a.number = '".SESSION::get('userinfo')['username']."' $w ");
             }
         }else if($post['type'] == 2){
             $r = Db::query("select count(1) as n from s_flows b where b.maker = '".SESSION::get('userinfo')['username']."' $w ");
-            
+          
         }else{
             if($w == ''){
                 $r = Db::query("select count(1) as n from s_flows_executor where status = 2 and number = '".SESSION::get('userinfo')['username']."' $w ");
@@ -129,53 +179,58 @@ class Fs extends BaseController{
             }
             
         }        
- 
+
         $page_return = array();
         $page_return['totles'] = $r[0]['n'];     //总记录数 返回
         $page_return['totle_page'] = ceil($r[0]['n'] / $post['n']);  //总页数 返回
         $page_return['n'] = $post['n'];
         $page_return['current_page'] = $post['page'];     //当前页 返回
- 
- 
 
 		$tbody = "";
 
 		$imgUrl = img_url().'/flow/';
 
-		
- 
         if($post['type'] == '1'){  //待办
 
-            $r = Db::table('s_flows_executor')->alias('a')->join(['s_flows' =>  'b'],'a.flow_id = b.id')->where("a.number != '".SESSION::get('userinfo')['username']."' and (a.status = 0 or a.status = 1) $w ")->field("a.id,a.flow_id,a.node_id,a.datetime_r,a.sender,a.name,a.status,b.show,b.title,b.maker_name,b.datetime,CASE a.type when 1 then '审核通过' when 2 then '回退' when 9 then '加签' ELSE '取回' END AS type")->page($post['page'],$post['n'])->order('a.id desc')->select();
- 
+            $r = Db::table('s_flows_executor')->alias('a')->join(['s_flows' =>  'b'],'a.flow_id = b.id')->where("a.number = '".SESSION::get('userinfo')['username']."' and (a.status = 0 or a.status = 1) $w ")->field("a.id,a.flow_id,a.node_id,a.datetime_r,a.sender,a.name,a.status,b.show,b.title,b.maker_name,b.datetime,CASE a.type when 1 then '审核通过' when 2 then '回退' when 9 then '加签' ELSE '取回' END AS type")->page($post['page'],$post['n'])->order('a.id desc')->select()->toArray();
+	
+			
+			
+
             foreach($r as $k => $v){
                 $clzt = "";
                 if($v['status'] == 0){
                     $clzt = "<img title = '未读' class = 'height16'  src = '".$imgUrl."/notsee.png' />";
                 }else{
-                    $clzt = "<img title = '已读' class = 'icon4'  src = '".$imgUrl."/hassee.png' />";
+                    $clzt = "<img title = '已读' class = 'height16'  src = '".$imgUrl."/hassee.png' />";
                 }
                 $rizhi = "<img class = 'height16 rizhi' src= '".$imgUrl."/detail.png' data-flow_id =".$v['flow_id']." />";
-                $tbody .= "<tr><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td><a href = 'javascript:void(0)' data-show = '".$v['show']."' data-flow_id =".$v['flow_id']."  data-node_id =".$v['node_id']."  data-id = ".$v['id']." >".$v['title']."</a></td><td>".$v['maker_name']."</td><td>".$v['datetime']."</td><td>".$v['datetime_r']."</td><td>".$v['sender']."</td><td>".$v['type']."</td><td>".$v['name']."</td><td> $clzt </td><td> $rizhi </td></tr>";
+                $tbody .= "<tr data-show = '".$v['show']."' data-flow_id =".$v['flow_id']."  data-node_id ='".$v['node_id']."'  data-id = ".$v['id']." ><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td><a href = 'javascript:void(0)' >".$v['title']."</a></td><td>".$v['maker_name']."</td><td>".$v['datetime']."</td><td>".$v['datetime_r']."</td><td>".$v['sender']."</td><td>".$v['type']."</td><td>".$v['name']."</td><td> $clzt </td><td> $rizhi </td></tr>";
             }
         }else if($post['type'] == 2){  // 已发
  
-            $r = Db::table('s_flows')->alias('b')->where("b.maker = '".SESSION::get('userinfo')['username']."' $w ")->field("b.id as flow_id,b.maker,b.title,b.maker_name,b.datetime,b.handler,b.show,b.status")->page($post['page'].','.$post['n'])->order('b.id desc')->select();
- 
+            $r = Db::table('s_flows')->alias('b')->where("b.maker = '".SESSION::get('userinfo')['username']."' $w ")->field("b.id as flow_id,b.maker,b.title,b.maker_name,b.datetime,b.handler,b.show,b.status")->page($post['page'],$post['n'])->order('b.id desc')->select();
+		
+			
+
             foreach($r as $k => $v){
                 $zt = $v['status'] == 9 ? '<span class = "hint6">结束</span>' : '<span class = "hint3">流转中</span>';
                 $rizhi = "<img class = 'height16 rizhi' src= '".$imgUrl."/detail.png' data-flow_id =".$v['flow_id']." />";
-                $tbody .= "<tr><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td><a href = 'javascript:void(0)' data-show = '".$v['show']."' data-flow_id =".$v['flow_id']." data-node_id = '0' data-id = '0'>".$v['title']."</a></td><td>".$v['maker_name']."</td><td>".$v['datetime']."</td><td>-</td><td>-</td><td>-</td><td>".$v['handler']."</td><td> $zt </td><td> $rizhi </td></tr>";
+                $tbody .= "<tr data-show = '".$v['show']."' data-flow_id =".$v['flow_id']." data-node_id = '0' data-id = '0'><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td><a href = 'javascript:void(0)' >".$v['title']."</a></td><td>".$v['maker_name']."</td><td>".$v['datetime']."</td><td>-</td><td>".$v['handler']."</td><td> $zt </td><td> $rizhi </td></tr>";
             }
+
+			
  
         }else{ //已办
- 
-            $r = Db::table('s_flows_executor')->alias('a')->join(['s_flows' => 'b'],'a.flow_id = b.id')->where("a.number = '".SESSION::get('userinfo')['username']."' and a.status = 2 $w")->field("a.id,a.flow_id,a.node_id,a.datetime_r,a.sender,b.handler,b.title,b.maker_name,B.datetime,b.show,b.status")->page($post['page'].','.$post['n'])->order('a.id desc')->select();
- 
+
+            $r = Db::table('s_flows_executor')->alias('a')->join(['s_flows' => 'b'],'a.flow_id = b.id')->where("a.number = '".SESSION::get('userinfo')['username']."' and a.status = 2 $w")->field("a.id,a.flow_id,a.node_id,a.datetime_r,a.sender,b.handler,b.title,b.maker_name,B.datetime,b.show,b.status")->page($post['page'],$post['n'])->order('a.id desc')->select();
+
+		
+	
             foreach($r as $k => $v){
                 $zt = $v['status'] == 9 ? '<span class = "hint1">结束</span>' : '<span class = "hint5">流转中</span>';
                 $rizhi = "<img class = 'height16 rizhi' src= '".$imgUrl."/detail.png' data-flow_id =".$v['flow_id']." />";
-                $tbody .= "<tr><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td><a href = 'javascript:void(0)' data-show = '".$v['show']."' data-flow_id =".$v['flow_id']."  data-node_id = '0'  data-id = '0' >".$v['title']."</a></td><td>".$v['maker_name']."</td><td>".$v['datetime']."</td><td>".$v['datetime_r']."</td><td>".$v['sender']."</td><td>-</td><td>".$v['handler']."</td><td> $zt </td><td> $rizhi </td></tr>";
+                $tbody .= "<tr data-show = '".$v['show']."' data-flow_id =".$v['flow_id']."  data-node_id = '0'  data-id = '0' ><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td><a href = 'javascript:void(0)'  >".$v['title']."</a></td><td>".$v['maker_name']."</td><td>".$v['datetime']."</td><td>".$v['datetime_r']."</td><td>".$v['sender']."</td><td>-</td><td>".$v['handler']."</td><td> $zt </td><td> $rizhi </td></tr>";
             }
             
  
@@ -185,6 +240,33 @@ class Fs extends BaseController{
  
         return array('tbody' => $tbody,'page_return' => $page_return);
     }
+	
+	/**
+	+------------------------------------------------------------------------------
+	* 打开流程页面
+	+------------------------------------------------------------------------------
+	*/
+	public function flow(){
+		
+		//$_GET['flow_id'] = 1599;
+
+		
+
+		$r1 = Db::table('s_flows_executor')->where('id = '.$_GET['id'])->field('status,number')->find();
+
+		
+            //判断有没有条件查看  
+		if($r1['number'] == SESSION::get('userinfo')['username'] && $r1['status'] == 0){
+			//Db::table('s_flows_executor')->where('id = '.$_GET['id'])->update(array('status' => 1,'datetime_s' => date('Y-m-d H:i:s',time())));
+		}
+
+		$flow = Flows::find($_GET['flow_id']);
+		View::assign('flow',$flow);
+		View::assign('comments',FlowsComment::where('flow_id = '.$_GET['flow_id'])->order('id desc')->field('name,datetime,comment,username,department,post')->select());
+
+		
+		return View::fetch();
+	}
 
 	
 
@@ -265,8 +347,26 @@ class Fs extends BaseController{
 	}
 
 	public function test(){
+		$flow = Flows::find(1599);
+
+		$flow->node = Cache::get('node');
+		$flow->p = Cache::get('p');
+		$flow->handler = Cache::get('handler');
+
+		$flow->save();
+
+		$executor = Cache::get('executor');
+
+		Db::table('s_flows_executor')->where('flow_id = 1599')->delete();
+
+		Db::table('s_flows_executor')->insertAll($executor);
+
+
 		
 
+
+		
+		
 
 	}
 
@@ -279,21 +379,36 @@ class Fs extends BaseController{
 
 	public function check(){
 
+		
+		//$this->test();
+		//gp();
+		//$_POST = array(
+			//'flowid' => 1599,
+			//'id' => 19,
+			//'nodeid' => 'id2'
+		//);
+	
+		if( isset($_POST['executor']) ) rt();
+
 		$handleData = array(
 			'flowId' => $_POST['flowid'],
 			'nodeId' => $_POST['nodeid'],
 			'executeId' => $_POST['id'],
-			'executor' => $_POST['executor'],
-			'add' => $_POST['add']
+			'executor' => isset($_POST['executor'])?$_POST['executor']:'',
+			'add' => isset($_POST['add'])?$_POST['add']:array(),
+			'opinion' => isset($_POST['opinion'])?trim($_POST['opinion']):''
 		);
+
+		
 
 		$r = $this->handle( $handleData );
 
-		if($r['ok'] === false)  return a('',$r['msg'],'e');
-		
-		if($r['ok'] === 'm')    return a($r['data'],'','m');
+		 if($r['ok'] === false)  return a('',$r['msg'],'e');
+        
+        if($r['ok'] === 'm')    return a($r['data'],'','m');
+ 
+        return a('','','s');
 
-		return a($r['finish'],'','s');
 	}
 
 	
@@ -527,15 +642,9 @@ class Fs extends BaseController{
 					$p['id'.$maxId] = array($sameId);
 				}
 			}
-
-
-			
-			
+	
 		}
 		
-		
-
-	
 		return array('node' => $node,'p' => $p,'maxId' => $maxId,'ok' => true);
 	}
 
@@ -609,7 +718,6 @@ class Fs extends BaseController{
 
 	+------------------------------------------------------------------------------
 	*/
-	//public function handle($flowId,$nodeId,$executeId = 0,$executor = '',$createFalseDelete = false,$add = [] ,$prev = false,$prevData = array() ){
 
 	public function handle($handleData){
 
@@ -642,13 +750,13 @@ class Fs extends BaseController{
 		if($executeId > 0){
 			 $executeNode = Db::table('s_flows_executor')->where('id = '.$executeId)->find();
 			 if($executeNode['number'] != SESSION::get('userinfo')['username']){
-				return array('ok' => false,'msg' => '非当前审核人，不能审核');
+				rt('','非当前审核人，不能审核','e');
 			 }
 			 if($executeNode['status'] == 2 ){
-				return array('ok' => false,'msg' => '已处理完毕，不能重复审核');
+				rt('','已处理完毕，不能重复审核','e');
 			 }
 			 if($executeNode['status'] == -1 ){
-				return array('ok' => false,'msg' => '不能审核');
+				rt('','不能审核','e');
 			 }
 		}
 
@@ -721,9 +829,6 @@ class Fs extends BaseController{
 
 
 		if($allDone){
-
-			
-		
 	
 			$currentNodeAllDone = true;
 		
@@ -750,14 +855,9 @@ class Fs extends BaseController{
 					Db::table('s_flows')->where('id = '.$flowId)->update(array('handler' => get_w($exs,false,false),'node' => json_encode($node)));
 				}
 				
-
-				$a = array(
-					'comment' => $opinion == '' ? '审批通过（系统自动生成）':$opinion,
-					'flowId'  => $flowId
-				);
-				action('index/Flowcomment2/add',array('post' => $a),'db');
-
-				return array('ok' => true);
+				$flowsComment = new FlowsComment;
+				$flowsComment->add_one( $opinion == ''?'审批通过（系统自动生成）':$opinion , (int)$flowId );
+				rt();
 
 			}else{
 				$node[$nodeId]['D'] = 2;
@@ -766,6 +866,8 @@ class Fs extends BaseController{
 	
 		
 			if($prev){
+
+				
 				
 				$r = $this->get_next_executor2($p,$node,$c,$nodeId,$flow,$executor,$prevData['table']);
 			
@@ -781,11 +883,36 @@ class Fs extends BaseController{
 				
 				return ;
 			}else{
+				
+			
 
 				$r = $this->get_next_executor2($p,$node,$c,$nodeId,$flow,$executor);
+
+				
+
 				
 			}
 			
+		
+			
+	
+
+			if($r['ok'] === false){
+				if( $nodeId == 'creator'  ){
+					$this->cancel_do(array('flowid' => $flowId));
+				}
+				return $r;
+
+				
+			}
+			
+			if(count($r['mul']) > 0){
+				if( $nodeId == 'creator'  ){
+					$this->cancel_do(array('flowid' => $flowId));
+				}
+				return array('ok' => 'm','data' => $r['mul']);
+			}
+
 			$node = $r['node'];
 
 			$isEnd = true;
@@ -803,31 +930,9 @@ class Fs extends BaseController{
 				if(!$isEnd) break;
 			}
 
-			
-			
-		
-			
-
-			if($r['ok'] === false){
-				if( $nodeId == 'creator'  ){
-					$this->cancel_do(array('flowid' => $flowId));
-				}
-				return $r;
-			}
-			
-			if(count($r['mul']) > 0){
-				if( $nodeId == 'creator'  ){
-					$this->cancel_do(array('flowid' => $flowId));
-				}
-				return array('ok' => 'm','data' => $r['mul']);
-			}
-
 			//判断是否结束
 
-			
 		
-			
-				
 			if($isEnd){  //流程结束
 
 				if($executeId > 0) Db::table('s_flows_executor')->where('id = '.$executeId)->update(array('status' => 2,'datetime_h' => $now));
@@ -867,7 +972,7 @@ class Fs extends BaseController{
 					if( $nodeId == 'creator'  ){
 						$this->cancel_do(array('flowid' => $flowId));
 					}
-					return array('ok' => false,'msg' => '流程没有下续节点，不能操作!');
+					rt('','流程没有下续节点，不能操作','e');
 				}
 
 				if($executeId > 0) Db::table('s_flows_executor')->where('id = '.$executeId)->update(array('status' => 2,'datetime_h' => $now));
@@ -886,12 +991,12 @@ class Fs extends BaseController{
 				//triggerRequest($h.'/index/Trigger/sendWechatMsg',array('flowId' => $flowId,'msg' => json_encode($r['executor'])));
 
 				if( $executeId > 0){
-					$a = array(
-						'comment' => $opinion == '' ? '审批通过（系统自动生成）':$opinion,
-						'flowId'  => $flowId
-					);
-					action('index/Flowcomment2/add',array('post' => $a),'db');
+					
+					$flowsComment = new FlowsComment;
+					$flowsComment->add_one( $opinion == '' ? '审批通过（系统自动生成）':$opinion , (int)$flowId);
 				}
+
+
 
 				$ex = Db::table('s_flows_executor')->where(" (status = 0 || status = 1) and flow_id = ".$flowId)->field('name')->select();
 
@@ -939,7 +1044,6 @@ class Fs extends BaseController{
 			}
 			
 
-
 			if($currentNodeAllDone){
 				$node[$nodeId]['D'] = 2;
 			}
@@ -952,12 +1056,9 @@ class Fs extends BaseController{
 			}
 			Db::table('s_flows')->where('id = '.$flowId)->update(array('handler' => get_w($exs,false,false),'node' => json_encode($node)));
 
-			$a = array(
-				'comment' => $opinion == '' ? '审批通过（系统自动生成）':$opinion,
-				'flowId'  => $_POST['flowid']
-			);
-
-			action('index/Flowcomment2/add',array('post' => $a),'db');
+			$flowsComment = new FlowsComment;
+			$flowsComment->add_one( $opinion == '' ? '审批通过（系统自动生成）':$opinion , (int)$flowId);
+			
 
 		}
 		
@@ -1002,8 +1103,9 @@ class Fs extends BaseController{
 	}
 
 	public function get_PN($p,$node,$c){
+		
 		foreach($node as $k => $v){
-			if($v['D'] == -1){
+			if(isset($v['D']) && $v['D'] == -1){
 				foreach($c[$k] as $k1 => $v1){
 					foreach($p[$v1] as $k2 => $v2){
 						if($v2 == $k){
@@ -1024,17 +1126,21 @@ class Fs extends BaseController{
 
 	public function get_next_executor2($p,$node,$c,$id,$flow,$executor,$table = '',$xdzxr = ''){
 
+		
+		
+
 		$r = $this->get_next_executor( $p,$node,$c,$id,$flow,$executor,$table,$xdzxr);
 
-		$node = $r['node'];
-
-		$tmp = $this->get_PN($p,$node,$c);
-
-		$p = $tmp['p'];
-		$c = $this->get_c($p);
+		
+	
+		
+		
 		
 		if($r['ok']){
 			$node = $r['node'];
+			$tmp = $this->get_PN($p,$node,$c);
+			$p = $tmp['p'];
+			$c = $this->get_c($p);
 			foreach($r['rightNode'] as $k => $v){
 				if($node[$v]['T'] == 'X' && $node[$v]['K'] == 9){
 					$node[$v]['D'] = 2;
@@ -1076,6 +1182,8 @@ class Fs extends BaseController{
 	}
 
 	public function get_next_executor($p,$node,$c,$id,$flow,$executor,$table,$xdzxr){ ///相对执行人
+		
+
 		$r = array();
 		$now = date('Y-m-d H:i:s',time());
 
@@ -1199,7 +1307,9 @@ class Fs extends BaseController{
 							
 					switch($tmpNode['T']){
 						case 'R' :
-							$r1 = action('index/Get/get_leader_by_department',array('depId' => $tmpNode['K']));
+						
+							
+							$r1 = $this->get->get_leader_by_department($tmpNode['K']);
 							if($tmpNode['V'] == 'B'){
 								$emptyMsg = "部门主管（".$tmpNode['B']."）不存在";
 								$multiMsg = '部门主管';
@@ -1312,6 +1422,8 @@ class Fs extends BaseController{
 			}
 			// end
 		}
+
+		
 
 		return array('ok'=>true,'executor'=>$newExecutor,'mul'=>$mul,'errorNode'=>$errorNode,'rightNode'=>$rightNode,'node'=>$node);
 
@@ -1471,7 +1583,10 @@ class Fs extends BaseController{
 
 
 	public function see(){
-		$e = Db::table('s_flows_executor')->where('flow_id = '.$_GET['id'])->field('node_id,name,status')->select();
+
+		
+		
+		$e = Db::table('s_flows_executor')->where('flow_id = '.$_GET['flowid'])->field('node_id,name,status')->select();
         $executor = array();
         foreach($e as $k => $v){
             $tmp = '';
@@ -1490,7 +1605,9 @@ class Fs extends BaseController{
  
         //判断是否有权限看
         
-        $r = Db::table('s_flows')->where('id = '.$_GET['id'])->find();
+        $r = Db::table('s_flows')->where('id = '.$_GET['flowid'])->find();
+
+		
  
         
         
@@ -1500,7 +1617,7 @@ class Fs extends BaseController{
  
         $dlt = array();
         foreach($node as $k => $v){
-            if($v['D'] == -1){
+            if(isset($v['D']) && $v['D'] == -1){
                 $dlt[$k] = 1;
             }else{
                 //if($v['X']){
@@ -1588,7 +1705,7 @@ class Fs extends BaseController{
 		$r = array();
 		foreach($c[$nodeid] as $k => $v){
 			if($node[$v]['D'] == -1) continue;
-			if($node[$v]['S'] == 'n' && $node[$v]['D'] == 2 && ( $node[$v]['T'] != 'X' || $node[$v]['K'] != 9) ){
+			if($node[$v]['S'] == 'n' && $node[$v]['D'] == 2 && ( !isset($node[$v]['T']) || $node[$v]['T'] != 'X' || $node[$v]['K'] != 9) ){
 				$r[] = $v;
 			}else{
 				$tmp = $this->get_prev2($c,$node,$v);
@@ -1603,15 +1720,15 @@ class Fs extends BaseController{
 	}
 
 	public function back(){
-		//sp();exit();
-		//exit();
-		//gp();
+		
+		$opinion = isset($_POST['opinion'])?$_POST['opinion']:'审批回退（系统自动生成）';
+		if(!$opinion) rt('','回退意见不能为空','e');
 		
 		$executor = Db::table('s_flows_executor')->where(array('id' => $_POST['id']))->find();
-		if($executor['number'] != SESSION::get('userinfo')['username']) return a('','不能回退','e');
+		if($executor['number'] != SESSION::get('userinfo')['username']) rt('','不能回退','e');
 
 		$flow  = Db::table('s_flows')->where('id = '.$_POST['flowid'])->field('node,p,handler')->find();
-		if(!$flow) return a('','表单不存在','e');
+		if(!$flow) rt('','表单不存在','e');
 		$p = json_decode($flow['p'],true);
 		$node = json_decode($flow['node'],true);
 		if($node[$_POST['nodeid']]['D'] == 2){
@@ -1621,9 +1738,8 @@ class Fs extends BaseController{
 		$prev = $this->get_prev2($c,$node,$_POST['nodeid']);
 		//dump($prev);
 		
-		//exit();
-		foreach($prev as $k => $v){
-			
+		
+		foreach($prev as $k => $v){			
 			if($v == 'creator') return a('','不能回退到根节点','e');
 		}
 
@@ -1691,18 +1807,18 @@ class Fs extends BaseController{
 		
 		Db::table('s_flows')->where('id = '.$_POST['flowid'])->update(array('node' => json_encode($node),'handler' => $handler));
 
-		$a = array(
-			'comment' => "<span class = 'hint2'>审批回退</span>（系统自动生成）",
-			'flowId'  => $_POST['flowid']
-		);
-		action('index/Flowcomment2/add',array('post' => $a),'db');
+		$flowsComment = new FlowsComment;
+
+		
+
+		$flowsComment->add_one( $opinion , (int)$_POST['flowid'] );
 		
 		if(count($backExecutor) > 0){
-			$h = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'];
-			triggerRequest($h.'/index/Trigger/sendWechatMsg',array('type' => '回退','flowId' => $_POST['flowid'],'msg' => json_encode($backExecutor)));
+			//$h = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'];
+			//triggerRequest($h.'/index/Trigger/sendWechatMsg',array('type' => '回退','flowId' => $_POST['flowid'],'msg' => json_encode($backExecutor)));
 		}
 
-		return a('','','s');
+		rt();
 	}
 
 	public function add(){
@@ -1825,6 +1941,8 @@ class Fs extends BaseController{
 
 	public function cancel_do($post){
 
+		
+
 	
 		$username = SESSION::get('userinfo')['username'];
 		$flowId = $post['flowid'];
@@ -1834,31 +1952,21 @@ class Fs extends BaseController{
 		
 		if($flow['status'] == 9) return array('ok' => false,'msg' => '流程已结束，不能取消','e');
 		if($flow['maker'] != $username) return array('ok' => false,'msg' => '<span class  = "hint2">非制单人</span>不能取消','e');
-		$tables = explode(',',$flow['table_name']);
+		//$tables = explode(',',$flow['table_name']);
 		
 		
-
+		/*
 		if($flow['before_dlt'] && !$post['not_before_dlt'] ){
 		
 			$r = action($flow['before_dlt'],array('flow' => $flow));
 			if(!$r['ok']) return array( 'ok' => false,'msg' => $r['msg']);
-		}
-
-		if($flow['table_resource']){
-			foreach($tables as $k => $v){
-				Db::connect($flow['table_resource'])->table($v)->where('id = '.$flow['table_id'])->delete();
-			}
-			
-		}else{
-			foreach($tables as $k => $v){
-				Db::table($v)->where('id = '.$flow['table_id'])->delete();
-			}
-			
-		}
+		}*/
+		
+	
 		
 		Db::table('s_flows')->where('id = '.$flowId)->delete();
 		Db::table('s_flows_executor')->where('flow_id = '.$flowId)->delete();
-		Db::table('aya_flows_comment')->where('flow_id = '.$flowId)->delete();
+		Db::table('s_flows_comment')->where('flow_id = '.$flowId)->delete();
 
 		return array('ok' => true);
 		

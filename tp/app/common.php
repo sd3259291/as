@@ -5,7 +5,7 @@ function a($data,$info = '',$status = 's'){
 	return json(array('data' => $data,'info' => $info,'status' => $status));
 }
 
-function rt($data,$info,$status = 's'){
+function rt($data = '',$info = '',$status = 's'){
 	json(array('data' => $data,'info' => $info,'status' => $status))->send();exit();
 }
 

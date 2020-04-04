@@ -11,6 +11,12 @@ use think\facade\Db;
 
 use think\facade\Config;
 
+use app\model\Access;
+
+use app\model\RoleUser;
+
+use app\model\Employee;
+
 use PDO;
 
 class Login
@@ -83,16 +89,12 @@ class Login
 	}
 
 	public function check_login(){
-
-
-		$_POST = array(
-			'username' => 'admin',
-			'password' => 'duoduo'
-		);
-		
+	
 
 		$username = $_POST['username'];
 		$password = $_POST['password'];
+
+		
 
 		$authInfo = Db::table('s_user')->where("username = '$username'")->find();
 
@@ -105,18 +107,51 @@ class Login
 				
 			if($authInfo['password'] != md5($_POST['password'])){
 				return a('','密码错误!','e');
-			}else{	
+			}else{
+
+				$employee = Employee::where("number = '$username'")->find();
+
+				if($employee){
+					$authInfo['post'] = $employee->post->name;
+					$authInfo['department'] = $employee->department->name;
+				}else{
+					$authInfo['post'] = '-';
+					$authInfo['department'] = '-';
+				}
 				
+				
+
+
 				Session::set('userinfo',$authInfo);
 				
 				if(substr($authInfo['username'],0,5)=='admin'){
 					Session::set('admin_auth_key',true);
 				}else{
-					RBAC::saveAccessList($authInfo['id'],$tmp11);
+					
+					
+					$role = RoleUser::where('user_id = '.$authInfo['id'])->field('role_id')->select()->toArray();
+					
+					$roles = '';
+					foreach($role as $k => $v){
+						$roles .= $v['role_id'].',';
+					}
+					$roles = substr($roles,0,-1);
+					
+
+					$r = Access::where(" user_id = ".$authInfo['id']." || role_id in (".$roles.")")->field('action,controller')->select()->toArray();
+
+					foreach($r as $k => $v){
+						Session::set(md5(strtolower($v['controller'].$v['action'])),1);
+					}
+					
+
+					
 				}
 
 				$data = array('last_login_date' => date('Y-m-d H:i:s',time()));
 				DB::table('s_user')->where('id = '.$authInfo['id'])->data($data)->update();
+
+				
 					
 				return a('','','s');			
 			}	

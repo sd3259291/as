@@ -15,6 +15,13 @@ use app\model\Max;
 
 class F extends BaseController{
 	/**
+     * 流程类型管理
+     */
+	public function flow_type(){
+		
+		return View::fetch();
+	}
+	/**
      * 后台管理首页
      */
     public function manage(){
@@ -38,18 +45,10 @@ class F extends BaseController{
      * 新建流程表格 - 第二步 数据管理
      */
 	public function step_2(){
-
-	
 		$r = FlowTable::where('flow_id = '.$_GET['id'])->field('table_name,i,length1,length2')->order('i asc')->select()->toArray();
-		
 		if(!$r) $r = array( array('i' => 'i000') );
-
-		
-
-		View::assign('maxI',(int)substr($r[count($r) - 1]['i'],1));
-		View::assign('field',json_encode(column($r,'i')));
-		
-		
+		View::assign( 'maxI',(int)substr($r[count($r) - 1]['i'],1) );
+		View::assign( 'field',json_encode(column($r,'i')) );
 		return View::fetch();
 	}
 	/**

@@ -120,7 +120,7 @@
 		<img src = '__PUBLIC__/image/loading-0.gif' class = 'height12 noselect' />
 		
 	</div>
-    <script src="__PUBLIC__/js/jquery-2.0.3.min.js"></script>
+    <script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
 	<!-- Bootstrap Js -->
     <script src="__PUBLIC__/js/bootstrap.min.js"></script>
 	
@@ -134,11 +134,14 @@
 	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
 	<!--<script src="__PUBLIC__/Js/echarts.js"></script>
 	<script src="__PUBLIC__/Js/echarts_theme1.js"></script>-->
-	<script type="text/javascript" src="__PUBLIC__/js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+	<!--<script type="text/javascript" src="__PUBLIC__/js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>-->
 	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
-	<script src="__PUBLIC__/js/form.js"></script>
+	
 	<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
-	<script type="text/javascript" src="__PUBLIC__/js/jquery.nicescroll-master/jquery.nicescroll.min.js"></script>
+	<!--<script type="text/javascript" src="__PUBLIC__/js/jquery.nicescroll-master/jquery.nicescroll.min.js"></script>-->
+	
+<script charset="utf-8" src="__PUBLIC__/js/kindeditor/kindeditor-all-min.js"></script>
+<script charset="utf-8" src="__PUBLIC__/js/kindeditor/lang/zh-CN.js"></script>
 	<script src="__PUBLIC__/js/custom-scripts.js"></script>
 
 	<style type="text/css">
@@ -154,8 +157,6 @@
 
 	<script>
 
-
-	
 	
 
 	window.layerWidth = '1200px';
@@ -164,7 +165,7 @@
 		
 		loadIndex : 0,
 		homePage : { 
-			url : '__APP__/F/manage' ,
+			url : '__APP__/Fs/newFlow' ,
 			name : "我的桌面",
 			id : 'indexdeptindex'
 		},
@@ -223,11 +224,8 @@
 			}
 		},
 		dlt_iframe: function(id){
-
 			if(id == this.homePage.id) return false;
 			this.iframes.delete(id);
-
-
 			if(id == this.currentPageId){
 				let prevId = $('#l' + id).parent().prev().find('.mul-page-div1').eq(0).data('id');
 	
@@ -245,7 +243,6 @@
 			if($('#multi-head').children().length == 0){
 				
 				$('#multi-head').append("<div id = 'multipage' style = 'font-size:12px;font-weight:normal;position:absolute;top:6px;left:30px;width:100%;height:24px;line-height:24px'></div>");
-
 				$('#multipage').width(($(window).width() - $('#multipage').offset().left));
 
 				$('#multipage').on('click','.mul-page-div1',function(){
@@ -295,10 +292,16 @@
 			
 		},
 
+
+		
+
 		ini : function(){
 			
 			
-			
+		
+
+
+
 
 			this.layerWidth = $(document).width() * 0.98;
 
@@ -312,7 +315,7 @@
 				
 				
 				$.post(mainPage.homePage.url,'',function(d){
-					//$('#page-inner').html(d);
+					$('#page-inner').html(d);
 				});
 			}else{		//多页面模式
 				this.height -= 58;
@@ -345,7 +348,7 @@
 
 	};
 	
-	//mainPage.ini();
+	mainPage.ini();
 
 	
 	

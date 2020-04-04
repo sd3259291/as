@@ -1,0 +1,350 @@
+<!DOCTYPE html>{__NOLAYOUT__}
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+	<link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+	<script src="__PUBLIC__/js/jsplumb/dist/js/jsplumb.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+
+	<style type="text/css">
+		body{font-size:12px;background:#ffffff}
+		div.row{margin:10px 0}
+		div.col{
+			line-height:32px
+		}
+		div.flow-img{
+			position:absolute;
+			height:28px;
+			width:50px;
+			border-radius:14px;
+			border:1px solid #0e932e;
+			text-align:center;
+			line-height:24px;
+			font-size:11px;
+		}
+		div.selected{
+			border:1px solid #0e932e !important;
+			background:#FFFBD6
+		}
+	</style>
+</head>
+
+<body>
+	<div class = 'row'>
+		<div class = 'col s2' style = 'text-align:right'>
+			请选择人员：
+		</div>
+		<div class = 'col s8'>
+			<input type = 'text' class = 'aya-input' placeholder = '点击选择人员' id = 'select' readonly />
+		</div>
+		<div class = 'col s2'>
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s2' style = 'text-align:right'>
+			节点权限：
+		</div>
+		<div class = 'col s8'>
+			<select class = 'browser-default' style = 'width:200px;display:inline-block;font-size:12px' id = 'jdqx'>
+				
+			</select>
+		</div>
+		<div class = 'col s2'>
+		</div>
+	</div>
+
+	<div class = 'row' id = 'con'>
+		<div class = 'col s2' style = 'text-align:right'>
+			流程模式：
+		</div>
+		<div class = 'col s8'>
+			<div class = 'lcms row  selected' style = 'border:1px solid #d1d1d1;height:80px' data-type = 1 >
+				<div class = 'col s4'>
+					并发
+				</div>
+				<div class = 'col s6' style = 'position:relative;'>
+					<div class = 'flow-img' style = 'left:0;top:26px;border-color:#bdbdbd' id = 'd1'>
+						我
+					</div>
+
+					<div class = 'flow-img' style = 'left:100px;top:6px' id = 'd2'>
+						加签
+					</div>
+
+					<div class = 'flow-img' style = 'left:100px;top:46px' id = 'd3'>
+						加签
+					</div>
+
+				</div>
+			</div>
+
+			<div class = 'lcms row' style = 'border:1px solid #d1d1d1;height:80px;' data-type = 2 >
+				<div class = 'col s4'>
+					串发
+				</div>
+				<div class = 'col s6' style = 'position:relative;'>
+					<div class = 'flow-img' style = 'left:0;top:26px;border-color:#bdbdbd' id = 'd4'>
+						我
+					</div>
+
+					<div class = 'flow-img' style = 'left:100px;top:26px' id = 'd5'>
+						加签
+					</div>
+
+					<div class = 'flow-img' style = 'left:200px;top:26px' id = 'd6'>
+						加签
+					</div>
+				</div>
+			</div>
+
+			<div class = 'lcms row' style = 'border:1px solid #d1d1d1;height:80px' data-type = 3 >
+				<div class = 'col s4'>
+					与下一节点并发
+				</div>
+				<div class = 'col s6' style = 'position:relative;'>
+					<div class = 'flow-img' style = 'left:0;top:26px;border-color:#bdbdbd' id = 'd7'>
+						我
+					</div>
+
+					<div class = 'flow-img' style = 'left:100px;top:6px;border-color:#bdbdbd' id = 'd8'>
+						 下节点
+					</div>
+
+					<div class = 'flow-img' style = 'left:100px;top:46px' id = 'd9'>
+						加签
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class = 'col s2'>
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s2' style = 'text-align:right'>
+			执行模式：
+		</div>
+		<div class = 'col s2'>
+			<select class = 'browser-default' style = 'width:100%;display:inline-block;font-size:12px' id = 'zxms'>
+				<option value = 3>全部执行</option>
+				<option value = 4>竞争执行</option>
+			</select>
+		</div>
+		<div class = 'col s8'>
+			备注：只对非个人有效，如果选择人员为个人，执行模式为 单人执行。
+		</div>
+		
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s2' style = 'text-align:right'>
+			加签节点处理后：
+		</div>
+		<div class = 'col s8'>
+			<input type = 'checkbox' class = 'aya-checkbox' id = 'back' /> 流程回到我
+		</div>
+		<div class = 'col s2'>
+		</div>
+	</div>
+
+
+
+
+
+
+</body>
+<script>
+	var app = {
+
+
+		type : 0,
+
+		back : false,
+
+		selected : [],
+
+		set_node : function( node ){
+
+			
+			$('.lcms').each(function(){
+				if($(this).hasClass('selected')){
+					app.type = this.dataset.type;
+				}
+			});
+
+			let tmp = '';
+			for(let i in node){
+				tmp += node[i]['info'] + '，'; 
+				node[i]['C'] = $('#jdqx').val();
+				if(node[i]['T'] == 'P'){
+					node[i]['Z'] = 1;
+				}else{
+					node[i]['Z'] = $('#zxms').val();
+				}
+			}
+			app.selected = node;
+
+			app.set_zxms();
+
+			$('#select').val(tmp);
+
+			
+			
+
+		},
+		
+		set_zxms : function(){
+			let zxms = $('#zxms').val();
+			for(let i in app.selected){
+				
+				if(app.selected[i]['T'] != 'P'){
+					
+					app.selected[i]['Z'] = zxms;
+
+					
+				}
+			}
+
+			
+		},
+
+		ini : function(){
+
+			app.back = $('#back').is(':checked');
+
+			$('#back').change(function(){
+				app.back = $('#back').is(':checked');
+			});
+			
+			$('.lcms').click(function(){
+				app.type = this.dataset.type;
+				$('.lcms').removeClass('selected');
+				$(this).addClass('selected');
+			});
+
+			$('#zxms').change(function(){
+				app.set_zxms();
+			});
+
+
+			$('#jdqx').change(function(){
+				let tmp = $(this).val();
+				for(let i in app.selected){
+					app.selected[i]['C'] = tmp;
+				}
+			});
+
+			jsPlumb.ready(function(){
+				let common =  {
+					isSource: true,
+					isTarget: true,
+					connector: ['Flowchart'],
+					maxConnections: -1,
+					fill: 'pink',
+					outlineColor: '',
+					outlineWidth: '',
+					lineWidth: 2,
+					endpoint:'Blank',
+					paintStyle: { stroke: '#aaaaaa', strokeWidth:1},
+				};
+
+				jsPlumb.setContainer('con');
+
+				jsPlumb.addEndpoint( 'd1' , {
+					anchors: ['Right'],
+					uuid:'d1r',
+				}, common);
+
+				jsPlumb.addEndpoint( 'd2' , {
+					anchors: ['Left'],
+					uuid:'d2l',
+				}, common);
+
+				jsPlumb.addEndpoint( 'd3' , {
+					anchors: ['Left'],
+					uuid:'d3l',
+				}, common);
+
+				jsPlumb.connect({ uuids: [ 'd1r' , 'd2l'] },common);
+				jsPlumb.connect({ uuids: [ 'd1r' , 'd3l'] },common);
+
+				jsPlumb.addEndpoint( 'd4' , {
+					anchors: ['Right'],
+					uuid:'d4r',
+				}, common);
+
+				jsPlumb.addEndpoint( 'd5' , {
+					anchors: ['Left'],
+					uuid:'d5l',
+				}, common);
+
+				jsPlumb.addEndpoint( 'd5' , {
+					anchors: ['Right'],
+					uuid:'d5r',
+				}, common);
+
+				jsPlumb.addEndpoint( 'd6' , {
+					anchors: ['Left'],
+					uuid:'d6l',
+				}, common);
+
+				jsPlumb.connect({ uuids: [ 'd4r' , 'd5l'] },common);
+				jsPlumb.connect({ uuids: [ 'd5r' , 'd6l'] },common);
+
+				jsPlumb.addEndpoint( 'd7' , {
+					anchors: ['Right'],
+					uuid:'d7r',
+				}, common);
+
+				jsPlumb.addEndpoint( 'd8' , {
+					anchors: ['Left'],
+					uuid:'d8l',
+				}, common);
+
+				jsPlumb.addEndpoint( 'd9' , {
+					anchors: ['Left'],
+					uuid:'d9l',
+				}, common);
+
+				jsPlumb.connect({ uuids: [ 'd7r' , 'd8l'] },common);
+				jsPlumb.connect({ uuids: [ 'd7r' , 'd9l'] },common);
+			});
+
+
+			$('#select').click(function(){
+
+				
+				parent.layer.open({
+						title:"<span style = 'font-size:12px'>选择审批人</span>",
+						area: ['900px','100%'],
+						offset:'0%',
+						shadeClose:true,
+						isOutAnim: false ,
+						maxmin: true,
+						type: 2, 
+						content:'__APP__/Fs/flow_add_select?addbranch=1'
+						
+					
+					});
+			});
+		},
+	};
+	
+	app.ini();
+
+
+	var tt = 1;
+
+
+
+
+</script>
+
+</html>

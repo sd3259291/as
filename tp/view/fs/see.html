@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>A</title>
 	
-	<script src="__PUBLIC__/js/jquery-2.0.3.min.js"></script>
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
 	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
 	<script src="__PUBLIC__/js/tool.js"></script>
 	<style type="text/css">
@@ -409,6 +409,8 @@ var flow = {
 			}else{
 				startNodeId = ID;
 			}
+
+			
 			
 			if(type == 1){        //并发
 				let point1,point2;
@@ -538,6 +540,7 @@ var flow = {
 
 	ini : function(){
 
+		
 		for(let i in flow.node){
 			flow.node[i].id = i;
 		}
@@ -548,7 +551,7 @@ var flow = {
 			if(top[top.tmp2].flow.add.length > 0){
 				for(let i in top[top.tmp2].flow.add){
 					let tmp = top[top.tmp2].flow.add[i];
-					let nodeId = '{$Think.get.nodeid}';
+					let nodeId = '{$Request.get.nodeid}';
 					if(tmp[1] == 1 || tmp[1] == 2){
 						flow.insert_node(tmp[0],tmp[1],nodeId);
 
