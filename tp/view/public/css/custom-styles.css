@@ -738,6 +738,78 @@ table.dataTable thead th{
 	border-bottom-color:#939393
 }
 
+/*
+table-form 开始
+*/
+table.table-form{}
+table.table-form tbody tr td{
+	border:1px solid #727272;
+	height:32px;
+	padding:5px 0 5px 0;
+	word-break:break-all;
+	word-wrap:break-word;
+	text-align:center;
+	vertical-align:middle
+}
+		
+table.table-form tbody tr{
+	height:36px
+}
+	
+table.table-form tbody tr td{
+	background:rgb(255,255,255)
+}
+.table-form-td-selected{
+	background:#66ccff !important
+}
+
+table.table-form input[type='text']{
+	margin:0 4px !important;
+	width:calc(100% - 10px) !important;
+	min-height:16px;
+	height:100% !important;
+}
+
+.form-input{
+	background:#ffebbf !important;
+	
+}
+
+
+
+.browser-default{
+	margin:0 
+}
+#form_body select{
+	height:24px;
+	padding:0 5px
+}
+		
+table.table-mul{
+	width: calc(100% - 10px);
+	margin:0 auto
+}
+table.table-mul thead tr{
+	height:24px
+}
+table.table-mul tbody tr{
+	height:28px;
+}
+table.table-mul thead tr th{
+	text-align:center;
+	border:1px solid #b4b4b4;
+	padding:0;
+	background:#dbf2fb;
+	font-weight:400
+}
+table.table-mul tbody tr td{
+	
+}
+
+
+
+
+
 
 
 

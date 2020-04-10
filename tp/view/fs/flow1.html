@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<link href="__PUBLIC__/js/um/themes/default/css/umeditor.css" rel="stylesheet" />
+	
+	<style type="text/css">
+		body{background:#eeeeee}
+		h4{padding-left:50px}
+		h4 span{vertical-align:middle}
+
+		li.edui-combobox-item label{
+			color:#6b6b6b;
+			font-size:12px;
+			height:18px;
+			line-height:18px
+		}
+		.comment-container{
+			padding:0px ;border-BOTTOM:1px solid #e3e3e3
+		}
+		.comment-head-img{
+			display:inline-block;height:48px;width:48px;border:1px solid #cccccc;border-radius:24px
+		}
+		.comment-comment{
+			padding:10px 100PX 24px 20px !important;
+			border-left:1px solid #e3e3e3;min-height:72px !important
+		}
+		.comment-name{
+			position:absolute !important;
+			bottom:0;
+			right:200px;
+			line-height:24px;
+			color:#9FA5AA;
+			display:inline-block !important;
+			height:24px;
+		}
+
+
+
+		
+
+
+	</style>
+</head>
+
+<body>
+	<div class = 'row' style = 'margin-top:10px'>
+
+		<div class = 'col s12' style = 'background:#fff'>
+			<div style = 'padding:10px 10px 6px 10px;display:inline-block'>
+				<span class = 'text-color2'>发起者</span>：{$flow.maker_name}
+			</div>
+			<div style = 'padding:10px 10px 6px 10px;display:inline-block'>
+				<span class = 'text-color2'>发起时间</span>：{$flow.datetime}
+			</div>
+			<div style = 'padding:10px 10px 6px 10px;display:inline-block'>
+				<span class = 'text-color2'>接受时间</span>：{$flow.datetime}
+			</div>
+			<div style = 'padding:10px 10px 6px 10px;display:inline-block'>
+				<span class = 'text-color2'>标题</span>：{$flow.title}
+			</div>
+
+			<div style = 'padding:10px 10px 6px 10px;display:inline-block;float:right'>
+				<button class = 'btn btn-success' id = 'flow' style = 'color:#fff;padding:0 5px'>  <i class="material-icons"  >repeat</i> 流程</button>
+			</div>
+
+			
+		</div>
+
+		<div class = 'col s12' >
+			<div class = 'row  relative' style = 'border-bottom:1px solid #e3e3e3;background:#fff'>
+				
+
+				
+			</div>
+
+			<div class = 'row' style = 'border-bottom:1px solid #e3e3e3;background:#fff'>
+				<div class = 'col s12 relative' style = 'padding:10px 50px'>
+					{$flow.form|raw}
+				</div>
+			</div>
+
+			<div class = 'row relative' id = 'abc' style = 'border-bottom:1px solid #e3e3e3;background:#fff'>
+				<span style = 'position:absolute;left:90%;top:2px;display:inline-block;color:#00A65A'>
+					处理人意见
+				</span>
+				{volist name = 'comments' id = 'c'}
+					<div class = 'col s12 relative comment-container'>
+						<div class = 'row'>
+							<div class = 'col s1' style = 'padding:10px 0;text-align:center'>
+								<div class = 'comment-head-img'>
+								</div>
+							</div>
+							<div class = 'col s11 relative comment-comment'>
+								<div>{$c.comment|raw}</div>
+								<div class = 'comment-name'>{$c.name} {$c.department} {$c.post} {$c.datetime}</div>
+							</div>
+						</div>
+					</div>
+				{/volist}
+			</div>
+
+
+		</div>
+
+		
+
+	</div>
+
+</body>
+
+
+
+<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+<script src="__PUBLIC__/js/tool.js"></script>
+
+
+<script>
+
+
+var flow = {
+
+	add : [],
+
+	tmp : new Map(),
+
+	mSelected : '', // 多个执行人需选择的时候，记录是哪个
+
+	flowId :  {$Request.get.flow_id},
+
+	id : {$Request.get.id},
+
+	nodeId : '{$Request.get.node_id}',
+
+	parameter : '?id='+'{$Request.get.id}'+'&&'+'flowid='+'{$Request.get.flow_id}'+'&&nodeid='+'{$Request.get.node_id}',
+
+	um : {},
+
+	mSelected : '',
+
+	data : {$data|raw},
+
+	enum : {$enum|raw},
+
+	parameterO : {},
+
+	see : function(){
+		top.layer.open({
+			title:'<span style = "font-size:12px">流程查看</span>',
+			type: 2,
+			shadeClose:true,
+			offset:'5%',
+			area: [top.mainPage.layerWidth,'80%'],
+			content: "__APP__/Fs/see" + flow.parameter,
+			isOutAnim: false,
+		});
+	},
+	
+	ini : function(){
+
+		$('#abc').css('min-height',350);
+		
+		$('#flow').click(function(){
+			parent.layer.open({
+				title:'<span style = "font-size:12px">流程查看</span>',
+				type: 2,
+				shadeClose:true,
+				offset:'0',
+				area: ['90%','100%'],
+				content: "__APP__/Fs/see"+flow.parameter,
+				isOutAnim: false,
+			});
+		});
+		
+		//flow.data.form 表示主表
+
+		$(".table-form td[data-type='input']").each(function(){
+			$(this).text( flow.data.form[ $(this).attr('data-i') ]);
+		});
+
+		$(".table-form td[data-type='select']").each(function(){
+			$(this).text( flow.enum[flow.data.form[ $(this).attr('data-i') ]]);
+		});
+
+		//$(".table-form input[type='checkbox']").attr('disabled',true);
+
+		//$(".table-form input[type='radio']").attr('disabled',true);
+
+		$(".table-form input[type='checkbox']").each(function(){
+			$(this).attr('checked',flow.data.form[$(this).attr('data-i')] == 1?true:false).attr('id',$(this).attr('data-i'));
+		});
+
+		$(".table-form input[type='radio']").each(function(){
+			$(this).attr('checked',flow.data.form[$(this).attr('data-i')] == 1?true:false);
+		});
+
+		$(".table-mul").each(function(){
+			let data = flow.data[$(this).data('table')];
+			let dataType = [];
+			$(this).find( 'tbody' ).eq(0).children().eq(0).children().each(function(){
+				dataType.push( {type: $(this).data('type') , i : $(this).data('i') } );
+			});
+			//$(this).find( 'tbody' ).empty();
+			
+
+			let tmp = "";
+			for(let i = 0; i < data.length ; i++){
+				let clone = $(this).find( 'tbody' ).eq(0).children().eq(0).clone();
+				let cloneChildren = clone.children();
+				
+				for(let j = 0; j < cloneChildren.length; j ++){
+					let type = cloneChildren.eq(j).data('type');
+					let ii = cloneChildren.eq(j).data('i');
+
+					
+					
+					switch( type ){
+						case 'index-mul':
+							cloneChildren.eq(j).text( data[i][ii] );
+						break;
+						case 'text-mul':
+							cloneChildren.eq(j).text( data[i][ii] );
+						break;
+						case 'select-mul':
+							cloneChildren.eq(j).text( flow.enum[data[i][ii]] );
+						break;
+						default:
+					}
+				}
+				
+				$(this).find( 'tbody' ).eq(0).append( clone );
+			}
+
+			$(this).find( 'tbody' ).eq(0).children().eq(0).remove();
+			
+		});
+		
+		
+	},
+	
+	
+
+	
+
+};
+
+
+
+
+flow.ini();
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+</html>

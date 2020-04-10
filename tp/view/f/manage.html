@@ -66,6 +66,8 @@
 
 		table : {},
 
+		type_id : 0,
+
 		step_1 : function(){
 			parent.layer.open({					
 				type: 2,
@@ -171,7 +173,7 @@
 					maxmin:true,
 					shadeClose:true,
 					area:[parent.mainPage.layerWidth,'100%'],
-					offset:'1px',
+					offset:'0px',
 					content:'__APP__/F/flow?id='+id,
 					success : function (layero,index){
 						let top = ($('.layui-layer-title').eq($('.layui-layer').length - 1).height() - 32) / 2;
@@ -185,7 +187,7 @@
 						parent.$('.layui-layer').eq($('.layui-layer').length - 1).append('<button id = "flow_save" style = "position:absolute;top:'+top+'px;left:'+left+'px;z-index:9999999999;cursor:pointer" class = "btn btn-default height32 btn-noshadow">保存</button>');
 
 						$('#flow_save').click(function(){
-							
+
 							var iframeWin = window[layero.find('iframe')[0]['name']];
 							iframeWin.flow.save();
 						});
@@ -252,7 +254,7 @@
 				});
 			});
 
-			//$('#table tr').eq(4).addClass('selected');
+			$('#table tr').eq(4).addClass('selected');
 
 			$('#edit-form').trigger('click');
 

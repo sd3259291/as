@@ -55,83 +55,18 @@
 			font-size:16px
 		}
 		
-		table.table-form{
-			
-		}
-
-		table.table-form tbody tr td{
-			border:1px solid #727272;
-			height:32px;
-			padding:5px 0 5px 0;
-			word-break:break-all;
-			word-wrap:break-word;
-		}
-		
-		table.table-form tbody tr{
-			height:36px
-		}
-	
-		table.table-form tbody tr td{
-			background:rgb(255,255,255)
-		}
-		.table-form-td-selected{
-			background:#66ccff !important
-		}
-
 		img.img-text-align{
-			margin:0 6px;
-			border:1px solid #fff;
-		}
+	margin:0 6px;
+	border:1px solid #fff;
+}
 
-		img.img-text-align:hover{
-			border:1px solid #ff6600
-		}
+img.img-text-align:hover{
+	border:1px solid #ff6600
+}
 
-		img.img-text-align-selected{
-			border:1px solid #ff6600
-		}
-
-
-		.form-input{
-			background:#ffebbf !important;
-			margin:0 4px !important;
-			width:calc(100% - 10px) !important;
-			min-height:16px;
-			height:100% !important;
-
-		}
-		.browser-default{
-			margin:0 
-		}
-
-		#form_body select{
-			height:24px;
-			padding:0 5px
-		}
-		
-		table.table-mul{
-			width: calc(100% - 10px);
-			margin:0 auto
-		}
-
-		table.table-mul thead tr{
-			height:24px
-		}
-		table.table-mul tbody tr{
-			height:28px;
-			
-		}
-
-		table.table-mul thead tr th{
-			text-align:center;
-			border:1px solid #b4b4b4;
-			padding:0;
-			background:#dbf2fb;
-			font-weight:400
-		}
-		table.table-mul tbody tr td{
-			
-		}
+img.img-text-align-selected{
+	border:1px solid #ff6600
+}
 			
 
 		.contextmenu li:hover {
@@ -188,18 +123,30 @@
 
 		<div class = 'row'>
 			
-			<div class = 'col s6'>
-				
+			<div class = 'col s4'>
 				<button class = 'btn btn-default' id = 'new_table'> 新增表格 </button>
 				<button class = 'btn btn-default' id = 'merge' > 合并 </button>
 				<button class = 'btn btn-default' id = 'restore'  > 还原 </button>
 				<button class = 'btn btn-default' id = 'insert' disabled > 插入重复表 </button>
 				<button class = 'btn btn-primary' id = 'next' > 下一步 </button>
 			</div>
-			<div class = 'col s1'>流程名称</div>
-			<div class = 'col s5' >
-				<input type = 'text' id = 'flow_name' class = 'aya-input' style = 'width:100%' value = '{$form.title}'/>
+			
+			<div class = 'col s4' >
+			<span style = 'display:inline-block;width:30%;text-align:right'>流程名称 </span>
+				<input type = 'text' id = 'flow_name' class = 'aya-input' style = 'display:inline-block;width:60%' value = '{$form.title}'/>
 			</div>
+
+			<div class = 'col s4'>
+				<span style = 'display:inline-block;width:30%;text-align:right'>流程类型</span> <select  style = 'display:inline-block;width:auto' class = 'browser-default' id = 'type_id'>
+					<option value = '0'>无分类</option>
+				{volist name = 'types' id = 't'}
+					
+					<option value = '{$t.id}'>{$t.name}</option>
+				{/volist}
+				</select>
+				
+			</div>
+
 		</div>
 	</div>
 
@@ -897,6 +844,9 @@
 		},
 
 		ini : function(){
+			
+			$('#type_id').val('{$form.type_id}');
+
 			// 右键菜单	
 			$('#form_body').on('contextmenu','td',function(e){
 				$(".contextmenu").hide();
@@ -1601,9 +1551,11 @@
 
 			app.set_merge_restore_button();
 
-			$('#next').click(function(){	
+			$('#next').click(function(){
+				
 				get_parent().app.step_1_html = $('#form_body').html();
 				get_parent().app.tdWidth = app.tdWidth;
+				get_parent().app.type_id = $('#type_id').val();
 				
 				let flow_name = $.trim($('#flow_name').val());
 				if(flow_name == ''){

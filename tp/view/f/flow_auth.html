@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/bootstrap-select/dist/css/bootstrap-select.min.css" type="text/css">
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+	<script src="__PUBLIC__/js/bootstrap.min.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	<script src="__PUBLIC__/js/paigusu.min.js"></script>
+
+	<style type="text/css">
+		body{background:#fff;font-size:12px}
+		table tbody tr td{
+			padding:0 !important;
+			height:32px !important;
+
+			
+		}
+		
+	</style>
+	
+</head>
+
+<body>
+
+<div class = 'row'>
+
+	<div class = 'col s12'>
+		<table class = 'dataTable centered cell-border table-small'>
+			<thead>
+				<tr><th></th><th>名称</th><th>浏览</th><th>编辑</th><th>隐藏</th><th>必填</th><th>默认值</th></tr>
+			</thead>
+			<tbody id = 'tbody'>
+				{volist name = 'fields' id = 'f'}
+				<tr data-field = '{$f.i}'><td>{$f.table_name}</td><td>{$f.label}</td><td><input value = '0' name = '{$f.i}' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '{$f.i}' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '{$f.i}' type = 'radio' class = 'aya-radio' /></td><td><input name = '{$f.i}'  type = 'checkbox' class = 'aya-checkbox' /></td><td></td></tr>
+				{/volist}
+			</tbody>
+		</table>
+	</div>
+
+	
+	
+</div>
+
+
+
+
+
+
+<script>
+	var app = {
+
+		auth : {$auth|raw},
+
+		flow_id : {$Request.get.flowid},
+
+		node_id : '{$Request.get.node}',
+
+
+		save : function(){
+			let o = {};
+			let oo = [];
+			o.flow_id = app.flow_id;
+			o.node_id = app.node_id;
+			$('#tbody tr').each(function(){
+				let tmp = {};
+				tmp.i = $(this).data('field');
+				tmp.a = $("input[name='"+tmp.i+"']:checked").val();
+				tmp.m = tmp.a != 1?0:($(this).find("input[type='checkbox']").prop('checked')?1:0);
+				oo.push(tmp);
+			});
+			o.auth = JSON.stringify(oo);
+			$.post('__APP__/F/edit_flow_auth',o,function(d){
+				if(d.status == 's'){
+					parent.layer_success();
+					var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+					parent.layer.close(index); //再执行关闭   
+				}
+			});
+			
+		},
+
+		ini: function(){
+
+			
+
+			$('#tbody input[type=radio]').click(function(){
+				if( $(this).val() == 1){
+					$(this).parents('tr').find( 'input[type=checkbox' ).attr('disabled',false);
+				}else{
+					$(this).parents('tr').find( 'input[type=checkbox' ).attr('disabled',true);
+				}
+			});
+		
+
+			if( app.auth.no ){       // 没有权限记录
+				if(app.node_id == 'creator'){
+					$('#tbody tr').each(function(){
+						$(this).children().eq(3).find('input').attr('checked',true);
+					});
+				}else{
+					$('#tbody tr').each(function(){
+						$(this).children().eq(2).find('input').attr('checked',true);
+						$(this).find("input[type='checkbox']").attr('disabled',true);
+						
+					});
+				}
+			}else{
+				$( app.auth ).each(function(i,v){
+					$( "input[name='"+v.i+"'][type='radio'][value='"+v.a+"']").attr('checked',true);
+					log(v,false);
+					if( v.a == 1){
+						if( v.m == 1 ){
+							$("input[type='checkbox'][name='"+v.i+"']").attr('checked',true);
+						}
+					}else{
+						$("input[type='checkbox'][name='"+v.i+"']").attr('disabled',true);
+					}
+
+
+				});
+
+			}
+		}
+		
+	}
+	
+	
+	app.ini();
+
+	
+
+	
+
+
+</script>
+
+</body>
+
+</html>

@@ -19,7 +19,9 @@ class Flow extends Model{
 		'form' => 'mediumtext',
 		'maker' => 'varchar',
 		'status' => 'int',
-		'td_width' => 'text'
+		'td_width' => 'text',
+		'type_id' => 'int',
+		'cut_form' => 'mediumtext',
 
 	];
 

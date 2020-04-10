@@ -73,6 +73,8 @@
 		
 		flow_name : get_parent().app.flow_name,
 
+		flow_type : get_parent().app.type_id,
+
 		field : '',
 
 		aIndex : {$maxI},
@@ -100,13 +102,10 @@
 			}else{
 				return "<span class = 'text-color2' >新</span>";
 			}
-			
 		},
 
 		
 		ini : function(){
-
-	
 
 			$('#back').click(function(){
 				get_parent().app.step_1();
@@ -191,7 +190,6 @@
 					
 					type2 = app.get_type2(field,tbodyTds.eq(i).data('i'));
 
-
 					switch(type1){
 						case 'text-mul' :
 							length1 = app.field[field]?app.field[field].length1:255;
@@ -204,13 +202,8 @@
 							tbody += "<tr data-type = 'input' data-table = '"+table+"'><td>"+(trIndex++)+"</td><td>"+table+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+name[i]+"</td><td>序号</td><td>整数</td><td>4</td><td></td></tr>";
 						break;
 						default:
-
-						
-
 					}
 
-
-					
 					tbodyTds.eq(i).parent().parent().parent().attr('data-table',table);
 
 					tbodyTds.eq(i).attr('data-i',field);
@@ -219,17 +212,18 @@
 				
 			});
 
-
-			
-
 			$('#tbody').html(tbody);
 
-
 			$('#save').click(function(){
+
 				let o = {};
 				o.flow_name = app.flow_name;
 				o.form = $(app.form_body).prop('outerHTML');
-				o.td_width = JSON.stringify(get_parent().app.tdWidth);
+				o.td_width = JSON.stringify( get_parent().app.tdWidth );
+				o.type_id = app.flow_type;
+
+
+				
 
 				o.data = [];
 				o.flow_id = '{$Request.get.id}';
@@ -267,16 +261,11 @@
 						break;
 						default:
 					}
-
-
 					o.data.push(tmp);
 				});
 
 				
 				layer.load(2,{offset:['30%'],success:function(){
-					
-					
-					
 					
 					$.post('__APP__/F/save_table',o,function(d){
 						
@@ -287,13 +276,7 @@
 							}else{
 								parent.app.add_new_flow(d.data);
 							}
- 
-							
-							
-							
-							
 							var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
-							
 							parent.layer.close(index); //再执行关闭 
 						}else{
 							parent.layer_error(d);

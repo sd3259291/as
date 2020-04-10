@@ -23,7 +23,8 @@ class Flows extends Model{
 		'done' => 'varchar',
 		'handler' => 'varchar',
 		'before_dlt' => 'varchar',
-		'form' => 'text'
+		'form' => 'text',
+		'flow_id' => 'int'
 
 	];
 

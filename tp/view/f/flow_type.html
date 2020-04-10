@@ -8,12 +8,12 @@
 	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
 	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
     <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
-	<link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
-	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/extensions/AutoFill/css/dataTables.autoFill.min.css">
+
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
 	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
 
 	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
-	<script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+
 	<script src="__PUBLIC__/js/tool.js"></script>
 	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
 	<style type="text/css">
@@ -25,29 +25,162 @@
 	</style>
 </head>
 <body>
-	<div class = 'row'>
+	<div class = 'row' style = ''>
 
 		<div class = 'col s12' style = 'padding:20px'>
 			<div class="btn-group left  margin-right-100" role="group" >
-
 					<button class = 'btn btn-default btn-default-1' id = 'new' >  <i class="material-icons text-color2"  >add_box</i> 新增</button>
-					<button class = 'btn btn-default btn-default-1' id = 'edit-form'>  <i class="material-icons text-color5"  >create</i> 编辑</button>
-					<button class = 'btn btn-default btn-default-1' id = 'change_status'>  <i class="material-icons text-color4"  >transform</i> 禁用/启用</button>
-					<button class = 'btn btn-default btn-default-1' id = 'search'>  <i class="material-icons text-color1"  >done</i> 默认</button>
+					<button class = 'btn btn-default btn-default-1' id = 'edit'>  <i class="material-icons text-color5"  >create</i> 编辑</button>
+					<button class = 'btn btn-default btn-default-1' id = 'status'>  <i class="material-icons text-color4"  >transform</i> 禁用/启用</button>
+					<button class = 'btn btn-default btn-default-1' id = 'dlt'>  <i class="material-icons text-color3"  >clear</i> 删除</button>
 				</div>
 		</div>
 
 		<div class = 'col s12' style = 'padding:20px'>
-			<table class = 'dataTable'>
+			<table class = 'dataTable centered  row-border stripe' id = 'table'>
 				<thead>
-
+					<tr><th>类型名称</th><th>状态</th><th>排序</th></tr>
 				</thead>
+				<tbody id = 'tbody'>
+					{volist name = 'lists' id = 'l'}
+					<tr data-id = '{$l.id}'><td>{$l.name}</td><td>{$l.status == 1?'启用':'禁用'}</td><td>{$l.sort}</td></tr>
+					{/volist}
+				</tbody>
 			</table>
 		</div>
 
 	</div>
 	
 </body>
+<script>
+	
+	$(document).ready(function(){
+			let div = [
+				{ 'name' : '类型名称：' ,'id' : 'name' ,'type' : 'text'},
+				{ 'name' : '排序：' ,'id' : 'sort' ,'type' : 'text'},
+				{ 'type' : 'hidden' ,'id' : 'id'}
+			];
+
+			$('#dlt').click(function(){
+				if( $('#tbody tr.selected').length == 0) return false;
+				let o = { id : $('#tbody tr.selected').eq(0).data('id')};
+				$.post('__APP__/F/dlt_flow_type',o,function(d){
+					if(d.status == 's'){
+						$('#tbody tr.selected').eq(0).remove();
+					}
+				});
+			});
+
+			
+			$('#status').click(function(){
+				if( $('#tbody tr.selected').length == 0) return false;
+				let o = { id : $('#tbody tr.selected').eq(0).data('id')};
+				$.post('__APP__/F/status_flow_type',o,function(d){
+					if(d.status == 's'){
+						if( d.data == 1){
+							$('#tbody tr.selected').eq(0).children().eq(1).text('启用');
+						}else{
+							$('#tbody tr.selected').eq(0).children().eq(1).text('禁用');
+						}
+					}
+				});
+			});
+
+
+			$('#edit').click(function(){
+				if( $('#tbody tr.selected').length == 0) return false;
+				let index = layer.open({
+					skin: 'layer-edit-container',
+					title : '编辑流程类型',
+					offset : ['40px'],
+					area  : ['500px',"70%"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					isOutAnim: false,
+					content : create_new_div( div ),
+					success : function(){
+						$('#name').val( $('#tbody tr.selected').eq(0).children().eq(0).text() );
+						$('#sort').val( $('#tbody tr.selected').eq(0).children().eq(2).text() );
+						$('#id').val( $('#tbody tr.selected').eq(0).data('id') );
+					},
+					yes : function(index){
+						let o = {};
+						o.name = $.trim($('#name').val());
+						o.sort = parseInt($('#sort').val());
+						o.id = $('#id').val();
+
+						
+						
+						if(o.name == ''){
+							layer_error({info:'类型名称不能为空'});
+							return false;
+						}
+						if(isNaN(o.sort)){
+							layer_error({info:'排序号错误'});
+							return false;
+						}
+						$.post('__APP__/F/edit_flow_type',o,function(d){
+							if(d.status == 's'){
+								$('#tbody tr.selected').eq(0).children().eq(0).text( o.name );
+								$('#tbody tr.selected').eq(0).children().eq(2).text( o.sort );
+								layer_success();
+								layer.close(index);
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+				
+			});
+
+			$('#new').click(function(){
+				let index = layer.open({
+					skin: 'layer-new-container',
+					title : '新增流程类型',
+					offset : ['40px'],
+					area  : ['500px',"70%"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					isOutAnim: false,
+					content : create_new_div( div ),
+					yes : function(index){
+						let o = {};
+						o.name = $.trim($('#name').val());
+						o.sort = parseInt($('#sort').val());
+						if(o.name == ''){
+							layer_error({info:'类型名称不能为空'});
+							return false;
+						}
+						if(isNaN(o.sort)){
+							layer_error({info:'排序号错误'});
+							return false;
+						}
+						$.post('__APP__/F/insert_flow_type',o,function(d){
+							if(d.status == 's'){
+								$('#tbody').prepend("<tr data-id = '"+d.data+"'><td>"+o.name+"</td><td>启用</td><td>"+o.sort+"</td></tr>");
+								parent.layer_success();
+								layer.close(index);
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+			});
+
+
+			select_tr('table');
+	});
+
+			
+
+			//window.setTimeout(function(){$('.row').show();},100);
+
+
+</script>
 
 </html>
 

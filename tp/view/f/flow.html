@@ -12,6 +12,29 @@
 	<script src="__PUBLIC__/js/uuid.js"></script>
 	<script src="__PUBLIC__/js/tool.js"></script>
 	<style type="text/css">
+
+body .layer-edit-container .layui-layer-title{
+	font-size:12px;
+	background:#3d9970;
+	color:#fff
+}
+body .layer-edit-container .layui-layer-btn0{
+	font-size:12px;
+	padding:0 16px;
+	height:32px;
+	background:#3d9970;
+	border-color:#3d9970;
+}
+body .layer-edit-container .layui-layer-btn1{
+	padding:0 16px;
+	height:32px;
+	color:#343a40;
+	border-color:#a0a0a0;
+}
+body .layer-edit-container .layui-layer-content{
+	border-bottom:1px solid #3d9970;
+}
+
 		#creator{
 			left:10px;
 			top:30px
@@ -615,7 +638,7 @@ var flow = {
 			let offset = $(this).offset();
 			let left = offset.left + $(this).width();
 			let top  = offset.top  + 10;
-			let tmp = "<ul class = 'oper list-group' style = 'left:"+left+"px;top:"+top+"px'><li class = 'list-group-item add'>增加</li><li class = 'list-group-item dlt'>删除</li><li class = 'list-group-item'>替换</li><li class = 'list-group-item attr'>属性</li></ul>";
+			let tmp = "<ul class = 'oper list-group' style = 'left:"+left+"px;top:"+top+"px'><li class = 'list-group-item add'>增加</li><li class = 'list-group-item dlt'>删除</li><li class = 'list-group-item'>替换</li><li class = 'list-group-item attr'>属性</li><li class = 'list-group-item auth'>权限</li></ul>";
 			$('#diagramContainer').append(tmp);
 			e.stopPropagation();
 			flow.selectedNode = this;
@@ -652,14 +675,11 @@ var flow = {
 				}else if($(this).hasClass('no-add-branch') || flow.p[$(this).prop('id')][0] == 'end'){
 					tmp = "<ul class = 'oper list-group' style = 'left:"+left+"px;top:"+top+"px'><li class = 'list-group-item add'>增加</li><li class = 'list-group-item attr2'>属性</li></ul>";
 				}else{
-					
 					if(flow.p[$(this).prop('id')].length == 1){
 						tmp = "<ul class = 'oper list-group' style = 'left:"+left+"px;top:"+top+"px'><li class = 'list-group-item add'>增加</li><li class = 'list-group-item attr2'>属性</li></ul>";
 					}else{
 						tmp = "<ul class = 'oper list-group' style = 'left:"+left+"px;top:"+top+"px'><li class = 'list-group-item add-branch'>增加分支</li><li class = 'list-group-item attr2'>属性</li></ul>";
 					}
-
-					
 				}
 
 				
@@ -684,6 +704,26 @@ var flow = {
 				maxmin: true,
 				type: 2, 
 				content:'__APP__/F/flow_select?addbranch=0',
+			
+			});
+		});
+
+		$('#diagramContainer').on('click','li.auth',function(e){
+			layer.open({
+				skin: 'layer-edit-container',
+				title:"<span style = 'font-size:12px'>数据权限管理</span>",
+				area: ['600px','100%'],
+				offset:'0%',
+				shadeClose:true,
+				isOutAnim: false ,
+				maxmin: true,
+				type: 2, 
+				content:'__APP__/F/flow_auth?flowid='+flow.flowId+'&node='+$(flow.selectedNode).prop('id'),
+				btn : [ '确定'],
+				yes : function(index,layero){
+					var iframeWin = window[layero.find('iframe')[0]['name']];
+					iframeWin.app.save();
+				}
 			
 			});
 		});
@@ -717,7 +757,7 @@ var flow = {
 				isOutAnim: false ,
 				maxmin: true,
 				type: 2, 
-				content:'__URL__/flow_attr?flowid='+flow.flowId,
+				content:'__APP__/F/flow_attr?flowid='+flow.flowId,
 			});
 		});
 
@@ -737,6 +777,8 @@ var flow = {
 	},
 
 	save : function(){
+
+		
 
 		for(let i in flow.node){
 			if(flow.node[i]['X'] != undefined && flow.node[i]['X'].length == 0){
@@ -777,7 +819,10 @@ var flow = {
 
 		
 		$.post('__APP__/F/flow_save',o,function(d){	
+
+			
 			if(d.status == 's'){
+				parent.layer_success();
 				var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
 				parent.layer.close(index); //再执行关闭   
 			}else{

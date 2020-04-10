@@ -1,0 +1,108 @@
+<!DOCTYPE html>{__NOLAYOUT__}
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/extensions/AutoFill/css/dataTables.autoFill.min.css">
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<style type="text/css">
+		body{
+			background:#ffffff;
+			-moz-user-select: none;
+		}
+
+		#type ul li{
+			padding:6px 20px
+		}
+
+		#flow ul li{
+			padding:6px 20px
+		}
+		
+	</style>
+</head>
+<body>
+<div class = 'row'>
+	<div class = 'col s12' style = 'padding:10px 20px;border-bottom:1px solid #cccccc'>
+		<div class = 'relative width-400' style = 'display:inline-block'>
+			<input type = 'text' id = 'search' class = 'width-400' placeholder = '按回车键搜索' />
+			<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
+		</div>
+	</div>
+	<div class = 'col s5' id = 'type' style = 'border-right:1px solid #cccccc'>
+		<ul>
+			<li><a data-type_id = '0' href= 'javascript:void(0)' class = 'type'>无分类</a></li>
+			{volist name = 'types' id = 't'}
+			<li><a data-type_id = '{$t.id}' href= 'javascript:void(0)' class = 'type'>{$t.name}</a></li>
+			{/volist}
+		</ul>
+	</div>
+
+	<div class = 'col s7' id = 'flow' style = 'overflow-y:scroll'>
+		
+	</div>
+</div>
+</body>
+<script>
+	
+	$(document).ready(function(){
+		height = $(window).height();
+		let tmpheight = height - $('#type').offset().top ;
+		$('#type').css('minHeight',tmpheight).css('maxHeight',tmpheight);
+		$('#flow').css('minHeight',tmpheight).css('maxHeight',tmpheight);
+		
+		$('.type').click(function(){
+			let id = $(this).data('type_id');
+			let o = {id:id};
+			$.post('__APP__/Fs/get_flow_by_type_id',o,function(d){
+				$('#flow').empty();
+				let li = '';
+				$(d.data).each(function(i,v){
+					li += "<li><a data-id = '"+v.id+"' href= 'javascript:void(0)' class = 'flow'>"+v.title+"</a></li>";
+				});
+				if(li != ''){
+					$('#flow').html("<ul>"+li+"</ul>");
+				}
+			});
+		});
+
+		$('#search').keypress(function(e){
+			if(e.charCode == 13){
+				let title = $.trim($('#search').val());
+				let o = {title:title};
+				if(title != ''){
+					$.post('__APP__/Fs/get_flow_by_title',o,function(d){
+						$('#flow').empty();
+						let li = '';
+						$(d.data).each(function(i,v){
+							li += "<li><a data-id = '"+v.id+"' href= 'javascript:void(0)' class = 'flow'>"+v.title+"</a></li>";
+						});
+						if(li != ''){
+							$('#flow').html("<ul>"+li+"</ul>");
+						}
+					});
+				}
+			}
+		});
+
+		$('#flow').on('click','a',function(){
+			let id = $(this).data('id');
+			parent.app.load_template(id);
+			var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+			parent.layer.close(index); //再执行关闭   
+		});
+		
+	});
+
+</script>
+</html>
+
+

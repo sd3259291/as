@@ -193,7 +193,7 @@ class PublicGet extends BaseController{
 	+------------------------------------------------------------------------------
 	*/
 	public function get_employee($w){
-		if($w['number'] == 'admin') $w['number'] = '010100';
+		if($w['number'] == 'admin') $w['number'] = '010099';
 		$r = Db::table('s_employee')->where($w)->find();
 		return $r;
 	}

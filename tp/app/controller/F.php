@@ -12,14 +12,131 @@ use app\model\Enum;
 use app\model\Flow;
 use app\model\FlowTable;
 use app\model\Max;
+use app\model\FlowType;
+use app\model\FlowNode;
+use app\model\FlowAuth;
 
 class F extends BaseController{
 	/**
      * 流程类型管理
      */
 	public function flow_type(){
-		
+
+		View::assign('lists',FlowType::select());
 		return View::fetch();
+	}
+	/**
+     * 流程类型管理 - 新增
+     */
+	public function insert_flow_type(){
+		if(FlowType::where("name = '".$_POST['name']."'")->find()){
+			return a('','类型名称已存在','e');
+		}
+		$ft = FlowType::create(array('name' => $_POST['name'],'status' => 1,'sort' => $_POST['sort']));
+		return a($ft->id,'','s');
+	}
+	/**
+     * 流程类型管理 - 新增
+     */
+	public function edit_flow_type(){
+		if(FlowType::where("name = '".$_POST['name']."' && id != ".$_POST['id'])->find()){
+			return a('','类型名称已存在','e');
+		}
+		$ft = FlowType::find($_POST['id']);
+		$ft->name = $_POST['name'];
+		$ft->sort = $_POST['sort'];
+		$ft->save();
+		return a('','','s');
+	}
+
+	/**
+     * 流程节点管理
+     */
+	public function node(){
+		$list = Db::table('s_flow_node')->select();
+		View::assign('list',$list);
+		return View::fetch();
+	}
+	public function get_node(){
+		$r = FlowNode::find($_POST['id']);
+		return a($r,'','s');
+	}
+	public function edit_flow_node(){
+		Db::table('s_flow_node')->where('id = '.$_POST['id'])->update($_POST);
+		return a('','','s');
+	}
+	public function set_flow_node(){
+		Db::table('s_flow_node')->where('id = '.$_POST['id'])->update(array('auth1' => $_POST['auth1']));
+        return a('','','s');
+	}
+	public function insert_flow_node(){
+		if(FlowNode::where("name = '".$_POST['name']."'")->find()) return a('','节点名称已经存在','e');
+		$node = FlowNode::create(array('name' => $_POST['name'],'sort' => $_POST['sort'] ,'status' => 1));
+		return a($node->id,'','s');
+	}
+	public function status_flow_node(){
+		$ft = FlowNode::find($_POST['id']);
+		$ft->status = $ft->status == 1?0:1;
+		$ft->save();
+		return a($ft->status,'','s');
+	}
+	/**
+     * 数据权限管理
+     */
+
+	public function flow_auth(){
+		$auth = FlowAuth::where("flow_id = ".$_GET['flowid']." && node_id = '".$_GET['node']."'")->find();
+		if(!$auth) $auth = [];
+		$attr = FlowTable::where("flow_id = ".$_GET['flowid'])->field('table_name,i,label,type,enum_name,enum_id')->select();
+		$a = $auth?json_encode(json_decode($auth['auth'],true)):json_encode(['no' => 1]);
+		View::assign('auth', $a);
+		View::assign('fields',$attr);
+		return View::fetch();
+	}
+
+	public function edit_flow_auth(){
+	
+		if( $flowAuth = FlowAuth::where("flow_id = ".$_POST['flow_id']." && node_id = '".$_POST['node_id']."'")->find() ){
+			$flowAuth->auth = $_POST['auth'];
+			$flowAuth->save();
+		}else{
+			FlowAuth::create($_POST);
+		}
+		return a('','','s');
+	}
+
+	/**
+     * 流程类型管理 - 新增
+     */
+	public function flow_attr(){
+		$_GET['flowid'] = 4;
+		$attr = FlowTable::where("flow_id = ".$_GET['flowid']." && table_name like 'f%'")->field('i,label,type,enum_name,enum_id')->select();
+		View::assign('attr',$attr);
+		View::assign('jdqx',FlowNode::select());
+		return View::fetch();
+	}
+
+	public function test(){
+		$f = Flow::find(4)->toArray();
+		dump(json_decode($f['node'],true));
+	}
+
+	/**
+     * 流程类型管理 - 删除
+     */
+	public function dlt_flow_type(){
+		// 不能删除的判断
+		FlowType::destroy($_POST['id']);
+		return a('','','s');
+	}
+	/**
+     * 流程类型管理 - 修改状态
+     */
+	public function status_flow_type(){
+		$ft = FlowType::find($_POST['id']);
+		$ft->status = $ft->status == 1?0:1;
+		$ft->save();
+		return a($ft->status,'','s');
 	}
 	/**
      * 后台管理首页
@@ -34,9 +151,9 @@ class F extends BaseController{
 	public function step_1(){
 		//$_GET['id'] = 13;
 		$form = $_GET['id']?Flow::find($_GET['id']):array('id' => 0,'form' => '','title' => '','td_width' => '{}');
-
-		
 		$enum = new Enum;
+		$type = FlowType::where('status = 1')->order('sort asc')->select();
+		View::assign('types',$type);
 		View::assign( 'select' , $enum->mySelect() );
 		View::assign( 'form' , $form );
 		return View::fetch();
@@ -58,8 +175,12 @@ class F extends BaseController{
 		//sp();exit();
 		//gp();
 		//$_POST['flow_name'] = '测试3修改';
+
+
+		
 		
 		if(isset($_POST['flow_id']) && $_POST['flow_id']){
+
 			$r = $this->edit_table($_POST);
 		}else{
 			$r = $this->insert_table($_POST);
@@ -73,6 +194,8 @@ class F extends BaseController{
 	 public function edit_table(array $post){
 
 		$form = $post['form'];
+
+
 		$r = FlowTable::where('flow_id = '.$post['flow_id'])->order('i asc')->select()->toArray();
 		$field = column($r,'i');
 		if(!isset($post['data'])) $post['data'] = array();
@@ -260,9 +383,9 @@ class F extends BaseController{
 				
 				$sql = '';
 				if(substr($k,0,1) == 'f'){  // 主表
-					$sql = "CREATE TABLE `s_".$k."` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT,";
+					$sql = "CREATE TABLE `s_".$k."` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `flows_id` tinyint(11) NOT NULL DEFAULT '0',";
 				}else{
-					$sql = "CREATE TABLE `s_".$k."` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `form_id` int(11) NOT NULL,";
+					$sql = "CREATE TABLE `s_".$k."` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `flows_id` tinyint(11) NOT NULL DEFAULT '0',";
 				}
 
 				foreach($v as $k1 => $v1){
@@ -311,14 +434,10 @@ class F extends BaseController{
 					$sql .= " PRIMARY KEY (`id`) ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;";
 				}
 
-				
-
 				Db::execute($sql);
 
 
 			}
-
-			
 
 		}
 		
@@ -326,7 +445,7 @@ class F extends BaseController{
 		
 		
 		
-		$update2 = array('td_width' => $post['td_width'],'form' => $form,'title' => trim($post['flow_name']),'modify_datetime' => date('Y-m-d H:i:s') ) ;
+		$update2 = array('type_id' => $post['type_id'],'td_width' => $post['td_width'],'form' => $form,'title' => trim($post['flow_name']),'modify_datetime' => date('Y-m-d H:i:s'),'cut_form' => $this->cut_form($form) ) ;
 
 		Flow::update($update2,  array( 'id' => $post['flow_id'] ) );
 		
@@ -337,6 +456,20 @@ class F extends BaseController{
 		rt($update2,'','s');
 		
 
+	 }
+
+	 public function cut_form($form){
+		$form = str_replace('text-align: center;','',$form);
+		$form = str_replace('vertical-align: middle;','',$form);
+		$form = str_replace('text-align:center;','',$form);
+		$form = str_replace('vertical-align:middle;','',$form);
+		$form = str_replace('background: rgb(255, 255, 255) none repeat scroll 0% 0%;','',$form);
+		$form = str_replace('colspan="1"','',$form);
+		$form = str_replace('rowspan="1"','',$form);
+		$form = str_replace('class=""','',$form);
+		$form = preg_replace('/data-x="\d{1,2}"/','',$form);
+		$form = preg_replace('/data-y="\d{1,2}"/','',$form);
+		return $form;
 	 }
 
 	/**
@@ -370,16 +503,15 @@ class F extends BaseController{
 		}
 
 		$max->set_max('flow_table',1,count($subform));
-
 		$flow = new Flow;
 		$flow->title = $post['flow_name'];
 		$flow->form =  $form;
-
 		$flow->create_datetime = date('Y-m-d H:i:s',time());
 		$flow->maker  = Session::get('userinfo')['name'];
 		$flow->status = 0;
 		$flow->td_width = $post['td_width'];
-
+		$flow->type_id = $post['type_id'];
+		$form->cut_form =  $this->cut_form($form);
 		$flow->save();
 
 		$newTable = array();
@@ -431,18 +563,14 @@ class F extends BaseController{
 				
 			}
 			
-			
 			if(substr($k,0,1) == 'f'){  // 主表
 				$sql .= " PRIMARY KEY (`id`) ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;";
 			}else{
 				$sql .= " PRIMARY KEY (`id`) ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;";
 			}
 
-			
-
 			Db::execute($sql);
 		}
-
 
 		rt($flow->toArray(),'','s');
 		
@@ -497,6 +625,7 @@ class F extends BaseController{
 		$flow->node = $_POST['node'];
 		$flow->max_id = $_POST['max_id'];
 		$flow->save();
+		return a('','','s');
 	 }
 
 

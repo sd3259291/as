@@ -1,0 +1,230 @@
+
+
+			<div class="card">
+				<div class="card-content">
+					<div class = 'row row-head'>
+						<div class = 'col s12'>
+							<div class="btn-group left  margin-right-100" role="group" >
+								<button class = 'btn btn-default btn-default-1' id = 'add' >  <i class="material-icons text-color2"  >add_box</i> 新增</button>
+								<button class = 'btn btn-default btn-default-1' id = 'edit'>  <i class="material-icons text-color5"  >create</i> 编辑</button>
+								<button class = 'btn btn-default btn-default-1' id = 'save'>  <i class="material-icons text-color1"  >save</i> 保存</button>
+								<button class = 'btn btn-default btn-default-1' id = 'dlt' >  <i class="material-icons text-color3"  >clear</i> 删除</button>
+								<button class = 'btn btn-default btn-default-1' id = 'status'>  <i class="material-icons text-color4"  >transform</i> 禁用/启用</button>
+								
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						
+						<div class="col s3">
+							
+							<table class = 'table dataTable centered' id = 'list'>
+								<thead>
+									<tr><th>节点名称</th><th>状态</th><th>排序</th></tr>
+								</thead>
+								<tbody id = 'tbody'>
+								{volist name = 'list' id = 'l'}
+								<tr data-id = {$l.id} ><td>{$l.name}</td><td>{$l.status == 1?'启用':'禁用'}</td><td>{$l.sort}</td></tr>
+								{/volist}
+								</tbody>
+							</table>
+						</div>
+						<div class="col s3">
+
+							<table class = 'table dataTable centered noselect' id = 'auth1'>
+								<thead>
+									<tr><th></th><th>操作权限</th></tr>
+								</thead>
+								<tbody>
+									<tr data-id = 1 ><td><input type = "checkbox" class = "aya-checkbox" /></td><td>审核</td></tr>
+									<tr data-id = 2 ><td><input type = "checkbox" class = "aya-checkbox" /></td><td>回退</td></tr>
+									<tr data-id = 3 ><td><input type = "checkbox" class = "aya-checkbox" /></td><td>取回</td></tr>
+									<tr data-id = 4 ><td><input type = "checkbox" class = "aya-checkbox" /></td><td>加签</td></tr>
+									<tr data-id = 5 ><td><input type = "checkbox" class = "aya-checkbox" /></td><td>终止</td></tr>
+									<tr data-id = 6 ><td><input type = "checkbox" class = "aya-checkbox" /></td><td>取消</td></tr>
+								</tbody>
+							</table>
+
+						</div>
+					</div>
+				</div>
+			</div>
+<script>
+	
+	var app = {
+
+		div : [
+				{ 'name' : '节点名称：' ,'id' : 'name' ,'type' : 'text'},
+				{ 'name' : '排序：' ,'id' : 'sort' ,'type' : 'text'},
+				{ 'type' : 'hidden' ,'id' : 'id'}
+			],
+
+		ini : function(){
+
+
+			$('#status').click(function(){
+
+				if( $('#tbody tr.new').length == 0) return false;
+				let o = { id : $('#tbody tr.new').eq(0).data('id')};
+				$.post('__APP__/F/status_flow_node',o,function(d){
+					if(d.status == 's'){
+						if( d.data == 1){
+							$('#tbody tr.new').eq(0).children().eq(1).text('启用');
+						}else{
+							$('#tbody tr.new').eq(0).children().eq(1).text('禁用');
+						}
+					}
+				});
+			});
+
+			$('#add').click(function(){
+				let index = layer.open({
+					skin: 'layer-new-container',
+					title : '新增流程节点',
+					offset : ['40px'],
+					area  : ['500px',"70%"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					isOutAnim: false,
+					content : create_new_div( app.div ),
+					yes : function(index){
+						let o = {};
+						o.name = $.trim($('#name').val());
+						o.sort = parseInt($('#sort').val());
+						if(o.name == ''){
+							layer_error({info:'节点名称不能为空'});
+							return false;
+						}
+						if(isNaN(o.sort)){
+							layer_error({info:'排序号错误'});
+							return false;
+						}
+						$.post('__APP__/F/insert_flow_node',o,function(d){
+							if(d.status == 's'){
+								$('#tbody').prepend("<tr data-id = '"+d.data+"'><td>"+o.name+"</td><td>启用</td><td>"+o.sort+"</td></tr>");
+								parent.layer_success();
+								layer.close(index);
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+			});
+
+
+			$('#edit').click(function(){
+				if( $('#tbody tr.new').length == 0) return false;
+				let index = layer.open({
+					skin: 'layer-edit-container',
+					title : '编辑流程节点',
+					offset : ['40px'],
+					area  : ['500px',"70%"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					isOutAnim: false,
+					content : create_new_div( app.div ),
+					success : function(){
+						$('#name').val( $('#tbody tr.new').eq(0).children().eq(0).text() );
+						$('#sort').val( $('#tbody tr.new').eq(0).children().eq(2).text() );
+						$('#id').val( $('#tbody tr.new').eq(0).data('id') );
+					},
+					yes : function(index){
+						let o = {};
+						o.name = $.trim($('#name').val());
+						o.sort = parseInt($('#sort').val());
+						o.id = $('#id').val();
+					
+						if(o.name == ''){
+							layer_error({info:'节点名称不能为空'});
+							return false;
+						}
+						if(isNaN(o.sort)){
+							layer_error({info:'排序号错误'});
+							return false;
+						}
+						$.post('__APP__/F/edit_flow_node',o,function(d){
+							if(d.status == 's'){
+								$('#tbody tr.new').eq(0).children().eq(0).text( o.name );
+								$('#tbody tr.new').eq(0).children().eq(2).text( o.sort );
+								parent.layer_success();
+								layer.close(index);
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+			
+			});
+
+			maxheight('',false);
+
+			$('#save').click(function(){
+				let o = {};
+
+				if($('#list tbody tr.new').length == 0) return false;
+				o.id = $('#list tbody tr.new').eq(0).data('id');
+
+				o.auth1 = '';
+
+				$('#auth1 tbody tr.new').each(function(){
+					o.auth1 += $(this).data('id') + ',';
+				});
+
+				$.post('__APP__/F/set_flow_node',o,function(d){
+					if(d.status == 's'){
+						layer.msg('修改成功',{icon:1,time:1500,offset:'30%'});
+					}else{
+						layer.msg(d.info,{icon:2,time:1500,offset:'30%'});
+					}
+				});
+			});
+
+
+			select_tr3('auth1','new');
+
+			select_tr('list','new');
+
+
+			$('#list').on('click','tr',function(){
+				let o = {};
+				o.id = $(this).data('id');
+				$.post('__APP__/F/get_node',o,function(d){
+					if(d.status == 's'){
+						$('#auth1 tbody tr').removeClass('new');
+						$('#auth1 tbody tr input').prop('checked',false);
+						if(!d.data.auth1) return false;
+						d.data.auth1.split(',').forEach(function(v,k){
+							if(v != ''){
+								$('#auth1 tbody tr').each(function(){
+									if($(this).data('id') == v){
+										$(this).addClass('new');
+										$(this).find('input').eq(0).prop('checked',true);
+									}
+								});
+							}
+						});
+					}else{
+						layer.msg(d.info,{icon:2,time:1500,offset:'30%'});
+					}
+				});
+			});
+		}
+	}
+
+	
+	
+	
+	app.ini();
+	
+
+
+
+</script>
+
+
+

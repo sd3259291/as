@@ -9,15 +9,40 @@ use app\model\Post;
 use think\facade\Cache;
 use think\facade\Db;
 use app\model\Enum;
+use app\model\EnumDetail;
 use app\model\Flow;
 use app\model\Flows;
 use app\model\FlowTable;
 use app\model\Max;
 use app\model\FlowsComment;
 use app\controller\PublicGet;
+use app\model\FlowType;
+use app\model\FlowAuth;
+use app\model\FlowsAuth;
 
 class Fs extends BaseController{
 
+	protected $get;
+
+	/**
+     *  加载模板
+     */
+	 public function load_template(){
+		$_POST['id'] = 4;
+
+		$auth = FlowAuth::where("node_id = 'creator' && flow_id = ".$_POST['id'])->find();
+
+		$form = Flow::find($_POST['id']);
+
+		$r = Db::query(" select b.enum_id,a.i,b.id,b.name from s_flow_table a join s_enum_detail b on a.enum_id = b.enum_id  where a.type = 'enum' && a.flow_id = ".$_POST['id']);
+
+		$select = array();
+		foreach($r as $k => $v){
+			$select[$v['i']][] = $v;
+		}
+		
+		return a( array('form' => $form,'select' => $select,'auth' => json_decode($auth->auth)),'','s');
+	 }
 
 	 /**
      *  新建流程
@@ -25,12 +50,30 @@ class Fs extends BaseController{
 
 	
 	public function __construct(){
-       $this->get = new \app\controller\PublicGet;
+		$this->get = new \app\controller\PublicGet;
     }
 
 	 public function newFlow(){
 		return View::fetch();
 	 }
+
+	 public function selectFlow(){
+		$type = FlowType::where('status = 1')->order('sort asc')->select();
+		View::assign('types',$type);
+		return View::fetch();
+	 }
+
+	public function get_flow_by_type_id(){
+		$flow = Flow::where('type_id = '.$_POST['id'])->field('id,title')->select();
+		return a($flow,'','s');
+	}
+	 
+	public function get_flow_by_title(){
+		$flow = Flow::where("title like '%".$_POST['title']."%'")->field('id,title')->select();
+		return a($flow,'','s');
+	}
+
+
 
 	 
 	 /**
@@ -76,41 +119,118 @@ class Fs extends BaseController{
      *  发送流程
      */
 	 public function send(){
-
-
-		$d = $_POST;
+		gp();
+		
 		$userinfo = Session::get('userinfo');
-		$d['maker'] = $userinfo['username'];
-		$d['maker_name'] = $userinfo['name'];
-		$d['datetime'] = date('Y-m-d H:i:s',time());
-		$d['status'] = 5;
-		$d['p'] = $d['p'];
-		$d['node'] = $d['node'];
-		$d['title'] = trim($_POST['title']);
-		$d['form'] = $_POST['form'];
+		if( (int)$_POST['template_id'] > 0 ){
+			$iName = column(FlowTable::where("flow_id = ".$_POST['template_id'])->field('i,label,table_name')->select()->toArray(),'i');
+			$flowTemplate = Flow::find( $_POST['template_id'] );
+			$r = FlowAuth::where("  flow_id = ".$_POST['template_id'])->field('node_id,auth')->select()->toArray();
+			$flowsAuth = $r;
+			$r = column($r,'node_id');
+			$auth = array();
+			if($r['creator']){
+				$r = json_decode($r['creator']['auth'],true);
+				foreach($r as $k => $v){
+					if($v['a'] == 1){
+						$auth[$v['i']] = array('a' => $v['a'],'m' => $v['m'],'n' => $iName[$v['i']]['label'],'t' => $iName[$v['i']]['table_name']);
+					}
+				}
+			}
+			$formTable = array();
+			foreach($_POST['field'] as $k => $v){
+				$formTable[$iName[$k]['table_name']][$k] = $v;
+			}
+			foreach($_POST['subField']  as $k => $v){
+				foreach($v as $k1 => $v1){
+					foreach($v1 as $k2 => $v2){
+					}
+					$formTable[$k][] = $v1;
+				}
+			}
+			$form = array(
+				'maker' => $userinfo['username'],
+				'maker_name' => $userinfo['name'],
+				'datetime' => date('Y-m-d H:i:s',time()),
+				'status' => 5,
+				'p' => $flowTemplate->p,
+				'node' => $flowTemplate->node,
+				'title' => $flowTemplate->title,
+				'form' => $flowTemplate->cut_form,
+				'flow_id' => $_POST['template_id']
+			);
+			
+			if( count($formTable) > 0 ){
+				$form['table_name'] = get_w($formTable,false,false);
+			}
 
-		if(!$d['title']) rt('','标题不能为空','e');
-		if(!$d['form']) rt('','流程内容不能为空','e');
+			$handleData = array(
+				'nodeId' => 'creator',
+				'executor' => isset($_POST['executor'])?$_POST['executor']:'',
+				'createFalseDelete' => true,
+				'prev' => true,
+				'prevData' => array( 'node' => $form['node'], 'p' => $form['p'] ,'table' => $_POST['field'] )
+			);
+			$r = $this->handle($handleData);
+		}else{
 
-
-		$flows = Flows::create($d);
+			$form = $_POST;
+			$form['maker'] = $userinfo['username'];
+			$form['maker_name'] = $userinfo['name'];
+			$form['datetime'] = date('Y-m-d H:i:s',time());
+			$form['status'] = 5;
+			$form['title'] = trim($_POST['title']);
+			$form['form'] = $_POST['form'];
+			if(!$form['title']) rt('','标题不能为空','e');
+			if(!$form['form'] ) rt('','流程内容不能为空','e');
+			//$flows = Flows::create($d);
+			$handleData = array(
+				'nodeId' => 'creator',
+				'executor' => isset($_POST['executor'])?$_POST['executor']:'',
+				'createFalseDelete' => true,
+				'prev' => true,
+				'prevData' => array( 'node' => $form['node'], 'p' => $form['p'] ,'table' => '' )
+			);
+			$r = $this->handle($handleData);
+		}
 		
-		$handleData = array(
-			'flowId' => $flows->id,
-			'nodeId' => 'creator',
-			'executor' => isset($_POST['executor'])?$_POST['executor']:'',
-			'createFalseDelete' => true
-		);
-
-		$r = $this->handle($handleData);
-		
-		 if($r['ok'] === false)  return a('',$r['msg'],'e');
+		if($r['ok'] === false)  return a('',$r['msg'],'e');
         
         if($r['ok'] === 'm')    return a($r['data'],'','m');
- 
+
+		$flows = Flows::create( $form );
+
+		$executor = isset($r['executor'])?$r['executor']:'';
+		if($executor){
+			foreach($executor as $k => $v){
+				$executor[$k]['flow_id'] = $flows->id;
+			}
+		}
+		Db::table('s_flows_executor')->insertAll($executor);
+		
+		
+		foreach($formTable as $k => $v){
+			if(substr($k,0,1) == 'f'){
+				$v['flows_id'] = $flows->id;
+				Db::table('s_'.$k)->insert($v);
+			}else{
+				foreach($v as $k1 => $v1){
+					$v[$k1]['flows_id'] = $flows->id;
+				}
+				Db::table('s_'.$k)->insertAll($v);
+			}
+		}
+
+		foreach( $flowsAuth as $k => $v){
+			$flowsAuth[$k]['flows_id'] = $flows->id;
+		}
+		Db::table('s_flows_auth')->insertAll( $flowsAuth );
+
+
+		exit();
+
         return a('','','s');
-		
-		
+	
 	 }
 
 
@@ -133,7 +253,19 @@ class Fs extends BaseController{
 		return View::fetch();
 	}
 
+	/**
+     *  已发事项
+     */
+	public function hasDone(){
+		$r = $this->query(array('page' => 1,'n' => 1000,'type' => 3));
+		View::assign('page',$r['page_return']);
+		View::assign('tbody',$r['tbody']);
+		return View::fetch();
+	}
+
 	public function research(){
+
+		
 		
         $r = $this->query($_POST);
         return a(array('tbody' => $r['tbody'],'page' => $r['page_return']),'','s');
@@ -143,6 +275,8 @@ class Fs extends BaseController{
     
  
     public function query($post){
+
+		
 
 		$post['n'] = (int)$post['n'];
 		$post['page'] = (int)$post['page'];
@@ -247,25 +381,80 @@ class Fs extends BaseController{
 	+------------------------------------------------------------------------------
 	*/
 	public function flow(){
-		
-		//$_GET['flow_id'] = 1599;
-
+	
 		
 
 		$r1 = Db::table('s_flows_executor')->where('id = '.$_GET['id'])->field('status,number')->find();
-
-		
             //判断有没有条件查看  
 		if($r1['number'] == SESSION::get('userinfo')['username'] && $r1['status'] == 0){
 			//Db::table('s_flows_executor')->where('id = '.$_GET['id'])->update(array('status' => 1,'datetime_s' => date('Y-m-d H:i:s',time())));
 		}
-
 		$flow = Flows::find($_GET['flow_id']);
 		View::assign('flow',$flow);
 		View::assign('comments',FlowsComment::where('flow_id = '.$_GET['flow_id'])->order('id desc')->field('name,datetime,comment,username,department,post')->select());
+		
+		$enumIdName = array();
+
+		if( !isset($_GET['type']) || $_GET['type'] == '0'){
+
+			$auth = FlowsAuth::where("flows_id = ".$_GET['flow_id']." && node_id = 'creator'")->find();
+
+			if($auth){
+				$auth = $auth->toArray();
+				$auth = column(json_decode($auth['auth'],true),'i');
+			}
+			
+			$enum = array();
+			if($flow->flow_id){
+				$enum = FlowTable::where("flow_id = ".$flow->flow_id." && type = 'enum'")->field('enum_id')->select()->toArray();
+				if($enum){
+					$tmp = '';
+					foreach($enum as $k => $v){
+						$tmp .= $v['enum_id'].',';
+					}
+					$tmp = substr($tmp,0,-1);
+					$r = EnumDetail::where("enum_id in (".$tmp.")")->field('id,name')->select()->toArray();
+					foreach($r as $k => $v){
+						$enumIdName[$v['id']] = $v['name'];
+					}
+					
+					
+				}
+			}
+			//$enum = Flow
+
+			$tableName = $flow->table_name;
+			$data = array();
+			if($tableName){
+				foreach( explode(',',$tableName) as $k => $v){
+					if( substr($v,0,1) == 'f' ){
+						$data['form'] = Db::table('s_'.$v)->where('flows_id = '.$_GET['flow_id'])->find();
+					}else{
+						$data[$v] = Db::table('s_'.$v)->where('flows_id = '.$_GET['flow_id'])->select()->toArray();
+					}
+				}
+			}
+
+			
+
+			
+			// 处理查看权限
+
+			//处理查看权限结束
+
+			View::assign('enum',json_encode($enumIdName));
+			View::assign('data',json_encode($data) );
+			return View::fetch('flow1');
+		}else{
+			return View::fetch();
+		}
 
 		
-		return View::fetch();
+		
+		
+
+		
+		
 	}
 
 	
@@ -311,7 +500,6 @@ class Fs extends BaseController{
 		}
 		
 		if($zx){
-			//public function handle($flowId,$nodeId,$executeId = 0,$executor = '',$createFalseDelete = false,$add = [] ,$prev = false,$prevData = array() ){
 			$handleData = array(
 				'flowId' => $flowId,
 				'nodeId' => 'creator',
@@ -347,6 +535,13 @@ class Fs extends BaseController{
 	}
 
 	public function test(){
+		
+		
+
+
+
+		exit();
+
 		$flow = Flows::find(1599);
 
 		$flow->node = Cache::get('node');
@@ -469,6 +664,8 @@ class Fs extends BaseController{
 		$expression = "";
 		foreach($x as $k => $v){
 
+			if( !isset( $v[1]) ) continue;
+
 			if($v[1] == 'aya1'){
 				$bmid = substr($v[3],0,-2);
 				$type = substr($v[3],-1);
@@ -526,7 +723,7 @@ class Fs extends BaseController{
 			}
 		}
 		$result = true;
-		eval("$"."result = $expression; ");
+		if($expression != '') eval("$"."result = $expression; ");
 		if($result){
 			return true;
 		}else{
@@ -720,9 +917,8 @@ class Fs extends BaseController{
 	*/
 
 	public function handle($handleData){
-
 		
-		$flowId = $handleData['flowId'];
+		$flowId = isset($handleData['flowId'])?$handleData['flowId']:0;
 		$nodeId = $handleData['nodeId'];
 		$executeId = isset($handleData['executeId'])?$handleData['executeId']:0;
 		$executor  = isset($handleData['executor'])?$handleData['executor']:[];
@@ -731,8 +927,6 @@ class Fs extends BaseController{
 		$prev = isset($handleData['prev'])?$handleData['prev']:false;
 		$prevData = isset($handleData['prevData'])?$handleData['prevData']:[];
 		$opinion = isset($handleData['opinion'])?$handleData['opinion']:'';
-
-	
 
 		if($executor){
 			$tmp = json_decode($executor,true);
@@ -743,7 +937,6 @@ class Fs extends BaseController{
 				}else{
 					$executor[$v['id']] = json_decode($v['executor'],true);
 				}
-				
 			}
 		}
 		
@@ -762,18 +955,13 @@ class Fs extends BaseController{
 
 		if($prev){
 			$flow = array('maker' => SESSION::get('userinfo')['username']);
-			$node = $prevData['node'];
-			$p    = $prevData['p'];
+			$node = json_decode($prevData['node'],true);
+			$p    = json_decode($prevData['p'],true);
 		}else{
 			$flow = Flows::find($flowId)->toArray();
-
-		
-
 			$node = json_decode($flow['node'],true);
 			$p    = json_decode($flow['p'],true);
 		}
-
-		
 
 		$c = $this->get_c($p);
 		
@@ -788,9 +976,6 @@ class Fs extends BaseController{
 		}
 
 		$now = date('Y-m-d H:i:s' , time());
-		
-	
-	
 
 		//处理本节点
 
@@ -799,8 +984,6 @@ class Fs extends BaseController{
 		$nextPointId = $p[$nodeId][0];
 	
 		$tmp = array();  // 记录 哪些节点的下一个节点 是 $nextPoint
-
-	
 
 		foreach($this->get_PN($p,$node,$c)['p'] as $k => $v){
 			foreach($v as $k1 => $v1){
@@ -811,8 +994,6 @@ class Fs extends BaseController{
 		}
 
 		$allDone = true;  //判断下一个节点的前序节点是不是都完成了
-
-		
 		
 		foreach($tmp as $k => $v){
 			if($node[$v]['D'] != 2 && $node[$v]['D'] != -1 && $v != $nodeId){
@@ -823,10 +1004,6 @@ class Fs extends BaseController{
 		}
 
 		$mul = array();
-
-
-	
-
 
 		if($allDone){
 	
@@ -867,21 +1044,20 @@ class Fs extends BaseController{
 		
 			if($prev){
 
-				
-				
 				$r = $this->get_next_executor2($p,$node,$c,$nodeId,$flow,$executor,$prevData['table']);
-			
-			
+							
 				if($r['ok'] === false){
-					Response::create(array('status' => 'e','info' => $r['msg']),'json')->send();
-					exit();
+					return array('ok' => false,'msg' => $r['msg']);
 				}
 				if(count($r['mul']) > 0){
-					Response::create(array('status' => 'm','data' =>  $r['mul']),'json')->send();
-					exit();
+					return array('data' =>  $r['mul'],'ok' => 'm');
 				}
+
+
+
+				return $r;
 				
-				return ;
+				
 			}else{
 				
 			
@@ -902,8 +1078,6 @@ class Fs extends BaseController{
 					$this->cancel_do(array('flowid' => $flowId));
 				}
 				return $r;
-
-				
 			}
 			
 			if(count($r['mul']) > 0){
@@ -1236,11 +1410,12 @@ class Fs extends BaseController{
 				}
 				if($xdzxr == ''){
 					$xdzxr = array();
-					$tmp0 = action('index/Get/get_employee',array('w' => array("number" => $flow['maker'])));
-					$xdzxr['aya1'] = $tmp0['bmid'];
-					$xdzxr['aya2'] = $tmp0['gwid'];
-					$xdzxr['aya3'] = SESSION::get('userinfo')['bmid'];
-					$xdzxr['aya4'] = SESSION::get('userinfo')['gwid'];
+					
+					$tmp0 = $this->get->get_employee( array('number' => $flow['maker']) );
+					$xdzxr['aya1'] = $tmp0['department_id'];
+					$xdzxr['aya2'] = $tmp0['post_id'];
+					$xdzxr['aya3'] = SESSION::get('userinfo')['department'];
+					$xdzxr['aya4'] = SESSION::get('userinfo')['post'];
 				}
 				
 				
@@ -1931,7 +2106,7 @@ class Fs extends BaseController{
 
 
 	public function cancel(){
-	
+	rt();
 		$r = $this->cancel_do($_POST);
 		if($r['ok']) return a('','','s');
 		return a('',$r['msg'],'e');

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+	<link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<style type="text/css">
+		body{
+			background:#ffffff;
+			-moz-user-select: none;
+		}
+		
+	</style>
+</head>
+<body>
+	<div class = 'row' style = 'margin:0'>
+
+		<div class = 'col s12  bg-success' style = 'font-size:12px;padding:24px'>
+			节点权限
+		</div>
+		<div>
+			<select class = 'browser-default' style = 'width:200px;display:inline-block;font-size:12px' id = 'jdqx'>
+				{volist name = 'jdqx' id = 'j'}
+				<option value = {$j.id}>{$j.name}</option>
+				{/volist}
+			</select>
+		</div>
+
+		<div class = 'col s12  bg-success' style = 'font-size:12px;padding:24px'>
+			执行模式
+		</div>
+		<div class = 'col s12 ' style = 'height:32px;line-height:32px;padding-left:64px'>
+			
+			<p style = 'display:inline-block'>
+				<input name="group1" type="radio" id="test1"  data-type = '1' checked/>
+				<label for="test1">单人执行</label>
+			</p>
+			<p style = 'display:inline-block'>
+				<input name="group1" type="radio" id="test2" data-type = '2' />
+				<label for="test2">多人执行</label>
+			</p>
+			<p style = 'display:inline-block'>
+				<input name="group1" type="radio" id="test3" data-type = '3' />
+				<label for="test3">全部执行</label>
+			</p>
+
+		</div>
+	</div>
+
+	<div class = 'row' style = 'margin:0;font-size:12px'>
+		<div class = 'col s12  bg-success' style = 'font-size:12px;padding:24px'>
+			执行条件
+		</div>
+		<div class = 'col s12 ' >
+			
+			<select class = 'browser-default' style = 'width:150px;display:inline-block' id = 'p1' >
+				{volist name = 'attr' id = 'a'}
+				<option value = '{$a.i}'>{$a.label}</option>
+				{/volist}
+			</select>
+			
+			<select class = 'browser-default' style = 'width:150px;display:inline-block' id = 'p2' >
+				<option value = '='> 等于 </option>
+				<option value = '>'> 大于 </option>
+				<option value = '<'> 小于 </option>
+				<option value = '>='> 大于等于 </option>
+				<option value = '<='> 小于等于 </option>
+				<option value = '<>'> 不等于 </option>	
+			</select>
+
+		
+			<input type = 'aya-input' style = 'width:150px' id = 'p3'/>
+			
+			<br />
+
+			流程说明：<input type = 'aya-input' style = 'width:400px' id = 'pdescription'/>
+			
+
+		</div>
+	</div>
+
+	<div class = 'row' style = 'margin:0;font-size:12px'>
+		<div class = 'col s12  bg-success' style = 'font-size:12px;padding:24px'>
+			执行前
+		</div>
+		<div class = 'col s12 ' >
+			
+
+			<input type = 'aya-input' style = 'width:150px' id = 'prev'/>
+			
+
+		</div>
+	</div>
+
+	<div class = 'row' style = 'margin:0;font-size:12px'>
+		<div class = 'col s12  bg-success' style = 'font-size:12px;padding:24px'>
+			执行后
+		</div>
+		<div class = 'col s12 ' >
+
+			<input type = 'aya-input' style = 'width:150px' id = 'after'/>
+			
+
+		</div>
+	</div>
+
+	<div class = 'row center' style = 'margin:0;font-size:12px;padding:24px'>
+		<button class = 'btn btn-primary' style = 'height:32px' id = 'confirm' >确定</button>
+	</div>
+	
+	<script>
+		$('#confirm').click(function(){
+			let zxms = $("input[name='group1']:checked").data('type');
+			let zxtj = {};
+			let p3   = $.trim($('#p3').val());
+			if(p3 != ''){
+				zxtj.p1 = {'k' : $('#p1').val() , 'v' : $('#p1 option:selected').text()},
+				zxtj.p2 = {'k' : $('#p2').val() , 'v' : $('#p2 option:selected').text()},
+				zxtj.p3 = p3;
+				zxtj.dc = $('#pdescription').val();
+			}
+			
+			zxtj.prev  = $('#prev').val();
+			zxtj.after = $('#after').val();
+
+			parent.flow.set_attr(zxms,zxtj);
+			let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+			parent.layer.close(index); //再执行关闭   
+		});
+
+		let tmp = parent.flow.node[$(parent.flow.selectedNode).prop('id')]['zxtj'];
+
+		
+
+		if(tmp.p1 != null){
+			$('#p1').val(tmp.p1.k);
+
+			$('#p2').val(tmp.p2.k);
+
+			$('#p3').val(tmp.p3);
+
+			$('#pdescription').val(tmp.dc);
+
+			
+		}
+
+		$('#prev').val(parent.flow.node[$(parent.flow.selectedNode).prop('id')].zxtj.prev);
+		$('#after').val(parent.flow.node[$(parent.flow.selectedNode).prop('id')].zxtj.after);
+
+		
+
+	</script>
+
+</body>
+</html>
+
+

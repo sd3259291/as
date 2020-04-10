@@ -1,5 +1,43 @@
+<style type="text/css">
+	.contextmenu li:hover {
+		background: #91C9F7
+	}
 
+	.contextmenu {
+		display: none;
+		position: absolute;
+		width: 150px;
+		border:1px solid #e0e0e0;
+		background: #f5f5f5;
+		overflow: hidden;
+		z-index: 99;
+		font-size:11px
+	}
 
+	.contextmenu li{ 
+		transition: ease 0.3s;
+		white-space:nowrap;
+	}
+
+	.contextmenu li:not(:last-of-type){ 
+		border-bottom:1px solid #d3d3d3
+	}
+
+	.contextmenu li a {
+		display: inline-block;
+		padding: 6px 6px 6px 20px;
+		width:150px;
+		min-width:150px;
+		color: #000000;
+		text-decoration: none;
+		transition: ease 0.3s;	
+	}
+
+	.edit-table-mul div.col{
+		1border:1px solid red
+	}
+
+</style>
 <div class="card">
 	<div class="card-content">
 		<div class = 'row row-head' >
@@ -11,6 +49,8 @@
 			<div class = 'col s6'>
 				
 				<button class = 'btn btn-default btn-default-1' id = 'edit-form'>  <i class="material-icons text-color5"  >share</i> 编辑流程</button>
+
+				<button class = 'btn btn-default btn-default-1' id = 'see-form' style = 'display:none'>  <i class="material-icons text-color5"  >share</i> 查看流程</button>
 
 				<button class = 'btn btn-default btn-default-1' id = 'select-form'>  <i class="material-icons text-color5"  >subject</i> 流程模板</button>
 
@@ -27,23 +67,18 @@
 			
 </div>
 		</div>
-		
-		
-
-
 					
 	</div>
 </div>
-
+<ul class="contextmenu" id = 'contextmenu'>
+			<li><a href="javascript:void(0)" id = 'line-height-mul'>行高（重复表）</a></li>
+			<li><a href="javascript:void(0)" id = 'row-width-mul'>列宽（重复表）</a></li>
+			<li><a href="javascript:void(0)" id = 'insert-col-mul'>插入一行</a></li>
+		</ul>
 
 <script>
-	
-
-	
 
 	var app = {
-
-		flow_template_id : 0,
 
 		flow_node : '',
 
@@ -57,22 +92,227 @@
 
 		mSelected: '',
 
+		auth : new Map(),
+
+		selected_tr : '',
+
+		load_template : function(id){
+			app.template_id = id;
+			app.ue = {};
+			$('#edit-form').hide();
+			$('#see-form').show();
+			$.post('__APP__/Fs/load_template',{id:id},function(d){
+				$('#form_content').html(d.data.form.cut_form);
+				$('#myEditor').remove();
+				$(d.data.auth).each(function(i,v){
+					app.auth.set(v['i'],v);
+				});
+				$('#form_content').find('input').each(function(){
+					let i = $(this).parents('td').data('i') || $(this).data('i');
+					let a = app.auth.get(i);
+					let type = $(this).attr('type') || $(this).parents('td').data;
+					if( !$(this).parents('table').hasClass('table-mul') ) $(this).attr('id',i);
+					if(a){
+						if(a.a == 1){
+							switch(type){
+								case 'text' :
+									$(this).attr('readonly',false);
+								break;
+								case 'checkbox' :
+									$(this).attr('disabled',false);
+								break;
+								case 'radio' :
+									$(this).attr('disabled',false);
+								break;
+								default:
+							}
+						}else if(a.a == 0){
+							switch(type){
+								case 'text' :
+									$(this).attr('readonly',true);
+									$(this).parents('td').text( '' );
+								break;
+								case 'checkbox' :
+									$(this).attr('disabled',true);
+								break;
+								case 'radio' :
+									$(this).attr('disabled',true);
+								break;
+								default:
+							}
+						}	
+					}
+				});
+
+				$('#form_content').find('select').each(function(){
+					let that = this;
+					let i = $(this).parents('td').data('i');
+					if( !$(this).parents('table').hasClass('table-mul') ) $(this).attr('id',i);
+					$(this).empty();
+					$(d.data.select[i]).each(function(i,v){
+						$(that).append( "<option value = '"+v.id+"'>"+v.name+"</option>" );
+					});
+				});
+
+				$( '.table-mul' ).each(function(){
+					app.re_index( this );
+				});
+
+
+				app.table_mul_add_row();
+
+			});
+		},
+
+
+		table_mul_add_row : function(){
+
+			$('.table-mul').on('contextmenu','tr',function(){
+				app.selected_tr = this;
+				if( $(this).find('th').length > 0) return false;
+				layer.open({
+					skin: 'layer-edit-container',
+					title: '编辑重复表',
+					offset: ['20%'],
+					area  : ['200px',"230px"],
+					btn : ['取消'],
+					shadeClose:true,
+					content : "<div class = 'row edit-table-mul'><div class = 'col s6'>插入 <input type = 'text' value = '1' class = 'aya-input' style = 'width:30px;text-align:center;padding:0;text-indent:0' id = 'add_row_num' /> 行</div><div class = 'col s6' style = 'text-align:center'><button class = 'btn btn-default height32' id = 'add_row'>确定</button></div><div class = 'col s12'>&nbsp;</div><div class = 'col s6'>删除此行</div><div class = 'col s6' style = 'text-align:center'><button class = 'btn btn-default height32' id = 'dlt_row'>确定</button></div></div>",
+					success : function(layero,index){
+						$('#add_row').click(function(){
+							let n = parseInt($.trim($('#add_row_num').val()));
+							if(isNaN(n)) return false;
+							let html = $(app.selected_tr).prop('outerHTML');
+							for(let i = 0; i < n - 1; i++){
+								html += html;
+							}
+							$(app.selected_tr).after( html );
+							app.re_index( $(app.selected_tr).parents('.table-mul') );
+						});
+						$('#dlt_row').click(function(){
+							let table = $(app.selected_tr).parents('.table-mul')
+							if( table.find('tbody').eq(0).children().length < 2) return false;
+							$(app.selected_tr).remove();
+							app.re_index( table );
+							layer.close(index);
+						});
+					},
+					yes : function (index,layero){
+						layer.close(index);
+					}
+				});
+				return false;
+			});
+		},
+
+
+		re_index : function( table ){
+			var index = [];
+			
+			$(table).find('tbody').eq(0).find('tr').eq(0).children().each(function(i,v){
+				if ( $(this).data('type') == 'index-mul' ){
+					index.push(i);
+				}
+			});
+			let i = 1;
+			index.forEach(function(v,k){
+				i = 1;
+				$(table).find('tbody').eq(0).find('tr').each(function(){
+					$(this).children().eq(v).text(i++);
+				});
+			});
+		},
+
 
 		send: function( exc = ''){
+
 			let o = {};
+			let field = {};
+			let subField = {};
+			o.template_id = app.template_id;
 			if(app.template_id == 0){  // 自定义流程
 				o.title = $.trim($('#title').val());
 				o.p = JSON.stringify(app.flow_p);
 				o.node = JSON.stringify(app.flow_node);
 				o.form = app.ue.getContent();
+			}else{
+				app.auth.forEach(function(v,k){
+					if( !$('#' + v.i ).hasClass('table-mul') ){  // 主表
+						if( v.a == '1' ){
+							let type = $('#' + v.i ).attr('type');
+							
+							switch(type){
+								case 'text' :
+									field[v.i] = $('#' + v.i).val() ;
+								break ;
+								case 'select' : 
+									field[v.i] = $('#' + v.i).val() ;
+								break;
+								case 'checkbox' :
+									field[v.i] = $('#' + v.i).is(':checked')?1:0;
+								break;
+								case 'radio' :
+									field[v.i] = $('#' + v.i).is(':checked')?1:0;
+								break;
+								default:
+									if( $('#' + v.i ).is('select') ){
+										field[v.i] = $('#' + v.i).val();
+									}
+							}
+						}
+					}
+				});
+				
+				$('.table-mul').each(function(){
+					let table = $(this).data('table');
+					subField[table] = [];
+					$(this).find('tbody').eq(0).children().each(function(){
+						let trs = $(this).children();
+						let tmp = {};
+						trs.each(function(ii,vv){
+							let i = $(vv).data( 'i' );
+							let type = $(vv).data( 'type' );
+							switch( type ){
+								case 'index-mul' :
+									tmp[i] = $(vv).text();
+								break;
+								case 'text-mul' : 
+									tmp[i] = $(vv).find('input').eq(0).val();
+								break;
+								case 'select-mul' :
+									tmp[i] = $(vv).find('select').eq(0).val();
+								break;
+								default:
+							}
+						});
+						subField[ table ].push( tmp );
+					});
+				});
+
+				
+				o.field = field;
+				o.subField = subField;
+
+				
+				
+
+
 			}
+
+		
+			
+			
+			
+
 			if(exc != '') o.executor = exc;
+			
 
 			
 
-			$.post('__APP__/Fs/send',o,function(d){
+			$.post('__APP__/Fs/send',o,function(d){	
 
-				
+				log(d);
+
 				if(d.status == 's'){
 					layer_success('发送成功！',2000);
 					$('#title').val('');
@@ -80,7 +320,6 @@
 					layer_error(d);
 				}else if(d.status == 'm'){
 				//选择审核人 - 开始
-
 					app.tmp = new Map();
 					let c = "<div style = 'font-size:12px;'>";
 					for(let i in d.data){
@@ -92,7 +331,6 @@
 						c += "</div>";
 						app.tmp.set(i,d.data[i]['list']);
 					}
-
 					c += "</div>";		
 					
 					let index = parent.layer.open({
@@ -138,7 +376,7 @@
 								let zxms = $(this).data('zxms');
 
 
-								let n = "<div class = 'row' style = 'margin:0'><div class = 'col s12' id = 'top123'><div style = 'display:inline-block;width:50%;position:relative'><input id = 'i20191119' placeholder = '按回车搜索' type = 'text' class = 'aya-input' style = 'height:24px;width:100%' /><img class = 'icon4' src = '/a1/index/view/public/Image/o25.png' style = 'position:absolute;right:0;top:3px;'/></div></div><div class = 'col s12'><table id = 't20191119' class = 'centered dataTable row-border noselect table-small'><thead><tr></tr><tr><th></th><th>工号</th><th>姓名</th></tr></thead><tbody>";
+								let n = "<div class = 'row' style = 'margin:0'><div class = 'col s12' id = 'top123'><div style = 'display:inline-block;width:50%;position:relative'><input id = 'i20191119' placeholder = '按回车搜索' type = 'text' class = 'aya-input' style = 'height:24px;width:100%' /><img class = 'icon4' src = '__PUBLIC__/image/search.png' style = 'position:absolute;right:0;top:3px;height:18px'/></div></div><div class = 'col s12'><table id = 't20191119' class = 'centered dataTable row-border noselect table-small'><thead><tr></tr><tr><th></th><th>工号</th><th>姓名</th></tr></thead><tbody>";
 
 								let selected = new Map();
 								if(parent.$('#' + app.mSelected).data('executor') != undefined){
@@ -237,13 +475,6 @@
 						},
 					});
 
-
-
-
-
-
-
-
 				// 选择审核人 - 结束
 				}
 			});
@@ -254,22 +485,41 @@
 
 		ini : function(){
 
+
+
 			max_height('form_content',false);
 			app.ue = UE.getEditor('myEditor',{initialFrameHeight:$('#form_content').height() - 100});
 			$('.edui-container').height( $('#form_content').height() );
+
 			
 			
 			
+
+
+						
+
 
 			$('#send').click(function(){
 				app.send();
 			});
 			
+			$('#select-form').click(function(){
+				layer.open({					
+					type: 2,
+					isOutAnim: false ,
+					title: '<span class = "text-color2">选择流程模板</span>',
+					maxmin: true,
+					shadeClose: true, //点击遮罩关闭层
+					offset : ['10%'],
+					area : ['600px','500px'],
+					content: '__APP__/Fs/selectFlow',
+					success : function (layero,index){
+						
+					}
+				});
+			});
 
-			
-			
-
-
+			//$('#select-form').trigger('click');
 
 			$('#edit-form').click(function(){
 				layer.open({					
@@ -301,6 +551,8 @@
 
 
 	app.ini();
+
+	app.load_template(4);
 	
 </script>
 
