@@ -114,6 +114,8 @@ class Login
 				if($employee){
 					$authInfo['post'] = $employee->post->name;
 					$authInfo['department'] = $employee->department->name;
+					$authInfo['post_id'] = $employee->post->id;
+					$authInfo['department_id'] = $employee->department->id;
 				}else{
 					$authInfo['post'] = '-';
 					$authInfo['department'] = '-';

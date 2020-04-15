@@ -649,11 +649,11 @@ table.nowrap tbody tr td{
 	margin-right:100px
 }
 
-.text-color1{color:#008afd}
-.text-color2{color:#28a745}
-.text-color3{color:#dc3545}
-.text-color4{color:#ff851b}
-.text-color5{color:#3d9970}
+.text-color1{color:#008afd !important}
+.text-color2{color:#28a745 !important}
+.text-color3{color:#dc3545 !important}
+.text-color4{color:#ff851b !important}
+.text-color5{color:#3d9970 !important}
 .row{margin:0}
 .new-container .col{
 	height:32px;line-height:32px;
@@ -802,8 +802,17 @@ table.table-mul thead tr th{
 	background:#dbf2fb;
 	font-weight:400
 }
-table.table-mul tbody tr td{
-	
+table.table-form tbody tr td.border-top-none{
+	border-top:0 !important;
+}
+table.table-form tbody tr td.border-left-none{
+	border-left:0 !important;
+}
+table.table-form tbody tr td.border-right-none{
+	border-right:0 !important;
+}
+table.table-form tbody tr td.border-bottom-none{
+	border-bottom:0 !important;
 }
 
 

@@ -203,12 +203,35 @@ class PublicGet extends BaseController{
 	+------------------------------------------------------------------------------
 	*/
 	public function get_sub_department($depId,$includeSelf = true){
-		$p = action('P/get_structure_detail');
-		$r = array();
-		foreach($p[1] as $k => $v){
-			if($v == $depId) $r[] = $k;
+		$dept = Department::field('id,pid')->select()->toArray();
+		$pid = array();
+		foreach($dept as $k => $v){
+			$pid[$v['pid']][] = $v['id'];
 		}
+		$r = $this->get_children($pid,$depId);
 		if($includeSelf) $r[] = $depId;
+		return $r;
+	}
+
+
+	/**
+	+------------------------------------------------------------------------------
+	* 返回子集,$pid = array( 'pid' => array('id1','id2') ),$id 
+	+------------------------------------------------------------------------------
+	*/
+	public function get_children($pid,$id){
+		$r = array();
+		if(isset($pid[$id])){
+			foreach($pid[$id] as $k => $v){
+				if(isset($pid[$v])){
+					$tmp = $this->get_children($pid,$v);
+					$r = array_merge($r,$tmp);
+				}else{
+					$r[] = $v;
+				}
+			}
+		}
+		
 		return $r;
 	}
 

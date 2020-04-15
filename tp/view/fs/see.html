@@ -539,7 +539,8 @@ var flow = {
 	},
 
 	ini : function(){
-
+		
+		log(flow.node);
 		
 		for(let i in flow.node){
 			flow.node[i].id = i;
@@ -754,7 +755,7 @@ var flow = {
 
 		for(let i in flow.node){
 			if(flow.node[i]['S'] == 'n') continue;
-		
+			
 			if(flow.node[flow.p[i][0]]['S'] == 'p'){
 				if(flow.c[i].length == 1 || flow.p[flow.p[i][0]].length == 1){
 					if(flow.p[flow.p[i][0]].length == 1){

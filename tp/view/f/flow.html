@@ -172,6 +172,11 @@ body .layer-edit-container .layui-layer-content{
 		body{
 			background:url('/a1/index/view/public/Image/flow/bg.png') 13px 12px
 		}
+		.text-color1{color:#008afd}
+.text-color2{color:#28a745}
+.text-color3{color:#dc3545}
+.text-color4{color:#ff851b}
+.text-color5{color:#3d9970}
 	</style>
 </head>
 
@@ -189,9 +194,9 @@ body .layer-edit-container .layui-layer-content{
 
 var flow = {
 
-	department : {$dep},  //  部门  ID => NAME
+	department : {$dep|raw},  //  部门  ID => NAME
 
-	post : {$pst},
+	post : {$pst|raw},
 
 	addBranchStatus : false,
 
@@ -200,6 +205,12 @@ var flow = {
 	count : {$flow.max_id},
 
 	defaultJdqx : {$jdqx},
+
+	enum : {$enum|raw},    //枚举名称
+
+	enumI : {$enumi|raw},  //哪些字段是枚举
+
+	label : {$label|raw},
 
 	L : {},
 
@@ -596,7 +607,7 @@ var flow = {
 
 	ini : function(){
 
-		
+	
 		
 		if(flow.count == 0 ){         //新建
 			flow.node = {};
@@ -809,7 +820,12 @@ var flow = {
 			if(flow.node[i]['noaddbranch'] != undefined){
 				delete flow.node[i]['noaddbranch'];
 			}
+
+
+
 		}
+		
+		
 
 		let o = {};
 		o.p = JSON.stringify(flow.p);
@@ -960,14 +976,10 @@ var flow = {
 		}
 
 		if(needReGetC) flow.re_get_c();
-		
-		
 
 		for(let i in flow.node){
 			if(flow.node[i]['S'] == 'n') continue;
-		
 			if(flow.node[flow.p[i][0]]['S'] == 'p'){
-			
 				if(flow.c[i].length == 1 || flow.p[flow.p[i][0]].length == 1){
 					if(flow.p[flow.p[i][0]].length == 1){
 						let tmp = flow.p[i][0];
@@ -976,23 +988,10 @@ var flow = {
 						delete flow.node[tmp];
 						delete flow.p[tmp];
 					}else{
-
 						let next = flow.p[i][0];
-
 						flow.p[i] = flow.p[next];
-
 						delete flow.node[next];
 						delete flow.p[next];
-
-						//let prev = flow.c[i][0];
-
-						//flow.p[i] = flow.p[prev];
-
-
-						//delete flow.node[prev];
-						//delete flow.p[prev];
-
-						
 					}
 				}
 			}
@@ -1023,83 +1022,120 @@ var flow = {
 
 	add_x : function(){
 		for(let i in flow.node){
-
-			
-			if(flow.node[i]['X'] != undefined && flow.node[i]['X'].length > 0){
-				let offset = $('#' + i).offset();
-				let left = offset.left;
-				let top  = offset.top - 16;
-				let c = "";
-				
-			
-
-				let tmp = flow.node[i]['X'][0];	
-
-				if(tmp[1] == 'aya1'){
-					let tmp2 = tmp[3].substr(0,tmp[3].length - 2);
-					c = "发起者部门" + tmp[2] +  flow.department[tmp2];
-				}else if(tmp[1] == 'aya2'){
-					let tmp2 = tmp[3].substr(0,tmp[3].length - 2);
-					c = "发起者岗位 " + tmp[2] +  flow.post[tmp2];
-				}else if(tmp[1] == 'aya3'){
-					let tmp2 = tmp[3].substr(0,tmp[3].length - 2);
-					c = "执行者部门 " + tmp[2] +  flow.department[tmp2];
-				}else if(tmp[1] == 'aya4'){
-					let tmp2 = tmp[3].substr(0,tmp[3].length - 2);
-					c = "执行者部门 " + tmp[2] +  flow.post[tmp2];
-				}else{
-					c = tmp[1] +  tmp[2] +  tmp[3];
-				}
-				
-				let c1 = '';
-
-				if(flow.node[i]['X'].length > 1){
-					for(let j in flow.node[i]['X']){
-						let tmp2 = flow.node[i]['X'][j];
-						if(tmp2[1] == 'aya1'){
-							c1 += tmp2[0] + "发起者部门" + tmp2[2] + flow.department[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
-						}else if(tmp2[1] == 'aya2'){
-							c1 += tmp2[0] + "发起者岗位" + tmp2[2] + flow.post[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
-						}else if(tmp2[1] == 'aya3'){
-							c1 += tmp2[0] + "执行者岗位" + tmp2[2] + flow.department[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
-						}else if(tmp2[1] == 'aya4'){
-							c1 += tmp2[0] + "执行者部门" + tmp2[2] + flow.post[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
-						}else{
-							c1 +=  tmp2[0] + tmp2[1] + tmp2[2] + flow.post[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
-						}
-					}
-					
-					$('#diagramContainer').append("<div title = '"+c1+"' style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+c+"...</div>");
-				}else{
-					$('#diagramContainer').append("<div style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+c+"</div>");
-				}
-			}else if(flow.node[i]['Q'] != undefined){
-				
-				let offset = $('#' + i).offset();
-				let left = offset.left;
-				let top  = offset.top - 16;
-				$('#diagramContainer').append("<div style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+flow.node[i]['Q']+"</div>");
-			}
-			
-
-			
-			
+			flow.add_x_do(i);
 		}
 	},
 
-	set_attr(Z,X,P,A,E,C,Q){
-		flow.node[$(this.selectedNode).prop('id')]['Z'] = Z;
-		flow.node[$(this.selectedNode).prop('id')]['X'] = X;
-		flow.node[$(this.selectedNode).prop('id')]['P'] = P;
-		flow.node[$(this.selectedNode).prop('id')]['A'] = A;
-		flow.node[$(this.selectedNode).prop('id')]['E'] = E;
-		flow.node[$(this.selectedNode).prop('id')]['C'] = C;
-		flow.node[$(this.selectedNode).prop('id')]['Q'] = Q;
-
+	add_x_do : function(i){
 		
+		
+		if(flow.node[i]['X'] != undefined && flow.node[i]['X'].length > 0){
+					
+			let offset = $('#' + i).offset();
+			let left = offset.left;
+			let top  = offset.top - 16;
+			let c = "";
+
+			let tmp = flow.node[i]['X'][0];
+
+			if(tmp[1] == 'aya1'){
+				let tmp2 = tmp[3].substr(0,tmp[3].length - 2);
+				c = "发起者部门" + (tmp[2]=='=='?'=':tmp[2]) +  flow.department[tmp2];
+			}else if(tmp[1] == 'aya2'){
+				let tmp2 = tmp[3].substr(0,tmp[3].length - 2);
+				c = "发起者岗位" + (tmp[2]=='=='?'=':tmp[2]) +  flow.post[tmp2];
+			}else if(tmp[1] == 'aya3'){
+				let tmp2 = tmp[3].substr(0,tmp[3].length - 2);
+				c = "执行者部门" + (tmp[2]=='=='?'=':tmp[2]) +  flow.department[tmp2];
+			}else if(tmp[1] == 'aya4'){
+				let tmp2 = tmp[3].substr(0,tmp[3].length - 2);
+				c = "执行者部门" + (tmp[2]=='=='?'=':tmp[2]) +  flow.post[tmp2];
+			}else{
+				if(tmp.length == 6){  // checkbox or radio
+					if(flow.enumI[tmp[1]]){
+						c = flow.label[tmp[1]] +  (tmp[2]=='=='?'=':tmp[2]) +  flow.enum[ tmp[3] ];
+					}else{
+						c = flow.label[tmp[1]] +  (tmp[2]=='=='?'=':tmp[2]) +  tmp[3];
+					}
+				}else{
+					c = flow.label[tmp[1]] +  (tmp[2] == 1?'被选中':'未选中');
+				}
+			}
+				
+			let c1 = '';
+
+			if(flow.node[i]['X'].length > 1){
+				for(let j in flow.node[i]['X']){
+					let tmp2 = flow.node[i]['X'][j];
+					if(tmp2[1] == 'aya1'){
+						c1 += tmp2[0] + "发起者部门" + (tmp2[2]=='=='?'=':tmp2[2]) + flow.department[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
+					}else if(tmp2[1] == 'aya2'){
+						c1 += tmp2[0] + "发起者岗位" + (tmp2[2]=='=='?'=':tmp2[2]) + flow.post[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
+					}else if(tmp2[1] == 'aya3'){
+						c1 += tmp2[0] + "执行者岗位" + (tmp2[2]=='=='?'=':tmp2[2]) + flow.department[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
+					}else if(tmp2[1] == 'aya4'){
+						c1 += tmp2[0] + "执行者部门" + (tmp2[2]=='=='?'=':tmp2[2]) + flow.post[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
+					}else{
+						
+						if(tmp2.length == 6){
+							if(flow.enumI[tmp[1]]){
+								c1 +=  tmp2[0] + flow.label[tmp2[1]] + (tmp2[2]=='=='?'=':tmp2[2]) + flow.enum[tmp2[3]] + tmp2[4] + tmp2[5] + " ";
+							}else{
+								c1 +=  tmp2[0] + flow.label[tmp2[1]] + (tmp2[2]=='=='?'=':tmp2[2]) + tmp2[3] + tmp2[4] + tmp2[5] + " ";
+							}
+						}else{
+							
+							c1 += tmp2[0] + flow.label[tmp2[1]] +  (tmp2[2] == 1?'被选中':'未选中') + tmp2[3] + tmp2[4];
+						}
+
+						
+					}
+				}
+				//$('#diagramContainer').append("<div id = 'x"+i+"' title = '"+c1+"' style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+c+"...</div>");
+			}else{
+				//$('#diagramContainer').append("<div id = 'x"+i+"' style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+c+"</div>");
+			}
+			let title = '';
+			if(flow.node[i]['E']){
+				title = flow.node[i]['X'].length > 1?c1:c;
+
+				$('#diagramContainer').append("<div id = 'x"+i+"'  class = 'text-color1' title = '"+title+"' style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+flow.node[i]['E']+"</div>");
+			}else{
+				if(flow.node[i]['X'].length > 1){
+					$('#diagramContainer').append("<div class = 'text-color1' id = 'x"+i+"' title = '"+c1+"' style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+c+"...</div>");
+					
+				}else{
+					$('#diagramContainer').append("<div id = 'x"+i+"' style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+c+"</div>");
+				}
+			}
+
+
+
+		}else if(flow.node[i]['Q'] != undefined){
+			/*	
+			let offset = $('#' + i).offset();
+			let left = offset.left;
+			let top  = offset.top - 16;
+			$('#diagramContainer').append("<div style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+flow.node[i]['Q']+"</div>");
+			*/
+		}
 	},
 
-	set_attr2(P,A){
+	set_attr : function(Z,X,P,A,E,C){
+		let id = $(this.selectedNode).prop('id');
+		flow.node[id]['Z'] = Z;
+		flow.node[id]['X'] = X;
+		flow.node[id]['P'] = P;
+		flow.node[id]['A'] = A;
+		flow.node[id]['E'] = E;
+		flow.node[id]['C'] = C;
+		$('#x' + id).remove();
+		flow.add_x_do(id);
+		//log(flow.node[id]['X']);
+		//flow.node[id]['Q'] = Q;		
+	},
+
+	set_attr2 : function(P,A){
 		flow.node[$(this.selectedNode).prop('id')]['P'] = P;
 		flow.node[$(this.selectedNode).prop('id')]['A'] = A;
 	},
@@ -1110,33 +1146,25 @@ var flow = {
 
 
 	createEndpoint : function( uuid ){
-
-		for(let i in flow.node){
-						
+		for(let i in flow.node){			
 			jsPlumb.addEndpoint( i , {
 				anchors: ['Right'],
 				uuid:i + 'r',
 			}, flow.common);
-
 			jsPlumb.addEndpoint( i , {
 				anchors: ['Left'],
 				uuid:i + 'l',
 			}, flow.common);
 		}
-
-
 	},
 
 	createLine : function( id ){
-
 		for(let i in flow.p[id]){
 			flow.connect( id , flow.p[id][i] );
 			if(flow.p[flow.p[id][i]] != undefined){
 				flow.createLine(flow.p[id][i]);
 			}
-
 		}
-
 	},
 	
 	hasConnected : new Map(),
@@ -1149,7 +1177,6 @@ var flow = {
 		if(Math.abs(o1 - o2 ) > 5){
 
 			let left1,top1;
-
 
 			if( o2 > o1){
 

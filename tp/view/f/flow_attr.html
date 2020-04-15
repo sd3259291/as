@@ -21,142 +21,423 @@
 			-moz-user-select: none;
 		}
 		
+		.s2{
+			text-align:center
+		}
+
+		.s2,.s3,.s4,.s6,.s8{
+			height:48px;
+			line-height:48px
+		}
+
+		div.zxtj{
+			padding:5px 0
+		}
+
+		img{
+			cursor:pointer
+		}
+
+		.border-bottom{
+			border-bottom:1px solid #c9c9c9
+		}
+
+		  input:not([type])[readonly="readonly"]{
+			color:#000000
+		}
+		
 	</style>
 </head>
 <body>
-	<div class = 'row' style = 'margin:0'>
+	<div class = 'row border-bottom'>
 
-		<div class = 'col s12  bg-success' style = 'font-size:12px;padding:24px'>
+
+		<div class = 'col s2' >
 			节点权限
 		</div>
-		<div>
+
+		<div class = 'col s6' >
 			<select class = 'browser-default' style = 'width:200px;display:inline-block;font-size:12px' id = 'jdqx'>
 				{volist name = 'jdqx' id = 'j'}
 				<option value = {$j.id}>{$j.name}</option>
 				{/volist}
 			</select>
 		</div>
+		<div class = 'col s4' >
+			应用到全部节点 <input type='checkbox' class = 'aya-checkbox' />
+		</div>
+	</div>
 
-		<div class = 'col s12  bg-success' style = 'font-size:12px;padding:24px'>
+	<div class = 'row border-bottom'>
+
+		<div class = 'col s2' >
 			执行模式
 		</div>
-		<div class = 'col s12 ' style = 'height:32px;line-height:32px;padding-left:64px'>
-			
+		<div class = 'col s8'>
 			<p style = 'display:inline-block'>
 				<input name="group1" type="radio" id="test1"  data-type = '1' checked/>
 				<label for="test1">单人执行</label>
 			</p>
-			<p style = 'display:inline-block'>
+			<p style = 'display:inline-block;margin-left:20px'>
 				<input name="group1" type="radio" id="test2" data-type = '2' />
 				<label for="test2">多人执行</label>
 			</p>
-			<p style = 'display:inline-block'>
+			<p style = 'display:inline-block;margin-left:20px'>
 				<input name="group1" type="radio" id="test3" data-type = '3' />
 				<label for="test3">全部执行</label>
 			</p>
-
 		</div>
+
 	</div>
 
-	<div class = 'row' style = 'margin:0;font-size:12px'>
-		<div class = 'col s12  bg-success' style = 'font-size:12px;padding:24px'>
-			执行条件
-		</div>
-		<div class = 'col s12 ' >
-			
-			<select class = 'browser-default' style = 'width:150px;display:inline-block' id = 'p1' >
-				{volist name = 'attr' id = 'a'}
-				<option value = '{$a.i}'>{$a.label}</option>
-				{/volist}
-			</select>
-			
-			<select class = 'browser-default' style = 'width:150px;display:inline-block' id = 'p2' >
-				<option value = '='> 等于 </option>
-				<option value = '>'> 大于 </option>
-				<option value = '<'> 小于 </option>
-				<option value = '>='> 大于等于 </option>
-				<option value = '<='> 小于等于 </option>
-				<option value = '<>'> 不等于 </option>	
-			</select>
 
-		
-			<input type = 'aya-input' style = 'width:150px' id = 'p3'/>
-			
-			<br />
-
-			流程说明：<input type = 'aya-input' style = 'width:400px' id = 'pdescription'/>
-			
-
-		</div>
-	</div>
-
-	<div class = 'row' style = 'margin:0;font-size:12px'>
-		<div class = 'col s12  bg-success' style = 'font-size:12px;padding:24px'>
+	<div class = 'row border-bottom'>
+		<div class = 'col s2' >
 			执行前
 		</div>
-		<div class = 'col s12 ' >
-			
-
-			<input type = 'aya-input' style = 'width:150px' id = 'prev'/>
-			
-
+		<div class = 'col s4' >
+			<input type = 'text' class = 'aya-input' id = 'prev' />
 		</div>
-	</div>
-
-	<div class = 'row' style = 'margin:0;font-size:12px'>
-		<div class = 'col s12  bg-success' style = 'font-size:12px;padding:24px'>
+		<div class = 'col s2' >
 			执行后
 		</div>
-		<div class = 'col s12 ' >
-
-			<input type = 'aya-input' style = 'width:150px' id = 'after'/>
-			
-
+		<div class = 'col s4' >
+			<input type = 'text' class = 'aya-input' id = 'after'/>
 		</div>
 	</div>
 
+	<div class = 'row border-bottom'>
+
+		<div class = 'col s2' >
+			执行条件 <img src = '__PUBLIC__/image/add-new2.png'  class = 'height18'  id = 'add_zxtj' />
+		</div>
+
+		<div class = 'col s10' style = 'height:48px;line-height:48px' >
+			<input type = 'text' class = 'aya-input' placeholder = '条件描述..' id = 'description' />
+		</div>
+		
+	
+
+		<div class = 'col s12' id = 'zxtj'>
+
+		</div>
+
+	</div>
+
+	
 	<div class = 'row center' style = 'margin:0;font-size:12px;padding:24px'>
 		<button class = 'btn btn-primary' style = 'height:32px' id = 'confirm' >确定</button>
 	</div>
+
+	<div id = 'hidden' style = 'display:none'>
+		<div class = 'zxtj'><select class = 'browser-default' style = 'width:50px;display:inline-block'><option value = ''></option><option value = '('>(</option><option value = '(('>((</option><option value = '((('>(((</option></select> <select class = 'browser-default i' style = 'width:100px;display:inline-block'  >
+                    {volist name = 'attr' id = 'l'}
+                    <option value = '{$l.i}' data-type = '{$l.type}'>{$l.label}</option>
+                    {/volist}
+                </select> <select class = 'browser-default' style = 'width:100px;display:inline-block;'  >
+                    <option value = '=='> 等于 </option>
+                    <option value = '>'> 大于 </option>
+                    <option value = '<'> 小于 </option>
+                    <option value = '>='> 大于等于 </option>
+                    <option value = '<='> 小于等于 </option>
+                    <option value = '!='> 不等于 </option>    
+                </select> <div style = 'display:inline-block;position:relative'><input class = 'aya-in1put browser-default'  style = 'display:inline-block;width:150px;border:1px solid #ccc;height:26px;padding:0 0 0 10px;margin:0;font-size:12px' /></div>
+				<select class = 'browser-default' style = 'width:50px;display:inline-block'>
+                    <option value = ''></option>
+                    <option value = ')'>)</option>
+                    <option value = '))'>))</option>
+                    <option value = ')))'>)))</option>
+                </select>
+				<select class = 'browser-default' style = 'width:70px;display:inline-block'>
+                    <option value = ''></option>
+                    <option value = '&&'>并且</option>
+                    <option value = '||'>或者</option>
+                </select> <img src = '__PUBLIC__/image/reduce2.png'  class = 'height18 reduce'/>
+		</div>
+	</div>
 	
 	<script>
-		$('#confirm').click(function(){
-			let zxms = $("input[name='group1']:checked").data('type');
-			let zxtj = {};
-			let p3   = $.trim($('#p3').val());
-			if(p3 != ''){
-				zxtj.p1 = {'k' : $('#p1').val() , 'v' : $('#p1 option:selected').text()},
-				zxtj.p2 = {'k' : $('#p2').val() , 'v' : $('#p2 option:selected').text()},
-				zxtj.p3 = p3;
-				zxtj.dc = $('#pdescription').val();
-			}
-			
-			zxtj.prev  = $('#prev').val();
-			zxtj.after = $('#after').val();
 
-			parent.flow.set_attr(zxms,zxtj);
-			let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
-			parent.layer.close(index); //再执行关闭   
+	
+
+		let calOption1 = "<option value = '=='> 等于 </option><option value = '>'> 大于 </option><option value = '<'> 小于 </option><option value = '>='> 大于等于 </option><option value = '<='> 小于等于 </option><option value = '!='> 不等于 </option> ";
+
+		let calOption2 = "<option value = '=='> 等于 </option><option value = '!='> 不等于 </option> ";
+
+		let calOption3 = "<option value = '1'> 被选中 </option><option value = '0'> 未选中 </option> ";
+
+		let selectInput = {};
+
+		let selectInputType = '';
+ 
+        $('#confirm').click(function(){
+            let zxms = $("input[name='group1']:checked").data('type');
+            let zxtj = [];
+            $('.zxtj').each(function(){
+				if( $(this).parents().css('display') == 'none') return true;
+                let tmp = [];
+
+				let tmp1 =  $(this).find('.browser-default');
+				let type = tmp1.eq(1).find('option:selected').data('type');
+				
+				if( type == 'checkbox' || type == 'radio' ){
+					tmp.push( tmp1.eq(0).val() );
+					tmp.push( tmp1.eq(1).val() );
+					tmp.push( tmp1.eq(2).val() );
+					tmp.push( tmp1.eq(4).val() );
+					tmp.push( tmp1.eq(5).val() );
+				}else{
+					for(let i = 0; i < tmp1.length ; i++){
+						if( tmp1.eq(i).attr('readonly') === 'readonly'){
+							tmp.push($.trim(tmp1.eq(i).data('k')));
+						}else{
+							tmp.push($.trim(tmp1.eq(i).val()));
+						}
+					}
+				}
+				
+                zxtj.push(tmp);
+            });
+
+			
+
+            let o = {};
+            o.zxtj = JSON.stringify(zxtj);	
+ 
+            let prev  = $.trim($('#prev').val());
+            let after = $.trim($('#after').val());
+            let description = $.trim($('#description').val());
+            let jdqx = $.trim($('#jdqx').val());
+
+            if(zxtj.length > 0){
+                $.post('__APP__/F/check_zxtj',o,function(d){
+                    if(d.status == 's'){
+                        parent.flow.set_attr(zxms,zxtj,prev,after,description,jdqx);
+                        let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                        parent.layer.close(index); //再执行关闭
+                    }else{
+                        layer.msg(d.info,{icon:2,time:2000,offset:'30%'});
+                    }
+                });
+            }else{
+                parent.flow.set_attr(zxms,zxtj,prev,after,description,jdqx);
+                let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                parent.layer.close(index); //再执行关闭
+            }   
+        });
+ 
+        $('#add_zxtj').click(function(){
+            $('#zxtj').append($('#hidden').html());
+			
+			set_input_type( $('select.i').get( $('#zxtj .zxtj').length - 1 ) );
+        });
+
+		$('#zxtj').on('change','select.i',function(){
+			set_input_type(this);
 		});
 
-		let tmp = parent.flow.node[$(parent.flow.selectedNode).prop('id')]['zxtj'];
+		
+		function set_input_type(that){
+		
+			let p = $(that).parent();
+			p.find('input').val('').data('k','');
+			let i = $(that).val();
+			let type = $(that).find('option:selected').data('type');
+			
+			p.find('div').eq(0).find('img').remove();
+			if(i == 'aya1' || i == 'aya3'){
+				p.find('div').append("<img class = 'department' src = '__PUBLIC__/image/flow/department.png' style = 'position:absolute;right:4px;top:6px;height:16px' />");
+				p.children().eq(2).html(calOption2);
+				p.find('input').attr('readonly',true).show();
+				
+            }else if(i == 'aya2' || i == 'aya4'){
+				p.find('div').append("<img class = 'post' src = '__PUBLIC__/image/flow/post.png' style = 'position:absolute;right:4px;top:6px;height:16px' />");
+				p.children().eq(2).html(calOption2);
+				p.find('input').attr('readonly',true).show();
+            }else if( type == 'enum' ){
+				p.find('div').append("<img data-id = '"+parent.flow.enumI[i]+"' class = 'enum' src = '__PUBLIC__/image/flow/enum.png' style = 'position:absolute;right:4px;top:6px;height:16px' />");
+				p.children().eq(2).html(calOption2);
+				p.find('input').attr('readonly',true).show();
+				
+			}else if( type == 'checkbox'){
+				p.children().eq(2).html(calOption3);
+				p.find('input').hide();
+			}else if( type == 'radio'){
+				p.children().eq(2).html(calOption3);
+				p.find('input').hide();
+			}else{
+				p.children().eq(2).html(calOption1);
+				p.find('input').attr('readonly',false).show();
+			}
+		}
+		
+ 
+        $('#zxtj').on('click','.reduce',function(){
+            if($('.zxtj').length == 1) return false;
+            $(this).parents('.zxtj').remove();
+        });
+ 
+        $('#zxtj').on('click','img.department',function(){
+			layer.open({
+				title:"<span style = 'font-size:12px'>选择部门</span>",
+				area: ['100%','100%'],
+				offset:'0%',
+				shadeClose:true,
+				isOutAnim: false ,
+				maxmin: true,
+				type: 2, 
+				content:'__APP__/F/flow_select_department',
+			});
+			selectInput = $(this).parent().find('input').eq(0);
+			selectInputType = 'department';
+        });
+
+		 $('#zxtj').on('click','img.post',function(){
+			layer.open({
+				title:"<span style = 'font-size:12px'>选择岗位</span>",
+				area: ['400px','100%'],
+				offset:'0%',
+				shadeClose:true,
+				isOutAnim: false ,
+				maxmin: true,
+				type: 2, 
+				content:'__APP__/F/flow_select_post',
+			});
+			selectInput = $(this).parent().find('input').eq(0);
+			selectInputType = 'post';
+		 });
+
+		 $('#zxtj').on('click','img.enum',function(){
+			let id = $(this).data('id');
+			layer.open({
+				title:"<span style = 'font-size:12px'>选择枚举</span>",
+				area: ['400px','100%'],
+				offset:'0%',
+				shadeClose:true,
+				isOutAnim: false ,
+				maxmin: true,
+				type: 2, 
+				content:'__APP__/F/flow_select_enum?id='+id,
+			});
+			selectInput = $(this).parent().find('input').eq(0);
+			selectInputType = 'post';
+		 });
+        
+        let tmp = $(parent.flow.selectedNode).prop('id');
+ 
+        let z = parent.flow.node[tmp].Z;
+ 
+ 
+        
+         $("input[name='group1']").each(function(){
+            if($(this).data('type') == z){
+                $(this).attr('checked',true);
+            }
+         });
+        
+        let t = {
+            'A' : 'after',
+            'P' : 'prev',
+            'E' : 'description',
+        };
+ 
+        for(let i in t){
+            if( parent.flow.node[tmp][i] != undefined ){
+                $('#' + t[i]).val(parent.flow.node[tmp][i] );
+            }
+        }
+        
+        let tmpClone = $('.zxtj').eq(0).prop('outerHTML');
 
 		
+        
+        if( parent.flow.node[tmp].X != undefined ){
 
-		if(tmp.p1 != null){
-			$('#p1').val(tmp.p1.k);
+            $('#zxtj').empty();
 
-			$('#p2').val(tmp.p2.k);
+			for(let i = 0; i < parent.flow.node[tmp].X.length; i++){
 
-			$('#p3').val(tmp.p3);
+				$('#zxtj').append(tmpClone);
 
-			$('#pdescription').val(tmp.dc);
+				$('.zxtj').eq(i).find('.browser-default').eq(1).val(parent.flow.node[tmp]['X'][i][1]);
+				set_input_type( $('.zxtj').eq(i).find('.browser-default').get(1) );
+
+				if( parent.flow.node[tmp]['X'][i].length == 6){
+					for(let j = 0; j < 6; j++){
+						$('.zxtj').eq(i).find('.browser-default').eq(j).val(parent.flow.node[tmp]['X'][i][j]);
+					}
+				}else{
+					$('.zxtj').eq(i).find('.browser-default').eq(0).val(parent.flow.node[tmp]['X'][i][0]);
+					$('.zxtj').eq(i).find('.browser-default').eq(1).val(parent.flow.node[tmp]['X'][i][1]);
+					$('.zxtj').eq(i).find('.browser-default').eq(2).val(parent.flow.node[tmp]['X'][i][2]);
+					$('.zxtj').eq(i).find('.browser-default').eq(4).val(parent.flow.node[tmp]['X'][i][3]);
+					$('.zxtj').eq(i).find('.browser-default').eq(5).val(parent.flow.node[tmp]['X'][i][4]);
+
+					
+				}
+
+				$('.zxtj').eq(i).find('.browser-default').eq(2).val(parent.flow.node[tmp]['X'][i][2]);
+				
+				
+		
+				if( parent.flow.node[tmp]['X'][i][1].substring(0,1) == 'a'){
+
+					let prevString = parent.flow.node[tmp]['X'][i][1].substring(0,4);
+					
+					if( prevString == 'aya1' || prevString == 'aya3'){
+						let tmpV = parent.flow.node[tmp]['X'][i][3].substring(0,parent.flow.node[tmp]['X'][i][3].length - 2);
+						$('#zxtj .zxtj').eq(i).find('.browser-default').eq(3).val( parent.flow.department[ tmpV ] ).data('k',parent.flow.node[tmp]['X'][i][3]);
+					}else if( prevString == 'aya2' || prevString == 'aya4'){
+						let tmpV = parent.flow.node[tmp]['X'][i][3];
+						$('#zxtj .zxtj').eq(i).find('.browser-default').eq(3).val( parent.flow.post[ tmpV ] ).data('k',parent.flow.node[tmp]['X'][i][3]);
+					}
+
+				}else{
+					
+					if( parent.flow.node[tmp]['X'][i].length == 6){
+						
+						if( parent.flow.enumI[  parent.flow.node[tmp]['X'][i][1] ] ){
+
+							let tmpK = parent.flow.node[tmp]['X'][i][3];
+							
+							let tmpV = parent.flow.enum[ tmpK ] ;
+
+							$('#zxtj .zxtj').eq(i).find('.browser-default').eq(3).val( tmpV ).data('k',tmpK);
+						}else{
+							$('#zxtj .zxtj').eq(i).find('.browser-default').eq(3).val( parent.flow.node[tmp]['X'][i][3] );
+						}
+					}else{
+						
+					}
+					
+				}
+
+              
+			}
+ 
+ 
+        }
+ 
+		
+ 
+        function set_input(k,v){
 
 			
-		}
+            let tmp = $(selectInput).prev().prev().val();
 
-		$('#prev').val(parent.flow.node[$(parent.flow.selectedNode).prop('id')].zxtj.prev);
-		$('#after').val(parent.flow.node[$(parent.flow.selectedNode).prop('id')].zxtj.after);
+            
+            if(selectInputType == 'department'){       //部门
+				
+                parent.flow.department[k.substr(0,k.length - 2)] = v;
+            }else if(selectInputType = 'post'){ //岗位
+                parent.flow.post[k] = v;
+            }
+            selectInput.val(v);
+            selectInput.data('k',k);
+
+
+            
+        }
 
 		
 

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+
+	<style type="text/css">
+		body{
+			background:#ffffff;
+			-moz-user-select: none;
+		}
+		
+	</style>
+</head>
+<body>
+
+<div class = 'row'>
+	<div class = 'col s12'>
+
+	</div>
+</div>
+
+<div class = 'row' style = 'margin:0'>
+	
+	<div class = 'col s12'  data-index = '1' >
+		
+		<table class = 'dataTable hover row-border table-small centered' id = 'tt'>
+			<thead><tr><th colspan = 3 style = 'text-align:center'><button class = 'btn btn-primary height32' id = 'confirm'>确定</button></th></tr></thead>
+			<tbody>
+				{volist name = 'post' id = 'l'}
+				<tr data-k  = '{$l.id}' data-v = '{$l.name}'><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td>{$l.name}</td><td>{$l.type_name}</td></tr>
+				{/volist}
+			</tbody>
+		</table>
+
+	</div>
+
+
+
+
+
+
+
+
+</div>
+</tbody>
+<script>
+
+	let k = '';
+	let v = '';
+
+
+	select_tr('tt','new');
+	
+	$('#tt tbody tr').click(function(){
+		k = $(this).data('k');
+		v = $(this).data('v');
+	});
+
+
+
+
+	$('#confirm').click(function(){
+		if( k == ''){
+			layer.msg('先选择岗位',{icon:2,time:1500,offset:'30%'});
+		}else{
+			parent.set_input(k,v);
+			let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+			parent.layer.close(index); //再执行关闭   
+		}
+		
+	});
+
+
+
+
+</script>
+</html>
+
+

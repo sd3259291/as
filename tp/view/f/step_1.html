@@ -56,17 +56,41 @@
 		}
 		
 		img.img-text-align{
-	margin:0 6px;
-	border:1px solid #fff;
-}
+			margin:0 6px;
+			border:1px solid #fff;
+			
+		}
 
-img.img-text-align:hover{
-	border:1px solid #ff6600
-}
+		img.img-text-align:hover{
+			border:1px solid #ff6600
+		}
 
-img.img-text-align-selected{
-	border:1px solid #ff6600
-}
+		img.img-text-align-selected{
+			border:1px solid #ff6600
+		}
+
+		div.div-img-border{
+			display:inline-block;
+			margin:0 0 0 12px;
+			border:1px solid #fff;
+			
+			height:28px;
+			width:28px;
+			padding:0;
+		}
+		div.div-img-border:hover{
+			border:1px solid #ff6600
+		}
+		div.div-img-border-selected{
+			border:1px solid #ff6600
+		}
+
+		img.img-border{
+			margin:1px;
+			height:24px;
+			vertical-align:top;
+		}
+		
 			
 
 		.contextmenu li:hover {
@@ -108,6 +132,8 @@ img.img-text-align-selected{
 			transition: ease 0.3s;
 			
 		}
+
+		
 			
 		
 		
@@ -310,8 +336,6 @@ img.img-text-align-selected{
 
 			let tdWidth = width / w - 2;
 
-			
-
 			let tmp = "<table class = 'table-form table noselect' style = 'margin:auto;width:"+(width+ 1)+"px'><tbody>";
 			for(let i = 0 ; i < h ; i++){
 				tmp += "<tr>";
@@ -324,8 +348,6 @@ img.img-text-align-selected{
 			tmp += "</tbody></table>";
 			$('#form_body').append(tmp);
 			app.table_index();
-			
-
 
 		},
 		// 创建 table index
@@ -472,16 +494,30 @@ img.img-text-align-selected{
 				{ title: '垂直居中' , img : 'text_align_middle' , align : 'middle',id : 'vertical-align'},
 				{ title: '底部对齐' , img : 'text_align_bottom' , align : 'bottom',id : 'vertical-align'}
 			];
-			
+			let border = [
+				{ b : 'border-top' },
+				{ b : 'border-right' },
+				{ b : 'border-bottom' },
+				{ b : 'border-left' },
+				{ b : 'border-all' },
+				{ b : 'border-none' },
+			];
+
 			let fontSize = [12,14,16,18,20,22,24,26,28,30,32,36,48];		
 			content += "<div class = 'col s3 font-bold'>对齐方式</div>";
 			// 对齐方式
 			for(let i in align){
-
 				if(i % 3 == 0) content += "<div class = 'col s4' style = 'text-align:center'>";
-				content += "<img  class = 'img-text-align' src = '__PUBLIC__/image/"+align[i].img+".png' data-css = '"+align[i].id+"' data-align = '"+align[i].align+"' title = '"+align[i].title+"'  />";
+				content += "<img  class = 'img-text-align' src = '__PUBLIC__/image/flow/"+align[i].img+".png' data-css = '"+align[i].id+"' data-align = '"+align[i].align+"' title = '"+align[i].title+"'  />";
 				if(i % 3 == 2) content += "</div>";
 			}
+
+			// 边框
+			content += "<div  class = 'col s3 font-bold' STYLE = 'text-align:center;padding:0;'>边框</div><div class = 'col s9' style = 'text-align:left'>";
+			for(let i in border){
+				content += "<div id = '"+border[i].b+"' class = 'div-img-border'><img class = 'img-border' src = '__PUBLIC__/image/flow/"+border[i].b+".png'   /></div>";
+			}
+			content += "</div>";
 
 			//字体大小
 			content += "<div class = 'col s3 font-bold' STYLE = 'text-align:center;padding:0;'>文字大小</div><div class = 'col s3'><select id = 'font-size' class = 'browser-default'>";
@@ -541,9 +577,87 @@ img.img-text-align-selected{
 				shadeClose:true,
 				success : function(layero,index){
 					app.layerIndex = index;
+					//边框
+					let allBorder  = ['border-top','border-left','border-bottom','border-right'];
+					let borderNone = ['border-top-none','border-left-none','border-right-none','border-bottom-none'];
+					$('.new-container div.div-img-border').click(function(){
+						if( $(this).hasClass('div-img-border-selected') ){
+							$(this).removeClass('div-img-border-selected');
+						}else{
+							$(this).addClass('div-img-border-selected');
+						}
+						let allBorderSelected = true;
+						let allBorderNotSelected = true;
+						let borderType = $(this).prop('id');
+						let borderNoneAdd = [];
+						if(borderType == 'border-all'){
+							$('div.div-img-border').removeClass('div-img-border-selected');
+							$('#border-all').addClass('div-img-border-selected');
+							borderNoneAdd = [];
+						}else if(borderType == 'border-none'){
+							$('div.div-img-border').removeClass('div-img-border-selected');
+							$('#border-none').addClass('div-img-border-selected');
+							borderNoneAdd = borderNone;
+							
+						}else{
+							$('#border-all').removeClass('div-img-border-selected');
+							$('#border-none').removeClass('div-img-border-selected');
+							for(let i = 0; i < allBorder.length; i++){
+								if ( $('#' + allBorder[i]).hasClass('div-img-border-selected') ){
+									allBorderNotSelected = false	
+								}else{
+									allBorderSelected = false;
+									borderNoneAdd.push(allBorder[i] + '-none');
+								}
+							}
+							if(allBorderSelected){
+								$('div.div-img-border').removeClass('div-img-border-selected');
+								$('#border-all').addClass('div-img-border-selected');
+								borderNoneAdd = [];
+							}
+							if(allBorderNotSelected){
+								$('div.div-img-border').removeClass('div-img-border-selected');
+								$('#border-none').addClass('div-img-border-selected');
+								borderNoneAdd = borderNone;
+							}
+						}
+						for(let i = 0; i < borderNone.length; i++){
+							$('.table-form-td-selected').removeClass( borderNone[i] );
+						}
+						for(let i = 0; i < borderNoneAdd.length; i++){
+							$('.table-form-td-selected').addClass( borderNoneAdd[i] );
+						}
+					});
+					let hasBorder = {
+						'border-top' : 1,
+						'border-left' : 1,
+						'border-right' : 1,
+						'border-bottom' : 1,
+					};
+					for(let i = 0; i < allBorder.length; i++){
+						if( $('.table-form-td-selected2').eq(0).hasClass( allBorder[i] + '-none' ) ){
+							delete hasBorder[ allBorder[i] ];
+						}
+					}
+					let hasBorderLength = 0;
+					$.each(hasBorder,function(i,v){
+						hasBorderLength++;
+					});
+
+					if( hasBorderLength == 4){
+						$('#border-all').addClass('div-img-border-selected');
+					}else if( hasBorderLength == 0){
+						$('#border-none').addClass('div-img-border-selected');
+					}else{
+						$.each(hasBorder,function(k,v){
+							$('#' + k).addClass('div-img-border-selected');
+						});
+					}
+
+					
 					
 					//文字对齐方式
-					$('.new-container img').click(function(){
+					$('.new-container img.img-text-align').click(function(){
 						$(this).parent().children().removeClass('img-text-align-selected');
 						$(this).addClass('img-text-align-selected');
 						$('.table-form-td-selected').css($(this).data('css'),$(this).data('align'));
@@ -751,6 +865,34 @@ img.img-text-align-selected{
 		},
 
 		yes : function(){
+
+			//div-img-border-selected
+			
+			let borderNone = ['border-top-none','border-left-none','border-right-none','border-bottom-none'];
+
+			if( $('#border-all').hasClass('div-img-border-selected')){
+				borderNone = [];
+			}else if( $('#border-none').hasClass('div-img-border-selected')){
+				
+			}else{
+				$('.new-container div.div-img-border').each(function(){
+					if( $(this).hasClass('div-img-border-selected') ){
+						let id = $(this).prop('id');
+						borderNone.splice($.inArray( id + '-none' , borderNone),1);
+						
+					}
+				});
+			}
+			
+			let tmp = ['border-top-none','border-left-none','border-right-none','border-bottom-none']
+			for(let i = 0; i < tmp.length; i++){
+				$('td.table-form-td-selected').removeClass( tmp[i] );
+			}
+			for(let i = 0; i < borderNone.length; i++){
+				$('td.table-form-td-selected').addClass( borderNone[i] );
+			}
+			
+
 			
 			let css = ['font-size','font-weight','color','background','text-align','vertical-align',];
 			let css2 = {};
@@ -844,6 +986,8 @@ img.img-text-align-selected{
 		},
 
 		ini : function(){
+
+			
 			
 			$('#type_id').val('{$form.type_id}');
 
@@ -933,8 +1077,7 @@ img.img-text-align-selected{
 
 					$(this).width( $(this).width() - app.tdWidth[tableIndex][x] - borderLeftWidth - borderRightWidth);
 
-					log( $(this).width(),false);
-					log(app.tdWidth[tableIndex][x],false);
+					
 					
 				});
 
@@ -1174,7 +1317,7 @@ img.img-text-align-selected{
 									let xx = parseInt($(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j).attr('data-x'));
 									let cc = parseInt($(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j).attr('colspan'));
 									if(xx > thisX){
-										log( xx + ':' + cc + ':' + thisC)
+									
 										$(thisTable).find('tbody').eq(0).children().eq(i).children().eq(j-1).after("<td style='text-align:center;vertical-align:middle;max-width:"+min+"px;min-width:"+min+"px' data-x = '"+xx+"' data-y = '"+i+"' data-type = 'text'></td>");
 										
 										break;
@@ -1307,7 +1450,7 @@ img.img-text-align-selected{
 
 
 
-				//log(app.tdWidth);
+				
 
 
 				
@@ -1697,8 +1840,6 @@ img.img-text-align-selected{
 			});
 	
 			$('#form_body').on('click','td',function(){
-				log($(this).attr('data-x')+ ':' + $(this).attr('data-y'));
-			
 				if(!app.isCtrl) $('.table-form-td-selected').removeClass('table-form-td-selected');
 				$(this).addClass('table-form-td-selected');
 			});

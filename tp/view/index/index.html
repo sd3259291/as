@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>A</title>
-	
 	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
 	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
     <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
@@ -13,8 +12,6 @@
 	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/extensions/AutoFill/css/dataTables.autoFill.min.css">
 	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/FixedColumns-3.2.4/css/fixedColumns.bootstrap.css">	
 	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
-
-
 	<style type="text/css" media='print'>
 		.printno:not(.print){display:none;}
 		 #page-wrapper{margin:0}
@@ -42,15 +39,12 @@
 
         </nav>
 
-		
-
 
 		<!-- Dropdown Structure -->
 		<ul id="dropdown1" class="dropdown-content printno">
-
 			<li><a href="javascript:void(0)" class='a_url' data-url = '__APP__/index/P/modify_password'><i class="fa fa-sign-out fa-fw"></i>个人信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></li>
 
-			<li><a href="__APP__/index/Login"><i class="fa fa-sign-out fa-fw"></i>注销</a></li>
+			<li><a href="__APP__/Login/index"><i class="fa fa-sign-out fa-fw"></i>注销</a></li>
 		</ul>
 
 
@@ -93,7 +87,7 @@
             <div id="page-inner" style = ''>
 
 				
-
+			
 				
 
 			</div>
@@ -109,25 +103,18 @@
        
     </div>
 	<div id='ajax_pop' style='position:fixed;width:100%;z-index:99999999999;top:40px;height:100%;display:none;text-align:right;padding:2px;color:#ff6600'>
-		
 		<img src = '__PUBLIC__/image/loading-0.gif' class = 'height12 noselect' />
-		
 	</div>
     <script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
-	<!-- Bootstrap Js -->
-    <script src="__PUBLIC__/js/bootstrap.min.js"></script>
-	
-    <!-- Metis Menu Js -->
+	<script src="__PUBLIC__/js/bootstrap.min.js"></script>
+    <script src="__PUBLIC__/materialize/js/materialize.min.js"></script>
     <script src="__PUBLIC__/js/jquery.metisMenu.js"></script>
-    <!-- Custom Js -->
 	<script src="__PUBLIC__/js/tool.js"></script>
-    
 	<script type="text/javascript" src="__PUBLIC__/js/DataTables-1.10.0/media/js/jquery.dataTables.min.js"></script>
 	<script src="__PUBLIC__/js/DataTables-1.10.0/FixedColumns-3.2.4/js/dataTables.fixedColumns.js"></script>
 	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
 	<!--<script src="__PUBLIC__/Js/echarts.js"></script>
 	<script src="__PUBLIC__/Js/echarts_theme1.js"></script>-->
-	
 	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
 	
 	<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
@@ -160,7 +147,7 @@
 		
 		loadIndex : 0,
 		homePage : { 
-			url : '__APP__/Fs/hasSend' ,
+			url : '__APP__/F/manage' ,
 			name : "我的桌面",
 			id : 'indexdeptindex'
 		},
@@ -293,13 +280,6 @@
 		
 
 		ini : function(){
-			
-			
-		
-
-
-
-
 			this.layerWidth = $(document).width() * 0.98;
 
 			if(this.layerWidth > 1200){
@@ -308,14 +288,9 @@
 				this.layerWidth = '98%';
 			}
 			if(this.multiType == 0 ){   // 单页面模式
-				
-				
-				
+
 				$.post(mainPage.homePage.url,'',function(d){
 					$('#page-inner').html(d);
-
-					
-
 				});
 			}else{		//多页面模式
 				this.height -= 58;

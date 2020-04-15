@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<style type="text/css">
+		body{
+			background:#ffffff;
+			-moz-user-select: none;
+		}
+		ul.aya-tab-ul1{
+			border-bottom:1px solid #e2e2e2
+		}
+		ul.aya-tab-ul1 li{
+			display:inline-block;
+			border-bottom:2px solid #ffffff;
+			width:80px;
+			font-size:12px;
+			text-align:center;
+			padding:6px 2px;
+			margin:0;
+			cursor:default;
+			color:#6e6e6e
+		}
+		ul.aya-tab-ul1 li.select{
+			border-bottom-color:#17abe3;
+			color:#353535
+		}
+
+		
+		#aya-tabl-selected,.aya-tab-content-top,.aya-tab-content-buttom{
+			overflow-y:scroll
+		}
+		
+		.aya-tab-content-mid p{
+			display:inline-block;
+			margin-right:50px
+		}
+		.aya-tab-content-research input{
+			width:90% !important;
+			 text-indent:32px !important
+		}
+		.aya-tab-content-research{
+			
+		}
+		.aya-tab-content-research img{
+			position:absolute;
+			top:2px;
+			right:10px;
+			width:18px
+		}
+
+		#save_as_group{
+			display:inline-block;cursor:pointer;font-size:12px;color:#0e932e;height:32px;line-height:32px;
+			border-radius:5px;padding-left:2px;padding-right:2px;
+			border:1px solid #ffffff
+		}
+		#save_as_group:hover{
+			background:#ffdb91;
+			border:1px solid #ff9900
+		}
+		
+		.aya-tab-confirm p{
+			display:inline-block;
+			margin-right:50px;
+			color:#ffffff;
+	
+			height:50px;
+			line-height:50px
+		}
+		.aya-tab-confirm p label{
+			color:#ffffff;
+
+		}
+		ul.post li{
+			font-size:12px;
+			padding:2px 40px ;
+		}
+		ul.group li{
+			font-size:12px;
+			padding:2px 40px ;
+			position:relative;
+		}
+		ul.x li{
+			font-size:12px;
+			padding:2px 40px ;
+		}
+		ul.group li img{
+			position:absolute;
+			right:0;
+			top:2px;
+			width:16px;
+			display:none;
+			cursor:pointer;
+		}
+		li.li-selected{
+			background:#e8e8e8
+		}
+	</style>
+</head>
+<body>
+
+<div class = 'row' style = 'margin:0'>
+	<div class = 'col s12' id = 'tab' style = 'padding:16px 30px;border-bottom:1px solid #737373'>
+				包含子部门：<input id = 'include' type = 'checkbox' class = 'aya-checkbox' checked/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<button class = 'btn btn-primary height32' id = 'confirm'>确定</button>	
+	</div>
+	<div class = 'col s12 aya-tab-content'  data-index = '1' >
+		
+		<div class = 'aya-tab-content-top'>
+			<ul id="tree" class="ztree"></ul>
+		</div>
+
+	</div>
+
+
+
+
+
+
+
+
+</div>
+</tbody>
+<script>
+
+	let k = '';
+	let v = '';
+
+
+	let zNodes = {$tree|raw};
+	var setting = {
+		callback:{
+			onClick:function(event, treeId, treeNode){
+				var o = {};
+				k   = treeNode.id;
+				v = treeNode.name;
+				if($('#include').prop('checked') == true){
+					k = k + '|1';
+				}else{
+					k = k + '|0';
+				}
+				
+				
+			}
+		}
+	};
+	zTreeObj = $.fn.zTree.init($("#tree"), setting, zNodes);
+	var treeObj = $.fn.zTree.getZTreeObj("tree");
+	treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
+
+
+
+
+	$('#confirm').click(function(){
+		if( k == ''){
+			layer.msg('先选择部门',{icon:2,time:1500,offset:'30%'});
+		}else{
+			parent.set_input(k,v);
+			let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+			parent.layer.close(index); //再执行关闭   
+		}
+		
+	
+	});
+
+
+
+
+</script>
+</html>
+
+

@@ -97,25 +97,35 @@
 		selected_tr : '',
 
 		load_template : function(id){
+
+		
+			
 			app.template_id = id;
 			app.ue = {};
 			$('#edit-form').hide();
 			$('#see-form').show();
 			$.post('__APP__/Fs/load_template',{id:id},function(d){
+
+				
 				$('#form_content').html(d.data.form.cut_form);
 				$('#myEditor').remove();
 				$(d.data.auth).each(function(i,v){
+					
 					app.auth.set(v['i'],v);
 				});
+
 				$('#form_content').find('input').each(function(){
 					let i = $(this).parents('td').data('i') || $(this).data('i');
 					let a = app.auth.get(i);
+				
 					let type = $(this).attr('type') || $(this).parents('td').data;
 					if( !$(this).parents('table').hasClass('table-mul') ) $(this).attr('id',i);
+					
 					if(a){
 						if(a.a == 1){
 							switch(type){
 								case 'text' :
+									
 									$(this).attr('readonly',false);
 								break;
 								case 'checkbox' :
@@ -230,6 +240,7 @@
 			let field = {};
 			let subField = {};
 			o.template_id = app.template_id;
+			
 			if(app.template_id == 0){  // 自定义流程
 				o.title = $.trim($('#title').val());
 				o.p = JSON.stringify(app.flow_p);
@@ -311,7 +322,7 @@
 
 			$.post('__APP__/Fs/send',o,function(d){	
 
-				log(d);
+			
 
 				if(d.status == 's'){
 					layer_success('发送成功！',2000);
@@ -528,7 +539,7 @@
 					title: '<span class = "text-color2">编辑流程</span>',
 					maxmin: true,
 					shadeClose: true, //点击遮罩关闭层
-					area : [parent.mainPage.layerWidth,'100%'],
+					area : ['1200px','100%'],
 					content: '__APP__/Fs/customFlow',
 					success : function (layero,index){
 						let top = ($('.layui-layer-title').eq($('.layui-layer').length - 1).height() - 32) / 2;
@@ -552,7 +563,7 @@
 
 	app.ini();
 
-	app.load_template(4);
+	//app.load_template(6);
 	
 </script>
 

@@ -66,9 +66,11 @@
 		check : function( exc = '' ){
 			let index1 = layer.load(2);
 			let obj = {};
-			obj.flowid = $('#tbody tr.selected').eq(0).children().eq(1).find('a').eq(0).data('flow_id');
-			obj.id = $('#tbody tr.selected').eq(0).children().eq(1).find('a').eq(0).data('id');
-			obj.nodeid = $('#tbody tr.selected').eq(0).children().eq(1).find('a').eq(0).data('node_id');
+			obj.flowid = $('#tbody tr.selected').eq(0).data('flow_id');
+			obj.id = $('#tbody tr.selected').eq(0).data('id');
+			obj.nodeid = $('#tbody tr.selected').eq(0).data('node_id');
+
+		
 			if(exc != '') obj.executor = exc;
 			$.post('__APP__/Fs/check',obj,function(d){
 				layer.close(index1);

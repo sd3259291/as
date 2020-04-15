@@ -109,16 +109,27 @@ class F extends BaseController{
      * 流程类型管理 - 新增
      */
 	public function flow_attr(){
-		$_GET['flowid'] = 4;
-		$attr = FlowTable::where("flow_id = ".$_GET['flowid']." && table_name like 'f%'")->field('i,label,type,enum_name,enum_id')->select();
+		
+		$attr = FlowTable::where("flow_id = ".$_GET['flowid']." && table_name like 'f%'")->field('i,label,type,enum_name,enum_id')->select()->toArray();
+		
+		$attr2 = array(
+			array('i' => 'aya1','label' =>  '发起者部门','type' => ''),
+			array('i' => 'aya2','label' =>  '发起者岗位','type' => ''),
+			array('i' => 'aya3','label' =>  '执行者部门','type' => ''),
+			array('i' => 'aya4','label' =>  '执行者岗位','type' => ''),
+		);
+		$attr = array_merge($attr,$attr2);
+		
 		View::assign('attr',$attr);
 		View::assign('jdqx',FlowNode::select());
 		return View::fetch();
 	}
 
 	public function test(){
-		$f = Flow::find(4)->toArray();
+		
+		$f = Flow::find(8)->toArray();
 		dump(json_decode($f['node'],true));
+		
 	}
 
 	/**
@@ -150,7 +161,7 @@ class F extends BaseController{
      */
 	public function step_1(){
 		//$_GET['id'] = 13;
-		$form = $_GET['id']?Flow::find($_GET['id']):array('id' => 0,'form' => '','title' => '','td_width' => '{}');
+		$form = $_GET['id']?Flow::find($_GET['id']):array('id' => 0,'form' => '','title' => '','td_width' => '{}','type_id' => 0);
 		$enum = new Enum;
 		$type = FlowType::where('status = 1')->order('sort asc')->select();
 		View::assign('types',$type);
@@ -172,15 +183,12 @@ class F extends BaseController{
      * 新增流程
      */
 	public function save_table(){
-		//sp();exit();
+		//sp();
 		//gp();
 		//$_POST['flow_name'] = '测试3修改';
 
-
-		
-		
+		$_POST['form'] = str_replace('table-form-td-selected','',$_POST['form']);
 		if(isset($_POST['flow_id']) && $_POST['flow_id']){
-
 			$r = $this->edit_table($_POST);
 		}else{
 			$r = $this->insert_table($_POST);
@@ -469,6 +477,7 @@ class F extends BaseController{
 		$form = str_replace('class=""','',$form);
 		$form = preg_replace('/data-x="\d{1,2}"/','',$form);
 		$form = preg_replace('/data-y="\d{1,2}"/','',$form);
+		
 		return $form;
 	 }
 
@@ -511,7 +520,11 @@ class F extends BaseController{
 		$flow->status = 0;
 		$flow->td_width = $post['td_width'];
 		$flow->type_id = $post['type_id'];
-		$form->cut_form =  $this->cut_form($form);
+		$flow->cut_form =  $this->cut_form($form);
+
+		
+		
+
 		$flow->save();
 
 		$newTable = array();
@@ -532,9 +545,9 @@ class F extends BaseController{
 		foreach($newTable as $k => $v){
 			$sql = '';
 			if(substr($k,0,1) == 'f'){  // 主表
-				$sql = "CREATE TABLE `s_".$k."` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT,";
+				$sql = "CREATE TABLE `s_".$k."` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `flows_id` int(11) NOT NULL,";
 			}else{
-				$sql = "CREATE TABLE `s_".$k."` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `form_id` int(11) NOT NULL,";
+				$sql = "CREATE TABLE `s_".$k."` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `flows_id` int(11) NOT NULL,";
 			}
 
 			foreach($v as $k1 => $v1){
@@ -583,19 +596,51 @@ class F extends BaseController{
      * 流程管理
      */
 	 public function flow(){
-
 		if(isset($_GET['id']) && $_GET['id']){
 			$flow = Flow::find($_GET['id']);
 			if(!$flow['p']) $flow = array('id' => $_GET['id'],'p' => json_encode(array()),'node' => json_encode(array()),'max_id' => 0);
-			
 		}else{
 			$flow = array('p' => array(),'node' => array(),'max_id' => 0);
 		}
-		
-		View::assign('dep',1);
-		View::assign('pst',1);
+		$dep = Department::field('id,name')->select()->toArray();
+		if($dep){
+			$tmp = array();
+			foreach($dep as $k => $v){
+				$tmp[$v['id']] = $v['name'];
+			}
+			$dep = $tmp;
+		}else{
+			$dep = array('-1' => 0);
+		}
+		$pst = Post::field('id,name')->select()->toArray();
+		if($pst){
+			$tmp = array();
+			foreach($pst as $k => $v){
+				$tmp[$v['id']] = $v['name'];
+			}
+			$pst = $tmp;
+		}else{
+			$pst = array('-1' => 0);
+		}
+		$flowTable = Db::query("select b.id,b.enum_id,b.name,a.i,a.label from s_flow_table a left join s_enum_detail b on a.enum_id = b.enum_id where a.flow_id = ".$_GET['id']." && a.table_name like 'f%' ");
+		$enumI = $enum = array();
+		if($flowTable){
+			foreach($flowTable as $k => $v){
+				if($v['id']){
+					$enum[$v['id']] = $v['name'];
+					$enumI[$v['i']] = $v['enum_id'];
+				}
+				$label[$v['i']] = $v['label'];
+			}
+		}else{
+			$label = $enumI = $enum = array('-1' => 0);
+		}
+		View::assign('label',json_encode($label));
+		View::assign('enum',json_encode($enum));
+		View::assign('enumi',json_encode($enumI));
+		View::assign('dep', json_encode($dep));
+		View::assign('pst', json_encode($pst));
 		View::assign('flowid',1);
-	
 		View::assign('jdqx',1);
 		View::assign('flow',$flow);
 		return View::fetch();
@@ -620,6 +665,7 @@ class F extends BaseController{
      * 保存流程
      */
 	 public function flow_save(){
+
 		$flow = Flow::find($_POST['id']);
 		$flow->p = $_POST['p'];
 		$flow->node = $_POST['node'];
@@ -628,6 +674,83 @@ class F extends BaseController{
 		return a('','','s');
 	 }
 
+	 /**
+     * 禁用，发布流程
+     */
+	 public function changeStatus(){
+	
+		$id = $_POST['id'];
+		$flow = Flow::find($id);
+		$flow->status = $flow->status == 1?0:1;
+		$status = $flow->status == 1?'发布':'未发布';
+		$flow->save();
+		return a($status,'','s');
+	 }
+	/**
+    +------------------------------------------------------------------------------
+    * 检查执行条件
+    +------------------------------------------------------------------------------
+    */
+    public function check_zxtj(){
+	
+		
+
+		$zxtj = json_decode($_POST['zxtj'],true);
+        $expression = '';
+        foreach($zxtj as $k => $v){
+			if( count($v) == 5 ){
+				$expression .= $v[0].' 0 == 0 '.$v[3].' '.$v[4].' ';
+			}else{
+				if(!$v[3]) return a('','表达式不正确！','e');
+				$v[3] = 0;
+				$expression .= $v[0].' 0 '.$v[2].' 0 '.$v[4].' '.$v[5].' ';
+			}
+        }
+        $expression .= ';';	
+		
+		
+		
+        try{
+            eval($expression);
+        }catch(\Exception $e){
+            return a('','表达式不正确！','e');
+        }catch(\Error $e){
+            return a('','表达式不正确！','e');
+        }
+        return a('','e','s');
+    }
+	/**
+    +------------------------------------------------------------------------------
+    * 执行条件 - 选择部门
+    +------------------------------------------------------------------------------
+    */
+	public function flow_select_department(){
+		$dept = new Department;
+		$tree = $dept->tree();
+		View::assign('tree',$tree);
+		return View::fetch();
+	}
+
+	/**
+    +------------------------------------------------------------------------------
+    * 执行条件 - 选择岗位
+    +------------------------------------------------------------------------------
+    */
+	public function flow_select_post(){
+		$post = Post::where('status = 1')->field('id,name,type_name')->select();
+		View::assign('post',$post);
+		return View::fetch();
+	}
+	/**
+    +------------------------------------------------------------------------------
+    * 执行条件 - 选择枚举
+    +------------------------------------------------------------------------------
+    */
+	public function flow_select_enum(){
+		$r = Db::table('s_enum_detail')->where('status = 1 && enum_id = '.$_GET['id'])->field('id,name,value')->order('sort asc')->select();
+		View::assign('enum',$r);
+		return View::fetch();
+	}
 
 
 
