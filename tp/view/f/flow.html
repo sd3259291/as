@@ -720,10 +720,10 @@ var flow = {
 		});
 
 		$('#diagramContainer').on('click','li.auth',function(e){
-			layer.open({
+			parent.layer.open({
 				skin: 'layer-edit-container',
 				title:"<span style = 'font-size:12px'>数据权限管理</span>",
-				area: ['600px','100%'],
+				area: ['800px','100%'],
 				offset:'0%',
 				shadeClose:true,
 				isOutAnim: false ,
@@ -732,7 +732,7 @@ var flow = {
 				content:'__APP__/F/flow_auth?flowid='+flow.flowId+'&node='+$(flow.selectedNode).prop('id'),
 				btn : [ '确定'],
 				yes : function(index,layero){
-					var iframeWin = window[layero.find('iframe')[0]['name']];
+					var iframeWin = parent.window[layero.find('iframe')[0]['name']];
 					iframeWin.app.save();
 				}
 			

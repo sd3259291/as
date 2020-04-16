@@ -85,17 +85,113 @@ class F extends BaseController{
      */
 
 	public function flow_auth(){
+
 		$auth = FlowAuth::where("flow_id = ".$_GET['flowid']." && node_id = '".$_GET['node']."'")->find();
-		if(!$auth) $auth = [];
-		$attr = FlowTable::where("flow_id = ".$_GET['flowid'])->field('table_name,i,label,type,enum_name,enum_id')->select();
-		$a = $auth?json_encode(json_decode($auth['auth'],true)):json_encode(['no' => 1]);
-		View::assign('auth', $a);
-		View::assign('fields',$attr);
+		$default = $auth2 = array();
+		if(!$auth){
+			$auth = ['no' => 1];
+		}else{
+			$auth = json_decode($auth['auth'],true);
+			foreach($auth as $k => $v){
+				$auth2[$v['i']] = $v;
+			}
+		}
+	
+		$attr = FlowTable::where("flow_id = ".$_GET['flowid'])->field('table_name,i,label,type,group,enum_name,enum_id')->order('table_name asc,id asc')->select()->toArray();
+
+		
+		
+		$tmp = $tmp1 = $tmp2 = array();
+		$enumId = $enumName = array();
+		foreach($attr as $k => $v){
+			$tmp[$v['i']] = true;
+			if($v['type'] == 'checkbox' || $v['type'] == 'radio'){
+				$tmp1[$v['group']][] = $v;
+			}else if($v['type'] == 'enum'){
+				if( isset($auth2[$v['i']]) && isset( $auth2[$v['i']]['d'] ) ){
+					$enumId[] = $auth2[$v['i']]['d'];
+				}
+			}
+		}
+		
+		if(count($enumId) > 0){
+			$enumName = column(Db::table('s_enum_detail')->field('id,name')->where(" id in (".get_w($enumId,false).") ")->select()->toArray(),'id');
+		}
+
+		for( $i = 0; $i < count($attr); $i++ ){
+			if( !$tmp[$attr[$i]['i']] ) continue;
+			if($attr[$i]['type'] == 'checkbox' || $attr[$i]['type'] == 'radio'){
+				foreach($tmp1[$attr[$i]['group']] as $k => $v){
+					$tmp2[] = $v;
+					$tmp[$v['i']] = false;
+				}
+			}else{
+				$tmp2[] = $attr[$i];
+			}
+		}
+
+		
+
+		
+		
+		$tbody = "";
+
+		
+		foreach($tmp2 as $k => $v){
+			$type = '';
+			if($v['type'] == 'checkbox'){
+				$type = "<span style = 'position:absolute;display:inline-block;height:12px;width:12px;color:#28a745;right:0;bottom:0;font-size:12px;line-height:12px'>复</span>";
+			}else if($v['type'] == 'radio'){
+				$type = "<span style = 'position:absolute;display:inline-block;height:12px;width:12px;color:#28a745;right:0;bottom:0;font-size:12px;line-height:12px'>单</span>";
+			}else if($v['type'] == 'enum'){
+				$type = "<span style = 'position:absolute;display:inline-block;height:12px;width:12px;color:#28a745;right:0;bottom:0;font-size:12px;line-height:12px'>枚</span>";
+			}
+
+			if(isset($tmp1[$v['group']])){
+				$checked = $auth2[$v['i']]['d'] == 1?'√':'';
+				if($v['i'] == $tmp1[$v['group']][0]['i']){
+					$tmp = "";
+					//if($v['type'] == 'checkbox'){
+						//$tmp = "<select class = 'browser-default'><option value = '-1'>无限制</option>";
+						//for($i = 1; $i <= count( $tmp1[$v['group']]); $i++){
+						//	$tmp .= "<option value = '".$i."'>".$i."个</option>";
+						//}
+						//$tmp .= "</select>";
+					//}
+					$tbody .= "<tr data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td></td><td class = 'checked ".$v['group']."' data-type = '".$v['type']."' data-group = '".$v['group']."'>".$checked."</td></tr>";
+				}else{
+					$tbody .= "<tr data-field = '".$v['i']."' data-type = '".$v['type']."'><td></td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td></td><td  class = 'checked ".$v['group']."' data-type = '".$v['type']."' data-group = '".$v['group']."'>".$checked."</td></tr>";
+				}
+			}else{
+				$default = '';
+				if( isset($auth2[$v['i']]) && isset($auth2[$v['i']]['d']) ){
+					if( $v['type'] == 'enum' ){
+						$default = $enumName[$auth2[$v['i']]['d']]['name'];
+						$tbody .= "<tr data-enum_id = '".$v['enum_id']."' data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input name = '".$v['i']."'  type = 'checkbox' class = 'aya-checkbox' /></td><td class = 'checked' data-d = '".$auth2[$v['i']]['d']."'>".$default."</td></tr>";
+					}
+				}else{
+					$tbody .= "<tr data-enum_id = '".$v['enum_id']."' data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input name = '".$v['i']."'  type = 'checkbox' class = 'aya-checkbox' /></td><td class = 'checked'></td></tr>";
+				}
+				
+			}
+			
+		}
+		
+		
+		
+		View::assign('auth', json_encode($auth2) );
+		View::assign('tbody',$tbody);
 		return View::fetch();
 	}
 
+	public function test(){
+		$r = Cache::get('tmp');
+		$a = json_decode($r['auth'],true);
+		dump($a);
+	}
+
 	public function edit_flow_auth(){
-	
+
 		if( $flowAuth = FlowAuth::where("flow_id = ".$_POST['flow_id']." && node_id = '".$_POST['node_id']."'")->find() ){
 			$flowAuth->auth = $_POST['auth'];
 			$flowAuth->save();
@@ -125,12 +221,7 @@ class F extends BaseController{
 		return View::fetch();
 	}
 
-	public function test(){
-		
-		$f = Flow::find(8)->toArray();
-		dump(json_decode($f['node'],true));
-		
-	}
+	
 
 	/**
      * 流程类型管理 - 删除
@@ -153,7 +244,7 @@ class F extends BaseController{
      * 后台管理首页
      */
     public function manage(){
-		View::assign('flow',Flow::field('id,title,maker,status,create_datetime,modify_datetime')->select());
+		View::assign('flow',Flow::field('id,title,maker,status,create_datetime,modify_datetime')->order('id desc')->select());
 		return View::fetch();
 	}
 	/**
@@ -183,9 +274,8 @@ class F extends BaseController{
      * 新增流程
      */
 	public function save_table(){
-		//sp();
-		//gp();
-		//$_POST['flow_name'] = '测试3修改';
+		
+		gp();
 
 		$_POST['form'] = str_replace('table-form-td-selected','',$_POST['form']);
 		if(isset($_POST['flow_id']) && $_POST['flow_id']){
@@ -201,9 +291,9 @@ class F extends BaseController{
 
 	 public function edit_table(array $post){
 
+		
+
 		$form = $post['form'];
-
-
 		$r = FlowTable::where('flow_id = '.$post['flow_id'])->order('i asc')->select()->toArray();
 		$field = column($r,'i');
 		if(!isset($post['data'])) $post['data'] = array();
@@ -220,18 +310,16 @@ class F extends BaseController{
 				$tableNameMap[$v['table']] = $v['table'];
 			}
 		}
-		
+
 		
 
+		
+		
 		$newFormmain = $newSubform = 0;
-
-
-		
 
 		if( count($subform) > 0){
 			$max = new Max;
 			$tmp = $max->get_max();
-
 			foreach($subform as $k => $v){
 				if($k == '主表'){
 					$form = str_replace('mainform','form-'.sprintf('%04d',$tmp['f']),$form);
@@ -242,26 +330,22 @@ class F extends BaseController{
 					$tableNameMap[$k] = 'subform-'.sprintf('%04d',$tmp['s']++);
 					$newSubform++;
 				}
-				
 			}
 		}
 
-		
-
 		if($newFormmain > 0 || $newSubform > 0 ) $max->set_max('flow_table',$newFormmain,$newSubform );
 		
-
 		//考虑连主表都没有的情况
-		
+
 
 		
-		
-		
+
 		foreach($post['data'] as $k => $v){
 			
 			if($v['type2'] == '新'){
 				if(substr($v['table'],0,1) == 'f' || substr($v['table'],0,1) == 's'){
 					$newField[$v['table']][] = $v;
+					
 				}else{
 					$table = isset($tableNameMap[$v['table']])?$tableNameMap[$v['table']]:$v['table'];
 					$newField[$table][] = $v;
@@ -275,16 +359,15 @@ class F extends BaseController{
 								rt('',$v['i'].'：修改后字段长度不能小于原来字段长度','e');
 							}
 						}
-
 					break;
 					case 'enum' :
 						//$update[] = $v;
 					break;
 					case 'checkbox' :
-						if($v['label'] != $field[$v['i']]['label']) $update[$v['table']][] = $v;
+						if($v['label'] != $field[$v['i']]['label'] || $v['group'] != $field[$v['i']]['group']) $update[$v['table']][] = $v;
 					break;
 					case 'radio' :
-						if($v['label'] != $field[$v['i']]['label']) $update[$v['table']][] = $v;
+						if($v['label'] != $field[$v['i']]['label'] || $v['group'] != $field[$v['i']]['group']) $update[$v['table']][] = $v;
 					break;
 					default:
 				}	
@@ -297,14 +380,9 @@ class F extends BaseController{
 		$tables = array();  // 已存在的数据表
 
 		$sql = '';
-
-		
-
-		
 		
 		foreach($update as $k => $v){
 			$sql = "";
-			
 			foreach($v as $k1 => $v1){
 				switch($v1['type']){
 					case 'varchar' :
@@ -312,39 +390,34 @@ class F extends BaseController{
 						FlowTable::update( ['length1' => $v1['length1'] ],['id' => $field[$v1['i']]['id']] );
 					break;
 					case 'checkbox':
-						FlowTable::update( ['label' => $v1['label'] ],['id' => $field[$v1['i']]['id']] );
+						FlowTable::update( ['label' => $v1['label'],'group' => $v1['group'] ],['id' => $field[$v1['i']]['id']] );
 					break;
 					case 'radio':
-						FlowTable::update( ['label' => $v1['label'] ],['id' => $field[$v1['i']]['id']] );
+						FlowTable::update( ['label' => $v1['label'],'group' => $v1['group'] ],['id' => $field[$v1['i']]['id']] );
 					break;
 					default:
 				}
 			}
-			
 			if($sql != ""){
 				$sql = substr($sql,0,-1);
 				$sql = "ALTER TABLE `s_".$k.'` '.$sql;
 				Db::execute($sql);
 			}
-			
-			
-			
-
 		}
 		
-		
-	
-
 		if(count($tableNameMap) > 0){
 			$r = FlowTable::where("flow_id = ".$post['flow_id'])->field('distinct table_name')->select()->toArray();
 			foreach($r as $k => $v){
 				$tables[] = $v['table_name'];
 			}
 		}
-	
 		
+		
+		halt($newField);
 
 		
+
+
 		$add1 = array();
 		foreach($newField as $k => $v){
 			
@@ -360,10 +433,12 @@ class F extends BaseController{
 						'i' => $v1['i'],
 						'label' => $v1['label'],
 						'type' => $v1['type'],
-						'length1' => $v1['length1']?$v1['length1']:null,
-						'length2' => $v1['length2']?$v1['length2']:null,
-						'enum_name' => $v1['enum_name']?$v1['enum_name']:null,
-						'enum_id' => $v1['enum_id']?$v1['enum_id']:null,
+						'length1' => $v1['length1']?$v1['length1']:0,
+						'length2' => $v1['length2']?$v1['length2']:0,
+						'enum_name' => $v1['enum_name']?$v1['enum_name']:'',
+						'enum_id' => $v1['enum_id']?$v1['enum_id']:0,
+						'group' => $v1['group'],
+						'main' => substr($k,0,1) == 'f'?1:0
 					);
 					$add1[] = $tmp;
 
@@ -404,10 +479,12 @@ class F extends BaseController{
 						'i' => $v1['i'],
 						'label' => $v1['label'],
 						'type' => $v1['type'],
-						'length1' => $v1['length1']?$v1['length1']:null,
-						'length2' => $v1['length2']?$v1['length2']:null,
-						'enum_name' => $v1['enum_name']?$v1['enum_name']:null,
-						'enum_id' => $v1['enum_id']?$v1['enum_id']:null,
+						'length1' => $v1['length1']?$v1['length1']:0,
+						'length2' => $v1['length2']?$v1['length2']:0,
+						'enum_name' => $v1['enum_name']?$v1['enum_name']:'',
+						'enum_id' => $v1['enum_id']?$v1['enum_id']:0,
+						'group' => $v1['group'],
+						'main' => substr($k,0,1) == 'f'?1:0
 					);
 					$add1[] = $tmp;
 
@@ -536,8 +613,11 @@ class F extends BaseController{
 			$data[$k]['length'] = isset($data[$k]['length'])?$data[$k]['length']:0;
 			$data[$k]['enum_name'] = isset($data[$k]['enum_name'])?$data[$k]['enum_name']:'';
 			$data[$k]['enum_id'] = isset($data[$k]['enum_id'])?$data[$k]['enum_id']:0;
+			$data[$k]['group'] = isset($data[$k]['group'])?$data[$k]['group']:'';
 			$newTable[$data[$k]['table_name']][] = $data[$k];
 		}
+
+		
 	
 		$flowTable = new FlowTable;
 		if(count($data) > 0) $flowTable->saveAll($data);

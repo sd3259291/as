@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CEMT</title>
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+	<link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+
+	<style type="text/css" >
+
+		
+		body {
+		 font-family: 'Open Sans', sans-serif;
+			background: #FFFFFF;
+		}
+		
+		table tbody tr td{
+			padding:10px !important
+		}
+
+
+
+	</style>
+
+</head>
+<body>
+	<div class="row" style = 'margin:20px 0'>
+		<div class="col s12">
+			<table class = 'dataTable table-small centered table-striped table row-border'>
+				<thead>
+					<tr>
+						<th>序号</th>
+						<th>操作人</th>
+						<th>状态</th>
+						<th>收到/发起时间</th>
+						<th>首次查看时间</th>
+						<th>处理时间</th>
+						<th>处理时长</th>
+					</tr>
+				</thead>
+				<tbody>
+					{$tbody|raw}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</body>
+</html>

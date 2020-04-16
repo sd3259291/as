@@ -154,15 +154,22 @@
 							
 						},
 					});
+				}else if($(e.target).hasClass('rizhi')){
+					let flow_id = $(e.target).data('flow_id');
+					top.layer.open({
+						title:'<span style = "font-size:12px">流程日志</span>',
+						area: ['800px','100%'],
+						offset:'1px',
+						shadeClose:true,
+						isOutAnim: false ,
+						maxmin: true,
+						type: 2, 
+						content:'__APP__/Fs/flow_log?flow_id='+flow_id
+					});
 				}
 			});
 
-
-
-
 			//$('#tbody a').eq(0).trigger('click');
-
-			
 
 			$('#search_table').keypress(function(e){
 				let text = $.trim($(this).val());

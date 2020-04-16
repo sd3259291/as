@@ -234,6 +234,15 @@ class PublicGet extends BaseController{
 		
 		return $r;
 	}
+	/**
+	+------------------------------------------------------------------------------
+	* 根据 enum_id 返回 枚举明细
+	+------------------------------------------------------------------------------
+	*/
+	public function get_enum_detail($enum_id){
+		$r = Db::table('s_enum_detail')->where('enum_id = '.$enum_id.' and status = 1')->order('sort asc')->select();
+		return json($r);
+	}
 
 
 	

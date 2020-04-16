@@ -133,7 +133,11 @@
 			
 		}
 
-		
+		textarea{
+			border:1px solid #afafaf;
+			width:calc(100% - 4px);
+			resize:none;
+		}
 			
 		
 		
@@ -449,35 +453,38 @@
 
 		type_content : function(type){
 			let content = "";
-			
 			// 文字
 			content += "<div class = 'row content-type' id = 'type-text'><div class = 'col s3'>文字内容</div><div class = 'col s9'><input type = 'text' class = 'aya-input' id = 'text' /></div></div>";
 			content += "<div class = 'row content-type' id = 'type-input'><div class = 'col s3'>输入框属性</div><div class = 'col s9'><input type = 'text' class = 'aya-input' id = 'input' /></div></div>";
-				
+			content += "<div class = 'row content-type' id = 'type-textarea'><div class = 'col s3'>文本域属性</div><div class = 'col s9'><input type = 'text' class = 'aya-input' id = 'textarea' /></div></div>";
 			let selectType = {$select|raw};
-				
 			let option = "";
 			for( let s of selectType ){
 				option += "<option value = '"+s.id+"'>"+s.name+"</option>";
 			}
-
 			content += "<div class = 'row content-type' id = 'type-select'><div class = 'col s3'>选择框类型</div><div class = 'col s9'><select id = 'select' class = 'browser-default'>"+option+"</select></div></div>";
-
 			content += "<div class = 'row content-type' id = 'type-checkbox'><div class = 'col s3'>复选框</div><div class = 'col s4'><select id = 'checkbox' class = 'browser-default'></select></div><div class = 'col s5'  style = 'text-align:left;padding-top:6px'><i class='material-icons text-color2' id = 'check-add' >add_box</i><i class='material-icons text-color5' style = 'margin-left:20px' id = 'check-edit' >build</i><i class='material-icons text-color3' style = 'margin-left:20px' id = 'check-dlt' >clear</i></div></div>";
-
 			content += "<div class = 'row content-type' id = 'type-radio'><div class = 'col s3'>单选框</div><div class = 'col s4'><select id = 'radio' class = 'browser-default'></select></div><div class = 'col s5'  style = 'text-align:left;padding-top:6px'><i class='material-icons text-color2' id = 'radio-add' >add_box</i><i class='material-icons text-color5' style = 'margin-left:20px' id = 'radio-edit' >build</i><i class='material-icons text-color3' style = 'margin-left:20px' id = 'radio-dlt' >clear</i></div></div>";
-
 			return content;
 		},
 
 		select_type_content : function(type = 'text'){
+			
 			$('.content-type').hide();
 			$('#type-' + type).show();
 			if(type == 'text'){
 				$('#text').focus();
 			}else if(type == 'input'){
 				$('#input').focus();
+			}else if(type == 'textarea'){
+				$('#textarea').focus();
 			}
+		},
+
+		fix_textarea(){
+			$('.table-form textarea').each(function(){
+				$(this).height( $(this).parent().height()  );
+			});
 		},
 
 		edit : function(){
@@ -539,6 +546,7 @@
 			let type = [
 				{ name : '文字' ,value : 'text'},
 				{ name : '输入框' , value : 'input'},
+				{ name : '文本域' , value : 'textarea'},
 				{ name : '选择框' , value : 'select' },
 				{ name : '复选框' , value : 'checkbox'},
 				{ name : '单选框' , value : 'radio'},
@@ -550,7 +558,6 @@
 				content += "<option value = '"+t.value+"' >"+t.name+"</option>";
 			}
 			content += "</select></div>";
-
 
 			//类型对应内容
 			
@@ -721,6 +728,9 @@
 							case 'input':
 								$('#input').val($('.table-form-td-selected2').eq(0).attr('data-attr')).focus();
 							break;
+							case 'textarea' :
+								$('#textarea').val($('.table-form-td-selected2').eq(0).attr('data-attr')).focus();
+							break;
 							case 'checkbox':
 								option = '';
 								$('.table-form-td-selected2').eq(0).find('input').each(function(){
@@ -842,6 +852,13 @@
 						}
 					});
 
+					// 文本域模式下，按回车事件
+					$('#textarea').keypress(function(e){
+						if(e.charCode == 13){
+							app.yes();
+						}
+					});
+
 
 
 					$('#type').change(function(){
@@ -866,7 +883,11 @@
 
 		yes : function(){
 
+			
+		
 			//div-img-border-selected
+
+			let date = new Date();
 			
 			let borderNone = ['border-top-none','border-left-none','border-right-none','border-bottom-none'];
 
@@ -879,7 +900,6 @@
 					if( $(this).hasClass('div-img-border-selected') ){
 						let id = $(this).prop('id');
 						borderNone.splice($.inArray( id + '-none' , borderNone),1);
-						
 					}
 				});
 			}
@@ -916,20 +936,26 @@
 					}
 					$('td.table-form-td-selected').html("<input readonly noselect type = 'text' class = 'aya-input form-input' />").attr('data-attr',inputAttr).attr('data-type','input');
 				break;
+				case 'textarea' :
+					let textareaAttr = $.trim($('#textarea').val());
+					$('td.table-form-td-selected').html("<textarea></textarea>").attr('data-attr',textareaAttr).attr('data-type','textarea');
+				break;
 				case 'select' :
 					$('td.table-form-td-selected').html("<select class='browser-default'><option>"+$("#select").find("option:selected").text()+"</option></select>");
 					$('td.table-form-td-selected').attr('data-select',$('#select').val()).attr('data-type','select').attr('data-name',$("#select").find("option:selected").text());
 				break;
 				case 'checkbox' : 
 					let checkboxHTML = '';
+					
+					let checkGroup = 'c' + date.getTime();
 					$('#checkbox option').each(function(i,v){
 						let checkboxName  = $(this).text();
 						let thisI = $(this).data('i')?$(this).data('i'):'';
 						
 						if(i + 1 == $('#checkbox option').length){
-							checkboxHTML += $(this).text() + " <input data-i = '"+thisI+"' data-name = '"+checkboxName+"' type='checkbox' class = 'aya-checkbox'> ";
+							checkboxHTML += $(this).text() + " <input name = '"+checkGroup+"' data-i = '"+thisI+"' data-name = '"+checkboxName+"' type='checkbox' class = 'aya-checkbox'> ";
 						}else{
-							checkboxHTML += $(this).text() + " <input data-i = '"+thisI+"'  data-name = '"+checkboxName+"' type='checkbox' class = 'aya-checkbox' style = 'margin-right:24px'> ";
+							checkboxHTML += $(this).text() + " <input name = '"+checkGroup+"' data-i = '"+thisI+"'  data-name = '"+checkboxName+"' type='checkbox' class = 'aya-checkbox' style = 'margin-right:24px'> ";
 						}
 					});
 					$('td.table-form-td-selected').html(checkboxHTML);
@@ -937,7 +963,7 @@
 				break;
 				case 'radio' : 
 					let radioHTML = '';
-					let date = new Date();
+
 					let radioGrou = 'r' + date.getTime();
 					$('#radio option').each(function(i,v){
 						let radioName  = $(this).text();
@@ -1879,6 +1905,8 @@
 			$('#form_body').on('dblclick','td',function(){
 				app.edit();
 			});
+
+			app.fix_textarea();
 		},
 	}
 	

@@ -128,7 +128,7 @@
 				
 				table = parentTable.attr('data-table')?parentTable.attr('data-table'):'mainform';
 
-				let length1 = '',length2 = '';
+				let length1 = '',length2 = '',group = '';
 
 				switch (type){
 					case 'input' :
@@ -140,6 +140,13 @@
 						tbody += "<tr data-type = 'input' data-table = 'mainform'><td>"+(trIndex++)+"</td><td>"+(table == 'mainform'?'主表':table)+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+$(this).data('attr')+"</td><td>输入框</td><td>"+fieldType+"</td><td><input type = 'text' class = 'aya-input' value = '"+length1+"' /></td><td></td></tr>";
 						$(this).attr('data-i',field);
 					break;
+					case 'textarea':
+						field = $(this).attr('data-i')?$(this).attr('data-i'):app.get_aindex();
+						type2 = app.get_type2(field,$(this).attr('data-i'));
+						tbody += "<tr data-type = 'input' data-table = 'mainform'><td>"+(trIndex++)+"</td><td>"+(table == 'mainform'?'主表':table)+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+$(this).data('attr')+"</td><td>文本域</td><td>text</td><td></td><td></td></tr>";
+						$(this).attr('data-i',field);
+
+					break;
 					case 'select' :
 						field = $(this).attr('data-i')?$(this).attr('data-i'):app.get_aindex();
 						type2 = app.get_type2(field,$(this).attr('data-i'));
@@ -150,7 +157,9 @@
 						$(this).find('input').each(function(){
 							field = $(this).attr('data-i')?$(this).attr('data-i'):app.get_aindex();
 							type2 = app.get_type2(field,$(this).attr('data-i'));
-							tbody += "<tr data-type = 'select' data-table = 'mainform'><td>"+(trIndex++)+"</td><td>"+(table == 'mainform'?'主表':table)+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+$(this).data('name')+"</td><td>复选框</td><td>整数</td><td>1</td><td></td></tr>";
+							group = $(this).prop('name');
+							
+							tbody += "<tr data-type = 'select' data-group = '"+group+"' data-table = 'mainform'><td>"+(trIndex++)+"</td><td>"+(table == 'mainform'?'主表':table)+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+$(this).data('name')+"</td><td>复选框</td><td>整数</td><td>1</td><td></td></tr>";
 							$(this).attr('data-i',field);
 						});
 					break;
@@ -158,7 +167,9 @@
 						$(this).find('input').each(function(){
 							field = $(this).attr('data-i')?$(this).attr('data-i'):app.get_aindex();
 							type2 = app.get_type2(field,$(this).attr('data-i'));
-							tbody += "<tr data-type = 'select' data-table = 'mainform'><td>"+(trIndex++)+"</td><td>"+(table == 'mainform'?'主表':table)+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+$(this).data('name')+"</td><td>单选框</td><td>整数</td><td>1</td><td></td></tr>";
+							group = $(this).prop('name');
+						
+							tbody += "<tr data-type = 'select' data-group = '"+group+"' data-table = 'mainform'><td>"+(trIndex++)+"</td><td>"+(table == 'mainform'?'主表':table)+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+$(this).data('name')+"</td><td>单选框</td><td>整数</td><td>1</td><td></td></tr>";
 							$(this).attr('data-i',field);
 						});
 					break;
@@ -222,9 +233,6 @@
 				o.td_width = JSON.stringify( get_parent().app.tdWidth );
 				o.type_id = app.flow_type;
 
-
-				
-
 				o.data = [];
 				o.flow_id = '{$Request.get.id}';
 				
@@ -239,19 +247,22 @@
 					tmp.length2 = null;
 					tmp.enum_name = c.eq(8).text();
 					tmp.enum_id = $(this).data('select')?$(this).data('select'):null;
+					tmp.group = $(this).data('group')?$(this).data('group'):null;
 
 					switch( $(this).children().eq(5).text() ){
 						case '输入框' :
 							tmp.type  = c.eq(6).find('select').val();
 							tmp.length1 = c.eq(7).find('input').val();
 						break;
+						case '文本域' :
+							tmp.type = 'textarea';
+							alert(1);
+						break;
 						case '选择框' :
 							tmp.type  = 'enum';
-							
 						break;
 						case '复选框' :
 							tmp.type  = 'checkbox';
-							
 						break;
 						case '单选框' :
 							tmp.type  = 'radio';
@@ -261,9 +272,11 @@
 						break;
 						default:
 					}
+					
 					o.data.push(tmp);
 				});
-
+				
+				
 				
 				layer.load(2,{offset:['30%'],success:function(){
 					

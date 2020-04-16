@@ -29,8 +29,8 @@ class Fs extends BaseController{
      */
 	 public function load_template(){
 
-		// $_POST['id'] = 7;
-		 //gp();
+		//$_POST['id'] = 7;
+		//gp();
 		
 		$auth = FlowAuth::where("node_id = 'creator' && flow_id = ".$_POST['id'])->find();
 		//$auth = $auth?json_decode($auth->auth):array();
@@ -43,7 +43,6 @@ class Fs extends BaseController{
 			$select[$v['i']][] = $v;
 		}
 
-		
 
 		if($auth){
 			$auth = json_decode($auth->auth);
@@ -2208,37 +2207,67 @@ class Fs extends BaseController{
 	}
 
 	public function cancel_do($post){
-
-		
-
-	
 		$username = SESSION::get('userinfo')['username'];
 		$flowId = $post['flowid'];
 		$flow  = Db::table('s_flows')->field('status,maker,table_name,table_id,table_resource,before_dlt')->where('id = '.$flowId)->find();
-
-
-		
 		if($flow['status'] == 9) return array('ok' => false,'msg' => '流程已结束，不能取消','e');
 		if($flow['maker'] != $username) return array('ok' => false,'msg' => '<span class  = "hint2">非制单人</span>不能取消','e');
 		//$tables = explode(',',$flow['table_name']);
-		
-		
 		/*
 		if($flow['before_dlt'] && !$post['not_before_dlt'] ){
 		
 			$r = action($flow['before_dlt'],array('flow' => $flow));
 			if(!$r['ok']) return array( 'ok' => false,'msg' => $r['msg']);
 		}*/
-		
-	
-		
 		Db::table('s_flows')->where('id = '.$flowId)->delete();
 		Db::table('s_flows_executor')->where('flow_id = '.$flowId)->delete();
 		Db::table('s_flows_comment')->where('flow_id = '.$flowId)->delete();
 		Db::table('s_flows_auth')->where('flows_id = '.$flowId)->delete();
-
 		return array('ok' => true);
-		
+	}
+
+	public function flow_log(){
+		$flowId = $_GET['flow_id'];
+        $flow = Db::table('s_flows')->where('id = '.$flowId)->field('maker_name,datetime,datetime_end')->find();
+        $tbody = "<tr><td>1</td><td>".$flow['maker_name']."</td><td>发起</td><td>".$flow['datetime']."</td><td>-</td><td>-</td><td>-</td></tr>";
+        $r = Db::table('s_flows_executor')->where('flow_id = '.$flowId)->order('id asc')->select();
+        $index = 2;
+        foreach($r as $k => $v){
+            $zt = '';
+            switch($v['status']){
+                case 0 :
+                    $zt = "<span style = 'color:#148AF5'>未读</span>";
+                break;
+                case 1:
+                    $zt = "<span style = 'color:#18B596'>已读</span>";
+                break;
+                case 2:
+                    $zt = "<span style = 'color:#F7A023'>已处理</span>";
+                break;
+                case 3:
+                    $zt = "<span style = 'color:#2aa515'>竞争执行</span>";
+                break;
+            }
+            $l = "";
+            if($v['datetime_h']){
+                $tmp = strtotime($v['datetime_h']) - strtotime($v['datetime_r']);
+                $day = floor($tmp / 86400);
+                $hour = floor(($tmp % 86400) / 3600);
+                $minute = floor( (($tmp % 86400) % 3600) / 60 );
+                if($day > 0) $l .= $day.'天';
+                if($hour > 0) $l .= $hour.'小时';
+                if($minute > 0) $l .= $minute.'分钟';
+                if($l == "") $l = "小于1分钟";
+            }
+            $tbody .= "<tr><td>$index</td><td>".$v['name']."</td><td>$zt</td><td>".$v['datetime_r']."</td><td>".$v['datetime_s']."</td><td>".$v['datetime_h']."</td><td>$l</td></tr>";
+            $index++;
+        }
+        if($flow['datetime_end']){
+            $tbody .= "<tr><td>$index</td><td>-</td><td>结束</td><td>".$flow['datetime_end']."</td><td>-</td><td>-</td><td>-</td></tr>";
+        }
+        
+        View::assign('tbody',$tbody);
+        return View::fetch();
 	}
 	
 
