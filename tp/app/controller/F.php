@@ -21,7 +21,6 @@ class F extends BaseController{
      * 流程类型管理
      */
 	public function flow_type(){
-
 		View::assign('lists',FlowType::select());
 		return View::fetch();
 	}
@@ -47,6 +46,27 @@ class F extends BaseController{
 		$ft->sort = $_POST['sort'];
 		$ft->save();
 		return a('','','s');
+	}
+	public function dlt_flow(){
+	
+		$flow = Flow::find($_POST['id']);
+		if(!$flow) return a('','流程不存在','e');
+		if($flow->status) return a('','流程已发布，不能删除','e');
+		$r = Db::table('s_flows')->where('flow_id = '.$_POST['id'])->field('id')->find();
+		if($r) return a('','已生成流程单，不能删除','e');
+		$flowTable = Db::query("select distinct table_name from s_flow_table where flow_id = ".$_POST['id']);
+		
+		foreach($flowTable as $k => $v){	
+		
+			Db::execute("drop table `s_".$v['table_name']."`");
+		}
+		
+		Flow::destroy($_POST['id']);
+		Db::table('s_flow_auth')->where('flow_id = '.$_POST['id'])->delete();
+		Db::table('s_flow_table')->where('flow_id = '.$_POST['id'])->delete();
+
+		return a('','','s');
+
 	}
 
 	/**
@@ -85,6 +105,18 @@ class F extends BaseController{
      */
 
 	public function flow_auth(){
+		//Cache::set('tmp',$_GET);
+
+		//$_GET = Cache::get('tmp');
+
+
+		$defaultType = array(
+			'0' => '用户姓名',
+			'1' => '用户岗位',
+			'2' => '用户部门',
+			'4' => '系统日期',
+
+		);
 
 		$auth = FlowAuth::where("flow_id = ".$_GET['flowid']." && node_id = '".$_GET['node']."'")->find();
 		$default = $auth2 = array();
@@ -96,10 +128,7 @@ class F extends BaseController{
 				$auth2[$v['i']] = $v;
 			}
 		}
-	
-		$attr = FlowTable::where("flow_id = ".$_GET['flowid'])->field('table_name,i,label,type,group,enum_name,enum_id')->order('table_name asc,id asc')->select()->toArray();
-
-		
+		$attr = FlowTable::where("flow_id = ".$_GET['flowid'])->field('table_name,i,label,type,group,enum_name,enum_id')->order('table_name asc,id asc')->select()->toArray();	
 		
 		$tmp = $tmp1 = $tmp2 = array();
 		$enumId = $enumName = array();
@@ -129,16 +158,15 @@ class F extends BaseController{
 				$tmp2[] = $attr[$i];
 			}
 		}
-
 		
-
-		
+		//halt($tmp1);
 		
 		$tbody = "";
-
 		
 		foreach($tmp2 as $k => $v){
+
 			$type = '';
+
 			if($v['type'] == 'checkbox'){
 				$type = "<span style = 'position:absolute;display:inline-block;height:12px;width:12px;color:#28a745;right:0;bottom:0;font-size:12px;line-height:12px'>复</span>";
 			}else if($v['type'] == 'radio'){
@@ -148,7 +176,7 @@ class F extends BaseController{
 			}
 
 			if(isset($tmp1[$v['group']])){
-				$checked = $auth2[$v['i']]['d'] == 1?'√':'';
+				$checked = ( isset($auth2[$v['i']]) && $auth2[$v['i']]['d'] == 1 )?'√':'';
 				if($v['i'] == $tmp1[$v['group']][0]['i']){
 					$tmp = "";
 					//if($v['type'] == 'checkbox'){
@@ -172,22 +200,23 @@ class F extends BaseController{
 				}else{
 					$tbody .= "<tr data-enum_id = '".$v['enum_id']."' data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input name = '".$v['i']."'  type = 'checkbox' class = 'aya-checkbox' /></td><td class = 'checked'></td></tr>";
 				}
-				
 			}
-			
 		}
+
+
 		
-		
-		
+		View::assign('defaulttype',json_encode($defaultType) );
 		View::assign('auth', json_encode($auth2) );
 		View::assign('tbody',$tbody);
 		return View::fetch();
 	}
 
 	public function test(){
-		$r = Cache::get('tmp');
-		$a = json_decode($r['auth'],true);
-		dump($a);
+		
+
+		dump($r);
+		
+		
 	}
 
 	public function edit_flow_auth(){
@@ -227,7 +256,9 @@ class F extends BaseController{
      * 流程类型管理 - 删除
      */
 	public function dlt_flow_type(){
-		// 不能删除的判断
+	
+		$r = Db::table('s_flow')->where('type_id = '.$_POST['id'])->field('id')->find();
+		if($r) return a('','已使用，不能删除','e');
 		FlowType::destroy($_POST['id']);
 		return a('','','s');
 	}
@@ -244,8 +275,31 @@ class F extends BaseController{
      * 后台管理首页
      */
     public function manage(){
-		View::assign('flow',Flow::field('id,title,maker,status,create_datetime,modify_datetime')->order('id desc')->select());
+		$r = $this->manage_query(array('page' => 1,'n' => 1000));
+		View::assign('page',$r['page_return']);
+		View::assign('tbody',$r['tbody']);
 		return View::fetch();
+	}
+	public function manage_search(){
+		 $r = $this->manage_query($_POST);
+        return a(array('tbody' => $r['tbody'],'page' => $r['page_return']),'','s');
+	}
+	public function manage_query($post){
+		$post['n'] = (int)$post['n'];
+		$post['page'] = (int)$post['page'];
+		$page_return = array();
+        $page_return['totles'] = Flow::count();     //总记录数 返回
+        $page_return['totle_page'] = ceil($page_return['totles'] / $post['n']);  //总页数 返回
+        $page_return['n'] = $post['n'];
+        $page_return['current_page'] = $post['page'];     //当前页 返回
+		$start = $page_return['n'] * ( $page_return['current_page'] - 1);
+		$r = Db::query(" select a.id,a.title,a.maker,a.status,a.create_datetime,a.modify_datetime,b.name as type_name from s_flow as a left join s_flow_type b on a.type_id = b.id order by a.id desc limit ".$start.",".$page_return['n']." ");
+		$tbody = "";
+		foreach($r as $k => $v){
+			$tbody .= "<tr data-id = '".$v['id']."'><td>".($v['type_name']?$v['type_name']:'无分类')."</td><td>".$v['title']."</td><td>".$v['maker']."</td><td>".($v['status']?'发布':'未发布')."</td><td>".$v['create_datetime']."</td><td>".$v['modify_datetime']."</td></tr>";
+		}
+		 return array('tbody' => $tbody,'page_return' => $page_return);
+
 	}
 	/**
      * 新建流程表格 - 第一步 新建表格
@@ -264,7 +318,7 @@ class F extends BaseController{
      * 新建流程表格 - 第二步 数据管理
      */
 	public function step_2(){
-		$r = FlowTable::where('flow_id = '.$_GET['id'])->field('table_name,i,length1,length2')->order('i asc')->select()->toArray();
+		$r = FlowTable::where('flow_id = '.$_GET['id'])->field('table_name,type,i,length1,length2')->order('i asc')->select()->toArray();
 		if(!$r) $r = array( array('i' => 'i000') );
 		View::assign( 'maxI',(int)substr($r[count($r) - 1]['i'],1) );
 		View::assign( 'field',json_encode(column($r,'i')) );
@@ -274,10 +328,9 @@ class F extends BaseController{
      * 新增流程
      */
 	public function save_table(){
-		
-		gp();
-
-		$_POST['form'] = str_replace('table-form-td-selected','',$_POST['form']);
+		//sp();exit();
+		//gp();
+		$_POST['form'] = str_replace('table-form-td-selected','',trim($_POST['form']));
 		if(isset($_POST['flow_id']) && $_POST['flow_id']){
 			$r = $this->edit_table($_POST);
 		}else{
@@ -290,17 +343,15 @@ class F extends BaseController{
      */
 
 	 public function edit_table(array $post){
-
-		
-
 		$form = $post['form'];
 		$r = FlowTable::where('flow_id = '.$post['flow_id'])->order('i asc')->select()->toArray();
+		
 		$field = column($r,'i');
 		if(!isset($post['data'])) $post['data'] = array();
 		
 		$tableNameMap = $newField = $newTable = $update = array();
 		
-		$subform = array();
+		$subform = array();  // 需要新加的table
 		foreach($post['data'] as $k => $v){
 			if($v['type2'] == '新'){
 				$tmp = substr($v['table'],0,1);
@@ -310,13 +361,7 @@ class F extends BaseController{
 				$tableNameMap[$v['table']] = $v['table'];
 			}
 		}
-
-		
-
-		
-		
 		$newFormmain = $newSubform = 0;
-
 		if( count($subform) > 0){
 			$max = new Max;
 			$tmp = $max->get_max();
@@ -332,16 +377,42 @@ class F extends BaseController{
 				}
 			}
 		}
-
 		if($newFormmain > 0 || $newSubform > 0 ) $max->set_max('flow_table',$newFormmain,$newSubform );
 		
 		//考虑连主表都没有的情况
 
+		//考虑连主表都没有的情况 - 结束
 
+
+
+
+		// 多个 table 的情况，第二个table 会找不到主表
+		if( count($tableNameMap) > 0 ){
+			$tmp = '';
+			foreach($tableNameMap as $k => $v){
+				if( substr($v,0,1) == 'f'){
+					$tmp = $v;
+					break;
+				}
+			}
+			if($tmp != '' && isset( $tableNameMap['主表'] ) ) $tableNameMap['主表'] = $tmp;
+		}
+		//结束
 		
+		$hasSend = false;
+		$checkSendTables = array();
+		foreach($field as $k => $v){
+			$checkSendTables[$v['table_name']] = 1;
+		}
+		
+		foreach($checkSendTables as $k => $v){
+			if( count(Db::query("select id from `s_".$k."` limit 1")) > 0 ){
+				$hasSend = true;
+				break;
+			}
+		}
 
 		foreach($post['data'] as $k => $v){
-			
 			if($v['type2'] == '新'){
 				if(substr($v['table'],0,1) == 'f' || substr($v['table'],0,1) == 's'){
 					$newField[$v['table']][] = $v;
@@ -353,14 +424,58 @@ class F extends BaseController{
 			}else{
 				switch($v['type']){
 					case 'varchar':
-						if($field[$v['i']]['length1'] != $v['length1']){
-							 $update[$v['table']][] = $v;
-							if( $v['length1'] < $field[$v['i']]['length1'] ){
-								rt('',$v['i'].'：修改后字段长度不能小于原来字段长度','e');
+
+						if( $hasSend ){
+							if( $v['type'] != $field[$v['i']]['type']){
+								rt('',$v['i'].'：已生成流程单，不能修改字段类型','e'); 
+							}
+							if($field[$v['i']]['length1'] != $v['length1']){
+								if( $v['length1'] < $field[$v['i']]['length1'] ){
+									rt('',$v['i'].'：修改后字段长度不能小于原来字段长度','e');
+								}
+								$update[$v['table']][] = $v;
+							}
+						}else{
+							if($field[$v['i']]['length1'] != $v['length1']){
+								$update[$v['table']][] = $v;
 							}
 						}
 					break;
-					case 'enum' :
+					case 'int' :
+						if( $hasSend ){
+							if( $v['type'] != $field[$v['i']]['type']){
+								rt('',$v['i'].'：已生成流程单，不能修改字段类型','e'); 
+							}
+							if($field[$v['i']]['length1'] != $v['length1']){
+								if( $v['length1'] < $field[$v['i']]['length1'] ){
+									rt('',$v['i'].'：修改后字段长度不能小于原来字段长度','e');
+								}
+								$update[$v['table']][] = $v;
+							}
+						}else{
+							if($field[$v['i']]['length1'] != $v['length1']){
+								$update[$v['table']][] = $v;
+							}
+						}
+					break;
+					case 'decimal' :
+						if( $hasSend ){
+							if( $v['type'] != $field[$v['i']]['type']){
+								rt('',$v['i'].'：已生成流程单，不能修改字段类型','e'); 
+							}
+							if($field[$v['i']]['length1'] != $v['length1'] || $field[$v['i']]['length2'] != $v['length2']){
+								if( $v['length1'] < $field[$v['i']]['length1'] || $v['length2'] < $field[$v['i']]['length2']){
+									rt('',$v['i'].'：修改后字段长度不能小于原来字段长度','e');
+								}
+								$update[$v['table']][] = $v;
+							}
+						}else{
+							if($field[$v['i']]['length1'] != $v['length1'] || $field[$v['i']]['length2'] != $v['length2']){
+								$update[$v['table']][] = $v;
+							}
+						}
+					break;
+					case 'enum':
 						//$update[] = $v;
 					break;
 					case 'checkbox' :
@@ -374,26 +489,32 @@ class F extends BaseController{
 			}
 		}
 
-
-		
 		
 		$tables = array();  // 已存在的数据表
 
 		$sql = '';
-		
+
 		foreach($update as $k => $v){
 			$sql = "";
 			foreach($v as $k1 => $v1){
 				switch($v1['type']){
 					case 'varchar' :
 						$sql .= " modify column ".$v1['i']." varchar(".$v1['length1']."),";
-						FlowTable::update( ['length1' => $v1['length1'] ],['id' => $field[$v1['i']]['id']] );
+						FlowTable::update( ['type' => 'varchar','length1' => $v1['length1'] ],['id' => $field[$v1['i']]['id']] );
+					break;
+					case 'int' :
+						$sql .= " modify column ".$v1['i']." int(".$v1['length1']."),";
+						FlowTable::update( ['type' => 'int' , 'length1' => $v1['length1'] ],['id' => $field[$v1['i']]['id']] );
+					break;
+					case 'decimal' :
+						$sql .= " modify column ".$v1['i']." decimal(".$v1['length1'].",".$v1['length2']."),";
+						FlowTable::update( ['type' => 'decimal','length2' => $v1['length2'],'length1' => $v1['length1'] ],['id' => $field[$v1['i']]['id']] );
 					break;
 					case 'checkbox':
-						FlowTable::update( ['label' => $v1['label'],'group' => $v1['group'] ],['id' => $field[$v1['i']]['id']] );
+						//FlowTable::update( ['label' => $v1['label'],'group' => $v1['group'] ],['id' => $field[$v1['i']]['id']] );
 					break;
 					case 'radio':
-						FlowTable::update( ['label' => $v1['label'],'group' => $v1['group'] ],['id' => $field[$v1['i']]['id']] );
+						//FlowTable::update( ['label' => $v1['label'],'group' => $v1['group'] ],['id' => $field[$v1['i']]['id']] );
 					break;
 					default:
 				}
@@ -404,7 +525,7 @@ class F extends BaseController{
 				Db::execute($sql);
 			}
 		}
-		
+
 		if(count($tableNameMap) > 0){
 			$r = FlowTable::where("flow_id = ".$post['flow_id'])->field('distinct table_name')->select()->toArray();
 			foreach($r as $k => $v){
@@ -412,12 +533,6 @@ class F extends BaseController{
 			}
 		}
 		
-		
-		halt($newField);
-
-		
-
-
 		$add1 = array();
 		foreach($newField as $k => $v){
 			
@@ -445,6 +560,15 @@ class F extends BaseController{
 					switch($v1['type']){
 						case 'varchar':
 							$sql .= " ADD COLUMN ".$v1['i']." VARCHAR(".$v1['length1'].") DEFAULT NULL,";
+						break;
+						case 'int':
+							$sql .= " ADD COLUMN ".$v1['i']." int(".$v1['length1'].") DEFAULT NULL,";
+						break;
+						case 'decimal':
+							$sql .= " ADD COLUMN ".$v1['i']." decimal(".$v1['length1'].",".$v1['length2'].") DEFAULT NULL,";
+						break;
+						case 'textarea' :
+							$sql .= " ADD COLUMN ".$v1['i']." text,";
 						break;
 						case 'enum' :
 							$sql .= " ADD COLUMN ".$v1['i']." int(11) DEFAULT NULL,";
@@ -494,6 +618,15 @@ class F extends BaseController{
 							case 'varchar':
 								$sql .= "`".$v1['i']."` varchar(".$v1['length1'].") DEFAULT NULL,";
 							break;
+							case 'int' :
+								$sql .= "`".$v1['i']."` int(".$v1['length1'].") DEFAULT NULL,";
+							break;
+							case 'decimal' :
+								$sql .= "`".$v1['i']."` decimal(".$v1['length1'].",".$v1['length2'].") DEFAULT NULL,";
+							break;
+							case 'textarea' :
+								$sql .= "`".$v1['i']."` text,";
+							break;
 							case 'enum' :
 								$sql .= "`".$v1['i']."` int(11) DEFAULT 0,";
 							break;
@@ -518,28 +651,27 @@ class F extends BaseController{
 				}else{
 					$sql .= " PRIMARY KEY (`id`) ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;";
 				}
-
 				Db::execute($sql);
-
-
 			}
-
 		}
-		
 
-		
-		
-		
 		$update2 = array('type_id' => $post['type_id'],'td_width' => $post['td_width'],'form' => $form,'title' => trim($post['flow_name']),'modify_datetime' => date('Y-m-d H:i:s'),'cut_form' => $this->cut_form($form) ) ;
 
 		Flow::update($update2,  array( 'id' => $post['flow_id'] ) );
-		
+
 		$flowTable = new FlowTable;
 		
 		if(count($add1) > 0) $flowTable->saveAll($add1);
+
+
+		if($update2['type_id'] > 0){
+			$r = FlowType::find($update2['type_id']);
+			$update2['type_name'] = $r->name;
+		}else{
+			$update2['type_name'] = '无分类';		
+		}
 		
 		rt($update2,'','s');
-		
 
 	 }
 
@@ -554,7 +686,6 @@ class F extends BaseController{
 		$form = str_replace('class=""','',$form);
 		$form = preg_replace('/data-x="\d{1,2}"/','',$form);
 		$form = preg_replace('/data-y="\d{1,2}"/','',$form);
-		
 		return $form;
 	 }
 
@@ -599,15 +730,13 @@ class F extends BaseController{
 		$flow->type_id = $post['type_id'];
 		$flow->cut_form =  $this->cut_form($form);
 
-		
-		
 
 		$flow->save();
 
 		$newTable = array();
 
 		foreach($data as $k => $v){
-			$data[$k]['flow_id'] = $flow['id'];
+			$data[$k]['flow_id'] = $flow->id;
 			$data[$k]['main'] = $data[$k]['table'] == 'mainform' ? 1: 0;
 			$data[$k]['table_name'] = $tableNameMap[$data[$k]['table']];
 			$data[$k]['length'] = isset($data[$k]['length'])?$data[$k]['length']:0;
@@ -616,7 +745,6 @@ class F extends BaseController{
 			$data[$k]['group'] = isset($data[$k]['group'])?$data[$k]['group']:'';
 			$newTable[$data[$k]['table_name']][] = $data[$k];
 		}
-
 		
 	
 		$flowTable = new FlowTable;
@@ -636,6 +764,12 @@ class F extends BaseController{
 					switch($v1['type']){
 						case 'varchar':
 							$sql .= "`".$v1['i']."` varchar(".$v1['length1'].") DEFAULT NULL,";
+						break;
+						case 'int' :
+							$sql .= "`".$v1['i']."` int(".$v1['length1'].") DEFAULT NULL,";
+						break;
+						case 'decimal' :
+							$sql .= "`".$v1['i']."` decimal(".$v1['length1'].",".$v1['length2'].") DEFAULT NULL,";
 						break;
 						case 'enum' :
 							$sql .= "`".$v1['i']."` int(11) DEFAULT 0,";
@@ -665,7 +799,17 @@ class F extends BaseController{
 			Db::execute($sql);
 		}
 
-		rt($flow->toArray(),'','s');
+			
+		$r = $flow->toArray();
+		
+		if($r['type_id'] > 0){
+			$tmp = FlowType::find($r['type_id']);
+			$r['type_name'] = $tmp->name;
+		}else{
+			$r['type_name'] = '无分类';
+		}
+
+		rt($r,'','s');
 		
 	 }
 

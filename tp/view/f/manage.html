@@ -8,7 +8,7 @@
 				<div class="btn-group left  margin-right-100" role="group" >
 					<button class = 'btn btn-default btn-default-1' id = 'new' >  <i class="material-icons text-color2"  >add_box</i> 新增</button>
 					<button class = 'btn btn-default btn-default-1' id = 'edit-form'>  <i class="material-icons text-color5"  >create</i> 编辑表单</button>
-					<button class = 'btn btn-default btn-default-1' id = 'edit-flow'>  <i class="material-icons text-color5"  >create</i> 编辑流程</button>
+					<button class = 'btn btn-default btn-default-1' id = 'edit-flow'>  <i class="material-icons text-color5"  >repeat</i> 编辑流程</button>
 					<button class = 'btn btn-default btn-default-1' id = 'dlt' >  <i class="material-icons text-color3"  >clear</i> 删除</button>
 					<button class = 'btn btn-default btn-default-1' id = 'change_status'>  <i class="material-icons text-color4"  >transform</i> 禁用/发布</button>
 					<button class = 'btn btn-default btn-default-1' id = 'search'>  <i class="material-icons text-color1"  >search</i> 搜索</button>
@@ -29,27 +29,15 @@
 					<thead>
 						<tr><th>类型</th><th>表单名</th><th>创建人</th><th>状态</th><th>创建时间</th><th>修改时间</th></tr>
 					</thead>
-					<tbody>
-						{volist name = 'flow' id = 'f'}
-							<tr data-id = '{$f.id}'><td>类型</td><td>{$f.title}</td><td>{$f.maker}</td><td>{$f.status ? '发布':'未发布'}</td><td>{$f.create_datetime}</td><td>{$f.modify_datetime}</td></tr>
-						{/volist}
+					<tbody id = 'tbody'>
+						{$tbody|raw}
 					</tbody>
 				</table>
 			</div>
 		</div>
-		
-		
-		
-		{include file='public/page/page' /}
-	
-
-					
+		{include file='public/page/page' /}		
 	</div>
 </div>
-<style type="text/css">
-	
-</style>
-
 <script>
 
 	var app = {
@@ -94,20 +82,19 @@
 		},
 
 		add_new_flow(data){
-			let tr = $("<tr><td>类型</td><td>"+data.title+"</td><td>"+data.maker+"</td><td>未发布</td><td>"+data.create_datetime+"</td><td></td></tr>");
-			app.table.row.add(tr).draw();
+			let tr = $("<tr data-id = '"+data.id+"'><td>"+data.type_name+"</td><td>"+data.title+"</td><td>"+data.maker+"</td><td>未发布</td><td>"+data.create_datetime+"</td><td></td></tr>");
+			app.table.destroy();
+			$('#table tbody').prepend(tr);
+			app.table = d_table();
 		},
 
 		ini : function(){
-
 			app.table = d_table();
-
 			let div = [
 				{ 'name' : '登录名：' ,'id' : 'username' ,'type' : 'text'},
 				{ 'name' : '用户名：' ,'id' : 'name' ,'type' : 'text'},
 				{ 'name' : '密码：' ,'id' : 'password' ,'type' : 'text'},
 			];
-
 			$('#change_status').click(function(){
 				if($('#table tbody tr.selected').length == 0) return false;
 				let o = {};
@@ -203,6 +190,24 @@
 				});
 			});
 
+			$('#dlt').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+				let id = $('#table tbody tr.selected').eq(0).data('id');
+				layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+					let o = {};
+					o.id = $('#table tbody tr.selected').eq(0).data('id');
+					$.post('__APP__/F/dlt_flow',o,function(d){
+						if(d.status == 's'){
+							app.table.row( $('#table tbody tr.selected').eq(0) ).remove().draw();
+							layer_success();
+						}else{
+							layer_error(d);
+						}
+						layer.close(index);
+					});	
+				});
+			});
+
 		
 			$('#search_table').keypress(function(e){
 				let text = $.trim($(this).val());
@@ -211,7 +216,7 @@
 				}
 			});
 
-			page('__APP__/Auth/getUser',app.table,app.searchOption);
+			page('__APP__/F/manage_search',app.table,app.searchOption);
 
 			$('#search').click(function(){
 				let div2 = [
@@ -264,7 +269,7 @@
 
 			$('#table tr').eq(1).addClass('selected');
 
-			$('#edit-form').trigger('click');
+			//$('#edit-form').trigger('click');
 
 		},	
 

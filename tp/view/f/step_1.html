@@ -196,6 +196,8 @@
 			<li><a href="javascript:void(0)" id = 'insert-row-left'>插入一列（左边）</a></li>
 			<li><a href="javascript:void(0)" id = 'dlt-col'>删除行</a></li>
 			<li><a href="javascript:void(0)" id = 'dlt-row'>删除列</a></li>
+			<li><a href="javascript:void(0)" id = 'dlt-table'>删除表格</a></li>
+
 		</ul>
 
 
@@ -296,15 +298,12 @@
 					return false;
 				}
 			});
-
 			if( (bottom - top + 1) * (right - left + 1) != $('.table-form-td-selected').length ){
 				canMerge = false;
 			}
 
 			if(canMerge) app.set_merge_restore_button(false,true);
 		},
-		
-
 		// 增加 TD 选择标识
 		create_current_border : function(){
 			app.create_current_border_do(app.startTd,app.endTd);
@@ -333,17 +332,19 @@
 		},
 		// 创建新表
 		create_table:function(w,h,width){
-
 			//app.tdWidth = new Map();
-		
+			let dataTable = '';
+			$('.table-form').each(function(){
+				if( $(this).data('table') ){
+					dataTable = " data-table = '" + $(this).data('table') + "' ";
+					return false;
+				}
+			});
 			width = Math.round(width / w) * w;
-
 			let tdWidth = width / w - 2;
-
-			let tmp = "<table class = 'table-form table noselect' style = 'margin:auto;width:"+(width+ 1)+"px'><tbody>";
+			let tmp = "<table class = 'table-form table noselect' style = 'margin:auto;width:"+(width+ 1)+"px' '"+dataTable+"'><tbody>";
 			for(let i = 0 ; i < h ; i++){
 				tmp += "<tr>";
-
 				for(let j = 0; j < w ; j++){
 					tmp += "<td  style = 'text-align:center;vertical-align:middle;max-width:"+tdWidth+"px;min-width:"+tdWidth+"px' colspan = 1 rowspan = 1 data-x = "+j+" data-y = "+i+" data-type = 'text' ></td>";
 				}
@@ -358,7 +359,6 @@
 		table_index : function(){
 			let max = -1;
 			let newTableIndex = 0;
-
 			for(let i = 0 ; i < $('.table-form').length; i++){
 				if( $('.table-form').eq(i).attr('data-index') ){
 					let tmp = parseInt($('.table-form').eq(i).attr('data-index'));
@@ -378,7 +378,6 @@
 			}
 			app.tdWidth[newTableIndex] = tmp;
 		},
-
 		// 合并 TD
 		merge : function(){			
 			let firstTd = $('.table-form-td-selected').eq(0);
@@ -450,7 +449,6 @@
 			$(td).remove();
 			
 		},
-
 		type_content : function(type){
 			let content = "";
 			// 文字
@@ -467,9 +465,7 @@
 			content += "<div class = 'row content-type' id = 'type-radio'><div class = 'col s3'>单选框</div><div class = 'col s4'><select id = 'radio' class = 'browser-default'></select></div><div class = 'col s5'  style = 'text-align:left;padding-top:6px'><i class='material-icons text-color2' id = 'radio-add' >add_box</i><i class='material-icons text-color5' style = 'margin-left:20px' id = 'radio-edit' >build</i><i class='material-icons text-color3' style = 'margin-left:20px' id = 'radio-dlt' >clear</i></div></div>";
 			return content;
 		},
-
 		select_type_content : function(type = 'text'){
-			
 			$('.content-type').hide();
 			$('#type-' + type).show();
 			if(type == 'text'){
@@ -483,7 +479,7 @@
 
 		fix_textarea(){
 			$('.table-form textarea').each(function(){
-				$(this).height( $(this).parent().height()  );
+				$(this).height( $(this).parent().height() );
 			});
 		},
 
@@ -494,10 +490,10 @@
 			let tdType = that.attr('data-type');
 			let content = "<div class = 'row new-container' >";
 			let align = [
-				{ title: '左对齐' , img : 'text_align_left' , align : 'left', id : 'text-align'},
+				{ title: '左对齐'   , img : 'text_align_left'   , align : 'left'  ,id : 'text-align'},
 				{ title: '水平居中' , img : 'text_align_center' , align : 'center',id : 'text-align'},
-				{ title: '右对齐' , img : 'text_align_right' , align : 'right',id : 'text-align'},
-				{ title: '顶端对齐' , img : 'text_align_top' , align : 'top',id : 'vertical-align'},
+				{ title: '右对齐'   , img : 'text_align_right'  , align : 'right' ,id : 'text-align'},
+				{ title: '顶端对齐' , img : 'text_align_top'    , align : 'top'   ,id : 'vertical-align'},
 				{ title: '垂直居中' , img : 'text_align_middle' , align : 'middle',id : 'vertical-align'},
 				{ title: '底部对齐' , img : 'text_align_bottom' , align : 'bottom',id : 'vertical-align'}
 			];
@@ -756,10 +752,7 @@
 								if(option != '') $('#radio').append(option);
 							break;
 							default:
-
 						}
-
-
 					}
 
 					// checkbox 增加事件
@@ -982,8 +975,21 @@
 				break;
 				default:
 			}
+
+			if( type == 'input' || type == 'textarea' ){
+				$('.table-form-td-selected').each(function(){
+					if( !$(this).attr('data-attr')){
+						if( $(this).prev().attr('data-type') == 'text' && $(this).prev().text() != '' ){
+							$(this).attr( 'data-attr' , $(this).prev().text() );
+						}
+					}
+				});
+			}
+
 			$('.table-form-td-selected').attr('data-type',type);
 			$('.table-form-td-selected').removeClass('table-form-td-selected');
+
+			
 	
 			layer.close(app.layerIndex);
 		},
@@ -1125,7 +1131,12 @@
 			});
 
 			//删除列 - 结束
-
+			
+			//删除表格
+			$('#dlt-table').click(function(){
+				$(app.rightClickedO).parents('.table-form').remove();
+			});
+			//删除表格 - 结束
 
 			//删除行
 
@@ -1220,7 +1231,7 @@
 					let tmp = "<tr>";
 					$.each(tmpTdWidth,function(i,v){
 						if(v.r > 1) return true;
-						tmp += "<td data-x = '"+v.x+"' data-y = '"+(y+1)+"' colspan = '"+v.c+" rowspan = '1' style = 'text-align:center;vertical-align:middle;max-width:"+v.w+"px;min-width:"+v.w+"px'></td>";
+						tmp += "<td data-type = 'text' data-x = '"+v.x+"' data-y = '"+(y+1)+"' colspan = '"+v.c+" rowspan = '1' style = 'text-align:center;vertical-align:middle;max-width:"+v.w+"px;min-width:"+v.w+"px'></td>";
 					});
 					tmp += "</tr>";
 					$(app.rightClickedO).parents('tr').after(tmp);
@@ -1265,7 +1276,7 @@
 					let tmp = "<tr>";
 					$.each(tmpTdWidth,function(i,v){
 						//if(v.r > 1) return true;
-						tmp += "<td data-x = '"+v.x+"' data-y = '"+(y)+"' colspan = '"+v.c+" rowspan = '1' style = 'text-align:center;vertical-align:middle;max-width:"+v.w+"px;min-width:"+v.w+"px'></td>";
+						tmp += "<td data-type = 'text' data-x = '"+v.x+"' data-y = '"+(y)+"' colspan = '"+v.c+" rowspan = '1' style = 'text-align:center;vertical-align:middle;max-width:"+v.w+"px;min-width:"+v.w+"px'></td>";
 					});
 					tmp += "</tr>";
 					$(app.rightClickedO).parents('tr').before(tmp);
@@ -1686,8 +1697,12 @@
 							for(let i = 0; i < changed.length; i++){
 								app.re_draw(changed[i]);
 							}
-						} 
-
+						}
+						//log('_____');
+						//log( 'table_width:' + $('.table-form').eq(0).width());
+						//$('.table-form').eq(0).find('tr').eq(0).children().each(function(i,v){
+							//log( i + ':' + $(this).width(),false);
+						//});
 						layer.close(index);
 					},
 				});
@@ -1723,6 +1738,7 @@
 			$('#next').click(function(){
 				
 				get_parent().app.step_1_html = $('#form_body').html();
+
 				get_parent().app.tdWidth = app.tdWidth;
 				get_parent().app.type_id = $('#type_id').val();
 				

@@ -67,6 +67,8 @@
 				$.post('__APP__/F/dlt_flow_type',o,function(d){
 					if(d.status == 's'){
 						$('#tbody tr.selected').eq(0).remove();
+					}else{
+						layer_error(d);
 					}
 				});
 			});

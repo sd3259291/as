@@ -24,10 +24,8 @@
 		table tbody tr td{
 			padding:0 !important;
 			height:32px !important;
-
-			
 		}
-		input[type='text']{width:50px;margin:0;height:18px;}
+		input[type='text']{width:40px;margin:0;height:18px;display:inline-block;text-align:center;padding:0;text-indent:0}
 	</style>
 	
 </head>
@@ -51,7 +49,7 @@
 	<div class = 'col s12'>
 		<table class = 'dataTable centered cell-border table-small'>
 			<thead>
-				<tr><th>序号</th><th>数据表</th><th>字段名</th><th></th><th>名称</th><th>类型</th><th>字段类型</th><th>长度</th><th>枚举类型</th></tr>
+				<tr><th>序号</th><th>数据表</th><th>字段名</th><th></th><th>名称</th><th>类型</th><th>字段类型</th><th style = 'width:100px'>长度</th><th>枚举类型</th></tr>
 			</thead>
 			<tbody id = 'tbody'>
 
@@ -69,7 +67,7 @@
 <script>
 	let app = {
 
-		form_body : $(get_parent().app.step_1_html),
+		form_body : $("<div>" + get_parent().app.step_1_html + "</div>"),
 		
 		flow_name : get_parent().app.flow_name,
 
@@ -104,7 +102,6 @@
 			}
 		},
 
-		
 		ini : function(){
 
 			$('#back').click(function(){
@@ -118,9 +115,9 @@
 			let field = '';
 			let type2 = ''; //新field 还是已存在的，或是弃用的
 			
-			let fieldType = "<select class = 'browser-default'><option value = 'varchar'>文本</option><option value = 'decimal'>小数</option></select>";
+			let fieldType = "<select class = 'browser-default field-type'><option value = 'varchar'>文本</option><option value = 'int'>整数</option><option value = 'decimal'>小数</option></select>";
 
-			$(app.form_body).find('td').each(function(i,v){
+			app.form_body.find('td').each(function(i,v){
 				let type =  $(this).data('type');
 				let parentTable = $(this).parent().parent().parent();
 				
@@ -128,16 +125,25 @@
 				
 				table = parentTable.attr('data-table')?parentTable.attr('data-table'):'mainform';
 
-				let length1 = '',length2 = '',group = '';
+				let length1 = '',length2 = '',group = '',input = '';
 
 				switch (type){
 					case 'input' :
 						field = $(this).attr('data-i')?$(this).attr('data-i'):app.get_aindex();
 						type2 = app.get_type2(field,$(this).attr('data-i'));
-
 						length1 = app.field[field]?app.field[field].length1:255;
-						
-						tbody += "<tr data-type = 'input' data-table = 'mainform'><td>"+(trIndex++)+"</td><td>"+(table == 'mainform'?'主表':table)+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+$(this).data('attr')+"</td><td>输入框</td><td>"+fieldType+"</td><td><input type = 'text' class = 'aya-input' value = '"+length1+"' /></td><td></td></tr>";
+
+						if( app.field[field] ){
+							if(app.field[field]['type'] == 'decimal' ){
+								input = "<input type = 'text' class = 'aya-input' value = '"+app.field[field]['length1']+"' /> <input type = 'text' class = 'aya-input' value = '"+app.field[field]['length2']+"' />";
+							}else{
+								input = "<input type = 'text' class = 'aya-input' value = '"+app.field[field]['length1']+"' />";
+							}
+						}else{
+							input = "<input type = 'text' class = 'aya-input' value = '255' />";
+						}
+
+						tbody += "<tr data-type = 'input' data-table = 'mainform'><td>"+(trIndex++)+"</td><td>"+(table == 'mainform'?'主表':table)+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+$(this).data('attr')+"</td><td>输入框</td><td>"+fieldType+"</td><td>"+input+"</td><td></td></tr>";
 						$(this).attr('data-i',field);
 					break;
 					case 'textarea':
@@ -225,21 +231,56 @@
 
 			$('#tbody').html(tbody);
 
+			$('#tbody tr').each(function(){
+				let field = $(this).children().eq(2).text();
+				if(app.field[field]){
+					$(this).children().eq(6).find('select').val( app.field[field]['type'] );
+				}
+			});
+
+			$('select.field-type').change(function(){
+
+				let field = $(this).parents('tr').children().eq(2).text();
+
+				let length1 ,length2,input;
+			
+				switch( $(this).val() ){
+					case 'varchar' :
+						length1 = (app.field[field] &&  app.field[field]['type'] == $(this).val() )?app.field[field].length1:255;
+						input = "<input type = 'text' class = 'aya-input' value = '"+length1+"' />";
+					break;
+					case 'int' :
+						length1 = (app.field[field] &&  app.field[field]['type'] == $(this).val() )?app.field[field].length1:11;
+						input = "<input type = 'text' class = 'aya-input' value = '"+length1+"' />";
+					break;
+					case 'decimal' :
+						length1 = (app.field[field] &&  app.field[field]['type'] == $(this).val() )?app.field[field].length1:8;
+						length2 = (app.field[field] &&  app.field[field]['type'] == $(this).val() )?app.field[field].length2:2;
+						input = "<input type = 'text' class = 'aya-input' value = '"+length1+"' /> <input type = 'text' class = 'aya-input' value = '"+length2+"' />";
+					break;
+					default:
+				}
+				$(this).parents('td').next().html( input );
+			});
+
+
 			$('#save').click(function(){
 
 				let o = {};
 				o.flow_name = app.flow_name;
-				o.form = $(app.form_body).prop('outerHTML');
+				o.form = app.form_body.html();
+				
 				o.td_width = JSON.stringify( get_parent().app.tdWidth );
 				o.type_id = app.flow_type;
-
 				o.data = [];
 				o.flow_id = '{$Request.get.id}';
+
+	
 				
 				$('#tbody tr').each(function(){
 					let tmp = {};
 					let c = $(this).children();
-					tmp.table = c.eq(1).text();
+					tmp.table = $.trim(c.eq(1).text());
 					tmp.i = c.eq(2).text();
 					tmp.type2 = c.eq(3).text();
 					tmp.label = c.eq(4).text();
@@ -252,11 +293,15 @@
 					switch( $(this).children().eq(5).text() ){
 						case '输入框' :
 							tmp.type  = c.eq(6).find('select').val();
-							tmp.length1 = c.eq(7).find('input').val();
+							if( tmp.type == 'decimal'){
+								tmp.length1 = c.eq(7).find('input').eq(0).val();
+								tmp.length2 = c.eq(7).find('input').eq(1).val();
+							}else{
+								tmp.length1 = c.eq(7).find('input').val();
+							}
 						break;
 						case '文本域' :
 							tmp.type = 'textarea';
-							alert(1);
 						break;
 						case '选择框' :
 							tmp.type  = 'enum';
@@ -281,14 +326,18 @@
 				layer.load(2,{offset:['30%'],success:function(){
 					
 					$.post('__APP__/F/save_table',o,function(d){
-						
+
 						if(d.status == 's'){
 							if(o.flow_id > 0){
 								parent.$('tr.selected').eq(0).children().eq(1).text(d.data.title);
+								parent.$('tr.selected').eq(0).children().eq(0).text(d.data.type_name);
 								parent.$('tr.selected').eq(0).children().eq(5).text(d.data.modify_datetime);
 							}else{
 								parent.app.add_new_flow(d.data);
 							}
+
+							parent.layer_success();
+
 							var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
 							parent.layer.close(index); //再执行关闭 
 						}else{
