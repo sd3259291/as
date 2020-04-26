@@ -92,55 +92,80 @@
 
 		mSelected: '',
 
-		auth : new Map(),
+		auth : {},
+
+		attr : {},
 
 		selected_tr : '',
 
+		current : {},
+
+		relation : {},
+
+		get1 : function(that){
+			let top  =  ($(that).parent().height() +  parseInt($(that).parent().css('paddingTop')) + parseInt($(that).parent().css('paddingBottom')) + parseInt($(that).parent().css('borderTopWidth')) + parseInt($(that).parent().css('borderBottomWidth'))) / 2 - 9 ;
+
+			return { top : top };
+		},
+
 		load_template : function(id){
 
-		
-			
 			app.template_id = id;
 			app.ue = {};
 			$('#edit-form').hide();
 			$('#see-form').show();
+			
 			$.post('__APP__/Fs/load_template',{id:id},function(d){
+				if(d.status != 's') layer_error(d);
+				app.auth = d.data.auth;
+				app.attr = d.data.attr;
 
-				
-				$('#form_content').html(d.data.form.cut_form);
+				$('#form_content').html(d.data.form);
 				$('#myEditor').remove();
-				$(d.data.auth).each(function(i,v){
-					
-					app.auth.set(v['i'],v);
-				});
 
 				$('#form_content').find('input').each(function(){
 					let i = $(this).parents('td').data('i') || $(this).data('i');
-					let a = app.auth.get(i);
-				
-					let type = $(this).attr('type') || $(this).parents('td').data;
+					let a = app.auth[i];
+					let type = a.b;
+					
 					if( !$(this).parents('table').hasClass('table-mul') ) $(this).attr('id',i);
 					
 					if(a){
-						if(a.a == 1){
+						if( parseInt(a.a) == 1){
+							if( parseInt(a.m) == 1 ) $(this).addClass('must');
+							$(this).addClass('edit');
 							switch(type){
-								case 'text' :
+								case 'person' :
+									if(a.person_id){
+										$(this).val(a.person_name).data('id',a.person_id);
+									}
+									$(this).parent().append("<img class = 'absolute select-person height18' src = '__PUBLIC__/image/flow/select-person.png' style = 'right:4px;top:"+app.get1(this).top+"px' />");
+								break;
+								case 'relation' :
+									if(a.d) $(this).val(a.d);
+									app.relation[i] = app.attr[i].relation_i;
+									$(this).parent().append("<img class = 'absolute select-"+a.relation_a+" height18' src = '__PUBLIC__/image/flow/relation-"+a.relation_a+".png' style = 'right:4px;top:"+app.get1(this).top+"px' />");
 									
-									$(this).attr('readonly',false);
 								break;
 								case 'checkbox' :
-									$(this).attr('disabled',false);
+									if( a.d == 1){
+										$(this).prop('checked',true);
+									}
 								break;
 								case 'radio' :
-									$(this).attr('disabled',false);
 								break;
 								default:
+									$(this).removeAttr('readonly');
+									if(a.d){
+										$(this).val(a.d);
+									}
 							}
-						}else if(a.a == 0){
+						}else if( parseInt(a.a) == 0){
+							$(this).addClass('read');
 							switch(type){
-								case 'text' :
-									$(this).attr('readonly',true);
-									$(this).parents('td').text( '' );
+								case 'varchar' :
+									//$(this).prop('disabled',true);
+									//$(this).parents('td').text( '' );
 								break;
 								case 'checkbox' :
 									$(this).attr('disabled',true);
@@ -152,7 +177,9 @@
 							}
 						}	
 					}
+
 				});
+
 
 				$('#form_content').find('select').each(function(){
 					let that = this;
@@ -168,8 +195,47 @@
 					app.re_index( this );
 				});
 
-
 				app.table_mul_add_row();
+
+				$('.select-person').click(function(){
+					app.current = $(this).parent().find('input');
+					let i = $(this).parent().data('i');
+				
+					parent.layer.open({
+						title:"<span style = 'font-size:12px'>选择员工</span>",
+						area: ['600px','500px'],
+						offset:'10%',
+						shadeClose:true,
+						isOutAnim: false ,
+						maxmin: true,
+						type: 2,
+						btn : ['确定'],
+						content:'__APP__/PublicGet/select_person',
+						yes : function(index,layero){
+							var iframeWin = window[layero.find('iframe')[0]['name']];
+						
+							if( iframeWin.$('#tbody tr.selected').length == 0 || iframeWin.$('#tbody tr.selected').eq(0).children().eq(0).text() == '-' ){
+								layer_error({ info : '请选择员工' });
+								return false;
+							}
+
+							let id   = iframeWin.$('#tbody tr.selected').eq(0).data('id');
+							let employee = iframeWin.app.d[id];
+
+							app.current.val(employee.v).data('id',id);
+
+							$.each(app.relation,function(k,v){
+								if( v == i ){
+									$('#' + k ).val( employee[ app.attr[k].relation_a] );
+								}
+							});
+							
+							parent.layer.close( index );
+						},
+
+					});
+		
+				});
 
 			});
 		},
@@ -247,32 +313,28 @@
 				o.node = JSON.stringify(app.flow_node);
 				o.form = app.ue.getContent();
 			}else{
-				app.auth.forEach(function(v,k){
-					if( !$('#' + v.i ).hasClass('table-mul') ){  // 主表
-						if( v.a == '1' ){
-							let type = $('#' + v.i ).attr('type');
-							
-							switch(type){
-								case 'text' :
-									field[v.i] = $('#' + v.i).val() ;
-								break ;
-								case 'select' : 
-									field[v.i] = $('#' + v.i).val() ;
-								break;
+				// 模板流程
+				$.each(app.auth,function(k,v){
+					if( v.z == 1 ){  // 主表
+						if( v.a == '1' ){ // 具有编辑权限
+							switch(v.b){
 								case 'checkbox' :
-									field[v.i] = $('#' + v.i).is(':checked')?1:0;
+									field[k] = $('#' + k).is(':checked')?1:0;
 								break;
 								case 'radio' :
-									field[v.i] = $('#' + v.i).is(':checked')?1:0;
+									field[k] = $('#' + k).is(':checked')?1:0;
+								break;
+								case 'person' :
+									field[k] = $('#' + k).data('id');
 								break;
 								default:
-									if( $('#' + v.i ).is('select') ){
-										field[v.i] = $('#' + v.i).val();
-									}
+									field[k] = $.trim( $('#' + k).val() );
 							}
 						}
 					}
 				});
+
+				
 				
 				$('.table-mul').each(function(){
 					let table = $(this).data('table');
@@ -300,34 +362,28 @@
 					});
 				});
 
-				
 				o.field = field;
 				o.subField = subField;
 
-				
-				
-
-
 			}
 
-		
-			
-			
-			
 
 			if(exc != '') o.executor = exc;
-			
 
 			
+			$('.field-error').removeClass('field-error');
 
-			$.post('__APP__/Fs/send',o,function(d){	
-
-			
+			$.post('__APP__/Fs/send',o,function(d){
 
 				if(d.status == 's'){
 					layer_success('发送成功！',2000);
 					$('#title').val('');
 				}else if(d.status == 'e'){
+
+					$.each(d.data,function(k,v){
+						$('#' + v.i).addClass('field-error');
+					});
+
 					layer_error(d);
 				}else if(d.status == 'm'){
 				//选择审核人 - 开始
@@ -496,19 +552,9 @@
 
 		ini : function(){
 
-
-
 			max_height('form_content',false);
 			app.ue = UE.getEditor('myEditor',{initialFrameHeight:$('#form_content').height() - 100});
 			$('.edui-container').height( $('#form_content').height() );
-
-			
-			
-			
-
-
-						
-
 
 			$('#send').click(function(){
 				app.send();
@@ -554,6 +600,20 @@
 					}
 				});
 			});
+
+			$('#see-form').click(function(){
+				parent.layer.open({
+					title:'<span style = "font-size:12px">流程查看</span>',
+					type: 2,
+					shadeClose:true,
+					offset:'0',
+					area: ['90%','100%'],
+					content: "__APP__/Fs/see2?flowid="+app.template_id,
+					isOutAnim: false,
+				});
+
+			});
+
 		}
 
 		
@@ -563,7 +623,7 @@
 
 	app.ini();
 
-	//app.load_template(6);
+	app.load_template(28);
 	
 </script>
 

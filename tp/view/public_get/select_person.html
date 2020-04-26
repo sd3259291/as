@@ -1,0 +1,126 @@
+<!DOCTYPE html>{__NOLAYOUT__}
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/DataTables-1.10.0/media/js/jquery.dataTables.min.js"></script>
+	<style type="text/css">
+		body{
+			background:#ffffff;
+			-moz-user-select: none;
+		}
+	</style>
+</head>
+<body>
+
+<div class = 'row' style = 'margin:0'>
+
+	<div class = 'col s3 aya-tab-content'>
+		<div class = 'aya-tab-content-top'>
+			<ul id="tree" class="ztree"></ul>
+		</div>
+	</div>
+
+	<div class = 'col s1'>
+
+	</div>
+
+	<div class = 'col s8'>
+		<div style = 'padding:5px 100px 5px 10px;'>
+			<div style = 'display:inline-block;position:relative'>
+				<img src = '__PUBLIC__/image/search.png' style = 'position:absolute;height:18px;right:0;top:8px' />
+				<input type = 'text' class = 'aya-input' id = 'search' />
+			</div>
+		</div>
+		<table class = 'dataTable row-border' id = 'table'>
+			<thead>
+				<tr><th>工号</th><th>姓名</th><th>岗位</th></tr>
+			</thead>
+			<tbody id = 'tbody'>
+			</tbody>
+		</table>
+	</div>
+
+</div>
+</body>
+<script>
+	var app = {
+		table : {},
+		d : {},
+		ini : function(){
+			let zNodes = {$tree|raw};
+			let setting = {
+				callback : {
+					onClick : function(event, treeId, treeNode){
+						let index = layer.load(2);
+						$.get('__APP__/PublicGet/get_employee_by_department?json=1&depId='+treeNode.id,function(d){
+							app.d = d;
+							let tmp = "";
+							$.each(d,function(k,v){
+								tmp += "<tr data-id = "+v.id+" ><td>"+v.k+"</td><td>"+v.v+"</td><td>"+v.post_name+"</td></tr>";
+							});
+							app.table.clear();
+							if(tmp != '') app.table.rows.add( $(tmp) );
+							app.table.draw();
+							layer.close(index);
+						});
+					},
+				}
+			};
+			app.zTreeObj = $.fn.zTree.init($("#tree"), setting, zNodes);
+			let treeObj = $.fn.zTree.getZTreeObj("tree");
+			treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
+
+			$('#search').keypress(function(e){
+				if(e.keyCode != 13) return false;
+				let tmp = $.trim($('#search').val());
+				if(tmp == '') return false;
+				let index = layer.load(2);
+				$.post('__APP__/PublicGet/get_employees_by_name',{name : tmp},function(d){
+					app.d = d;
+					let tmp = "";
+					$.each(d,function(k,v){
+						tmp += "<tr data-id = "+v.id+" ><td>"+v.k+"</td><td>"+v.v+"</td><td>"+v.post_name+"</td></tr>";
+					});
+					app.table.clear();
+					if(tmp != '') app.table.rows.add( $(tmp) );
+					app.table.draw();
+					layer.close(index);
+				});
+			});
+
+			let height = $(window).height() - $('#table').offset().top - 48;
+
+			let setting1 = {
+				paging: false,
+				scrollY:  height ,
+				info:false,
+				dom:'t',
+				order : []
+			};
+			select_tr('table');
+			app.table = $('#table').DataTable($.extend(setting1,setting));
+		}
+	}
+
+	app.ini();
+	
+
+
+	
+
+</script>
+</html>
+
+

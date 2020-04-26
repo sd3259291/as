@@ -10,7 +10,7 @@ use think\facade\Session;
 use think\facade\Db;
 
 use app\model\Department;
-
+use app\model\Employee;
 use think\facade\Cache;
 
 class PublicGet extends BaseController{
@@ -87,31 +87,34 @@ class PublicGet extends BaseController{
 	* $includeChildren 是否包含子部门 0 不包含   1 包含
 	+------------------------------------------------------------------------------
 	*/
-	public function get_employee_by_department($depId,$includeChildren = 0){
-		//Cache::set('tmp',$includeChildren);
+	public function get_employee_by_department($depId,$includeChildren = 1,$json = 0){
+		$depId = (int)$depId;
+		$r = array();
 		if($includeChildren == 0){
-			$r = Db::table('s_employee')->where('active = 1 && bmid = '.$depId)->field('number k,name v')->select();
+			$r = Db::query(" select a.id,a.number k,a.name v,d.name department_name,p.name post_name from s_employee a join s_department d on a.department_id = d.id join s_post p on a.post_id = p.id where a.active = 1 && a.department_id = ".$depId);
 		}else{
-			$d = action('index/P/get_structure_detail')[1];
-			$depIds = array();
+			$d = Db::table('s_department')->where('status = 1')->select()->toArray();
+			$pid = array();
 			foreach($d as $k => $v){
-				$depIds[$v][] = $k;
+				$pid[$v['pid']][] = $v;
 			}
-			$tmp = $this->get_children_dep($depIds,$depId);
-			$r = Db::table('s_employee')->where('active = 1 && bmid in ('.get_w($tmp,false).') ')->field('number k,name v')->select();
+			$tmp = $this->get_children_dep($pid,$depId);
+			$r = Db::query(" select a.id,a.number k,a.name v,d.name department_name,p.name post_name from s_employee a join s_department d on a.department_id = d.id join s_post p on a.post_id = p.id where a.active = 1 && a.department_id in (".get_w($tmp,false).") ");
 		}
-		return $r;
+		$r = column($r,'id');
+		return $json?json($r):$r;
 	}
+	
 	/**
 	+------------------------------------------------------------------------------
 	* 根据部门返回子部门
 	+------------------------------------------------------------------------------
 	*/
-	public function get_children_dep($depIds,$depId){
+	public function get_children_dep($pid,$depId){
 		$r = array($depId);
-		if($depIds[$depId]){
-			foreach($depIds[$depId] as $k => $v){
-				$tmp = $this->get_children_dep($depIds,$v);
+		if(isset($pid[$depId])){
+			foreach($pid[$depId] as $k => $v){
+				$tmp = $this->get_children_dep($pid,$v['id']);
 				$r = array_merge($r,$tmp);
 			}
 		}
@@ -242,6 +245,26 @@ class PublicGet extends BaseController{
 	public function get_enum_detail($enum_id){
 		$r = Db::table('s_enum_detail')->where('enum_id = '.$enum_id.' and status = 1')->order('sort asc')->select();
 		return json($r);
+	}
+	/**
+	+------------------------------------------------------------------------------
+	* 选择人员
+	+------------------------------------------------------------------------------
+	*/
+	public function select_person(){
+		$dept = new Department;
+		$tree = $dept->tree(false);
+		View::assign('tree',$tree);
+		return View::fetch();
+	}
+	/**
+	+------------------------------------------------------------------------------
+	* 根据人名返回员工列表
+	+------------------------------------------------------------------------------
+	*/
+	public function get_employees_by_name(){
+		$r = Db::query(" select a.id,a.number k,a.name v,d.name department_name,p.name post_name from s_employee a join s_department d on a.department_id = d.id join s_post p on a.post_id = p.id where a.active = 1 && a.name like '%".$_POST['name']."%'");
+		return json(column($r,'id'));
 	}
 
 

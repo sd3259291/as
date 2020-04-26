@@ -17,7 +17,9 @@ class FlowTable extends Model{
 		'enum_name' => 'varchar',
 		'enum_id' => 'int',
 		'main' => 'int',
-		'group' => 'varchar'
+		'group' => 'varchar',
+		'relation_i' => 'varchar',
+		'relation_a' => 'varchar'
 	];
 
 

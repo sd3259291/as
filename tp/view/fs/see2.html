@@ -9,10 +9,7 @@
 	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
 	<script src="__PUBLIC__/js/tool.js"></script>
 	<style type="text/css">
-		#creator{
-			left:10px;
-			top:30px
-		}
+		
 		#item_left,#item_right,#item_right2{
 			 position:absolute;
 		}
@@ -133,7 +130,11 @@
 			background:url('/a1/index/view/public/Image/flow/bg.png') 13px 12px
 		}
 
-
+		#creator{
+			left:10px;
+			top:30px;
+			border-width:1px
+		}
 
 	</style>
 </head>
@@ -150,15 +151,15 @@ var flow = {
 
 	count : 10000,
 
-	L : {},
-
-	H : {},  //记录 占了多少行
-
 	label : {$label|raw},
 
 	post : {$post|raw},
 
 	department: {$department|raw},
+
+	L : {},
+
+	H : {},  //记录 占了多少行
 	
 	itemWidth : 0,
 
@@ -182,7 +183,7 @@ var flow = {
 
 	node : {$node|raw},
 
-	executor : {$executor|raw},
+	executor : {},
 
 	c : {},               // 子级关系     child belones which father
 	
@@ -267,6 +268,7 @@ var flow = {
 	},
 
 	draw : function( id ){
+		
 
 		let imgUrl = '/a1/index/view/public/Image/flow/';
 		if( $('#creator').length == 0 ){
@@ -545,6 +547,7 @@ var flow = {
 
 	ini : function(){
 		
+
 		
 		for(let i in flow.node){
 			flow.node[i].id = i;
@@ -736,39 +739,6 @@ var flow = {
 	},
 
 
-	add_hover : function(){
-		for(let i in flow.node){
-			if(flow.node[i].S == 'p' || flow.node[i].D == -1) continue;
-			if(flow.executor[i] == undefined) continue;
-			let tmp;
-			let content = '';
-			if(flow.node[i].Z == 1){
-				content += "单人执行</br>";	
-			}else if(flow.node[i].Z == 2){
-				content += "多人执行</br>";	
-			}else if(flow.node[i].Z == 3){
-				content += "全体执行</br>";	
-			}else if(flow.node[i].Z == 4){
-				content += "竞争执行</br>";	
-			}
-
-		
-			for(let j in flow.executor[i]){
-				content += "<div><div style = 'display:inline-block;width:50px' >" + flow.executor[i][j]['name'] + "</div>" +  flow.executor[i][j]['status'] + "</div>";
-			}
-			$('#' + i).hover(function(){
-				tmp = layer.tips(content, '#' + i, {
-				  time : 100000,
-				  tips: [3, '#4cae4c']
-				})
-			},function(){
-				layer.close(tmp);
-			});
-
-			
-			
-		}
-	},
 
 
 	re_get_c : function(){
@@ -860,7 +830,7 @@ var flow = {
 
 		flow.add_x();
 
-		flow.add_hover();
+		
 
 		flow.createLine('creator');
 	
@@ -911,7 +881,10 @@ var flow = {
 			
 			let top,left,width,height,div;
 
+
+
 			if(tmp1 == tmp2){
+				
 				top = tmp1;
 				left = o1.left + w1;
 				width = o2.left - o1.left - w1 ;
@@ -929,6 +902,7 @@ var flow = {
 				flow.createDiv(top,left,width,0,color);
 
 			}else{
+				
 				top = tmp1;
 				left = o1.left + w1;
 				width = o2.left - o1.left - w1 + tmpWidth ;

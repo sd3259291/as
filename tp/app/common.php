@@ -43,9 +43,14 @@ function get_w($d,$kh = true,$kv = true){
 }
 
 function sp(){
-	cache('tmp',$_POST);
+	if(count($_POST) > 0 ){
+		cache('tmp',$_POST);
+	}else{
+		cache('tmp',$_GET);
+	}
+	
 }
 
 function gp(){
-	$_POST = cache('tmp');
+	$_GET = $_POST = cache('tmp');
 }

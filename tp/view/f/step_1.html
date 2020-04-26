@@ -471,7 +471,14 @@
 			if(type == 'text'){
 				$('#text').focus();
 			}else if(type == 'input'){
+				
+				if( $('.table-form-td-selected').length == 1 && $('#input').val() == '' ){
+					
+					$('#input').val( $('.table-form-td-selected').eq(0).prev().text() );
+				}
+
 				$('#input').focus();
+
 			}else if(type == 'textarea'){
 				$('#textarea').focus();
 			}
@@ -713,6 +720,8 @@
 					app.select_type_content(tdType);
 					$('#type').val(tdType);
 
+
+
 					// 文字
 					let option = '';
 					if( $('.table-form-td-selected2').length == 1 ){
@@ -852,13 +861,11 @@
 						}
 					});
 
-
-
 					$('#type').change(function(){
+					
 						app.select_type_content($(this).val());
 					});
 					
-
 					$('.table-form-td-selected2').addClass('table-form-td-selected').removeClass('table-form-td-selected2');
 
 				},

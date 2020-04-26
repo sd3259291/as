@@ -106,30 +106,28 @@ class F extends BaseController{
 
 	public function flow_auth(){
 		//Cache::set('tmp',$_GET);
-
 		//$_GET = Cache::get('tmp');
 
-
 		$defaultType = array(
-			'0' => '用户姓名',
-			'1' => '用户岗位',
-			'2' => '用户部门',
-			'4' => '系统日期',
-
+			1   => '登陆者用户',
+			100 => '用户姓名',
+			101 => '用户岗位',
+			102 => '用户部门',
+			103 => '系统日期',
 		);
-
 		$auth = FlowAuth::where("flow_id = ".$_GET['flowid']." && node_id = '".$_GET['node']."'")->find();
 		$default = $auth2 = array();
 		if(!$auth){
-			$auth = ['no' => 1];
+			$auth = [];
 		}else{
-			$auth = json_decode($auth['auth'],true);
+			$auth = json_decode($auth->auth,true);
 			foreach($auth as $k => $v){
-				$auth2[$v['i']] = $v;
+				$auth2[$k] = $v;
 			}
 		}
 		$attr = FlowTable::where("flow_id = ".$_GET['flowid'])->field('table_name,i,label,type,group,enum_name,enum_id')->order('table_name asc,id asc')->select()->toArray();	
-		
+
+
 		$tmp = $tmp1 = $tmp2 = array();
 		$enumId = $enumName = array();
 		foreach($attr as $k => $v){
@@ -137,16 +135,41 @@ class F extends BaseController{
 			if($v['type'] == 'checkbox' || $v['type'] == 'radio'){
 				$tmp1[$v['group']][] = $v;
 			}else if($v['type'] == 'enum'){
-				if( isset($auth2[$v['i']]) && isset( $auth2[$v['i']]['d'] ) ){
+				if( isset( $auth2[$v['i']]['d'] ) ){
 					$enumId[] = $auth2[$v['i']]['d'];
 				}
 			}
+
+			if(isset($auth2[$v['i']])){
+				
+			}else{
+				if($_GET['node'] == 'creator'){
+					$auth2[$v['i']] = array(
+						'b' => $v['type'],
+						'a' => 1,
+						'm' => 0,
+						'd' => '',
+						'n' => 1,
+						't' => ''
+					);
+				}else{
+					$auth2[$v['i']] = array(
+						'b' => $v['type'],
+						'a' => 0,
+						'm' => 0,
+						'd' => '',
+						'n' => 1,
+						't' => ''
+					);
+				}
+			}
 		}
+
 		
 		if(count($enumId) > 0){
 			$enumName = column(Db::table('s_enum_detail')->field('id,name')->where(" id in (".get_w($enumId,false).") ")->select()->toArray(),'id');
 		}
-
+		
 		for( $i = 0; $i < count($attr); $i++ ){
 			if( !$tmp[$attr[$i]['i']] ) continue;
 			if($attr[$i]['type'] == 'checkbox' || $attr[$i]['type'] == 'radio'){
@@ -159,14 +182,10 @@ class F extends BaseController{
 			}
 		}
 		
-		//halt($tmp1);
-		
 		$tbody = "";
-		
+		$tmp3 = ''; // 用于给相同分组的checkbox和radio画分界线
 		foreach($tmp2 as $k => $v){
-
 			$type = '';
-
 			if($v['type'] == 'checkbox'){
 				$type = "<span style = 'position:absolute;display:inline-block;height:12px;width:12px;color:#28a745;right:0;bottom:0;font-size:12px;line-height:12px'>复</span>";
 			}else if($v['type'] == 'radio'){
@@ -175,8 +194,10 @@ class F extends BaseController{
 				$type = "<span style = 'position:absolute;display:inline-block;height:12px;width:12px;color:#28a745;right:0;bottom:0;font-size:12px;line-height:12px'>枚</span>";
 			}
 
+			
+
 			if(isset($tmp1[$v['group']])){
-				$checked = ( isset($auth2[$v['i']]) && $auth2[$v['i']]['d'] == 1 )?'√':'';
+				$checked = $auth2[$v['i']]['d'] == 1?'√':'';
 				if($v['i'] == $tmp1[$v['group']][0]['i']){
 					$tmp = "";
 					//if($v['type'] == 'checkbox'){
@@ -191,14 +212,15 @@ class F extends BaseController{
 					$tbody .= "<tr data-field = '".$v['i']."' data-type = '".$v['type']."'><td></td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td></td><td  class = 'checked ".$v['group']."' data-type = '".$v['type']."' data-group = '".$v['group']."'>".$checked."</td></tr>";
 				}
 			}else{
+				
 				$default = '';
-				if( isset($auth2[$v['i']]) && isset($auth2[$v['i']]['d']) ){
-					if( $v['type'] == 'enum' ){
-						$default = $enumName[$auth2[$v['i']]['d']]['name'];
+				if( $v['type'] == 'enum' ){
+					
+					$default = $enumName[$auth2[$v['i']]['d']]['name'];
 						$tbody .= "<tr data-enum_id = '".$v['enum_id']."' data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input name = '".$v['i']."'  type = 'checkbox' class = 'aya-checkbox' /></td><td class = 'checked' data-d = '".$auth2[$v['i']]['d']."'>".$default."</td></tr>";
-					}
 				}else{
-					$tbody .= "<tr data-enum_id = '".$v['enum_id']."' data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input name = '".$v['i']."'  type = 'checkbox' class = 'aya-checkbox' /></td><td class = 'checked'></td></tr>";
+					$d = $auth2[$v['i']]['t']?$defaultType[$auth2[$v['i']]['t']]:$auth2[$v['i']]['d'];
+					$tbody .= "<tr data-enum_id = '".$v['enum_id']."' data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input name = '".$v['i']."'  type = 'checkbox' class = 'aya-checkbox' /></td><td class = 'checked'>".$d."</td></tr>";
 				}
 			}
 		}
@@ -221,6 +243,7 @@ class F extends BaseController{
 
 	public function edit_flow_auth(){
 
+		
 		if( $flowAuth = FlowAuth::where("flow_id = ".$_POST['flow_id']." && node_id = '".$_POST['node_id']."'")->find() ){
 			$flowAuth->auth = $_POST['auth'];
 			$flowAuth->save();
@@ -318,7 +341,7 @@ class F extends BaseController{
      * 新建流程表格 - 第二步 数据管理
      */
 	public function step_2(){
-		$r = FlowTable::where('flow_id = '.$_GET['id'])->field('table_name,type,i,length1,length2')->order('i asc')->select()->toArray();
+		$r = FlowTable::where('flow_id = '.$_GET['id'])->field('table_name,type,i,length1,length2,relation_i,relation_a')->order('i asc')->select()->toArray();
 		if(!$r) $r = array( array('i' => 'i000') );
 		View::assign( 'maxI',(int)substr($r[count($r) - 1]['i'],1) );
 		View::assign( 'field',json_encode(column($r,'i')) );
@@ -383,10 +406,8 @@ class F extends BaseController{
 
 		//考虑连主表都没有的情况 - 结束
 
-
-
-
 		// 多个 table 的情况，第二个table 会找不到主表
+
 		if( count($tableNameMap) > 0 ){
 			$tmp = '';
 			foreach($tableNameMap as $k => $v){
@@ -424,7 +445,6 @@ class F extends BaseController{
 			}else{
 				switch($v['type']){
 					case 'varchar':
-
 						if( $hasSend ){
 							if( $v['type'] != $field[$v['i']]['type']){
 								rt('',$v['i'].'：已生成流程单，不能修改字段类型','e'); 
@@ -475,6 +495,58 @@ class F extends BaseController{
 							}
 						}
 					break;
+					case 'person' :
+						if( $hasSend ){
+							if( $v['type'] != $field[$v['i']]['type'] ){
+								rt('',$v['i'].'：已生成流程单，不能修改字段类型','e'); 
+							}else{
+								
+							}
+						}else{
+							if( $v['type'] != $field[$v['i']]['type'] ){
+								$update[$v['table']][] = $v;
+							}
+							
+						}
+					break;
+					case 'department' :
+						if( $hasSend ){
+							if( $v['type'] != $field[$v['i']]['type'] ){
+								rt('',$v['i'].'：已生成流程单，不能修改字段类型','e'); 
+							}else{
+								
+							}
+						}else{
+							if( $v['type'] != $field[$v['i']]['type'] ){
+								$update[$v['table']][] = $v;
+							}
+						}
+					break;
+					case 'post' :
+						if( $hasSend ){
+							if( $v['type'] != $field[$v['i']]['type'] ){
+								rt('',$v['i'].'：已生成流程单，不能修改字段类型','e'); 
+							}else{
+								
+							}
+						}else{
+							if( $v['type'] != $field[$v['i']]['type'] ){
+								$update[$v['table']][] = $v;
+							}
+						}
+					break;
+					case 'relation' :
+						if( $hasSend ){
+							if( $v['type'] != $field[$v['i']]['type'] || $v['relation_i'] != $field[$v['i']]['relation_i'] || $v['relation_a'] != $field[$v['i']]['relation_a']){
+								rt('',$v['i'].'：已生成流程单，不能修改字段类型','e'); 
+							}
+						}else{
+							if( $v['type'] != $field[$v['i']]['type'] || $v['relation_i'] != $field[$v['i']]['relation_i'] || $v['relation_a'] != $field[$v['i']]['relation_a']){
+								$update[$v['table']][] = $v;
+							}
+							
+						}
+					break;
 					case 'enum':
 						//$update[] = $v;
 					break;
@@ -488,11 +560,12 @@ class F extends BaseController{
 				}	
 			}
 		}
-
 		
 		$tables = array();  // 已存在的数据表
 
 		$sql = '';
+
+		
 
 		foreach($update as $k => $v){
 			$sql = "";
@@ -511,10 +584,26 @@ class F extends BaseController{
 						FlowTable::update( ['type' => 'decimal','length2' => $v1['length2'],'length1' => $v1['length1'] ],['id' => $field[$v1['i']]['id']] );
 					break;
 					case 'checkbox':
-						//FlowTable::update( ['label' => $v1['label'],'group' => $v1['group'] ],['id' => $field[$v1['i']]['id']] );
+						FlowTable::update( ['label' => $v1['label'],'group' => $v1['group'] ],['id' => $field[$v1['i']]['id']] );
 					break;
 					case 'radio':
-						//FlowTable::update( ['label' => $v1['label'],'group' => $v1['group'] ],['id' => $field[$v1['i']]['id']] );
+						FlowTable::update( ['label' => $v1['label'],'group' => $v1['group'] ],['id' => $field[$v1['i']]['id']] );
+					break;
+					case 'person' :
+						$sql .= " modify column ".$v1['i']." int(11),";
+						FlowTable::update( ['type' => 'person','length1' => null,'length2' => null,'relation_i' => null,'relation_a' => null],['id' => $field[$v1['i']]['id']] );
+					break;
+					case 'department' :
+						$sql .= " modify column ".$v1['i']." int(11),";
+						FlowTable::update( ['type' => 'department','length1' => null,'length2' => null,'relation_i' => null,'relation_a' => null],['id' => $field[$v1['i']]['id']] );
+					break;
+					case 'post' :
+						$sql .= " modify column ".$v1['i']." int(11),";
+						FlowTable::update( ['type' => 'post','length1' => null,'length2' => null,'relation_i' => null,'relation_a' => null],['id' => $field[$v1['i']]['id']] );
+					break;
+					case 'relation' :
+						$sql .= " modify column ".$v1['i']." varchar(255),";
+						FlowTable::update( ['type' => 'relation','length1' => null,'length2' => null,'relation_i' => $v1['relation_i'],'relation_a' => $v1['relation_a']],['id' => $field[$v1['i']]['id']] );
 					break;
 					default:
 				}
@@ -524,7 +613,12 @@ class F extends BaseController{
 				$sql = "ALTER TABLE `s_".$k.'` '.$sql;
 				Db::execute($sql);
 			}
+
+			//echo $sql;
+			//echo '<br />';
 		}
+		
+		
 
 		if(count($tableNameMap) > 0){
 			$r = FlowTable::where("flow_id = ".$post['flow_id'])->field('distinct table_name')->select()->toArray();
@@ -553,9 +647,14 @@ class F extends BaseController{
 						'enum_name' => $v1['enum_name']?$v1['enum_name']:'',
 						'enum_id' => $v1['enum_id']?$v1['enum_id']:0,
 						'group' => $v1['group'],
-						'main' => substr($k,0,1) == 'f'?1:0
+						'main' => substr($k,0,1) == 'f'?1:0,
+						'relation_i' => $v1['relation_i'],
+						'relation_a' => $v1['relation_a']
 					);
+
 					$add1[] = $tmp;
+					
+					
 
 					switch($v1['type']){
 						case 'varchar':
@@ -567,10 +666,22 @@ class F extends BaseController{
 						case 'decimal':
 							$sql .= " ADD COLUMN ".$v1['i']." decimal(".$v1['length1'].",".$v1['length2'].") DEFAULT NULL,";
 						break;
+						case 'relation' :
+							$sql .= "ADD COLUMN ".$v1['i']." VARCHAR(255) DEFAULT NULL,";
+						break;
 						case 'textarea' :
 							$sql .= " ADD COLUMN ".$v1['i']." text,";
 						break;
 						case 'enum' :
+							$sql .= " ADD COLUMN ".$v1['i']." int(11) DEFAULT NULL,";
+						break;
+						case 'person' :
+							$sql .= " ADD COLUMN ".$v1['i']." int(11) DEFAULT NULL,";
+						break;
+						case 'department' :
+							$sql .= " ADD COLUMN ".$v1['i']." int(11) DEFAULT NULL,";
+						break;
+						case 'post' :
 							$sql .= " ADD COLUMN ".$v1['i']." int(11) DEFAULT NULL,";
 						break;
 						case 'checkbox' :
@@ -623,6 +734,18 @@ class F extends BaseController{
 							break;
 							case 'decimal' :
 								$sql .= "`".$v1['i']."` decimal(".$v1['length1'].",".$v1['length2'].") DEFAULT NULL,";
+							break;
+							case 'relation':
+								$sql .= "`".$v1['i']."` varchar(255) DEFAULT NULL,";
+							break;
+							case 'person' :
+								$sql .= "`".$v1['i']."` int(11) DEFAULT 0,";
+							break;
+							case 'department' :
+								$sql .= "`".$v1['i']."` int(11) DEFAULT 0,";
+							break;
+							case 'post' :
+								$sql .= "`".$v1['i']."` int(11) DEFAULT 0,";
 							break;
 							case 'textarea' :
 								$sql .= "`".$v1['i']."` text,";

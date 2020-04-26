@@ -56,14 +56,7 @@
 		</table>
 	</div>
 
-	
-	
 </div>
-
-
-
-
-
 
 <script>
 	var app = {
@@ -103,8 +96,12 @@
 				}
 				oo.push(tmp);
 			});
+
+
 			
-			o.auth = JSON.stringify(oo);
+			//o.auth = JSON.stringify(oo);
+
+			o.auth = JSON.stringify( app.auth );
 
 			$.post('__APP__/F/edit_flow_auth',o,function(d){
 				if(d.status == 's'){
@@ -118,19 +115,19 @@
 
 		ini: function(){
 
-			
 			$('#tbody td.checked').click(function(){	
 				if( !$(this).parent().children().eq(3).find('input').is(':checked') ) return false;
-
 				let type = $(this).parents('tr').data('type');
 				let that = this;
-
-
+				let label = $(this).parents('tr').children().eq(1).text();
+				let field = $(this).parents('tr').data('field');
 				if( type == 'checkbox'){
 					if($(this).text() == ''){
 						$(this).text( '√' );
+						app.auth[field].d = 1;
 					}else{
-						$(this).text( '' )
+						$(this).text( '' );
+						app.auth[field].d = 0;
 					}	
 				}else if( type == 'radio' ){
 					let group = $(this).data('group');
@@ -175,18 +172,17 @@
 
 				}else if ( type == 'varchar' ){
 
-					//let d-type = 
 					let typeSelect = "<select class = 'browser-default' id = 'xtz-k' style = 'vertical-align:middle'><option value = ''></option>";
 					$.each(app.defaultType,function(k,v){
-						typeSelect += "<option value = '"+k+"'>"+v+"</option>";
+						
+						if( k >= 100 ) typeSelect += "<option value = '"+k+"'>"+v+"</option>";
 					});
 					typeSelect += "</select>";
 
-					let content = "<div class = 'row edit-default'><div class = 'col s4'><p style = 'display:inline-block' ><input name='group1' type='radio' id='sgz'  data-type = '0' checked/><label for='sgz'>手工值</label></p></div><div class = 'col s6'><input type = 'text' class = 'aya-input' id = 'sgz-k' /></div><div class = 'col s4'><p style = 'display:inline-block'><input name='group1' type='radio' id='xtz'  data-type = '1'/><label for='xtz'>系统值</label></p></div><div class = 'col s6'>"+typeSelect+"</div></div>";
+					let content = "<div class = 'row edit-default'><div class = 'col s4'><p style = 'display:inline-block' ><input name='group1' type='radio' id='sgz'  data-type = '0' "+(app.auth[field].t?"":"checked")+" /><label for='sgz'>手工值</label></p></div><div class = 'col s6'><input type = 'text' class = 'aya-input' id = 'sgz-k' /></div><div class = 'col s4'><p style = 'display:inline-block'><input name='group1' type='radio' id='xtz'  data-type = '1' "+(app.auth[field].t?"checked":"")+" /><label for='xtz'>系统值</label></p></div><div class = 'col s6'>"+typeSelect+"</div></div>";
 
 					layer.open({
-							//skin: 'layer-edit-container',
-						title:"<span style = 'font-size:12px'>编辑默认值</span>",
+						title:"<span style = 'font-size:12px'>编辑默认值（ "+label+" ）</span>",
 						area: ['400px','300px'],
 						offset:'10%',
 						shadeClose:true,
@@ -206,27 +202,82 @@
 									$('#xtz-k').prop('disabled',false);
 								}
 							});
+
+							
+							if( !app.auth[field].t ){
+							
+								$('#sgz-k').val( app.auth[field].d?app.auth[field].d:'' );
+							}else{
+								
+								$('#xtz-k').val(  app.auth[field].t );
+							}
 						},
 						yes : function(index){
+							app.auth[field].d = $.trim($('#sgz-k').val());
+							app.auth[field].t = $('#xtz-k').val();
+
+							if( $('#sgz').is(':checked') ){
+								$(that).parents('tr').children().eq(6).text( app.auth[field].d );
+							}else{
+								$(that).parents('tr').children().eq(6).text( $('#xtz-k').find('option:selected').text() );
+							}
+							layer.close(index);
+						}
+
+					});
+				}else if(type == 'person' || type == 'department' || type == 'post' ){
+					let content = "<div class = 'row edit-default'><div class = 'col s4'>默认值</div><div class = 'col s6'><select class = 'browser-default' id = 'system-select'><option value = ''></option><option value = '1'>登陆者用户</option></select></div><div class = 'col s2'></div><div class = 'col s4'>可以编辑</div><div class = 'col s8' style = 'text-align:left'><input id = 'system-select-can-change' type = 'checkbox' class = 'aya-checkbox' /></div></div>";
+					layer.open({
+						title:"<span style = 'font-size:12px'>编辑默认值（ "+label+" ）</span>",
+						area: ['400px','250px'],
+						offset:'10%',
+						shadeClose:true,
+						isOutAnim: false ,
+						maxmin: true,
+						type: 1, 
+						content:content,
+						btn : [ '确定'],
+						success : function(){
+							$('#system-select').change(function(){
+								if( $(this).val() == ''){
+									$('#system-select-can-change').prop('disabled',true).prop('checked',true);
+								}else{
+									$('#system-select-can-change').prop('checked',false).prop('disabled',false);
+								}
+							});
+							$('#system-select').val( app.auth[field].t );
+							$('#system-select-can-change').prop('checked',app.auth[field].n?true:false );
 							
+						},
+						yes : function(index){
+							app.auth[field].n = $('#system-select-can-change').is(':checked')?1:0;
+							app.auth[field].t = $('#system-select').val();
+							$(that).parents('tr').children().eq(6).text( $('#system-select').find('option:selected').text() );
+							layer.close(index);
 						}
 					});
 				}
-				
-				
 			});
 
 			$('#tbody input[type=radio]').click(function(){
+				let field = $(this).parents('tr').data('field');
+				app.auth[field].a = $(this).val();
 				if( $(this).val() == 1){
-					$(this).parents('tr').find( 'input[type=checkbox' ).attr('disabled',false);
+					$(this).parents('tr').find( 'input[type=checkbox]' ).attr('disabled',false);
 				}else{
 					let type = $(this).parents('tr').data('type');
 					if(type == 'checkbox' || type == 'radio'){
 						$(this).parents('tr').children().eq( $(this).parents('tr').children().length - 1).text( '' );
 					}
-					$(this).parents('tr').find( 'input[type=checkbox' ).attr('disabled',true);
-
+					$(this).parents('tr').find( 'input[type=checkbox]' ).attr('disabled',true);
+					app.auth[field].d = 0;
 				}
+				
+			});
+
+			$('#tbody input[type=checkbox]').click(function(){
+				let field = $(this).parents('tr').data('field');
+				app.auth[field].m = $(this).is(':checked')?1:0;
 			});
 		
 			if( app.auth.no ){       // 没有权限记录
@@ -241,6 +292,8 @@
 					});
 				}
 			}else{
+
+				/*
 				$.each(app.auth,function(i,v){
 					$( "input[name='"+v.i+"'][type='radio'][value='"+v.a+"']").attr('checked',true);
 					if( v.a == 1){
@@ -251,25 +304,34 @@
 						$("input[type='checkbox'][name='"+v.i+"']").attr('disabled',true);
 					}
 				});
+				*/
 
 				$('#tbody tr').each(function(){
-					if( ! app.auth[ $(this).data('field') ] ){
-						$(this).children().eq(3).find('input').attr('checked',true);
+					let field = $(this).data('field');
+					let type = $(this).data('type');
+					if( type == 'relation' ){
+						$(this).find("input[type='radio']").attr('checked',false).attr('disabled',true);
+						$(this).find("input[type='checkbox']").attr('checked',false).attr('disabled',true);
+					}else{
+						let a = app.auth[field].a ;
+						$(this).children().eq( parseInt(a) + 2 ).find('input').attr('checked',true);
+						$(this).children().eq(5).find('input').attr('checked',app.auth[field].m?true:false);
+						
+						
 					}
 				});
 
 			}
+
+			
+
+			//log(app
 		}
 		
 	}
 	
 	
 	app.ini();
-
-	
-
-	
-
 
 </script>
 

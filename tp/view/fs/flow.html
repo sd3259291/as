@@ -63,7 +63,7 @@
 			</div>
 
 			<div class = 'row' style = 'border-bottom:1px solid #e3e3e3;background:#fff'>
-				<div class = 'col s12 relative' style = 'padding:10px 50px'>
+				<div class = 'col s12 relative' style = 'padding:10px 50px;display:none' id = 'form-container'>
 					{$flow.form|raw}
 				</div>
 			</div>
@@ -161,6 +161,12 @@ var flow = {
 
 	um : {},
 
+	data : {$data|raw},
+
+	auth : {$auth|raw},
+
+	field : {$field|raw},
+
 	mSelected : '',
 
 
@@ -179,9 +185,7 @@ var flow = {
 	},
 	
 	ini : function(){
-
-		log($(window).height());
-		log( $('#abc').offset.top , false);
+	
 		$('#abc').css('min-height',350);
 
 		flow.um = UM.getEditor('comment');
@@ -235,7 +239,6 @@ var flow = {
 			});
 		});
 
-		
 		$('#flow').click(function(){
 			parent.layer.open({
 				title:'<span style = "font-size:12px">流程查看</span>',
@@ -247,7 +250,6 @@ var flow = {
 				isOutAnim: false,
 			});
 		});
-
 
 		$('#back').click(function(){
 			layer.confirm('确定回退此流程？',{title : '提示',offset:['10%']},function(index){
@@ -276,9 +278,99 @@ var flow = {
 		$('#check').click(function(){
 			flow.check()
 		});
+
+		$(".table-form2 input[type='checkbox']").each(function(){
+			let i = $(this).attr('data-i');
+			let a = flow.auth[i];
+			if(a.a == 1){
+
+			}else if(a.a == 0){
+				$(this).attr('checked',flow.data.form[i] == 1?true:false ).attr('disabled',true);
+			}
+		});
+
+		$(".table-form2 input[type='radio']").each(function(){
+			let i = $(this).attr('data-i');
+			let a = flow.auth[i];
+			if(a.a == 1){
+				
+			}else if(a.a == 0){
+				$(this).attr('checked',flow.data.form[i] == 1?true:false ).attr('disabled',true);
+			}
+		});
+	
+		$(".table-form2 td[data-type='input']").each(function(){
+			
+			let i = $(this).attr('data-i');
+			let a = flow.auth[i];
+			if( parseInt(a.a) == 1 ){
+				let input = $(this).find('input');
+				input.addClass('edit').attr('id',i);
+				if( parseInt(a.m) == 1 ) input.addClass('must');
+				switch(a.type){
+					case 'person' :
+						if(a.person_id){
+							$(this).val(a.person_name).data('id',a.person_id);
+						}
+						$(this).parent().append("<img class = 'absolute select-person height18' src = '__PUBLIC__/image/flow/select-person.png' style = 'right:4px;top:"+app.get1(this).top+"px' />");
+					break;
+					case 'relation' :
+						if(a.d) $(this).val(a.d);
+						app.relation[i] = app.attr[i].relation_i;
+						$(this).parent().append("<img class = 'absolute select-"+a.relation_a+" height18' src = '__PUBLIC__/image/flow/relation-"+a.relation_a+".png' style = 'right:4px;top:"+app.get1(this).top+"px' />");
+					break;
+					case 'checkbox' :
+						if( a.d == 1){
+							$(this).prop('checked',true);
+						}
+					break;
+					case 'radio' :
+					break;
+					default:
+						input.removeAttr('readonly');
+						if(a.d){
+							input.val(a.d);
+						}
+				}
+			}else{
+				//隐藏的值在后台变成了---
+				$(this).text( flow.data.form[ $(this).attr('data-i') ]);
+			}
+			
+		});
+		
+		$('#form-container').show();
 	},
 	
-	
+	get_field : function(){
+		let field = {};
+		$.each(flow.auth,function(k,v){
+			if( flow.field[k].main == 1 ){  // 主表
+				if( v.a == '1' ){ // 具有编辑权限
+					switch(v.b){
+						case 'checkbox' :
+							field[k] = $('#' + k).is(':checked')?1:0;
+						break;
+						case 'radio' :
+							field[k] = $('#' + k).is(':checked')?1:0;
+						break;
+						case 'person' :
+							field[k] = $('#' + k).data('id');
+						break;
+						default:
+							
+							field[k] = $.trim( $('#' + k).val() );
+					}
+				}
+			}
+		});
+
+		let r = {
+			formField : field
+		};
+
+		return r;
+	},
 
 	check : function( exc = '' ){
 		let index1 = layer.load(2);
@@ -287,11 +379,18 @@ var flow = {
 		obj.id = flow.id;
 		obj.nodeid = flow.nodeId;
 		obj.opinion = flow.um.getContent();
-		if( flow.add.length > 0) obj.add = flow.add;
+		obj.field = flow.get_field().formField ;
+		$('.field-error').removeClass('field-error');
 		
+		if( flow.add.length > 0) obj.add = flow.add;
 			if(exc != '') obj.executor = exc;
-
 			$.post('__APP__/Fs/check',obj,function(d){
+
+				$.each(d.data,function(k,v){
+					
+					$('#' + v.i).addClass('field-error');
+				});
+
 				layer.close(index1);
 				if(d.status == 's'){
 					parent.$('#tbody tr.selected').eq(0).children().eq(8).find('img').eq(0).attr('src', '/a1/index/view/public/Image/o10.png').attr('title','已处理');;

@@ -815,6 +815,74 @@ table.table-form tbody tr td.border-bottom-none{
 	border-bottom:0 !important;
 }
 
+/*
+table-form2 开始
+*/
+table.table-form2{}
+table.table-form2 tbody tr td{
+	border:1px solid #727272;
+	height:32px;
+	padding:5px 0 5px 0;
+	word-break:break-all;
+	word-wrap:break-word;
+	text-align:center;
+	vertical-align:middle
+}
+		
+table.table-form2 tbody tr{
+	height:36px
+}
+	
+table.table-form2 tbody tr td{
+	background:rgb(255,255,255)
+}
+
+
+table.table-form2 input[type='text']{
+	margin:0 4px !important;
+	width:calc(100% - 10px) !important;
+	min-height:16px;
+	height:100% !important;
+}
+
+table.table-form2 .form-input{
+	background:#ffffff !important;
+	1border-color:#ffb10f
+}
+table.table-form2 .must{
+	background:#ffebbf !important;
+}
+table.table-form2 .edit{
+
+}
+table.table-form2 .read{
+	border-top:0 !important;
+	border-left:0 !important;
+	border-right:0 !important;
+}
+table.table-form2 td{
+	background-clip: padding-box !important;
+   position:relative;
+}
+table.table-form2 .select-person{
+	cursor:pointer
+}
+
+table.table-form2 tbody tr td.border-top-none{
+	border-top:0 !important;
+}
+table.table-form2 tbody tr td.border-left-none{
+	border-left:0 !important;
+}
+table.table-form2 tbody tr td.border-right-none{
+	border-right:0 !important;
+}
+table.table-form2 tbody tr td.border-bottom-none{
+	border-bottom:0 !important;
+}
+table.table-form2 .field-error{
+	border-color:#dc3545
+}
 
 
 
