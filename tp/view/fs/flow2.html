@@ -29,7 +29,8 @@
 		}
 		.comment-comment{
 			padding:10px 100PX 24px 20px !important;
-			border-left:1px solid #e3e3e3;min-height:72px !important
+			border-left:1px solid #e3e3e3;
+			min-height:72px !important
 		}
 		.comment-name{
 			position:absolute !important;
@@ -40,18 +41,12 @@
 			display:inline-block !important;
 			height:24px;
 		}
-
-
-
 		
-
-
 	</style>
 </head>
 
 <body>
 	<div class = 'row' style = 'margin-top:10px'>
-
 		<div class = 'col s12' style = 'background:#fff'>
 			<div style = 'padding:10px 10px 6px 10px;display:inline-block'>
 				<span class = 'text-color2'>发起者</span>：{$flow.maker_name}
@@ -181,24 +176,20 @@ var flow = {
 		
 		//flow.data.form 表示主表
 
-		$(".table-form td[data-type='input']").each(function(){
+		$(".table-form2 td[data-type='input']").each(function(){
 			$(this).text( flow.data.form[ $(this).attr('data-i') ]);
 		});
 
-		$(".table-form td[data-type='select']").each(function(){
-			$(this).text( flow.enum[flow.data.form[ $(this).attr('data-i') ]]);
+		$(".table-form2 td[data-type='select']").each(function(){
+			$(this).text( flow.data.form[ $(this).attr('data-i') ]);
 		});
 
-		//$(".table-form input[type='checkbox']").attr('disabled',true);
-
-		//$(".table-form input[type='radio']").attr('disabled',true);
-
-		$(".table-form input[type='checkbox']").each(function(){
-			$(this).attr('checked',flow.data.form[$(this).attr('data-i')] == 1?true:false).attr('id',$(this).attr('data-i'));
+		$(".table-form2 input[type='checkbox']").each(function(){
+			$(this).attr('checked',flow.data.form[$(this).attr('data-i')] == 1?true:false).attr('disabled',true);
 		});
 
-		$(".table-form input[type='radio']").each(function(){
-			$(this).attr('checked',flow.data.form[$(this).attr('data-i')] == 1?true:false);
+		$(".table-form2 input[type='radio']").each(function(){
+			$(this).attr('checked',flow.data.form[$(this).attr('data-i')] == 1?true:false).attr('disabled',true);
 		});
 
 		$(".table-mul").each(function(){
@@ -207,8 +198,6 @@ var flow = {
 			$(this).find( 'tbody' ).eq(0).children().eq(0).children().each(function(){
 				dataType.push( {type: $(this).data('type') , i : $(this).data('i') } );
 			});
-			//$(this).find( 'tbody' ).empty();
-			
 
 			let tmp = "";
 			for(let i = 0; i < data.length ; i++){
@@ -218,9 +207,6 @@ var flow = {
 				for(let j = 0; j < cloneChildren.length; j ++){
 					let type = cloneChildren.eq(j).data('type');
 					let ii = cloneChildren.eq(j).data('i');
-
-					
-					
 					switch( type ){
 						case 'index-mul':
 							cloneChildren.eq(j).text( data[i][ii] );
@@ -229,7 +215,7 @@ var flow = {
 							cloneChildren.eq(j).text( data[i][ii] );
 						break;
 						case 'select-mul':
-							cloneChildren.eq(j).text( flow.enum[data[i][ii]] );
+							cloneChildren.eq(j).text( data[i][ii] );
 						break;
 						default:
 					}
@@ -244,10 +230,6 @@ var flow = {
 		
 		
 	},
-	
-	
-
-	
 
 };
 

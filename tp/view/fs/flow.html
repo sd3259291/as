@@ -111,7 +111,7 @@
 
 				<div class = 'col s12'>
 					<div style = 'padding:10px 10px 6px 10px'>
-						<span class = 'text-color2'>发起者</span>：{$flow.maker_name}
+						<span class = 'text-color2'>发起3者</span>：{$flow.maker_name}
 					</div>
 					<div style = 'padding:10px 10px 6px 10px'>
 						<span class = 'text-color2'>发起时间</span>：{$flow.datetime}
@@ -185,6 +185,8 @@ var flow = {
 	},
 	
 	ini : function(){
+
+		
 	
 		$('#abc').css('min-height',350);
 
@@ -282,8 +284,9 @@ var flow = {
 		$(".table-form2 input[type='checkbox']").each(function(){
 			let i = $(this).attr('data-i');
 			let a = flow.auth[i];
+			
 			if(a.a == 1){
-
+				if(a.d == 1) $(this).attr('checked',true).attr('id',i);
 			}else if(a.a == 0){
 				$(this).attr('checked',flow.data.form[i] == 1?true:false ).attr('disabled',true);
 			}
@@ -292,15 +295,52 @@ var flow = {
 		$(".table-form2 input[type='radio']").each(function(){
 			let i = $(this).attr('data-i');
 			let a = flow.auth[i];
+			
 			if(a.a == 1){
-				
+				if(a.d == 1) $(this).attr('checked',true).attr('id',i);
 			}else if(a.a == 0){
 				$(this).attr('checked',flow.data.form[i] == 1?true:false ).attr('disabled',true);
 			}
 		});
+
+		$(".table-form2 td[data-type='select']").each(function(){
+			let i = $(this).attr('data-i');
+			let a = flow.auth[i];
+			
+			if(a.a == 1){
+				$(this).attr('id',i);
+
+			}else{
+				$(this).text( flow.data.form[ $(this).attr('data-i') ]);
+			}
+			
+		});
+
+		{ // 给没有默认值的radio选中第一个
+			let radio = {};
+			$("input[type='radio']").each(function(){
+				let name = $(this).attr('name');
+				if(!radio[name]){
+					radio[name] = [];
+				}
+				radio[name].push($(this).attr('id'));
+			});
+
+			$.each(radio,function(k,v){
+				let hasChecked = false;
+				$.each(v,function(k1,v1){
+					if( $('#' + v1).is(':checked') ){
+						hasChecked = true;
+						return true;
+					}
+				});
+				if( !hasChecked ){
+					$( '#' + v[0] ).attr('checked',true);
+				}
+			});
+		}
 	
 		$(".table-form2 td[data-type='input']").each(function(){
-			
 			let i = $(this).attr('data-i');
 			let a = flow.auth[i];
 			if( parseInt(a.a) == 1 ){
@@ -333,11 +373,49 @@ var flow = {
 						}
 				}
 			}else{
-				//隐藏的值在后台变成了---
+				// 隐藏的值在后台变成了 --- 
 				$(this).text( flow.data.form[ $(this).attr('data-i') ]);
 			}
 			
 		});
+
+
+		$(".table-mul").each(function(){
+			let data = flow.data[$(this).data('table')];
+			let dataType = [];
+			$(this).find( 'tbody' ).eq(0).children().eq(0).children().each(function(){
+				dataType.push( {type: $(this).data('type') , i : $(this).data('i') } );
+			});
+
+			let tmp = "";
+			for(let i = 0; i < data.length ; i++){
+				let clone = $(this).find( 'tbody' ).eq(0).children().eq(0).clone();
+				let cloneChildren = clone.children();
+				for(let j = 0; j < cloneChildren.length; j ++){
+					let type = cloneChildren.eq(j).data('type');
+					let ii = cloneChildren.eq(j).data('i');
+					switch( type ){
+						case 'index-mul':
+							cloneChildren.eq(j).text( data[i][ii] );
+						break;
+						case 'text-mul':
+							cloneChildren.eq(j).text( data[i][ii] );
+						break;
+						case 'select-mul':
+							cloneChildren.eq(j).text( data[i][ii] );
+						break;
+						default:
+					}
+				}
+				
+				$(this).find( 'tbody' ).eq(0).append( clone );
+			}
+
+			$(this).find( 'tbody' ).eq(0).children().eq(0).remove();
+			
+		});
+
+
 		
 		$('#form-container').show();
 	},
@@ -368,7 +446,6 @@ var flow = {
 		let r = {
 			formField : field
 		};
-
 		return r;
 	},
 
@@ -387,7 +464,6 @@ var flow = {
 			$.post('__APP__/Fs/check',obj,function(d){
 
 				$.each(d.data,function(k,v){
-					
 					$('#' + v.i).addClass('field-error');
 				});
 

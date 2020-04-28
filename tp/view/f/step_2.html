@@ -241,13 +241,13 @@
 					switch(type1){
 						case 'text-mul' :
 							length1 = app.field[field]?app.field[field].length1:255;
-							tbody += "<tr data-type = 'input' data-table = '"+table+"'><td>"+(trIndex++)+"</td><td>"+table+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+name[i]+"</td><td>输入框</td><td>"+fieldType+"</td><td><input type = 'text' class = 'aya-input' value = '"+length1+"' /></td><td></td></tr>";
+							tbody += "<tr data-type = 'input' data-table = '"+table+"'><td>"+(trIndex++)+"</td><td>"+table+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+name[i]+"</td><td>输入框</td><td>"+fieldType+"</td><td><input type = 'text' class = 'aya-input' value = '"+length1+"' /></td><td></td><td></td><td></td></tr>";
 						break;
 						case 'select-mul' :
-							tbody += "<tr data-type = 'select' data-table = '"+table+"' data-select = '"+tbodyTds.eq(i).find('select').val()+"'><td>"+(trIndex++)+"</td><td>"+table+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+name[i]+"</td><td>选择框</td><td></td><td></td><td>"+tbodyTds.eq(i).text()+"</td></tr>";
+							tbody += "<tr data-type = 'select' data-table = '"+table+"' data-select = '"+tbodyTds.eq(i).find('select').val()+"'><td>"+(trIndex++)+"</td><td>"+table+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+name[i]+"</td><td>选择框</td><td></td><td></td><td>"+tbodyTds.eq(i).text()+"</td><td></td><td></td></tr>";
 						break;
 						case 'index-mul' :
-							tbody += "<tr data-type = 'input' data-table = '"+table+"'><td>"+(trIndex++)+"</td><td>"+table+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+name[i]+"</td><td>序号</td><td>整数</td><td>4</td><td></td></tr>";
+							tbody += "<tr data-type = 'input' data-table = '"+table+"'><td>"+(trIndex++)+"</td><td>"+table+"</td><td>"+field+"</td><td>"+type2+"</td><td>"+name[i]+"</td><td>序号</td><td>整数</td><td>4</td><td></td><td></td><td></td></tr>";
 						break;
 						default:
 					}

@@ -54,21 +54,33 @@
 
 				<button class = 'btn btn-default btn-default-1' id = 'select-form'>  <i class="material-icons text-color5"  >subject</i> 流程模板</button>
 
+				<button class = 'btn btn-default btn-default-1' id = 'free-flow'>  <i class="material-icons text-color5"  >subject</i> 自由流程</button>
+
 				<button class = 'btn btn-default btn-default-1' id = 'send' >  <i class="material-icons text-color3"  >add_box</i> 发送</button>
 
 			</div>
 		</div>
 
-		<div class = 'row row-body' id = 'form_content' style = 'background:#fff;text-align:center;padding:10px 0 0 0'>
+		<div class = 'row row-body' id = 'form-content-free-flow' style = 'background:#fff;text-align:center;padding:10px 0 0 0'>
 
 			<textarea id = 'myEditor' style = 'margin:auto;display:inline-block'>
 
 			</textarea>
 			
-</div>
 		</div>
-					
+
+		<div class = 'row row-body' id = 'form-content-template' style = 'background:#fff;text-align:center;padding:10px 0 0 0;display:none'>
+
+			<textarea id = 'myEditor' style = 'margin:auto;display:inline-block'>
+
+			</textarea>
+			
+		</div>
+
+
 	</div>
+					
+</div>
 </div>
 <ul class="contextmenu" id = 'contextmenu'>
 			<li><a href="javascript:void(0)" id = 'line-height-mul'>行高（重复表）</a></li>
@@ -111,30 +123,34 @@
 		load_template : function(id){
 
 			app.template_id = id;
-			app.ue = {};
+
+		
+			
 			$('#edit-form').hide();
 			$('#see-form').show();
+			$('#form-content-free-flow').hide();
+			$('#form-content-template').show();
+			max_height('form-content-template',false);
 			
 			$.post('__APP__/Fs/load_template',{id:id},function(d){
 				if(d.status != 's') layer_error(d);
 				app.auth = d.data.auth;
 				app.attr = d.data.attr;
 
-				$('#form_content').html(d.data.form);
-				$('#myEditor').remove();
+			
+				
+				$('#form-content-template').html(d.data.form);
 
-				$('#form_content').find('input').each(function(){
+				$('#form-content-template').find('input').each(function(){
 					let i = $(this).parents('td').data('i') || $(this).data('i');
 					let a = app.auth[i];
-					let type = a.b;
-					
 					if( !$(this).parents('table').hasClass('table-mul') ) $(this).attr('id',i);
-					
+
 					if(a){
 						if( parseInt(a.a) == 1){
 							if( parseInt(a.m) == 1 ) $(this).addClass('must');
 							$(this).addClass('edit');
-							switch(type){
+							switch(a.b){
 								case 'person' :
 									if(a.person_id){
 										$(this).val(a.person_name).data('id',a.person_id);
@@ -142,9 +158,6 @@
 									$(this).parent().append("<img class = 'absolute select-person height18' src = '__PUBLIC__/image/flow/select-person.png' style = 'right:4px;top:"+app.get1(this).top+"px' />");
 								break;
 								case 'relation' :
-									if(a.d) $(this).val(a.d);
-									app.relation[i] = app.attr[i].relation_i;
-									$(this).parent().append("<img class = 'absolute select-"+a.relation_a+" height18' src = '__PUBLIC__/image/flow/relation-"+a.relation_a+".png' style = 'right:4px;top:"+app.get1(this).top+"px' />");
 									
 								break;
 								case 'checkbox' :
@@ -153,6 +166,9 @@
 									}
 								break;
 								case 'radio' :
+									if( a.d == 1){
+										$(this).prop('checked',true);
+									}
 								break;
 								default:
 									$(this).removeAttr('readonly');
@@ -161,8 +177,9 @@
 									}
 							}
 						}else if( parseInt(a.a) == 0){
-							$(this).addClass('read');
-							switch(type){
+							if(a.b != 'relation') $(this).addClass('read');
+							
+							switch(a.b){
 								case 'varchar' :
 									//$(this).prop('disabled',true);
 									//$(this).parents('td').text( '' );
@@ -173,6 +190,12 @@
 								case 'radio' :
 									$(this).attr('disabled',true);
 								break;
+								
+								case 'relation':
+									if(a.d) $(this).val(a.d);
+									app.relation[i] = app.attr[i].relation_i;
+									$(this).parent().append("<img class = 'absolute select-"+a.relation_a+" height18' src = '__PUBLIC__/image/flow/relation-"+a.relation_a+".png' style = 'right:4px;top:"+app.get1(this).top+"px' />");
+								break;
 								default:
 							}
 						}	
@@ -180,15 +203,19 @@
 
 				});
 
-
-				$('#form_content').find('select').each(function(){
+				$('#form-content-template').find('select').each(function(){
 					let that = this;
 					let i = $(this).parents('td').data('i');
-					if( !$(this).parents('table').hasClass('table-mul') ) $(this).attr('id',i);
+					let a = app.auth[i];
+					
+					if( a.z == 1 ) $(this).attr('id',i);
 					$(this).empty();
+					$(this).append( "<option value = ''></option>" );
 					$(d.data.select[i]).each(function(i,v){
 						$(that).append( "<option value = '"+v.id+"'>"+v.name+"</option>" );
 					});
+					if( a.a != 1 ) $(this).attr('disabled',true);
+					if( a.d ) $(this).val( a.d );
 				});
 
 				$( '.table-mul' ).each(function(){
@@ -200,7 +227,6 @@
 				$('.select-person').click(function(){
 					app.current = $(this).parent().find('input');
 					let i = $(this).parent().data('i');
-				
 					parent.layer.open({
 						title:"<span style = 'font-size:12px'>选择员工</span>",
 						area: ['600px','500px'],
@@ -237,9 +263,37 @@
 		
 				});
 
+				
+				{ // 给没有默认值的radio选中第一个
+					let radio = {};
+					$("input[type='radio']").each(function(){
+						let name = $(this).attr('name');
+						if(!radio[name]){
+							radio[name] = [];
+						}
+						radio[name].push($(this).attr('id'));
+					});
+
+					$.each(radio,function(k,v){
+						let hasChecked = false;
+						$.each(v,function(k1,v1){
+							if( $('#' + v1).is(':checked') ){
+								hasChecked = true;
+								return true;
+							}
+						});
+						if( !hasChecked ){
+							$( '#' + v[0] ).attr('checked',true);
+						}
+					});
+				}
+
+				
+
 			});
 		},
 
+		
 
 		table_mul_add_row : function(){
 
@@ -314,9 +368,12 @@
 				o.form = app.ue.getContent();
 			}else{
 				// 模板流程
+				
 				$.each(app.auth,function(k,v){
 					if( v.z == 1 ){  // 主表
-						if( v.a == '1' ){ // 具有编辑权限
+						
+						
+						if( v.a == 1 ){ // 具有编辑权限
 							switch(v.b){
 								case 'checkbox' :
 									field[k] = $('#' + k).is(':checked')?1:0;
@@ -329,6 +386,11 @@
 								break;
 								default:
 									field[k] = $.trim( $('#' + k).val() );
+									
+							}
+						}else if( v.a == 0 ){
+							if(v.b == 'relation'){
+								field[k] = $.trim( $('#' + k).val() );
 							}
 						}
 					}
@@ -367,6 +429,9 @@
 
 			}
 
+			
+			
+			
 
 			if(exc != '') o.executor = exc;
 
@@ -552,13 +617,16 @@
 
 		ini : function(){
 
-			max_height('form_content',false);
-			app.ue = UE.getEditor('myEditor',{initialFrameHeight:$('#form_content').height() - 100});
-			$('.edui-container').height( $('#form_content').height() );
+			max_height('form-content-free-flow',false);
+			
+			app.ue = UE.getEditor('myEditor',{initialFrameHeight:$('#form-content-free-flow').height() - 100});
+			$('.edui-container').height( $('#form-content-free-flow').height() );
 
 			$('#send').click(function(){
 				app.send();
 			});
+
+			
 			
 			$('#select-form').click(function(){
 				layer.open({					
@@ -575,8 +643,16 @@
 					}
 				});
 			});
-
+			
 			//$('#select-form').trigger('click');
+
+			$('#free-flow').click(function(){
+				app.template_id = 0;
+				$('#edit-form').show();
+				$('#see-form').hide();
+				$('#form-content-template').hide();
+				$('#form-content-free-flow').show();
+			});
 
 			$('#edit-form').click(function(){
 				layer.open({					

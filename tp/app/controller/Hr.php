@@ -15,13 +15,7 @@ use app\validate\EmployeeValidate;
 use think\exception\ValidateException;
 use think\facade\Db;
 
-
-
-
-
 class Hr extends BaseController{
-
-
 	/**
      * 人事首页
      */

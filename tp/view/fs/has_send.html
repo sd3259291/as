@@ -147,7 +147,7 @@
 						shadeClose:true ,
 						offset:'0' ,
 						area: [ '1200px' , '100%' ],
-						content: '__APP__/Fs/flow?type=0&flow_id='+flow_id+'&node_id='+node_id+'&id='+id,
+						content: '__APP__/Fs/flow2?type=0&flow_id='+flow_id+'&node_id='+node_id+'&id='+id,
 						isOutAnim: false,
 						success : function(layero, index){
 							top.tmp2 = layero.find('iframe')[0]['name'];
@@ -227,7 +227,7 @@
 				});
 			});
 
-			//$('#tbody a').eq(0).trigger('click');
+			$('#tbody a').eq(0).trigger('click');
 		},	
 
 	}

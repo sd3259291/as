@@ -105,8 +105,8 @@ class F extends BaseController{
      */
 
 	public function flow_auth(){
-		//Cache::set('tmp',$_GET);
-		//$_GET = Cache::get('tmp');
+	
+	
 
 		$defaultType = array(
 			1   => '登陆者用户',
@@ -115,8 +115,11 @@ class F extends BaseController{
 			102 => '用户部门',
 			103 => '系统日期',
 		);
+
 		$auth = FlowAuth::where("flow_id = ".$_GET['flowid']." && node_id = '".$_GET['node']."'")->find();
+
 		$default = $auth2 = array();
+
 		if(!$auth){
 			$auth = [];
 		}else{
@@ -125,8 +128,8 @@ class F extends BaseController{
 				$auth2[$k] = $v;
 			}
 		}
-		$attr = FlowTable::where("flow_id = ".$_GET['flowid'])->field('table_name,i,label,type,group,enum_name,enum_id')->order('table_name asc,id asc')->select()->toArray();	
 
+		$attr = FlowTable::where("flow_id = ".$_GET['flowid'])->field('table_name,i,label,type,group,enum_name,enum_id')->order('table_name asc,id asc')->select()->toArray();	
 
 		$tmp = $tmp1 = $tmp2 = array();
 		$enumId = $enumName = array();
@@ -135,7 +138,8 @@ class F extends BaseController{
 			if($v['type'] == 'checkbox' || $v['type'] == 'radio'){
 				$tmp1[$v['group']][] = $v;
 			}else if($v['type'] == 'enum'){
-				if( isset( $auth2[$v['i']]['d'] ) ){
+				if( isset( $auth2[$v['i']]['d'] ) && $auth2[$v['i']]['d'] ){
+					
 					$enumId[] = $auth2[$v['i']]['d'];
 				}
 			}
@@ -153,6 +157,7 @@ class F extends BaseController{
 						't' => ''
 					);
 				}else{
+					
 					$auth2[$v['i']] = array(
 						'b' => $v['type'],
 						'a' => 0,
@@ -164,7 +169,6 @@ class F extends BaseController{
 				}
 			}
 		}
-
 		
 		if(count($enumId) > 0){
 			$enumName = column(Db::table('s_enum_detail')->field('id,name')->where(" id in (".get_w($enumId,false).") ")->select()->toArray(),'id');
@@ -182,6 +186,8 @@ class F extends BaseController{
 			}
 		}
 		
+		
+
 		$tbody = "";
 		$tmp3 = ''; // 用于给相同分组的checkbox和radio画分界线
 		foreach($tmp2 as $k => $v){
@@ -192,9 +198,9 @@ class F extends BaseController{
 				$type = "<span style = 'position:absolute;display:inline-block;height:12px;width:12px;color:#28a745;right:0;bottom:0;font-size:12px;line-height:12px'>单</span>";
 			}else if($v['type'] == 'enum'){
 				$type = "<span style = 'position:absolute;display:inline-block;height:12px;width:12px;color:#28a745;right:0;bottom:0;font-size:12px;line-height:12px'>枚</span>";
+			}else if($v['type'] == 'relation'){
+				$type = "<span style = 'position:absolute;display:inline-block;height:12px;width:12px;color:#9b9b9b;right:0;bottom:0;font-size:12px;line-height:12px'>联</span>";
 			}
-
-			
 
 			if(isset($tmp1[$v['group']])){
 				$checked = $auth2[$v['i']]['d'] == 1?'√':'';
@@ -207,20 +213,21 @@ class F extends BaseController{
 						//}
 						//$tmp .= "</select>";
 					//}
-					$tbody .= "<tr data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td></td><td class = 'checked ".$v['group']."' data-type = '".$v['type']."' data-group = '".$v['group']."'>".$checked."</td></tr>";
+					$tbody .= "<tr data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td></td><td></td><td class = 'checked ".$v['group']."' data-type = '".$v['type']."' data-group = '".$v['group']."'>".$checked."</td></tr>";
 				}else{
-					$tbody .= "<tr data-field = '".$v['i']."' data-type = '".$v['type']."'><td></td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td></td><td  class = 'checked ".$v['group']."' data-type = '".$v['type']."' data-group = '".$v['group']."'>".$checked."</td></tr>";
+					$tbody .= "<tr data-field = '".$v['i']."' data-type = '".$v['type']."'><td></td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td></td><td></td><td  class = 'checked ".$v['group']."' data-type = '".$v['type']."' data-group = '".$v['group']."'>".$checked."</td></tr>";
 				}
 			}else{
 				
 				$default = '';
 				if( $v['type'] == 'enum' ){
 					
-					$default = $enumName[$auth2[$v['i']]['d']]['name'];
-						$tbody .= "<tr data-enum_id = '".$v['enum_id']."' data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input name = '".$v['i']."'  type = 'checkbox' class = 'aya-checkbox' /></td><td class = 'checked' data-d = '".$auth2[$v['i']]['d']."'>".$default."</td></tr>";
+					if( $auth2[$v['i']]['d'] ) $default = $enumName[$auth2[$v['i']]['d']]['name'];
+					$tbody .= "<tr data-enum_id = '".$v['enum_id']."' data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input name = '".$v['i']."'  type = 'checkbox' class = 'aya-checkbox' /></td><td class = 'checked' data-d = '".$auth2[$v['i']]['d']."'>".$default."</td></tr>";
 				}else{
+					$disabled = $auth2[$v['i']]['a'] == 1?'':"disabled";
 					$d = $auth2[$v['i']]['t']?$defaultType[$auth2[$v['i']]['t']]:$auth2[$v['i']]['d'];
-					$tbody .= "<tr data-enum_id = '".$v['enum_id']."' data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input name = '".$v['i']."'  type = 'checkbox' class = 'aya-checkbox' /></td><td class = 'checked'>".$d."</td></tr>";
+					$tbody .= "<tr data-enum_id = '".$v['enum_id']."' data-field = '".$v['i']."' data-type = '".$v['type']."'><td style = 'position:relative'>".$v['table_name'].$type."</td><td>".$v['label']."</td><td><input value = '0' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '1' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input value = '2' name = '".$v['i']."' type = 'radio' class = 'aya-radio' /></td><td><input name = '".$v['i']."'  type = 'checkbox' class = 'aya-checkbox' $disabled /></td><td class = 'checked'>".$d."</td></tr>";
 				}
 			}
 		}
@@ -242,7 +249,7 @@ class F extends BaseController{
 	}
 
 	public function edit_flow_auth(){
-
+	
 		
 		if( $flowAuth = FlowAuth::where("flow_id = ".$_POST['flow_id']." && node_id = '".$_POST['node_id']."'")->find() ){
 			$flowAuth->auth = $_POST['auth'];
@@ -701,9 +708,9 @@ class F extends BaseController{
 				
 				$sql = '';
 				if(substr($k,0,1) == 'f'){  // 主表
-					$sql = "CREATE TABLE `s_".$k."` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `flows_id` tinyint(11) NOT NULL DEFAULT '0',";
+					$sql = "CREATE TABLE `s_".$k."` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `flows_id` int(11) NOT NULL DEFAULT '0',";
 				}else{
-					$sql = "CREATE TABLE `s_".$k."` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `flows_id` tinyint(11) NOT NULL DEFAULT '0',";
+					$sql = "CREATE TABLE `s_".$k."` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `flows_id` int(11) NOT NULL DEFAULT '0',";
 				}
 
 				foreach($v as $k1 => $v1){

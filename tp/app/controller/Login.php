@@ -116,13 +116,11 @@ class Login
 					$authInfo['department'] = $employee->department->name;
 					$authInfo['post_id'] = $employee->post->id;
 					$authInfo['department_id'] = $employee->department->id;
+					$authInfo['employee_id'] = $employee->id;
 				}else{
 					$authInfo['post'] = '-';
 					$authInfo['department'] = '-';
 				}
-				
-				
-
 
 				Session::set('userinfo',$authInfo);
 				

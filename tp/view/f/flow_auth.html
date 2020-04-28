@@ -71,34 +71,36 @@
 
 		save : function(){
 			let o = {};
-			let oo = [];
+
 			o.flow_id = app.flow_id;
 			o.node_id = app.node_id;
+			
 			$('#tbody tr').each(function(){
-				let tmp = {};
-				tmp.i = $(this).data('field');
-				tmp.a = $("input[name='"+tmp.i+"']:checked").val();
-				tmp.m = tmp.a != 1?0:($(this).find("input[type='checkbox']").prop('checked')?1:0);
-				let type = $(this).data('type');
-				switch (type){
+			
+				let i = $(this).data('field');
+				app.auth[i].a = parseInt($("input[name='"+i+"']:checked").val());
+				app.auth[i].m = app.auth[i].a != 1?0:($(this).find("input[type='checkbox']").prop('checked')?1:0);
+
+				switch (app.auth[i].b){
 					case 'checkbox' : 
-						tmp.d = $(this).children().eq( $(this).children().length - 1).text() == ''?0:1;
+						app.auth[i].d = $(this).children().eq( $(this).children().length - 1).text() == ''?0:1;
 					break;
 					case 'radio' :
-						tmp.d = $(this).children().eq( $(this).children().length - 1).text() == ''?0:1;
+						app.auth[i].d = $(this).children().eq( $(this).children().length - 1).text() == ''?0:1;
 					break;
 					case 'enum' :
 						if( $(this).children().eq(6).text() != '' ){
-							tmp.d = $(this).children().eq(6).data('d');
+							app.auth[i].d = $(this).children().eq(6).data('d');
+						}else{
+							app.auth[i].d = '';
 						}
 					break;
 					default:
 				}
-				oo.push(tmp);
+
+				//oo.push(tmp);
 			});
-
-
-			
+		
 			//o.auth = JSON.stringify(oo);
 
 			o.auth = JSON.stringify( app.auth );
@@ -137,7 +139,7 @@
 					let enum_id = $(this).parents('tr').data('enum_id');
 					let loadIndex = layer.load(2);
 					$.post('__APP__/PublicGet/get_enum_detail?enum_id='+enum_id,{},function(d){
-						let tmp = "<div style = 'border-bottom:1px solid #d5d5d5;padding:10px'><select id = 'enum_default' class = 'browser-default'>";
+						let tmp = "<div style = 'border-bottom:1px solid #d5d5d5;padding:10px'><select id = 'enum_default' class = 'browser-default'><option value = ''></option>";
 						for( let i = 0; i < d.length; i++){
 							tmp += "<option value = '"+d[i]['id']+"'>"+d[i]['name']+"</option>";
 						}	
@@ -270,7 +272,9 @@
 						$(this).parents('tr').children().eq( $(this).parents('tr').children().length - 1).text( '' );
 					}
 					$(this).parents('tr').find( 'input[type=checkbox]' ).attr('disabled',true);
-					app.auth[field].d = 0;
+					app.auth[field].d = '';
+					app.auth[field].t = '';
+					
 				}
 				
 			});
@@ -305,6 +309,8 @@
 					}
 				});
 				*/
+
+			
 
 				$('#tbody tr').each(function(){
 					let field = $(this).data('field');

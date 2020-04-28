@@ -86,21 +86,10 @@
 			<!-- 多窗口表头 结束 -->
             <div id="page-inner" style = ''>
 
-				
-			
-				
-
 			</div>
            
         </div>
-
-
-
-
-
-
-
-       
+ 
     </div>
 	<div id='ajax_pop' style='position:fixed;width:100%;z-index:99999999999;top:40px;height:100%;display:none;text-align:right;padding:2px;color:#ff6600'>
 		<img src = '__PUBLIC__/image/loading-0.gif' class = 'height12 noselect' />
@@ -239,11 +228,7 @@
 				});
 			}
 			$('.iframe').hide();
-
-
-			
-			
-				
+	
 			if(mainPage.iframes.get(id) != undefined && mainPage.iframes.get(id).exist == 1){
 				
 				if(ddh != ''){
@@ -251,8 +236,6 @@
 					frames[id].form.ddh();
 				}
 				$('#i'+id).show();
-
-	
 
 				if(url == '' || url == mainPage.iframes.get(id).url){
 					
@@ -297,7 +280,6 @@
 				//this.add_iframe(this.homePage.url,this.homePage.name,this.homePage.id);
 				//this.add_iframe('__APP__/index/C/thd_list','Test','fafasf');
 			}
-			
 
 			$('body').on('click','a.a_url',function(){
 				if(mainPage.multiType == 1 ){
@@ -327,7 +309,7 @@
 
 		
 
-
+	
 
 	
 	</script>
