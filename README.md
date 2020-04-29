@@ -1,37 +1,19 @@
 # aya
 
 #### 介绍
-一个简单的OA和ERP，正在不断完善中。
+一个简单的OA和ERP，作为学习中的一个实践，正在不断完善中。
+公司网管一名，在管理公司OA和ERP的过程中，由于公司情况复杂，很多需求供应商满足不了。所以尝试自己写一个玩玩。
+水平有限，还有很多地方要优化，有兴趣的可以一起做。
+不少思路都参考了公司OA（致远）和ERP（用友）的理念。
 
-#### 软件架构
-软件架构说明
+
+#### 在线演示地址
 
 
-#### 安装教程
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
 
 #### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+修改数据库地址和密码，然后运行
+http://yourServr/tp/public/index.php
 
 
-#### 码云特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5.  码云官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+QQ : 42686304

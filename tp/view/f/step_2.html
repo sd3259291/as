@@ -233,11 +233,8 @@
 
 				for(let i = 0; i < tbodyTds.length ; i++){
 					let type1 = tbodyTds.eq(i).data('type');
-
 					field =tbodyTds.eq(i).data('i')?tbodyTds.eq(i).data('i'):app.get_aindex();
-					
 					type2 = app.get_type2(field,tbodyTds.eq(i).data('i'));
-
 					switch(type1){
 						case 'text-mul' :
 							length1 = app.field[field]?app.field[field].length1:255;
@@ -251,17 +248,12 @@
 						break;
 						default:
 					}
-
 					tbodyTds.eq(i).parent().parent().parent().attr('data-table',table);
-
 					tbodyTds.eq(i).attr('data-i',field);
-
 				}
-				
 			});
 
 			$('#tbody').html(tbody);
-
 			$('#tbody tr').each(function(){
 				let field = $(this).children().eq(2).text();
 				if(app.field[field]){
@@ -271,9 +263,7 @@
 			
 			let relationSelect = "";
 			$('#tbody tr').each(function(){
-				
 				if( $(this).children().eq(5).text() == '输入框' && $.inArray($(this).children().eq(6).find('select').val(),['person'])>=0 ){
-
 					let table = $(this).children().eq(1).text();
 					let t1 = $(this).children().eq(2).text();
 					let t2 = $(this).children().eq(4).text();

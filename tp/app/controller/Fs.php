@@ -813,8 +813,6 @@ class Fs extends BaseController{
 			}
 		}
 
-		
-
 		return array('data' => $data,'auth' => $auth,'field' => $field,'flow' => $flow,'enum' => $enumIdNameEdit);
 		
 
@@ -827,14 +825,12 @@ class Fs extends BaseController{
 	+------------------------------------------------------------------------------
 	*/
 	public function flow(){
-		gp();
-		
 		$r = $this->flowGet($_GET);
 		View::assign('flow',$r['flow']);
 		View::assign('comments',FlowsComment::where('flow_id = '.$_GET['flow_id'])->order('id desc')->field('name,datetime,comment,username,department,post')->select());
 		View::assign('enum',json_encode($r['enum']));
-		View::assign('data',json_encode($r['data']) );
-		View::assign('field',json_encode($r['field']) );
+		View::assign('data',json_encode($r['data']));
+		View::assign('field',json_encode($r['field']));
 		View::assign('auth',json_encode($r['auth']));
 		return View::fetch();
 	}
@@ -853,7 +849,6 @@ class Fs extends BaseController{
 		View::assign('field',json_encode($r['field']) );
 		View::assign('auth',json_encode($r['auth']));
 		return View::fetch();
-	
 	}
 
 	
