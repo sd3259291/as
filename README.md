@@ -9,11 +9,18 @@
 
 #### 在线演示地址
 
+http://ayasv.com/sa/index.php
 
+管理员账号：admin
+管理员密码: duoduo
+用户账号：  010099
+用户密码：  123
 
 #### 使用说明
-修改数据库地址和密码，然后运行
-http://yourServr/tp/public/index.php
+1.修改数据库地址和密码
+tp\config\database.php中修改
+2.然后运行
+http://YOURSERVE/sa/index.php
 
 
 QQ : 42686304
