@@ -143,27 +143,16 @@ class Login
 					foreach($r as $k => $v){
 						Session::set(md5(strtolower($v['controller'].$v['action'])),1);
 					}
-					
-
-					
 				}
 
 				$data = array('last_login_date' => date('Y-m-d H:i:s',time()));
 				DB::table('s_user')->where('id = '.$authInfo['id'])->data($data)->update();
-
-				
-					
+	
 				return a('','','s');			
 			}	
 		}
 		
 		
-	}
-
-	public function test(){
-		
-		
-		$file = file_get_contents($f);
 	}
 
 	private function d($pdo,$default){
