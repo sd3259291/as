@@ -722,9 +722,6 @@ class Fs extends BaseController{
 			}
 		}
 		
-		
-
-		
 
 		// 隐藏字段 && 更换枚举和系统选择的值
 
@@ -760,8 +757,6 @@ class Fs extends BaseController{
 				break;
 			}
 		}
-
-		
 
 		$enumField = array();
 		foreach($data['form'] as $k => $v){
@@ -814,8 +809,6 @@ class Fs extends BaseController{
 		}
 
 		return array('data' => $data,'auth' => $auth,'field' => $field,'flow' => $flow,'enum' => $enumIdNameEdit);
-		
-
 	}
 
 	

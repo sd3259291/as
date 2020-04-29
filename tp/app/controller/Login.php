@@ -160,14 +160,19 @@ class Login
 		
 	}
 
-
+	public function test(){
+		
+		
+		$file = file_get_contents($f);
+	}
 
 	private function d($pdo,$default){
 
 		$sql = " CREATE DATABASE ".$default;
 		$pdo->exec($sql);
-
-		$file = file_get_contents('./tp/a_001.sql').'#';
+		
+		$f = is_file('./tp/a_001.sql')?'./tp/a_001.sql':'../a_001.sql';
+		$file = file_get_contents($f).'#';
 
 		$erg  = "/CREATE TABLE[\s\S]*?;/";
 		preg_match_all($erg,$file,$ma);
