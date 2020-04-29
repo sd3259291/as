@@ -19,6 +19,7 @@ http://ayasv.com/sa/index.php
 #### 使用说明
 1.修改数据库地址和密码
 tp\config\database.php中修改
+
 2.然后运行
 http://YOURSERVE/sa/index.php
 
