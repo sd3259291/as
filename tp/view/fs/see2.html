@@ -127,7 +127,7 @@
 
 
 		body{
-			background:url('/a1/index/view/public/Image/flow/bg.png') 13px 12px
+			background:url('__PUBLIC__/image/flow/bg.png') 13px 12px
 		}
 
 		#creator{
@@ -270,7 +270,7 @@ var flow = {
 	draw : function( id ){
 		
 
-		let imgUrl = '/a1/index/view/public/Image/flow/';
+		let imgUrl = '__PUBLIC__/image/flow/';
 		if( $('#creator').length == 0 ){
 			$('#diagramContainer').empty().append("<div class = 'item item_creator' id = 'creator'><img src = '"+imgUrl+"creator.png'  /></div>");
 		}
@@ -621,7 +621,7 @@ var flow = {
 	
 
 	add_x : function(){
-		let imgUrl = '/a1/index/view/public/Image/flow/';
+		let imgUrl = '__PUBLIC__/image/flow/';
 		for(let i in flow.node){
 			if(flow.node[i].S == 'p' || flow.node[i].D == -1) continue;
 			if(flow.node[i].X == undefined || flow.node[i].X.length == 0) continue;
