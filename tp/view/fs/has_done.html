@@ -9,7 +9,6 @@
 		<div class = 'row row-head' >
 			<div class = 'col s12'>
 				<div class="btn-group left  margin-right-100" role="group" >
-					
 					<button class = 'btn btn-default btn-default-1' id = 'check'>  <i class="material-icons text-color5"  >create</i> 审核</button>
 					<button class = 'btn btn-default btn-default-1' id = 'flow' >  <i class="material-icons text-color3"  >repeat</i> 流程</button>
 					<button class = 'btn btn-default btn-default-1' id = 'back' >  <i class="material-icons text-color4"  >keyboard_backspace</i> 回退</button>
@@ -20,8 +19,6 @@
 					<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
 				</div>
 			</div>
-
-			
 		</div>
 
 		<div class = 'row row-body'>
@@ -36,15 +33,10 @@
 				</table>
 			</div>
 		</div>
-		
-		
-		
+
 		{include file='public/page/page' /}
 	
-		
-
-
-		
+	
 					
 	</div>
 </div>
@@ -330,6 +322,18 @@
 							top.tmp2 = layero.find('iframe')[0]['name'];
 							
 						},
+					});
+				}else if($(e.target).hasClass('rizhi')){
+					let flow_id = $(e.target).data('flow_id');
+					top.layer.open({
+						title:'<span style = "font-size:12px">流程日志</span>',
+						area: ['800px','100%'],
+						offset:'1px',
+						shadeClose:true,
+						isOutAnim: false ,
+						maxmin: true,
+						type: 2, 
+						content:'__APP__/Fs/flow_log?flow_id='+flow_id
 					});
 				}
 			});

@@ -547,7 +547,7 @@ var flow = {
 								
 								let tmp1 = '',tmp2 = '';
 								
-								flow.tmp.get(id).forEach(function(v,k){
+								$.each(flow.tmp.get(id),function(k,v){
 									if(selected.get(v.k) == undefined){
 										tmp1 += "<tr><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td>"+v.k+"</td><td>"+v.v+"</td></tr>";
 									}else{

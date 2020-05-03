@@ -300,7 +300,9 @@
 </tbody>
 <script>
 
-	let addBranchStatus = '{$Think.get.addbranch}';
+	let replace = '{$Request.get.replace}';
+
+	let addBranchStatus = '{$Request.get.addbranch}';
 
 	if(addBranchStatus == 1){
 		$('#test3').prop('checked',true);
@@ -352,7 +354,7 @@
 			}
 		});
 		if(flag == true) return false;
-
+		if( replace == 1) $('#p_flow_selected_tbody').empty();
 		if(type == '个人'){
 			$('#p_flow_selected_tbody').append("<tr><td>"+number+"</td><td>"+name+"</td><td>个人</td></tr>");
 		}else if(type == '角色'){
@@ -376,21 +378,23 @@
 			},
 			onDblClick:function(event, treeId, treeNode){
 				let bmName = treeNode.name;
-				let bmId = treeNode.bmid;
-				
+				let depId = treeNode.id;
 				if(treeNode.children == undefined){
-					$('#p_flow_selected_tbody').append("<tr data-id = '"+bmId+"|0' ><td></td><td>"+bmName+"</td><td>部门</td></tr>");
+					if( replace == 1) $('#p_flow_selected_tbody').empty();
+					$('#p_flow_selected_tbody').append("<tr data-id = '"+depId+"|0' ><td></td><td>"+bmName+"</td><td>部门</td></tr>");
 				}else{
 					layer.alert('是否包括子部门', {
 						icon: 3,
 						offset: ['20%'],
 						btn : ['是','否'],
 						yes : function(index, layero){
-							$('#p_flow_selected_tbody').append("<tr data-id = '"+bmId+"|1' ><td>包括子部门</td><td>"+bmName+"</td><td>部门</td></tr>");
+							if( replace == 1) $('#p_flow_selected_tbody').empty();
+							$('#p_flow_selected_tbody').append("<tr data-id = '"+depId+"|1' ><td>包括子部门</td><td>"+bmName+"</td><td>部门</td></tr>");
 							layer.close(index);
 						},
 						btn2: function(){
-							$('#p_flow_selected_tbody').append("<tr data-id = '"+bmId+"|0' ><td>不包括子部门</td><td>"+bmName+"</td><td>部门</td></tr>");
+							if( replace == 1) $('#p_flow_selected_tbody').empty();
+							$('#p_flow_selected_tbody').append("<tr data-id = '"+depId+"|0' ><td>不包括子部门</td><td>"+bmName+"</td><td>部门</td></tr>");
 						},
 
 					});
@@ -508,6 +512,7 @@
 			}
 		});
 		if(flag == true) return false;
+		if( replace == 1) $('#p_flow_selected_tbody').empty();
 		$('#p_flow_selected_tbody').append("<tr data-id = '"+id+"' data-type = '岗位' ><td></td><td>"+post+"</td><td>岗位</td></tr>");
 	});
 	
@@ -542,6 +547,7 @@
 			}
 		});
 		if(flag == true) return false;
+		if( replace == 1) $('#p_flow_selected_tbody').empty();
 		$('#p_flow_selected_tbody').append("<tr data-id = '"+id+"' data-type = '组' ><td></td><td>"+post+"</td><td>组</td></tr>");
 	});
 	
@@ -603,6 +609,7 @@
 			}
 		});
 		if(flag == true) return false;
+		if( replace == 1) $('#p_flow_selected_tbody').empty();
 		$('#p_flow_selected_tbody').append("<tr data-id = '"+id+"' data-type = '相对角色' ><td></td><td>"+x+"</td><td>相对角色</td></tr>");
 	});
 
@@ -682,7 +689,7 @@
 
 		
 		
-		parent.flow.insert_node(node,type,0,true,addBranchStatus);
+		parent.flow.insert_node(node,type,0,true,addBranchStatus,replace);
 
 		let index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
 		parent.layer.close(index); //再执行关闭   

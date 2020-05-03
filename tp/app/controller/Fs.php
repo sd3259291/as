@@ -281,8 +281,6 @@ class Fs extends BaseController{
 		//sp();exit();
 		//gp();
 
-		
-		
 		$userinfo = Session::get('userinfo');
 		
 		if( (int)$_POST['template_id'] > 0 ){
@@ -818,7 +816,14 @@ class Fs extends BaseController{
 	+------------------------------------------------------------------------------
 	*/
 	public function flow(){
+
 		$r = $this->flowGet($_GET);
+		$executor = FlowsExecutor::find($_GET['id']);
+		if($executor->status == 0){
+			 $executor->status = 1;
+			 $executor->datetime_s = date('Y-m-d H:i:s' , time());
+			 $executor->save();
+		}
 		View::assign('flow',$r['flow']);
 		View::assign('comments',FlowsComment::where('flow_id = '.$_GET['flow_id'])->order('id desc')->field('name,datetime,comment,username,department,post')->select());
 		View::assign('enum',json_encode($r['enum']));
@@ -922,33 +927,28 @@ class Fs extends BaseController{
 	}
 
 	public function test1(){
-		$flow = Flows::find(1726);
-		
+		$flow = Flows::find(3);
 		Cache::set('node',$flow->node);
 		Cache::set('p',$flow->p);
 		Cache::set('handler',$flow->handler);
-		$exe = Db::table('s_flows_executor')->where('flow_id = 1726')->select()->toArray();
+		$exe = Db::table('s_flows_executor')->where('flow_id = 3')->select()->toArray();
 		Cache::set('executor',$exe);
 	}
 
 	public function test(){
-		$flow = Flows::find(1726);
+		$flow = Flows::find(3);
 		$flow->node = Cache::get('node');
 		$flow->p = Cache::get('p');
 		$flow->handler = Cache::get('handler');
 		$flow->save();
 		$executor = Cache::get('executor');
-		
-		Db::table('s_flows_executor')->where('flow_id = 1726')->delete();
+		Db::table('s_flows_executor')->where('flow_id = 3')->delete();
 		Db::table('s_flows_executor')->insertAll($executor);
 	}
 
 	public function test2(){
 		$k = Cache::get('tmp2');
 		$v = Cache::get('tmp1');
-		
-		
-
 		Db::table('s_'.$k)->insertAll($v);
 	}
 
@@ -961,6 +961,7 @@ class Fs extends BaseController{
 
 	public function check(){
 
+	
 		//$this->test();
 
 		//gp();
@@ -1956,10 +1957,12 @@ class Fs extends BaseController{
 							$emptyMsg = '部门人数为 0';
 							$depId = substr($tmpNode['K'],0,-2);
 							$includeChildren = substr($tmpNode['K'],-1);
-							$g = action('index/Get/get_employee_by_department',array('depId' => $depId,'includeChildren' => $includeChildren));
+							$g = $this->get->get_employee_by_department($depId,$includeChildren);
 							$multiMsg = '部门';
-						break;
 
+							
+
+						break;
 						case 'X' :
 							if($tmpNode['K'] == 9){
 								//

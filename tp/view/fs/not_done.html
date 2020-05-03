@@ -135,7 +135,7 @@
 								let zxms = $(this).data('zxms');
 
 
-								let n = "<div class = 'row' style = 'margin:0'><div class = 'col s12' id = 'top123'><div style = 'display:inline-block;width:50%;position:relative'><input id = 'i20191119' placeholder = '按回车搜索' type = 'text' class = 'aya-input' style = 'height:24px;width:100%' /><img class = 'icon4' src = '/a1/index/view/public/Image/o25.png' style = 'position:absolute;right:0;top:3px;'/></div></div><div class = 'col s12'><table id = 't20191119' class = 'centered dataTable row-border noselect table-small'><thead><tr></tr><tr><th></th><th>工号</th><th>姓名</th></tr></thead><tbody>";
+								let n = "<div class = 'row' style = 'margin:0'><div class = 'col s12' id = 'top123'><div style = 'display:inline-block;width:50%;position:relative'><input id = 'i20191119' placeholder = '按回车搜索' type = 'text' class = 'aya-input' style = 'height:24px;width:100%' /><img class = 'height18' src = '/a1/index/view/public/Image/o25.png' style = 'position:absolute;right:0;top:3px;'/></div></div><div class = 'col s12'><table id = 't20191119' class = 'centered dataTable row-border noselect table-small'><thead><tr></tr><tr><th></th><th>工号</th><th>姓名</th></tr></thead><tbody>";
 
 								let selected = new Map();
 								if(parent.$('#' + app.mSelected).data('executor') != undefined){
@@ -145,8 +145,11 @@
 								}
 								
 								let tmp1 = '',tmp2 = '';
+
+		
 								
-								app.tmp.get(id).forEach(function(v,k){
+								
+								$.each(app.tmp.get(id),function(k,v){
 									if(selected.get(v.k) == undefined){
 										tmp1 += "<tr><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td>"+v.k+"</td><td>"+v.v+"</td></tr>";
 									}else{
@@ -154,6 +157,8 @@
 									}
 										
 								});
+
+								
 
 								n = n + tmp2 + tmp1;
 

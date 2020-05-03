@@ -526,11 +526,32 @@ var flow = {
 
 	},
 
-	insert_node : function(node ,type , ID = 0 ,isDraw = false , addBranch = 0 ){ // 1.并发   2.串发
+	insert_node : function(node ,type , ID = 0 ,isDraw = false , addBranch = 0 ,replace = 0){ // 1.并发   2.串发
+
+		if( node.length == 0 ) return false;
+
 		layer.closeAll();
+		
+		let startNodeId;
+
+		if(replace == 1){      // 替换
+			startNodeId = $(flow.selectedNode).prop('id');
+			flow.node[startNodeId].T = node[0].T;
+			flow.node[startNodeId].K = node[0].K;
+			flow.node[startNodeId].V = node[0].V;
+			if(node[0].B){
+				flow.node[startNodeId].B = node[0].B;
+			}else{
+				if(flow.node[startNodeId].B) delete flow.node[startNodeId].B;
+			}
+			flow.re_draw();
+			return false;
+		}
+
+
 		if(addBranch == 0){
 			
-			let startNodeId;
+			
 
 			if(ID == 0){
 				startNodeId = $(flow.selectedNode).prop('id');
@@ -649,7 +670,7 @@ var flow = {
 			let offset = $(this).offset();
 			let left = offset.left + $(this).width();
 			let top  = offset.top  + 10;
-			let tmp = "<ul class = 'oper list-group' style = 'left:"+left+"px;top:"+top+"px'><li class = 'list-group-item add'>增加</li><li class = 'list-group-item dlt'>删除</li><li class = 'list-group-item'>替换</li><li class = 'list-group-item attr'>属性</li><li class = 'list-group-item auth'>权限</li></ul>";
+			let tmp = "<ul class = 'oper list-group' style = 'left:"+left+"px;top:"+top+"px'><li class = 'list-group-item add'>增加</li><li class = 'list-group-item dlt'>删除</li><li class = 'list-group-item replace'>替换</li><li class = 'list-group-item attr'>属性</li><li class = 'list-group-item auth'>权限</li></ul>";
 			$('#diagramContainer').append(tmp);
 			e.stopPropagation();
 			flow.selectedNode = this;
@@ -714,7 +735,21 @@ var flow = {
 				isOutAnim: false ,
 				maxmin: true,
 				type: 2, 
-				content:'__APP__/F/flow_select?addbranch=0',
+				content:'__APP__/F/flow_select?addbranch=0&replace=0',
+			
+			});
+		});
+
+		$('#diagramContainer').on('click','li.replace',function(e){
+			layer.open({
+				title:"<span style = 'font-size:12px'>选择审批人（替换）</span>",
+				area: ['900px','100%'],
+				offset:'0%',
+				shadeClose:true,
+				isOutAnim: false ,
+				maxmin: true,
+				type: 2, 
+				content:'__APP__/F/flow_select?addbranch=0&replace=1',
 			
 			});
 		});
@@ -732,6 +767,7 @@ var flow = {
 				content:'__APP__/F/flow_auth?flowid='+flow.flowId+'&node='+$(flow.selectedNode).prop('id'),
 				btn : [ '确定'],
 				yes : function(index,layero){
+					
 					var iframeWin = parent.window[layero.find('iframe')[0]['name']];
 					iframeWin.app.save();
 				}
@@ -788,7 +824,6 @@ var flow = {
 	},
 
 	save : function(){
-
 		
 
 		for(let i in flow.node){
@@ -820,9 +855,6 @@ var flow = {
 			if(flow.node[i]['noaddbranch'] != undefined){
 				delete flow.node[i]['noaddbranch'];
 			}
-
-
-
 		}
 		
 		
@@ -1028,7 +1060,6 @@ var flow = {
 
 	add_x_do : function(i){
 		
-		
 		if(flow.node[i]['X'] != undefined && flow.node[i]['X'].length > 0){		
 			let offset = $('#' + i).offset();
 			let left = offset.left;
@@ -1069,13 +1100,12 @@ var flow = {
 					if(tmp2[1] == 'aya1'){
 						c1 += tmp2[0] + "发起者部门" + (tmp2[2]=='=='?'=':tmp2[2]) + flow.department[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
 					}else if(tmp2[1] == 'aya2'){
-						c1 += tmp2[0] + "发起者岗位" + (tmp2[2]=='=='?'=':tmp2[2]) + flow.post[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
+						c1 += tmp2[0] + "发起者岗位" + (tmp2[2]=='=='?'=':tmp2[2]) + flow.post[tmp2[3]] + tmp2[4] + tmp2[5] + " ";
 					}else if(tmp2[1] == 'aya3'){
 						c1 += tmp2[0] + "执行者岗位" + (tmp2[2]=='=='?'=':tmp2[2]) + flow.department[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
 					}else if(tmp2[1] == 'aya4'){
-						c1 += tmp2[0] + "执行者部门" + (tmp2[2]=='=='?'=':tmp2[2]) + flow.post[tmp2[3].substr(0,tmp2[3].length -2)] + tmp2[4] + tmp2[5] + " ";
+						c1 += tmp2[0] + "执行者部门" + (tmp2[2]=='=='?'=':tmp2[2]) + flow.post[tmp2[3]] + tmp2[4] + tmp2[5] + " ";
 					}else{
-						
 						if(tmp2.length == 6){
 							if(flow.enumI[tmp[1]]){
 								c1 +=  tmp2[0] + flow.label[tmp2[1]] + (tmp2[2]=='=='?'=':tmp2[2]) + flow.enum[tmp2[3]] + tmp2[4] + tmp2[5] + " ";
@@ -1086,8 +1116,6 @@ var flow = {
 							
 							c1 += tmp2[0] + flow.label[tmp2[1]] +  (tmp2[2] == 1?'被选中':'未选中') + tmp2[3] + tmp2[4];
 						}
-
-						
 					}
 				}
 				//$('#diagramContainer').append("<div id = 'x"+i+"' title = '"+c1+"' style = 'font-size:12px;display:inline-block;position:absolute;left:"+left+"px;top:"+top+"px'>"+c+"...</div>");
