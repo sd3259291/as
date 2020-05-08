@@ -46,8 +46,7 @@ class Department extends Model{
 			
 		}
 
-		
-		
+
 		// k => v ,k 为 ztree 上的属性 , v 为 数据库中的属性。两者的对应关系
 		$key = array(
 			'name' => 'name1',

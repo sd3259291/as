@@ -884,6 +884,51 @@ table.table-form2 .field-error{
 	border-color:#dc3545
 }
 
+.aya-tabs1{
+	border-bottom: 1px solid #dee2e6;
+	display:flex;
+	flex-wrap: wrap;
+	padding-left: 0;
+	margin-bottom: 0;
+	list-style: none;
+	margin-top: 0;
+	word-wrap: break-word;
+	font-weight: 400;
+	color: #212529;
+	text-align: left;
+}
+.aya-tabs1 li{
+	margin-bottom: -1px;
+	list-style: none;
+	word-wrap: break-word;
+	cursor:pointer
+}
+.aya-tabs1 li a{
+	border-left: 0;
+	margin-left: 0;
+	color: #495057;
+	display: block;
+	padding: 8px 16px;
+	text-decoration: none;
+	color: #007bff;
+	border: 1px solid transparent;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	border-top: 3px solid transparent;
+}
+.aya-tabs1 li a.active{
+	border-color: #dee2e6 #dee2e6 #fff;
+	color: #495057;
+	background-color: #fff;
+	border-top: 3px solid #007bff;
+}
+.aya-tabs1 li a:hover{
+	color: #0056b3;
+}
+.aya-tabs1 li a.active:hover{
+	color: #495057;
+}
+
 
 
 

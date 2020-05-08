@@ -1,0 +1,176 @@
+
+  <script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+ <link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+			<div class = 'col s12' >
+				<div class="btn-group left  margin-right-100" role="group" >
+					<button class = 'btn btn-default btn-default-1' id = 'add'>  <i class="material-icons text-color2"  >add_box</i> 新增</button>
+					<button class = 'btn btn-default btn-default-1' id = 'edit'>  <i class="material-icons text-color5"  >create</i> 编辑</button>
+					<button class = 'btn btn-default btn-default-1' id = 'change_status'>  <i class="material-icons text-color4"  >transform</i> 禁用/启用</button>
+					<button class = 'btn btn-default btn-default-1' id = 'dlt'>  <i class="material-icons text-color3"  >clear</i> 删除</button>
+			
+			
+				</div>
+				
+			</div>
+		</div>
+
+		<div class = 'row row-body'>
+			
+			<div class = 'col s5' id = 'a1' style = ''>
+				<table class = 'dataTable row-border centered' id = 'table' >
+					<thead>
+						<th>序号</th><th>名称</th><th>排序</th><th>状态</th>
+					</thead>
+					<tbody id = 'tbody'>
+						{volist name = 'units' id = 'u'}
+						<tr data-id = {$u.id} ><td>{$key + 1}</td><td>{$u.name}</td><td>{$u.sort}</td><td>{$u.status?'启用':'禁用'}</td></tr>
+						{/volist}
+					</tbody>
+				</table>
+					
+				
+			
+			</div>
+		
+
+
+		
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+	var app = {
+
+		table : {},
+		
+		ini : function(){
+			app.table = d_table('table');
+
+			$('#add').click(function(){
+				let div = [
+					{ 'name' : '名称：' ,'id' : 'name' ,'type' : 'text'},
+					{ 'name' : '排序：' , 'id' : 'sort' ,'type' : 'text'},
+				];
+				parent.layer.open({
+					skin: 'layer-new-container',
+					title : '新建计量单位',
+					offset : ['40px'],
+					area  : ['400px',"250px"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					content : create_new_div( div ),
+					success : function(){
+						
+					},
+					yes : function(index){
+						let o = {};
+						for(let f of div){
+							o[f.id] = $.trim($('#' + f.id).val());
+						}
+						$.post('__APP__/erpBase/addUnit',o,function(d){
+							if(d.status == 's'){
+								let newTr = "<tr data-id = "+d.data.id+" ><td>"+($('#tbody tr').length + 1)+"</td><td>"+d.data.name+"</td><td>"+d.data.sort+"</td><td>启用</td></tr>";
+								app.table.rows.add($(newTr)).draw();
+								parent.layer_success();
+								parent.layer.close(index);
+							}else{
+								parent.layer_error(d);
+							}
+						});
+
+					}
+				});
+
+			});
+
+			$('#edit').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+				let id = $('#table tbody tr.selected').eq(0).data('id');
+				let div = [
+					{ 'name' : '排序：' , 'id' : 'sort' ,'type' : 'text'},
+				];
+
+				parent.layer.open({
+					skin: 'layer-edit-container',
+					title : '编辑计量单位',
+					offset : ['40px'],
+					area  : ['400px',"200px"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					isOutAnim: false,
+					content : create_new_div( div ),
+					success : function(){
+						$('#sort').val($('#table tbody tr.selected').eq(0).children().eq(2).text());
+					},
+					yes : function(index){
+						let o = {};
+						o.sort = $('#sort').val();
+						o.id = id;
+						$.post('__APP__/erpBase/editUnit',o,function(d){
+							if(d.status == 's'){
+								$('#table tbody tr.selected').eq(0).children().eq(2).text(o.sort);
+								parent.layer_success();
+								parent.layer.close(index);
+							}else{
+								parent.layer_error(d);
+							}
+						});
+					}
+				});
+
+			});
+
+
+			$('#change_status').click(function(){
+				if( $('#tbody tr.selected').length == 0 ) return false;
+				let o = { id : $('#tbody tr.selected').eq(0).data('id') };
+				$.post('__APP__/erpBase/changeStatusUnit',o,function(d){
+					if(d.status == 's'){
+						$('#tbody tr.selected').eq(0).children().eq(3).text(d.data);
+						parent.layer_success();
+					}else{
+						parent.layer_error(d);
+					}
+				});
+			});
+
+
+			$('#dlt').click(function(){
+				if($('#table tbody tr.selected').length == 0) return false;
+				layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+					let o = {};
+					o.id = $('#table tbody tr.selected').eq(0).data('id');
+					$.post('__APP__/erpBase/dltUnit',o,function(d){
+						if(d.status == 's'){
+							app.table.row( $('#table tbody tr.selected').eq(0) ).remove().draw();
+							layer_success();
+						}else{
+							layer_error(d);
+						}
+						layer.close(index);
+					});	
+				});
+			});
+
+
+		}
+		
+		
+
+
+
+	}
+	app.ini();
+</script>
+
+
+

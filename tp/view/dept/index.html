@@ -6,7 +6,7 @@
 		<div class = 'row row-head' >
 			<div class = 'col s12' >
 				<div class="btn-group left  margin-right-100" role="group" >
-					<button class = 'btn btn-default btn-default-1' id = 'add'>  <i class="material-icons text-color2"  >create</i> 新增</button>
+					<button class = 'btn btn-default btn-default-1' id = 'add'>  <i class="material-icons text-color2"  >add_box</i> 新增</button>
 		
 					<button class = 'btn btn-default btn-default-1' id = 'dlt'>  <i class="material-icons text-color3"  >clear</i> 删除</button>
 			
@@ -19,7 +19,9 @@
 		<div class = 'row row-body'>
 			
 			<div class = 'col s5' id = 'll'>
-				 <ul id="tree" class="ztree"></ul>
+				
+					<ul id="tree" class="ztree"></ul>
+				
 			</div>
 
 				<div class = 'col s7' sty1le = 'border-right:3px solid #117a8b;border-radius: .25rem;' >
@@ -70,8 +72,6 @@
 <script>
 	var app = {
 		
-		
-
 		zTreeObj : {},
 
 		pname : '',
@@ -95,8 +95,6 @@
 					selectName += v.name + ',';
 					selectId += v.id + ',';
 				});
-
-				log(selected);
 
 				input.val(selectName);
 				input.attr('data-id',selectId);
@@ -159,6 +157,8 @@
 			let treeObj = $.fn.zTree.getZTreeObj("tree");
 
 			treeObj.expandNode( treeObj.getNodeByTId("tree_1"), true, false, false );
+
+			
 		
 			$('#dlt').click(function(){
 

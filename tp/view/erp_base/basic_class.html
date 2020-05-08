@@ -1,0 +1,229 @@
+
+  <script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+ <link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+
+
+
+
+<div class="card">
+	<div class="card-content">
+
+
+		<div class = 'row row-head' >
+			<div class = 'col s5' >
+				<div class="btn-group left  margin-right-100" role="group" >
+					<button class = 'btn btn-default btn-default-1' id = 'add'>  <i class="material-icons text-color2"  >create</i> 新增</button>
+					<button class = 'btn btn-default btn-default-1' id = 'dlt'>  <i class="material-icons text-color3"  >clear</i> 删除</button>
+				</div>
+				
+			</div>
+
+
+			<div class = 'col '>
+				<ul class = 'aya-tabs1' id = 'basictab'>
+					<li><a class = 'active' data-index = 0 >存货档案</a></li>
+					<li><a data-index = 1 >供应商</a></li>
+					<li><a data-index = 2 >客户</a></li>
+
+				</ul>
+			</div>
+
+		</div>
+
+		<div class = 'row row-body basictab' id = 'basictab0'>
+			<div class = 'col s5' id = 'd0'>
+				<ul id="tree0" class="ztree"></ul>
+			</div>
+			<div class = 'col s7' sty1le = 'border-right:3px solid #117a8b;border-radius: .25rem;' >
+				<div class = 'row new-container' >
+					<div class = 'col s4'>编码</div><div class = 'col s8'><input id = 'code0' class = 'aya-input' type = 'text' readonly /></div>
+					<div class = 'col s4'>名称</div><div class = 'col s8'><input id = 'name0' class = 'aya-input' type = 'text' readonly /></div>
+
+				</div>
+			</div>
+		</div>
+		
+
+		<div class = 'row row-body basictab' id = 'basictab1' style = 'display:none'>
+			<div class = 'col s5' id = 'd1'>
+				<ul id="tree1" class="ztree"></ul>
+			</div>
+			<div class = 'col s7' sty1le = 'border-right:3px solid #117a8b;border-radius: .25rem;' >
+				<div class = 'row new-container' >
+					<div class = 'col s4'>编码</div><div class = 'col s8'><input id = 'code1' class = 'aya-input' type = 'text' readonly /></div>
+					<div class = 'col s4'>名称</div><div class = 'col s8'><input id = 'name1' class = 'aya-input' type = 'text' readonly /></div>
+
+				</div>
+			</div>
+		</div>
+
+		<div class = 'row row-body basictab' id = 'basictab2' style = 'display:none'>
+			<div class = 'col s5' id = 'd2'>
+				<ul id="tree2" class="ztree"></ul>
+			</div>
+			<div class = 'col s7' sty1le = 'border-right:3px solid #117a8b;border-radius: .25rem;' >
+				<div class = 'row new-container' >
+					<div class = 'col s4'>编码</div><div class = 'col s8'><input id = 'code2' class = 'aya-input' type = 'text' readonly /></div>
+					<div class = 'col s4'>名称</div><div class = 'col s8'><input id = 'name2' class = 'aya-input' type = 'text' readonly /></div>
+
+				</div>
+			</div>
+		</div>
+
+
+		
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+	var app = {
+		
+		zTreeObj : {},
+
+		pname : '',
+
+		pid : '',
+
+		node : {},
+
+		hasIni : {},
+		
+		class_id : 0,
+		class_name : '存货档案',
+
+		doIni : function(index){
+			if( !app.hasIni[index] ){
+				app.hasIni[index] = 1;
+				max_height('d' + index);
+				$.post('__APP__/erpBase/basicClassGet',{class_id : index},function(d){
+					if(d.status == 's'){
+						let setting = {
+							callback:{
+								onClick:function(event, treeId, treeNode){
+									app.node[app.class_id] = treeNode;
+									$('#code' + app.class_id).val(treeNode.code);
+									$('#name' + app.class_id).val(treeNode.realname);
+								},
+							}
+						};
+						app.zTreeObj[app.class_id] = $.fn.zTree.init($("#tree"+app.class_id), setting, d.data);
+						let treeObj = $.fn.zTree.getZTreeObj("tree"+app.class_id);
+						treeObj.expandNode( treeObj.getNodeByTId("tree_1"), true, false, false );
+					}else{
+						layer_error(d);
+					}
+				});
+
+
+			}
+		},
+		
+		ini : function(){
+
+			tabs('basictab',function(that){
+				app.class_id = $(that).data('index');
+				app.doIni( app.class_id );
+				app.class_name = $(that).text();
+			});
+
+			app.doIni(0);
+
+	
+		
+			$('#dlt').click(function(){
+
+				if(!app.node[app.class_id]) return false;
+
+				parent.layer.confirm('确定删除?', { icon: 3, title:'提示',offset : ['10%' ] }, function(index){
+
+					let o = {};
+
+					o.id = app.node[app.class_id].id;
+					$.post('__APP__/erpBase/dltBasicClass',o,function(d){
+						if(d.status == 's'){
+							app.zTreeObj[app.class_id].removeNode(app.node[app.class_id]);
+							parent.layer.close(index);
+							layer_success();
+
+						}else{
+
+							layer_error(d);
+
+						}
+
+					});
+				});
+
+			});
+			
+			$('#add').click(function(){
+				let div = [
+					{ 'name' : '上级：' ,'id' : 'pname_new' ,'type' : 'text','readonly' : true},
+					{ 'name' : '编码：' ,'id' : 'code_new' ,'type' : 'text'},
+					{ 'name' : '名称：' ,'id' : 'name_new' ,'type' : 'text'},
+					{ 'type' : 'hidden' , 'id' : 'pid_new'}
+				];
+
+				parent.layer.open({
+					skin: 'layer-new-container',
+					title : '新增分类 - ' + app.class_name,
+					offset : ['40px'],
+					area  : ['500px',"300px"],
+					type  : 1,
+					btn   : ['确定'],
+					shadeClose:true,
+					content : create_new_div( div ),
+					success : function(){
+						
+						if(app.node[app.class_id]){
+							if(app.node[app.class_id]){
+								$('#pname_new').val( app.node[app.class_id].name );
+								$('#pid_new').val( app.node[app.class_id].id );
+							}else{
+								$('#pname_new').val('');
+								$('#pid_new').val('');
+							}
+							
+						}
+						
+					},
+					yes : function(index){
+						let o = {};
+						for(let f of div){
+							o[f.id] = $.trim($('#' + f.id).val());
+						}
+
+						o.class_id = app.class_id;
+
+						$.post('__APP__/erpBase/addBasicClass',o,function(d){
+							if(d.status == 's'){
+								let tmp = d.data;
+								app.zTreeObj[app.class_id].addNodes( tmp.pid == 0 ? null : app.node[app.class_id] , {name : tmp.name + ' - ' + tmp.code,code:tmp.code,realname:tmp.name, id :tmp.id} );
+								parent.layer.close(index);
+								layer_success();
+							}else{
+								layer_error(d);
+							}
+						});
+					}
+				});
+
+			});
+
+			
+
+
+		},	
+
+
+
+	}
+	app.ini();
+</script>
+
+
+

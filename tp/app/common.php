@@ -1,7 +1,7 @@
 <?php
 // 应用公共文件
 
-function a($data,$info = '',$status = 's'){
+function a($data = '',$info = '',$status = 's'){
 	return json(array('data' => $data,'info' => $info,'status' => $status));
 }
 
@@ -40,6 +40,11 @@ function get_w($d,$kh = true,$kv = true){
 	}
 	if($w != '') return substr($w,0,-1);
 	return '';
+}
+
+function is_set($a,$b){
+	if(isset($a[$b]) && $a[$b]) return true;
+	return false;
 }
 
 function sp(){

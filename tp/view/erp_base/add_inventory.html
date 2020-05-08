@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <!-- Bootstrap Styles-->
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+    <!-- FontAwesome Styles-->
+    <link href="__PUBLIC__/css/font-awesome.css" rel="stylesheet" />
+	
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/bootstrap-select/dist/css/bootstrap-select.min.css" type="text/css">
+	<style type="text/css">
+		body{background:#fff;font-size:12px}
+		.row{
+			padding:10px
+		}
+	</style>
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	<style type="text/css">
+		.col{
+			height:30px;line-height:30px
+		}
+	</style>
+</head>
+
+<body>
+<div class = 'container-fluid' style = 'padding:20px;margin:0'>
+	<div class = 'row'>
+		<div class = 'col s3 ' style = 'text-align:right;'>
+			物料编码
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input inventory' id = 'code' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			物料名称
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input inventory' id = 'name' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			规格型号
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input inventory' id = 'std' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			计量单位
+		</div>
+		<div class = 'col s9'>
+			<select class = 'browser-default inventory' id = 'unit_id' >
+				{volist name = 'units' id = 'u'}
+				<option value = {$u.id}>{$u.name}</option>
+				{/volist}
+			</select>
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			物料分类
+		</div>
+		<div class = 'col s9'>
+			<select class = 'browser-default inventory' id = 'basic_class_id' >
+				{volist name = 'basicclass' id = 'b'}
+				<option value = {$b.id}>{$b.name}</option>
+				{/volist}
+			</select>
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:center'>
+			自制件 <input type = 'checkbox' class = 'aya-checkbox inventory' id = 'self' />
+		</div>
+		
+	</div>
+	
+	<div class = 'row'>
+		<div class = 'col s12' style = 'text-align:center;border-top:1px solid #28a745;padding-top:18px'>
+			<button class = 'btn btn-default' id = 'add'>新增</button>
+		</div>
+	</div>
+
+
+
+
+
+</div>
+
+<!--<input id = 'lzrq' value = '{e.lzrq}' style = 'padding:0;margin:0;border:0;font-size:12px;text-align:center' readonly />-->
+
+<script>
+	$('#add').click(function(){
+		let o = {};
+		$('.inventory').each(function(){
+			
+			let type = $(this).attr('type');
+			let field = $(this).attr('id');
+			if(type == 'checkbox'){
+				o[field] = $(this).is(':checked')?1:0;
+			}else{
+				o[field] = $.trim($(this).val());
+			}
+		});
+
+		$.post('__APP__/ErpBase/insertInventory',o,function(d){
+			if(d.status == 's'){
+				o.basicClass = $('#basic_class_id option:selected').text();
+				o.unit  = $('#unit_id option:selected').text();
+				get_parent().app.add_success(o);
+				layer_success();
+				$('.inventory').each(function(){
+					if( $(this).attr('type') == 'text'){
+						$(this).val('');
+					}
+				});
+			}else{
+				layer_error(d);
+			}
+		});
+	});
+	
+	let basicClassId = get_parent().app.searchOption.basicClassId;
+	if(basicClassId){
+		$('#basic_class_id').val(basicClassId);
+	}
+	
+	
+</script>
+
+</body>
+
+</html>

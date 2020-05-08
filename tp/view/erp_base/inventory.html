@@ -1,0 +1,257 @@
+
+
+<style type="text/css">
+	table tbody tr td a{
+		cursor:pointer;
+		text-decoration:none
+	}
+	table tbody tr td a:hover{
+		text-decoration:none
+	}
+
+	table tbody tr td{
+		
+	}
+</style>
+<script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+<link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<div class="card">
+	<div class="card-content">
+		<div class = 'row row-head' >
+			<div class = 'col s12' >
+				<div class="btn-group left  margin-right-100" role="group" >
+					<button class = 'btn btn-default btn-default-1' id = 'add'>  <i class="material-icons text-color2"  >add_box</i> 新增</button>
+					<button class = 'btn btn-default btn-default-1' id = 'edit'>  <i class="material-icons text-color5"  >create</i> 编辑</button>
+					<button class = 'btn btn-default btn-default-1' id = 'dlt'>  <i class="material-icons text-color3"  >clear</i> 删除</button>
+					<button class = 'btn btn-default btn-default-1' id = 'search'>  <i class="material-icons text-color1"  >search</i> 搜索</button>
+				</div>
+
+				<div class = 'relative width-200' style = 'display:inline-block'>
+					<input type = 'text' id = 'search_table' class = 'width-200' placeholder = '表单内搜索 - 按回车键' />
+					<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
+				</div>
+
+				
+
+			</div>
+
+		
+
+
+		</div>
+
+		<div class = 'row row-body'>
+			
+		
+			
+			<div class = 'col s3' id = 'll'>
+				 <ul id="tree" class="ztree"></ul>
+			</div>
+
+			<div class = 'col s9'  >
+				
+				<table class = 'dataTable centered cell-border stripe' id = 'table'>
+					<thead>
+						<tr>
+							<th style = 'white-space:nowrap'>物料编码</th>
+							<th style = 'white-space:nowrap'>物料名称</th>
+							<th style = 'white-space:nowrap'>规格型号</th>
+							<th style = 'white-space:nowrap;width:20px'>单位</th>
+							<th style = 'white-space:nowrap'>存货分类</th>
+							<th style = 'white-space:nowrap'>自制件</th>
+						</tr>
+					</thead>
+					<tbody  id = 'tbody'>
+					</tbody>
+				</table>
+				{include file='public/page/page' /}
+			</div>
+		</div>
+		
+
+
+		
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+	var app = {
+
+		table : {},
+
+		searchOption : {},
+
+		add_success : function(data){
+			app.table.rows.add( $("<tr><td><a>"+data.code+"</a></td><td>"+data.name+"</td><td>"+data.std+"</td><td>"+data.unit+"</td><td>"+data.basicClass+"</td><td>"+(data.self?'√':'')+"</td></tr>") ).draw();
+		},
+
+		edit_success : function(data){
+			let tmp = [
+				'<a>' + data.code + '</a>',
+				data.name,
+				data.std,
+				data.unit,
+				data.basicClass,
+				data.self == 1?'√':''
+			];
+			app.table.row( $('#tbody tr.selected') ).data(tmp);
+		},
+
+		edit : function(a){
+			let code = $(a).text();
+			parent.layer.open({					
+				type: 2,
+				skin: 'layer-edit-container',
+				isOutAnim: false ,
+				title: '存货档案明细',
+				maxmin: true,
+				shadeClose: true, //点击遮罩关闭层
+				area : ['600px','100%'],
+				content: '__APP__/ErpBase/inventoryInfo?code='+code
+			});
+		},
+		
+		ini : function(){
+			app.table = d_table({scrollX: true ,autoWidth: false});
+			let zNodes = {$tree|raw};
+			let setting = {
+				callback:{
+					onClick:function(event, treeId, treeNode){
+						let o = get_page();
+						o.basicClassId = treeNode.id;
+						app.searchOption.basicClassId = treeNode.id;
+						page_callback(o,'__APP__/ErpBase/getInventory',app.table);
+					},
+				}
+			};
+			app.zTreeObj = $.fn.zTree.init($("#tree"), setting, zNodes);
+			let treeObj = $.fn.zTree.getZTreeObj("tree");
+			treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
+
+			$('#add').click(function(){
+				parent.layer.open({					
+					type: 2,
+					skin: 'layer-new-container',
+					isOutAnim: false ,
+					title: '新增存货档案',
+					maxmin: true,
+					shadeClose: true, //点击遮罩关闭层
+					area : ['600px','100%'],
+					content: '__APP__/erpBase/addInventory',
+					//btn : ['新增']
+				});
+			});
+
+			page('__APP__/ErpBase/getInventory',app.table,app.searchOption);
+
+
+			$('#table').click(function(e){
+				if(e.target.nodeName == 'A'){
+					app.edit(e.target);
+				}
+			});
+
+			$('#edit').click(function(){
+				if($('#tbody tr.selected').length == 0 || $('#tbody tr.selected').eq(0).children().length == 1 ) return false;
+				app.edit($('#tbody tr.selected').eq(0).children().eq(0).find('a'));			
+			});
+
+
+			$('#dlt').click(function(){
+				if($('#tbody tr.selected').length == 0 || $('#tbody tr.selected').eq(0).children().length == 1 ) return false;
+				layer.confirm('确定删除物料（ '+$('#table tbody tr.selected').eq(0).children().eq(1).text()+' ）?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+					let o = {};
+					o.code = $('#table tbody tr.selected').eq(0).children().eq(0).text();
+					$.post('__APP__/ErpBase/dltInventory',o,function(d){
+						if(d.status == 's'){
+							app.table.row( $('#table tbody tr.selected').eq(0) ).remove().draw();
+							layer_success();
+						}else{
+							layer_error(d);
+						}
+						layer.close(index);
+					});	
+				});	
+			});
+
+			$('#search_table').keypress(function(e){
+				let text = $.trim($(this).val());
+				if(e.keyCode == 13){
+					app.table.search(text).draw();
+				}
+			});
+
+
+			$('#search').click(function(){
+
+				let div2 = [
+					{ 'name' : '物料编码：' ,'id' : 'code' ,'type' : 'text'},
+					{ 'name' : '物料名称：' ,'id' : 'name' ,'type' : 'text'},
+					{ 'name' : '规格型号：' ,'id' : 'std' ,'type' : 'text'},
+					{ 'name' : '自制件：' ,'id' : 'self' ,'type' : 'checkbox'},
+					
+				];
+
+				parent.layer.open({
+					skin: 'layer-search-container',
+					title : '搜索物料',
+					offset : ['40px'],
+					area  : ['600px',"400px"],
+					type  : 1,
+					btn   : ['搜索','清除'],
+					shadeClose:true,
+					isOutAnim: false,
+					content : create_new_div( div2 ),
+					btn2 : function(){
+						for(let s of div2){
+							$('#' + s.id).val('');
+						}
+						return false;
+					},
+					success : function(){
+						for(let s of div2){
+							$('#' + s.id).val( app.searchOption[s.id] );
+						}
+					},
+					yes : function(index){
+						let o = get_page();
+						
+						let hasOption = false;
+						for(let s of div2){
+							o[s.id] = $('#' + s.id).val();
+							app.searchOption[s.id] = $('#' + s.id).val();
+							if(app.searchOption[s.id] != '') hasOption = true;
+						}
+
+						if(hasOption){
+							$('#search').addClass('has-option');
+						}else{
+							$('#search').removeClass('has-option');
+						}
+						page_callback(o,'__APP__/ErpBase/getInventory',app.table);
+						parent.layer.close(index);
+				
+					}
+				});
+
+			});
+
+		},
+
+
+		
+		
+
+		
+
+
+	}
+	app.ini();
+</script>
+
+
+

@@ -116,10 +116,10 @@ function maxheight(cont = '',scroll = true){
 	}
 }
 
-function max_height(id,scroll = true,percent = 1){
-	if(scroll){
-		$('#' + id).css('overflow-y','scroll');
-	}
+function max_height(id,scroll = true,percent = 1,borderRight = true){
+	if(scroll) $('#' + id).css('overflow-y','auto');
+
+	if(borderRight) $('#' + id).css('border-right','1px solid #D3D3D3');
 	
 	height = parent.mainPage?parent.mainPage.height:$(window).height();
 	
@@ -372,6 +372,7 @@ function page(url,table = '',option = {}){
 }
 function page_callback(o,url,table){
 	$.post(url,o,function(d){
+		log(d);
 		if(d.status == 's'){
 			set_page(d.data.page);
 			if(table != ''){
@@ -605,6 +606,19 @@ function select_employee(id,callback){
 				
 		});
 	});
+}
+
+function tabs(id,callback = ''){
+	$('#' + id + ' li a').click(function(){
+		$('#' + id + ' li a').removeClass('active');
+		$(this).addClass('active');
+		$('.' + id).hide();
+		let index = $(this).data('index');
+		$('#' + id + index).show();
+		if( callback != '' ) callback(this);
+	});
+
+	
 }
 
 
