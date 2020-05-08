@@ -30,10 +30,20 @@
 					<input type = 'text' id = 'search_table' class = 'width-200' placeholder = '表单内搜索 - 按回车键' />
 					<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
 				</div>
+
+				
+
 			</div>
+
+		
+
+
 		</div>
 
 		<div class = 'row row-body'>
+			
+		
+			
 			<div class = 'col s3' id = 'll'>
 				 <ul id="tree" class="ztree"></ul>
 			</div>
@@ -43,12 +53,14 @@
 				<table class = 'dataTable centered cell-border stripe' id = 'table'>
 					<thead>
 						<tr>
-							<th style = 'white-space:nowrap'>物料编码</th>
-							<th style = 'white-space:nowrap'>物料名称</th>
-							<th style = 'white-space:nowrap'>规格型号</th>
-							<th style = 'white-space:nowrap;width:20px'>单位</th>
-							<th style = 'white-space:nowrap'>存货分类</th>
-							<th style = 'white-space:nowrap'>自制件</th>
+							<th style = 'white-space:nowrap'>客户编码</th>
+							<th style = 'white-space:nowrap'>客户名称</th>
+							<th style = 'white-space:nowrap'>联系人</th>
+							<th style = 'white-space:nowrap'>手机</th>
+							<th style = 'white-space:nowrap'>Email</th>
+							<th style = 'white-space:nowrap'>电话</th>
+							<th style = 'white-space:nowrap'>传真</th>
+							
 						</tr>
 					</thead>
 					<tbody  id = 'tbody'>
@@ -76,17 +88,27 @@
 		searchOption : {},
 
 		add_success : function(data){
-			app.table.rows.add( $("<tr><td><a>"+data.code+"</a></td><td>"+data.name+"</td><td>"+data.std+"</td><td>"+data.unit+"</td><td>"+data.basicClass+"</td><td>"+(data.self?'√':'')+"</td></tr>") ).draw();
+			let tmp = [
+				'<a>' + data.code + '</a>',
+				data.name,
+				data.contact,
+				data.phone,
+				data.email,
+				data.tel,
+				data.fax
+			];
+			app.table.rows.add( [tmp] ).draw();
 		},
 
 		edit_success : function(data){
 			let tmp = [
 				'<a>' + data.code + '</a>',
 				data.name,
-				data.std,
-				data.unit,
-				data.basicClass,
-				data.self == 1?'√':''
+				data.contact,
+				data.phone,
+				data.email,
+				data.tel,
+				data.fax
 			];
 			app.table.row( $('#tbody tr.selected') ).data(tmp);
 		},
@@ -97,11 +119,11 @@
 				type: 2,
 				skin: 'layer-edit-container',
 				isOutAnim: false ,
-				title: '存货档案明细',
+				title: '客户明细',
 				maxmin: true,
 				shadeClose: true, //点击遮罩关闭层
 				area : ['600px','100%'],
-				content: '__APP__/ErpBase/inventoryInfo?code='+code
+				content: '__APP__/ErpBase/customerInfo?code='+code
 			});
 		},
 		
@@ -114,7 +136,7 @@
 						let o = get_page();
 						o.basicClassId = treeNode.id;
 						app.searchOption.basicClassId = treeNode.id;
-						page_callback(o,'__APP__/ErpBase/getInventory',app.table);
+						page_callback(o,'__APP__/ErpBase/getCustomer',app.table);
 					},
 				}
 			};
@@ -127,16 +149,16 @@
 					type: 2,
 					skin: 'layer-new-container',
 					isOutAnim: false ,
-					title: '新增存货档案',
+					title: '新增客户',
 					maxmin: true,
 					shadeClose: true, //点击遮罩关闭层
 					area : ['600px','100%'],
-					content: '__APP__/erpBase/addInventory',
+					content: '__APP__/erpBase/addCustomer',
 					//btn : ['新增']
 				});
 			});
 
-			page('__APP__/ErpBase/getInventory',app.table,app.searchOption);
+			page('__APP__/ErpBase/getCustomer',app.table,app.searchOption);
 
 
 			$('#table').click(function(e){
@@ -153,10 +175,10 @@
 
 			$('#dlt').click(function(){
 				if($('#tbody tr.selected').length == 0 || $('#tbody tr.selected').eq(0).children().length == 1 ) return false;
-				layer.confirm('确定删除物料（ '+$('#table tbody tr.selected').eq(0).children().eq(1).text()+' ）?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+				layer.confirm('确定删除客户（ '+$('#table tbody tr.selected').eq(0).children().eq(1).text()+' ）?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
 					let o = {};
 					o.code = $('#table tbody tr.selected').eq(0).children().eq(0).text();
-					$.post('__APP__/ErpBase/dltInventory',o,function(d){
+					$.post('__APP__/ErpBase/dltCustomer',o,function(d){
 						if(d.status == 's'){
 							app.table.row( $('#table tbody tr.selected').eq(0) ).remove().draw();
 							layer_success();
@@ -178,25 +200,17 @@
 
 			$('#search').click(function(){
 
-				let data = [
-					{'id' : '','name' : ''},
-					{'id' : 0 ,'name' : '采购件'},
-					{'id' : 1 ,'name' : '自制件'}
-				];
-
 				let div2 = [
-					{ 'name' : '物料编码：' ,'id' : 'code' ,'type' : 'text'},
-					{ 'name' : '物料名称：' ,'id' : 'name' ,'type' : 'text'},
-					{ 'name' : '规格型号：' ,'id' : 'std' ,'type' : 'text'},
-					{ 'name' : '自制件：' ,'id' : 'self' ,'type' : 'select','data' : data},
-					
+					{ 'name' : '客户编码：' ,'id' : 'code' ,'type' : 'text'},
+					{ 'name' : '客户名称：' ,'id' : 'name' ,'type' : 'text'},
+	
 				];
 
 				parent.layer.open({
 					skin: 'layer-search-container',
 					title : '搜索物料',
 					offset : ['40px'],
-					area  : ['600px',"400px"],
+					area  : ['600px',"250px"],
 					type  : 1,
 					btn   : ['搜索','清除'],
 					shadeClose:true,
@@ -215,6 +229,7 @@
 					},
 					yes : function(index){
 						let o = get_page();
+						
 						let hasOption = false;
 						for(let s of div2){
 							o[s.id] = $('#' + s.id).val();
@@ -227,7 +242,7 @@
 						}else{
 							$('#search').removeClass('has-option');
 						}
-						page_callback(o,'__APP__/ErpBase/getInventory',app.table);
+						page_callback(o,'__APP__/ErpBase/getCustomer',app.table);
 						parent.layer.close(index);
 				
 					}

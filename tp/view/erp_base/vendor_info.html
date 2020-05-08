@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <!-- Bootstrap Styles-->
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+    <!-- FontAwesome Styles-->
+    <link href="__PUBLIC__/css/font-awesome.css" rel="stylesheet" />
+	
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/bootstrap-select/dist/css/bootstrap-select.min.css" type="text/css">
+	<style type="text/css">
+		body{background:#fff;font-size:12px}
+		.row{
+			padding:10px
+		}
+	</style>
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	<style type="text/css">
+		.col{
+			height:30px;line-height:30px
+		}
+	</style>
+</head>
+
+<body>
+<div class = 'container-fluid' style = 'padding:20px;margin:0'>
+	<div class = 'row'>
+		<div class = 'col s3 ' style = 'text-align:right;'>
+			供应商编码
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input vendor' id = 'code' value = '{$vendor.code}' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			供应商名称
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input vendor' id = 'name' value = '{$vendor.name}' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			联系人
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input vendor' id = 'contact' value = '{$vendor.contact}' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			手机
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input vendor' id = 'phone' value = '{$vendor.phone}' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			Email
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input vendor' id = 'email' value = '{$vendor.email}' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			电话
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input vendor' id = 'tel' value = '{$vendor.tel}' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			传真
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input vendor' id = 'fax' value = '{$vendor.fax}' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			地址
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input vendor' id = 'address' value = '{$vendor.address}' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			供应商分类
+		</div>
+		<div class = 'col s9'>
+			<select class = 'browser-default vendor' id = 'basic_class_id' >
+				{volist name = 'basicclass' id = 'b'}
+				<option value = {$b.id}>{$b.name}</option>
+				{/volist}
+			</select>
+		</div>
+	</div>
+
+	
+	
+
+	<input type = 'hidden' class = 'vendor' value = '{$vendor.id}' id = 'id' />
+	
+	<div class = 'row'>
+		<div class = 'col s12' style = 'text-align:center;border-top:1px solid #3d9970;padding-top:18px'>
+			<button class = 'btn btn-default' id = 'save'>保存</button>
+		</div>
+	</div>
+
+
+
+
+
+
+
+</div>
+
+
+<script>
+	let vendor = {$vendor|raw};
+
+	$('select').each(function(){
+		let field = $(this).attr('id');
+		$(this).val(vendor[field]);
+	});
+
+	$('#save').click(function(){
+		let o = {};
+		$('.vendor').each(function(){
+			
+			let type = $(this).attr('type');
+			let field = $(this).attr('id');
+			if(type == 'checkbox'){
+				o[field] = $(this).is(':checked')?1:0;
+			}else{
+				o[field] = $.trim($(this).val());
+			}
+		});
+		
+		$.post('__APP__/ErpBase/editVendor',o,function(d){
+			if(d.status == 's'){
+				o.basicClass = $('#basic_class_id option:selected').text();
+				o.unit  = $('#unit_id option:selected').text();
+				get_parent().app.edit_success(o);
+				parent.layer_success();
+				let index = parent.layer.getFrameIndex(window.name);
+				parent.layer.close(index);      
+			}else{
+				layer_error(d);
+			}
+		});
+	});
+
+	
+	
+</script>
+
+</body>
+
+</html>

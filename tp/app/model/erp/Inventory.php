@@ -41,9 +41,8 @@ class Inventory extends Model{
 		if(is_set($post,'basicClassId')) $w .= " && i.basic_class_id = ".$post['basicClassId'];
 		if(is_set($post,'name')) $w .= " && i.name like '%".$post['name']."%'";
 		if(is_set($post,'code')) $w .= " && i.code like '%".$post['code']."%'";
-
-	
-
+		if(is_set($post,'std')) $w .= " && i.std like '%".$post['std']."%'";
+		if(isset($post['self']) && $post['self'] != '') $w .= " && i.self = ".$post['self'];
 		$r = Db::query("select count(1) n from s_inventory i where $w");
 		$page = array();
         $page['totles'] = $r[0]['n'];     //总记录数 返回

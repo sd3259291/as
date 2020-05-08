@@ -372,7 +372,6 @@ function page(url,table = '',option = {}){
 }
 function page_callback(o,url,table){
 	$.post(url,o,function(d){
-		log(d);
 		if(d.status == 's'){
 			set_page(d.data.page);
 			if(table != ''){

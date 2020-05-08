@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <!-- Bootstrap Styles-->
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+    <!-- FontAwesome Styles-->
+    <link href="__PUBLIC__/css/font-awesome.css" rel="stylesheet" />
+	
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/bootstrap-select/dist/css/bootstrap-select.min.css" type="text/css">
+	<style type="text/css">
+		body{background:#fff;font-size:12px}
+		.row{
+			padding:10px
+		}
+	</style>
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+	<style type="text/css">
+		.col{
+			height:30px;line-height:30px
+		}
+	</style>
+</head>
+
+<body>
+<div class = 'container-fluid' style = 'padding:20px;margin:0'>
+	<div class = 'row'>
+		<div class = 'col s3 ' style = 'text-align:right;'>
+			客户编码
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input customer' id = 'code' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			客户名称
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input customer' id = 'name' />
+		</div>
+	</div>
+
+	
+	
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			联系人
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input customer' id = 'contact' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			手机
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input customer' id = 'phone' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			Email
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input customer' id = 'email' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			电话
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input customer' id = 'tel' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			传真
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input customer' id = 'fax' />
+		</div>
+	</div>
+
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			地址
+		</div>
+		<div class = 'col s9'>
+			<input type = 'text' class = 'aya-input customer' id = 'address' />
+		</div>
+	</div>
+
+	<div class = 'row'>
+		<div class = 'col s3' style = 'text-align:right;'>
+			客户分类
+		</div>
+		<div class = 'col s9'>
+			<select class = 'browser-default customer' id = 'basic_class_id' >
+				{volist name = 'basicclass' id = 'b'}
+				<option value = {$b.id}>{$b.name}</option>
+				{/volist}
+			</select>
+		</div>
+	</div>
+	
+
+
+	<div class = 'row'>
+		<div class = 'col s12' style = 'text-align:center;border-top:1px solid #28a745;padding-top:18px'>
+			<button class = 'btn btn-default' id = 'add'>新增</button>
+		</div>
+	</div>
+
+
+
+
+
+</div>
+
+<!--<input id = 'lzrq' value = '{e.lzrq}' style = 'padding:0;margin:0;border:0;font-size:12px;text-align:center' readonly />-->
+
+<script>
+	$('#add').click(function(){
+		let o = {};
+		$('.customer').each(function(){
+			
+			let type = $(this).attr('type');
+			let field = $(this).attr('id');
+			if(type == 'checkbox'){
+				o[field] = $(this).is(':checked')?1:0;
+			}else{
+				o[field] = $.trim($(this).val());
+			}
+		});
+		log('__APP__/ErpBase/insertCustomer');
+		$.post('__APP__/ErpBase/insertCustomer',o,function(d){
+			if(d.status == 's'){
+				o.basicClass = $('#basic_class_id option:selected').text();
+				o.unit  = $('#unit_id option:selected').text();
+				get_parent().app.add_success(o);
+				layer_success();
+				$('.customer').each(function(){
+					if( $(this).attr('type') == 'text'){
+						$(this).val('');
+					}
+				});
+			}else{
+				layer_error(d);
+			}
+		});
+	});
+	
+	let basicClassId = get_parent().app.searchOption.basicClassId;
+	if(basicClassId){
+		$('#basic_class_id').val(basicClassId);
+	}
+	
+	
+</script>
+
+</body>
+
+</html>
