@@ -27,7 +27,8 @@ http://ayasv.com/sa/index.php
 tp\config\database.php中修改
 
 2.然后运行
-http://YOURSERVE/sa/index.php
+gitee下载：http://YOURSERVE/sa/index.php
+github下载：：http://YOURSERVE/as/index.php
 
 3.注意数据库文件可能有更新
 
