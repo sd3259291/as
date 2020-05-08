@@ -150,6 +150,7 @@
 					let o = {};
 					o.id = $('#table tbody tr.selected').eq(0).data('id');
 					$.post('__APP__/erpBase/dltUnit',o,function(d){
+						
 						if(d.status == 's'){
 							app.table.row( $('#table tbody tr.selected').eq(0) ).remove().draw();
 							layer_success();

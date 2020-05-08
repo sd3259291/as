@@ -45,7 +45,8 @@ class Unit extends Model{
 		return a();
 	}
 	public function dlt($post){
-		// 这里要加上不能删除的判断
+		$r = Db::table('s_inventory')->where('unit_id = '.$post['id'])->field('id')->find();
+		if($r) return a('','计量单位已使用，不能删除','e');
 		$this->destroy($post['id']);
 		return a();
 	}
