@@ -1,5 +1,5 @@
 ﻿# Host: 192.168.3.3  (Version 8.0.12)
-# Date: 2020-05-08 20:06:48
+# Date: 2020-05-14 11:07:07
 # Generator: MySQL-Front 6.1  (Build 1.26)
 
 
@@ -60,7 +60,7 @@ CREATE TABLE `s_customer` (
   `modify_date` date DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `code` (`code`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 #
 # Data for table "s_customer"
@@ -725,7 +725,7 @@ CREATE TABLE `s_inventory` (
   `basic_class_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `code` (`code`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 #
 # Data for table "s_inventory"
@@ -750,13 +750,13 @@ CREATE TABLE `s_layout` (
   `hidenav` int(1) NOT NULL DEFAULT '0' COMMENT '是否隐藏导航栏',
   `public` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=50 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=MyISAM AUTO_INCREMENT=53 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 #
 # Data for table "s_layout"
 #
 
-INSERT INTO `s_layout` VALUES (2,1,'人事','',0,10,NULL,0,'people',0,0),(5,2,'员工档案','Hr/index',2,1,861,0,'',0,0),(6,2,'时间线','Hr/timeline',2,5,NULL,0,'',0,0),(29,2,'组织','Dept/index',2,10,868,0,'',0,0),(30,2,'岗位','Pst/index',2,20,870,0,'',0,0),(31,1,'基础资料','',0,1000,NULL,0,'view_module',0,0),(32,2,'枚举','Basic/enum',31,10,873,0,'',0,0),(33,2,'流程管理','F/manage',31,20,875,0,'',0,0),(34,1,'协同办公','',0,20,NULL,0,'repeat',0,0),(35,2,'新建事项','Fs/newFlow',34,20,878,0,'',0,1),(36,2,'待办事项','Fs/notDone',34,30,879,0,'',0,1),(37,2,'已办事项','Fs/hasDone',34,40,880,0,'',0,1),(39,2,'已发事项','Fs/hasSend',34,50,881,0,'',0,1),(43,2,'流程节点管理','F/node',31,30,882,0,'',0,0),(44,2,'存货档案','ErpBase/inventory',31,100,885,0,'',0,0),(45,2,'供应商档案','ErpBase/vendor',31,110,886,0,'',0,0),(47,2,'客户档案','ErpBase/customer',31,120,887,0,'',0,0),(48,2,'计量单位','ErpBase/unit',31,200,884,0,'',0,0),(49,2,'基础资料分类','ErpBase/basicClass',31,500,888,0,'',0,0);
+INSERT INTO `s_layout` VALUES (2,1,'人事','',0,10,NULL,0,'people',0,0),(5,2,'员工档案','Hr/index',2,1,861,0,'',0,0),(6,2,'时间线','Hr/timeline',2,5,NULL,0,'',0,0),(29,2,'组织','Dept/index',2,10,868,0,'',0,0),(30,2,'岗位','Pst/index',2,20,870,0,'',0,0),(31,1,'基础资料','',0,1000,NULL,0,'view_module',0,0),(32,2,'枚举','Basic/enum',31,10,873,0,'',0,0),(33,2,'流程管理','F/manage',31,20,875,0,'',0,0),(34,1,'协同办公','',0,20,NULL,0,'repeat',0,0),(35,2,'新建事项','Fs/newFlow',34,20,878,0,'',0,1),(36,2,'待办事项','Fs/notDone',34,30,879,0,'',0,1),(37,2,'已办事项','Fs/hasDone',34,40,880,0,'',0,1),(39,2,'已发事项','Fs/hasSend',34,50,881,0,'',0,1),(43,2,'流程节点管理','F/node',31,30,882,0,'',0,0),(44,2,'存货档案','ErpBase/inventory',31,100,885,0,'',0,0),(45,2,'供应商档案','ErpBase/vendor',31,110,886,0,'',0,0),(47,2,'客户档案','ErpBase/customer',31,120,887,0,'',0,0),(48,2,'计量单位','ErpBase/unit',31,200,884,0,'',0,0),(49,2,'基础资料分类','ErpBase/basicClass',31,500,888,0,'',0,0),(50,1,'采购','',0,30,NULL,0,'local_shipping',0,0),(51,2,'采购订单 - 新增','Purchase/purchaseOrder',50,20,890,0,'',0,0),(52,2,'供应商价格表 - 新增','Purchase/vendorPrice',50,30,892,0,'',0,0);
 
 #
 # Structure for table "s_max"
@@ -797,13 +797,13 @@ CREATE TABLE `s_node` (
   KEY `name` (`name`),
   KEY `pid` (`pid`),
   KEY `status` (`status`)
-) ENGINE=MyISAM AUTO_INCREMENT=889 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=MyISAM AUTO_INCREMENT=893 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 #
 # Data for table "s_node"
 #
 
-INSERT INTO `s_node` VALUES (860,'人事','Hr',0,NULL,1,0,1,0),(861,'人事首页','index',0,NULL,10,860,2,0),(867,'组织','Dept',0,NULL,5,0,1,0),(868,'组织首页','index',0,NULL,10,867,2,0),(869,'岗位','Pst',0,NULL,2,0,1,0),(870,'岗位首页','index',0,NULL,1,869,2,0),(871,'基础资料','Basic',0,NULL,1000,0,1,0),(873,'枚举','enum',0,NULL,1,871,2,0),(874,'流程管理','F',0,NULL,900,0,1,0),(875,'后台','manage',0,NULL,10,874,2,0),(877,'协同','Fs',0,NULL,10,0,1,0),(878,'新增事项','newFlow',0,NULL,10,877,2,0),(879,'待办事项','notDone',0,NULL,20,877,2,0),(880,'已办事项','hasDone',0,NULL,30,877,2,0),(881,'已发事项','hasSend',0,NULL,40,877,2,0),(882,'流程节点管理','node',0,NULL,20,874,2,0),(883,'基础资料_ERP','ErpBase',0,NULL,800,0,1,0),(884,'计量单位','unit',0,NULL,50,883,2,0),(885,'存货档案','inventory',0,NULL,10,883,2,0),(886,'供应商档案','vendor',0,NULL,30,883,2,0),(887,'供应商档案','customer',0,NULL,40,883,2,0),(888,'基础资料分类','basicClass',0,NULL,100,883,2,0);
+INSERT INTO `s_node` VALUES (860,'人事','Hr',0,NULL,1,0,1,0),(861,'人事首页','index',0,NULL,10,860,2,0),(867,'组织','Dept',0,NULL,5,0,1,0),(868,'组织首页','index',0,NULL,10,867,2,0),(869,'岗位','Pst',0,NULL,2,0,1,0),(870,'岗位首页','index',0,NULL,1,869,2,0),(871,'基础资料','Basic',0,NULL,1000,0,1,0),(873,'枚举','enum',0,NULL,1,871,2,0),(874,'流程管理','F',0,NULL,900,0,1,0),(875,'后台','manage',0,NULL,10,874,2,0),(877,'协同','Fs',0,NULL,10,0,1,0),(878,'新增事项','newFlow',0,NULL,10,877,2,0),(879,'待办事项','notDone',0,NULL,20,877,2,0),(880,'已办事项','hasDone',0,NULL,30,877,2,0),(881,'已发事项','hasSend',0,NULL,40,877,2,0),(882,'流程节点管理','node',0,NULL,20,874,2,0),(883,'基础资料_ERP','ErpBase',0,NULL,800,0,1,0),(884,'计量单位','unit',0,NULL,50,883,2,0),(885,'存货档案','inventory',0,NULL,10,883,2,0),(886,'供应商档案','vendor',0,NULL,30,883,2,0),(887,'供应商档案','customer',0,NULL,40,883,2,0),(888,'基础资料分类','basicClass',0,NULL,100,883,2,0),(889,'采购','Purchase',0,NULL,100,0,1,0),(890,'采购订单','purchaseOrder',0,NULL,10,889,2,0),(892,'供应商价格表','vendorPrice',0,NULL,20,889,2,0);
 
 #
 # Structure for table "s_post"
@@ -1079,7 +1079,7 @@ CREATE TABLE `s_user` (
 # Data for table "s_user"
 #
 
-INSERT INTO `s_user` VALUES (171,'admin','407de5e0d85a21d317de8def45fa331b','管理员','42686304@qq.com',NULL,'2020-05-08 18:23:26',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(172,'0101004','123','王泉','','2020-03-05 12:53:27',NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',75,74,73,'),(173,'111','11','322','','2020-03-05 12:56:10',NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(174,'11111','202cb962ac59075b964b07152d234b70','网啊','','2020-03-05 13:10:28',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',73,'),(175,'5555','182be0c5cdcd5072bb1864cdee4d3d6e','222','','2020-03-05 13:14:31',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(176,'1111','f1c1592588411002af340cbaedd6fc33','222','','2020-03-05 13:16:24','2020-04-02 10:07:32',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(177,'111111','182be0c5cdcd5072bb1864cdee4d3d6e','222','','2020-03-05 13:16:52',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(178,'11111155','182be0c5cdcd5072bb1864cdee4d3d6e','222','','2020-03-05 13:17:32',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',76,'),(179,'99999','310dcbbf4cce62f762a2aaa148d556bd','111','','2020-03-05 14:32:26',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',76,'),(180,'666','fae0b27c451c728867a567e8c1bb4e53','666','','2020-03-05 14:32:54',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(181,'777','f1c1592588411002af340cbaedd6fc33','777','','2020-03-05 14:33:44','2020-04-01 21:02:45',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(182,'010101','202cb962ac59075b964b07152d234b70','王泉','','2020-03-05 14:34:24',NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,72,'),(184,'052213','202cb962ac59075b964b07152d234b70','赵四','','2020-03-06 19:00:40',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,76,75,'),(185,'010099','202cb962ac59075b964b07152d234b70','刘德华','','2020-04-02 07:52:43','2020-05-03 14:03:06',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',78,'),(186,'010097','202cb962ac59075b964b07152d234b70','郭富城','','2020-04-02 13:52:39','2020-04-30 16:23:18',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',74,78,');
+INSERT INTO `s_user` VALUES (171,'admin','407de5e0d85a21d317de8def45fa331b','管理员','42686304@qq.com',NULL,'2020-05-14 10:42:30',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(172,'0101004','123','王泉','','2020-03-05 12:53:27',NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',75,74,73,'),(173,'111','11','322','','2020-03-05 12:56:10',NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(174,'11111','202cb962ac59075b964b07152d234b70','网啊','','2020-03-05 13:10:28',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',73,'),(175,'5555','182be0c5cdcd5072bb1864cdee4d3d6e','222','','2020-03-05 13:14:31',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(176,'1111','f1c1592588411002af340cbaedd6fc33','222','','2020-03-05 13:16:24','2020-04-02 10:07:32',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(177,'111111','182be0c5cdcd5072bb1864cdee4d3d6e','222','','2020-03-05 13:16:52',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(178,'11111155','182be0c5cdcd5072bb1864cdee4d3d6e','222','','2020-03-05 13:17:32',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',76,'),(179,'99999','310dcbbf4cce62f762a2aaa148d556bd','111','','2020-03-05 14:32:26',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',76,'),(180,'666','fae0b27c451c728867a567e8c1bb4e53','666','','2020-03-05 14:32:54',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(181,'777','f1c1592588411002af340cbaedd6fc33','777','','2020-03-05 14:33:44','2020-04-01 21:02:45',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(182,'010101','202cb962ac59075b964b07152d234b70','王泉','','2020-03-05 14:34:24',NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,72,'),(184,'052213','202cb962ac59075b964b07152d234b70','赵四','','2020-03-06 19:00:40',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,76,75,'),(185,'010099','202cb962ac59075b964b07152d234b70','刘德华','','2020-04-02 07:52:43','2020-05-03 14:03:06',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',78,'),(186,'010097','202cb962ac59075b964b07152d234b70','郭富城','','2020-04-02 13:52:39','2020-04-30 16:23:18',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',74,78,');
 
 #
 # Structure for table "s_vendor"
@@ -1101,10 +1101,10 @@ CREATE TABLE `s_vendor` (
   `modify_date` date DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `code` (`code`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 #
 # Data for table "s_vendor"
 #
 
-INSERT INTO `s_vendor` VALUES (1,'1','2233','3','4','5','6','7','8',9,'管理员','2020-05-08',NULL),(3,'22','33','44','55','66','77','88','99',9,'管理员','2020-05-08',NULL),(4,'11','22','33','44','55','66','77','88',22,'管理员','2020-05-08',NULL);
+INSERT INTO `s_vendor` VALUES (5,'0101001','南京多云科技有限公司','王多云','18951954522','55353@qq.com','141515','2424','南京市将军路15号',9,'管理员','2020-05-12',NULL),(6,'0101002','南京市爱香机械制造有限公司','张大连','13912934532','fasfs@daxiang.com','25255252','97979797','南京市玄武区南陵路110号',9,'管理员','2020-05-12',NULL),(7,'0102001','徐州大埠岗加工中心','李丽','12559867531','511156362@qq.com','525262621','579257927','徐州市大厂区东陵路992号',22,'管理员','2020-05-12',NULL);

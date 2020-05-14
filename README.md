@@ -11,6 +11,7 @@
 http://ayasv.com/sa/index.php
 
 
+- 管理员账号包含了全部功能（除了个别流程）
 - 管理员账号：admin
 - 管理员密码: duoduo
 - 用户账号：  010099

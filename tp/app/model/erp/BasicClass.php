@@ -22,12 +22,16 @@ class BasicClass extends Model{
 
 	];
 
-	public function getTree($post,$a = true){
+	public function getTree($post,$a = true,$code = true){
 		$r = $this::where('class_id = '.$post['class_id'])->order('pid asc,code asc')->select()->toArray();
 		if($r){
 			$pid = $first_level = $attr = array();
 			foreach($r as $k => $v){
-				$v['showname'] = $v['name'].' - '.$v['code'].'';
+				if($code){
+					$v['showname'] = $v['name'].' - '.$v['code'].'';
+				}else{
+					$v['showname'] = $v['name'];
+				}
 				$pid[$v['pid']][] = $v['id'];
 				$attr[$v['id']] = $v;
 				if($v['pid'] == 0) $first_level[] = $v['id'];

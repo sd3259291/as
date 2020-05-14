@@ -6,6 +6,117 @@ var form  = {
 
 	list_table : {},
 
+	status2 : '',
+
+	lastStatus : '',
+
+	resizeOriginX : 0,
+
+	resizeOriginWith : 0,
+
+	new_page_ini_table : function(tableId = 'table'){
+		let h1 = parent.mainPage.height;
+		let h2 = $('#' + tableId).offset().top;
+		let tableWrapperHeight = h1 - h2 + 36;
+		let headHeight = $('#' + tableId + ' thead').height();
+		let tableWidth = $('#' + tableId).width();
+
+		$('#' + tableId).wrap("<div id = 'aya-table-wrapper-container' style = 'height:"+tableWrapperHeight+"px;max-height:"+tableWrapperHeight+"px;min-height:"+tableWrapperHeight+"px;position:relative'></div>");
+
+		$('#' + tableId).wrap("<div class = 'aya-table-wrapper-tbody' id = 'aya-table-wrapper-tbody' style = 'height:"+(tableWrapperHeight - headHeight)+"px;max-height:"+(tableWrapperHeight - headHeight)+"px;min-height:"+(tableWrapperHeight - headHeight)+"px;overflow:scroll;'></div>");
+
+		let tableWrapperWidth = $('#aya-table-wrapper-container').width();
+		let tableClone = $('#' + tableId).clone();
+		
+		let clone_table = "<div class = 'aya-table-wrapper-thead' style = 'position:fixed;top:"+$('#' + tableId).offset().top+"px;left:"+$('#' + tableId).offset().left+"px;z-index:999;opacity:1;width:"+tableWrapperWidth+"px;max-width:"+tableWrapperWidth+"px;min-width:"+tableWrapperWidth+"px;overflow:hidden;'><table class = '"+$('#' + tableId).prop('class')+" clone_thead' style = 'width:100%'><thead>";
+
+
+		var clone_thead = $('#' + tableId).find('thead').clone();
+		
+		
+		var table = '';
+		for(var i = 0; i < $('#' + tableId+' thead').eq(0).children().length; i++){
+			for(var j = 0; j < $('#' + tableId+' thead').eq(0).children().eq(i).children().length; j++){
+				var tmp = $('#' + tableId+' thead').eq(0).children().eq(i).children().eq(j);
+				clone_thead.children().eq(i).children().eq(j).width(tmp.width()).css('whiteSpace',tmp.css('whiteSpace')).css('fontSize',tmp.css('fontSize'));	
+			}
+		}
+		clone_table += clone_thead.html();
+		clone_table += "</thead></table></div>";
+
+		$('#aya-table-wrapper-container').prepend("<div style = 'height:"+headHeight+"px'></div>").prepend(clone_table);
+
+		$('#' + tableId).css('margin-top','-' + headHeight + 'px');
+
+		$('#aya-table-wrapper-tbody').scroll(function(e){
+			let scrollLeft = $(this).scrollLeft();
+			$('.aya-table-wrapper-thead').find('table').css('marginLeft', '-' + scrollLeft + 'px');
+		});
+
+		$('table.clone_thead thead tr th').mousemove(function(e){
+			let x = e.pageX;
+			if(form.status2 == 'resize'){
+				let tmp = form.resizeOriginWidth + x - form.resizeOriginX;
+				$('.resized').css('min-width', tmp );
+
+				if( $('.resized').width() > tmp ) $('.resized').css('min-width', $('.resized').eq(0).width() );
+
+				let index = $('.resized').eq(0).index();
+				
+				$('#' + tableId + ' thead tr th').eq(index).css('min-width', $('.resized').eq(0).width() );
+				
+			}else{
+				
+				let left = $(this).offset().left;
+				let right = left + $(this).width();
+				if( x > right - 3){
+					$(this).addClass('resize');
+					leftDiv = "<div class = 'absolute resize-icon' style = 'left:0;bottom:0;border-left:1px solid red;width:6px;height:6px;-moz-transform-origin: 0 100% 0;transform:rotate(45deg);'></div><div class = 'absolute resize-icon' style = 'right:0px;bottom:0;border-right:1px solid red;width:6px;height:6px;-moz-transform-origin:right bottom;transform:rotate(-45deg);'></div>";
+					$(this).append(leftDiv);
+					$(this).find('img.aya-sort-img').hide();
+				}else{
+					$(this).removeClass('resize');
+					$('.resize-icon').remove();
+					$(this).find('img.aya-sort-img').show();
+				}
+			}
+
+		});
+
+		$('table.clone_thead thead tr th').mouseout(function(e){
+			if(form.status2 == 'resize') return false;
+			$(this).removeClass('resize');
+			$('.resize-icon').remove();
+			$(this).find('img.aya-sort-img').show();
+		});
+
+
+		$('table.clone_thead thead tr th').mousedown(function(e){
+			if( $(this).find('.resize-icon').length > 0 ){
+				$(this).addClass('resized');
+				form.status2 = 'resize';
+				form.resizeOriginX = e.pageX;
+				form.resizeOriginWidth = $(this).width();
+			}
+		});
+
+		$('.card').mouseup(function(){
+			if(form.status2 == 'resize'){
+				form.status2 = '';
+				$('.resize-icon').remove();
+				$('.resize').removeClass('resize');
+				form.lastStatus = 'resize';
+			}
+		});
+
+
+		$('.aya-table-wrapper-thead').mouseout(function(e){
+			form.status2 = '';
+			$('.resized').removeClass('resized');
+		});
+
+	},
+
 	dlt_tr : function (id,callback = ''){
 		
 		$('#'+id+' tbody').on('click','img.tr_dlt',function(){
@@ -35,29 +146,29 @@ var form  = {
 		let updated_tr_index = [];
 		switch(type){
 			case 'inventory':
-			title = 'U8 存货档案';
+			title = '选择 - 存货档案';
 			break;
 			case 'vendor':
-			title = 'U8 供应商';
+			title = '选择 - 供应商';
 			break;
 			case 'warehouse':
-			title = 'U8 仓库';
+			title = '选择 - 仓库';
 			break;
 			case 'rd_style':
-			title = 'U8 收发类型';
+			title = '选择 - 收发类型';
 			break;
 			case 'rd_style2':
-			title = 'U8 收发类型';
+			title = '选择 - 收发类型';
 			break;
 			case 'user':
-			title = '选择账号';
+			title = '选择 - 账号';
 			break;
 			case 'department':
-			title = '选择部门';
+			title = '选择 - 部门';
 			break;
 		}
 		
-		var url = window.location.protocol + '//' + window.location.host +  '/a1.php/index/U7/select_u8_'+type+'?mul='+mul;
+		var url = get_parent().mainUrl +  '/ErpBase/select'+type+'?mul='+mul;
 		
 		let width = get_width();
 		top.layer.open({
@@ -74,6 +185,8 @@ var form  = {
 				iframeWin.P = window;
 			}
 		});
+
+		$('#u8_hint').remove();
 			
 		if(tianchong == true){
 			u8_select_callBack2 = function(data){
@@ -146,51 +259,54 @@ var form  = {
 		let thead = '';
 		let field = [];
 		let updated_tr_index = [];
-
+		
+		
 		
 		switch(type){
 			//物料
 			case 'inventory':
-			query_url =  window.location.protocol + '//' + window.location.host +  '/a1.php/index/U7/search_u8_inventory';
+			query_url =  get_parent().mainUrl + '/ErpBase/getInventory';
 			thead = "<table class = 'table-hint'><thead><tr><th style =' white-space:nowrap'>物料编码</th><th style =' white-space:nowrap'>物料名称</th><th style =' white-space:nowrap'>规格型号</th><th style =' white-space:nowrap'>单位</th></tr></thead><tbody>";
 			field = ['name','code','std','unit'];
 			break;
 			
 			//供应商
 			case 'vendor':
-			query_url =  window.location.protocol + '//' + window.location.host +  '/a1.php/index/U7/search_u8_vendor';
-			thead = "<table class = 'table-hint'><thead><tr><th style =' white-space:nowrap'>供应商编码</th><th style =' white-space:nowrap'>供应商名称</th></tr></thead><tbody>";
+
+				         
+			query_url =  get_parent().mainUrl + '/ErpBase/getVendor';
+			thead = "<table class = 'table-hint'><thead><tr><th style =' white-space:nowrap'>供应商编码</th><th style =' white-space:nowrap'>供应商名称</th><th>联系人</th><th>电话</th></tr></thead><tbody>";
 			field = ['name','code'];
 			break;
 
 			case 'warehouse':
-			query_url =  window.location.protocol + '//' + window.location.host +  '/a1.php/index/U7/search_u8_warehouse';
+			query_url =  window.location.protocol + '//' + window.location.host + '/a1.php/index/U7/search_u8_warehouse';
 			thead = "<table class = 'table-hint'><thead><tr><th style =' white-space:nowrap'>仓库编码</th><th style =' white-space:nowrap'>仓库名称</th></tr></thead><tbody>";
 			field = ['name','code'];
 			break;
 
 			case 'department':
-			query_url =  window.location.protocol + '//' + window.location.host +  '/a1.php/index/U7/search_u8_department';
+			query_url =  window.location.protocol + '//' + window.location.host + '/a1.php/index/U7/search_u8_department';
 			thead = "<table class = 'table-hint'><thead><tr><th style =' white-space:nowrap'>部门编码</th><th style =' white-space:nowrap'>部门名称</th></tr></thead><tbody>";
 			field = ['name','code'];
 			break;
 
 			case 'purchasetype':
-			query_url =  window.location.protocol + '//' + window.location.host +  '/a1.php/index/U7/search_u8_purchasetype';
+			query_url =  window.location.protocol + '//' + window.location.host + '/a1.php/index/U7/search_u8_purchasetype';
 			thead = "<table class = 'table-hint'><thead><tr><th style =' white-space:nowrap'>采购类型编码</th><th style =' white-space:nowrap'>采购类型名称</th></tr></thead><tbody>";
 			field = ['name','code'];
 			break;
 		}	
+
+
 		
-		query_url2 = window.location.protocol + '//' + window.location.host +  '/a1.php/index/U8/get_u8_by_text';
+		
+		query_url2 = window.location.protocol + '//' + window.location.host + '/a1.php/index/U8/get_u8_by_text';
 
 		let s = $.trim($(t).val());
 		clearTimeout(form.delaytime);
 		
 		if(enter && keyCode == 13){
-
-			
-			
 			var o = {};
 			o.text = s;
 			o.type = type;
@@ -248,14 +364,13 @@ var form  = {
 				let o = {};
 				o.code = s;
 				o.name = s;
-				o.top = 10;
-				o.type = 2;
+				o.searchType = 3;
 			
 				if($(t).data('last') == s) return false;
 				//$(t).data('last',s);
 				
 				$('#u8_hint').remove();
-				
+		
 				$.post(query_url,o,function(d){
 					//if($(t).data('last') == s) return false;
 					if(!$(t).is(':focus')){
@@ -270,7 +385,11 @@ var form  = {
 		
 					let p = $(t).parent().parent();
 					
-					if(d.d == 1){  //如果只有一条符合的记录，则自动填充
+					if(d.info.length == 1){  //如果只有一条符合的记录，则自动填充
+
+						
+						
+
 						let tmp = d.info[0];
 						$(field).each(function(i,v){
 							p.find('.'+type+'_'+v).eq(0).val(tmp[v]).data('d',tmp[v]);
@@ -286,39 +405,42 @@ var form  = {
 						return false;
 					}
 					
-					let div = "<div id='u8_hint' style = 'opacity:1;z-index:300;background:#ffffff;display:none;width:auto;border:1px solid #2aa515;z-index:20;position:absolute;top:"+$(t).height()+"px'>" + thead + d.data + "</tbody></table></div>";
+					let div = "<div id='u8_hint' style = 'box-shadow: 0 6px 6px 0 rgba(0,0,0,0.14),0 1px 5px 0 rgba(0,0,0,0.12),0 3px 1px -2px rgba(0,0,0,0.2);white-space:nowrap;opacity:1;z-index:300;background:#ffffff;display:none;width:auto;border:1px solid #2aa515;z-index:20;position:absolute;top:"+$(t).height()+"px'><div style = 'position:relative'>" + thead + d.data + "</tbody></table><div style = 'background:#fff;position:absolute;top:-9px;right:-9px;height:18px;cursor:pointer'><img src = '"+get_parent().publicUrl + '/image/erp/dlt.png'+"' style = 'height:18px' /></div></div></div>";
 					
-					
-
 					$(t).after(div);
 
-					//alert(d.data);
-
 					let tmp = $(window).height() - $(t).height() - top;
-					
+
 					if(tmp < $('#u8_hint').height()){
 						$('#u8_hint').css('top',0 - $('#u8_hint').height());
 					}
 
 					$('#u8_hint').show();
 					
-					$(window).click(function(){
-
+					$('.card').click(function(){
 						$('#u8_hint').remove();
-						$(window).unbind('click');
+						$('.card').unbind('click');
 					});
 
+					$('#u8_hint').find('img').click(function(){
+						$('#u8_hint').remove();
+					});
+				
 					$('#u8_hint table tbody tr').click(function(){
 						
 						$(t).parent().find('img.select').hide();
 						let ttr = this;
+								
 						$(field).each(function(i,v){
 							let tmp2 = $(ttr).find('.'+v).text();
 							p.find('.'+type+'_'+v).eq(0).val(tmp2).data('d',tmp2);
 							p.find('.'+type+'_'+v+'_text').text(tmp2);
+						
 							if(v == 'code'){
 								 p.find('.'+type+'_code').data('last',tmp2);
 							}
+
+							
 						});
 
 						if(parent_u8_select_callBack !== null){
@@ -818,7 +940,9 @@ var form  = {
 	},
 		
 	img_do : function (type,on){
-		var imgUrl = '/a1/index/view/public/Image/';
+		
+		var imgUrl = get_parent().publicUrl + '/image/erp/';
+
 		if(on == 'on'){
 			$('#'+type).removeClass('img_off').addClass('img_on');
 			$('#'+type).find('img').prop('src',imgUrl+type+'_on.png');
@@ -1046,7 +1170,7 @@ var form  = {
 			});
 		});
 
-		var imgUrl = '/a1/index/view/public/Image/';
+		var imgUrl = './tp/view/public/image/erp/'; 
 		let tmp = $('#new_resource').offset();
 		let div = "<ul id='div_resource'>";
 
@@ -1067,7 +1191,7 @@ var form  = {
 		}
 		
 		
-		div += "<li class = 'li_new_resource'  data-callback = '' data-url = ''><img src = '"+imgUrl+"file01.png' /><span>空白单据</span></li>";
+		div += "<li class = 'li_new_resource'  data-callback = '' data-url = ''><img src = '"+imgUrl+"blank.png' /><span>空白单据</span></li>";
 		div += "</ul>";
 		$('#new_resource').append(div);
 		
@@ -1146,7 +1270,7 @@ var form  = {
 		
 		var setting = {
 				paging: false,
-				scrollY:  get_table_height() - 12,
+				scrollY:  get_table_height() ,
 				info:false,
 				ordering:false,
 				dom:'t',
@@ -1159,7 +1283,12 @@ var form  = {
 			};
 		}
 
-		var table = $('#table').DataTable(setting);
+		//var table = $('#table').DataTable(setting);
+
+		form.new_page_ini_table();
+
+
+
 		
 		$('#inventory').click(function(){
 			let o = {};
@@ -1191,41 +1320,53 @@ var form  = {
 
 
 		if(config.bodySort == true){
-
+			$('table.aya-sort thead tr th').addClass('relative');
+	
 			$('table.aya-sort thead tr th').click(function(){
+				
+				if(form.lastStatus == 'resize'){
+					form.lastStatus = '';
+					return false;
+				}
+
+				var imgUrl = './tp/view/public/image/erp/';
+				
 				let index = $(this).index();
 				let length = $(this).parents('tr').children().length - 1;
 				
 				if(index == 0 || index == length) return false;
 
 				$('table.aya-sort thead tr th img.aya-sort-img').remove();
-				
+
 				let tmp = $(this).data('sort');
 				let order = 'desc';
 				if(tmp == 'desc'){
 					order = 'asc';
 				}
-				$(this).data('sort',order).append("<img class = 'aya-sort-img aya-sort-img-"+order+"'  src = '/a1/index/view/public/Image/sort_"+order+".png' />");
+				$(this).data('sort',order).append("<img class = 'aya-sort-img aya-sort-img-"+order+"'  src = '"+imgUrl+"sort_"+order+".png' />");
 				let a = [];
 				let tdType = new Map();
 				let inputOfCode = new Map(); //记录哪些input是u8select，防止点击后丢失
 				let tmp1 = $('#table tbody tr').eq(0).children();
 
 				for(let i = 1; i < length; i++){
-					if(tmp1.eq(i).find('input').length == 0){
-						tdType.set(i,'text');
-						inputOfCode.set(i,false);
-					}else{
+					if(tmp1.eq(i).find('input').length > 0){
 						tdType.set(i,'input');
 						if(tmp1.eq(i).find('input').eq(0).prop('class').indexOf('_code') >= 0){
 							inputOfCode.set(i,true);
 						}else{
 							inputOfCode.set(i,false);
 						}
-
+					}else if(tmp1.eq(i).find('select').length > 0){
+						tdType.set(i,'select');
+						inputOfCode.set(i,false);
+					}else{
+						tdType.set(i,'text');
+						inputOfCode.set(i,false);
 					}
-					
 				}
+
+				
 
 				$('#table tbody tr').each(function(ii,v){
 					let child = $(this).children();
@@ -1233,9 +1374,13 @@ var form  = {
 					let tmpMap = new Map();
 					for(let i = 1; i < length; i ++){
 						let text = "";
-						if(child.eq(i).find('input').length == 0){
+					
+						if(tdType.get(i) == 'text'){
 							text = $.trim($(this).text());
+						}else if(tdType.get(i) == 'select'){
+							//text = $.trim(child.eq(i).find('select').eq(0).val());
 						}else{
+
 							text = $.trim(child.eq(i).find('input').eq(0).val());
 						}
 						tmpMap.set(i,text);
@@ -1249,7 +1394,7 @@ var form  = {
 					if($(v).data('resource_type') != undefined) tmpMap.set('resource_type',$(v).data('resource_type'));
 					if(isAdd){
 						let c = {};
-						if(child.eq(index).find('input').length == 0){
+						if(tdType.get(index) == 'text'){
 							c.k = child.eq(index).text();
 						}else{
 							c.k = $.trim(child.eq(index).find('input').eq(0).val());
@@ -1259,6 +1404,11 @@ var form  = {
 						a.push(c);
 					}
 				});
+
+				
+				
+
+
 				if(a.length > 1){
 					$('#tbody').children().each(function(){
 						$(this).data('id','');
@@ -1270,10 +1420,7 @@ var form  = {
 						$(this).data('d','');
 					});
 					$('#tbody').find('input').val('');
-					let origin = new Map();
-					a.forEach(function(v,k){
-						origin.set(v.index,$table.row(v.index).data());
-					});
+					
 					a.sort(function(x,y){
 						if(order == 'asc'){
 							if( x.k < y.k ){
@@ -1363,7 +1510,7 @@ var form  = {
 		}
 		form.list_table = $('#table').DataTable(setting);
 		$('#merge').click(function(){
-			var imgUrl = '/a1/index/view/public/Image/';
+			var imgUrl = '/a1/index/view/public/Image/erp/';
 			if($(this).data('merge') == '0'){
 				setting.ordering = false;
 				$(this).prop('src',imgUrl+'o44.png');
@@ -1497,7 +1644,7 @@ var form  = {
 					form.n('recoil');
 					form.img_do('recoil','off');
 					
-					let imgUrl = '/a1/index/view/public/Image/';
+					let imgUrl = '/a1/index/view/public/Image/erp/';
 					if(d.info.red == 1){
 						$('#'+type).removeClass('img_on').addClass('img_off');
 						$('#'+type).find('img').prop('src',imgUrl+type+'_on2.png');
@@ -1577,7 +1724,7 @@ var form  = {
 						if(type == 'bill'){
 							form.status('checked');
 						}else{
-							var imgUrl = '/a1/index/view/public/Image/';
+							var imgUrl = '/a1/index/view/public/Image/erp/';
 							$(ddh).each(function(i,v){
 								$('#tbody tr.c' + v).each(function(){
 									if($(this).children().eq(0).text() != ''){
@@ -1626,7 +1773,7 @@ var form  = {
 						if(type == 'bill'){
 							form.status('saved');
 						}else{
-							var imgUrl = '/a1/index/view/public/Image/';
+							var imgUrl = '/a1/index/view/public/Image/erp/';
 							$(ddh).each(function(i,v){
 								
 								$('#tbody tr.c' + v).each(function(){
@@ -1726,7 +1873,7 @@ var form  = {
 	},
 	
 	status : function (status){
-		var imgUrl = '/a1/index/view/public/Image/';
+		var imgUrl = '/a1/index/view/public/Image/erp/';
 		
 		if(status == 'new' || status == 'modify'){
 			form.img_do('save','on');form.img_do('giveup','on');
@@ -1865,7 +2012,6 @@ var form  = {
 		if(typeof o.page == 'undefined') o.page = 1;
 		let index = parent.layer.load(2,{offset:['20%']});
 		$.post(form.config.research.url,o,function(d){
-			log(d);
 			if(d.status == 's'){
 				let page = d.data.page;
 				form.list_table.clear();

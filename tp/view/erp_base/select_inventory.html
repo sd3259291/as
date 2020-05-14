@@ -1,0 +1,213 @@
+<!DOCTYPE html>{__NOLAYOUT__}
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+	
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+	<link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+	<link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/DataTables-1.10.0/media/js/jquery.dataTables.min.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+
+	
+	<style type="text/css">
+		body{background:#fff;font-size:12px;padding:0}
+		.container{padding:0;margin:0;width:100%}
+		div.row{margin:0;padding:0}
+	
+		::-moz-placeholder { 
+			color:#717171;
+		}
+		
+		a.page_current,a.page{border:1px solid #cccccc;display:inline-block;height:30px;width:40px;text-align:center;vertical-align:middle;line-height:30px;margin:3px;text-decoration:none;cursor:pointer;color:#303030}
+		a.page:hover{background:#303030;color:#ffffff}
+		a.page_current{border:1px solid #000000;font-weight:bold}
+	</style>
+	
+</head>
+
+<body>
+<div class = 'container' id='container_select_u8_inventory'>
+	<div class="row" style = 'background:#fcfcfc;border-bottom:1px solid #e7e7e7;margin:0;padding:0'>
+		
+		<div class = 'col s5' >
+			<div class = 'row' style='padding:10px;'>
+				
+				<div class = 'col s4'>
+					<input type = 'text' id='select_inventory_code' class = 'aya-input' placeholder="物料编码"/>
+				</div>
+				<div class = 'col s4'>
+					<input type = 'text' id='select_inventory_name' class = 'aya-input' placeholder="物料名称"/>
+				</div>
+				<div class = 'col s4'>
+					<input type = 'text' id='select_inventory_std' class = 'aya-input' placeholder="规格型号"/>
+				</div>
+				
+			</div>
+		</div>
+
+		<div class = 'col s5 center' style ='padding:10px'>
+				<input type = 'text' id='research-table' class = 'aya-input' placeholder="表内搜索" style= 'width:200px'/>
+			
+		</div>
+
+		<div class = 'col s1 center' style ='padding:10px'>
+				<button class = 'btn btn-primary height32' id='qd'>确定</button>
+			
+		</div>
+	</div>
+
+	<div class="row" style = 'margin:0'>
+		<div class = 'col s3 center' style='border-right:1px solid #e7e7e7;overflow-y:auto;' id='d1'>
+
+			 <ul id="p_select_inventory_tree" class="ztree"></ul>
+
+		</div>
+		<div class = 'col s9'>
+			<table class = "dataTables centered cell-border hover table-small noselect" id='p_select_inventory_table' >
+				<thead>
+					<tr>
+						<th></th>
+						<th>物料编码</th>
+						<th>物料名称</th>
+						<th>规格型号</th>
+						<th>单位</th>
+						<th>自制件</th>
+					
+					</tr>
+				</thead>
+				<tbody id = 'p_select_inventory_tbody'>
+				</tbody>
+			</table>
+			{include file='public/page/page' /}
+		</div>
+	</div>
+</div>
+
+<script>
+
+var searchOption = {searchType : 2};
+
+
+
+var h1 = $(window).height();
+var h2 = $('#p_select_inventory_table').offset().top;
+var height = h1 - h2 - 80;
+
+var setting2 = {
+	paging: false,
+	scrollY: height ,
+	info:false,
+	dom:'t'
+};
+
+$('#d1').height(height);
+
+var table = $('#p_select_inventory_table').DataTable(setting2);
+	
+var nodeId = 0;
+var zNodes = {$tree|raw};
+var node = null;
+var a = 0;
+var setting = {
+	callback:{
+		onClick:function(event, treeId, treeNode){
+			let o = get_page();
+			searchOption.basicClassId = treeNode.id;
+			page_callback($.extend(o,searchOption),'__APP__/ErpBase/getInventory',table);
+		}
+	}
+};
+
+
+
+var zTreeObj = $.fn.zTree.init($("#p_select_inventory_tree"), setting, zNodes);
+var treeObj = $.fn.zTree.getZTreeObj("p_select_inventory_tree");
+treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
+var setting = {
+	paging: false,
+	searching:true,
+	scrollY: 560,
+	info:false,
+	dom:'t'
+};
+
+page('__APP__/ErpBase/getInventory',table,function (){
+	var o = {};
+	o.code = $.trim( $('#select_inventory_code').val() );
+	o.name = $.trim( $('#select_inventory_name').val() );
+	return $.extend(o,searchOption);
+});
+
+
+select_tr('p_select_inventory_table');
+
+$('#p_select_inventory_tbody').on('dblclick','tr',function(){
+	qd();
+});
+
+$('#qd').click(function(){
+	qd();
+});
+
+function qd(){
+	var data = [];
+	$('#p_select_inventory_tbody tr').each(function(){
+		var tmp  = {};
+		var tmp1 = $(this).children();
+		if(tmp1.eq(0).find('input').prop('checked') == true){
+			tmp.code = tmp1.eq(1).text();
+			tmp.name = tmp1.eq(2).text();
+			tmp.std  = tmp1.eq(3).text();
+			tmp.unit = tmp1.eq(4).text();
+			data.push(tmp);
+		}
+	});	
+	P.u8_select_callBack(data);
+	var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+	parent.layer.close(index); //再执行关闭
+}
+
+
+$('#select_inventory_code').keypress(function(e){
+	if(e.keyCode==13){
+		p_select_inventory_search();
+	}	
+});
+
+$('#select_inventory_name').keypress(function(e){
+	if(e.keyCode==13){
+		p_select_inventory_search();
+	}	
+});
+
+$('#research-table').keypress(function(e){
+	if(e.keyCode==13){
+		table.search( $.trim($(this).val()) ).draw();
+	}	
+});
+
+
+function p_select_inventory_search(){
+	var o = get_page();
+	o.code = $.trim( $('#select_inventory_code').val() );
+	o.name = $.trim( $('#select_inventory_name').val() );
+	if(o.code == '' && o.name == '') return false;
+	page_callback($.extend(o,searchOption),'__APP__/ErpBase/getInventory',table);
+}
+
+
+</script>
+
+</body>
+
+</html>

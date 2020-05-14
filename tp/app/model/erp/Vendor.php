@@ -39,7 +39,18 @@ class Vendor extends Model{
 		return a();
 	}
 
+
+	//SELECT d.MoRoutingDId FROM sfc_morouting h,sfc_moroutingdetail d WHERE h.MoRoutingId = d.MoRoutingId AND h.MoDId = @MoDId and d.OpSeq = @OpSeq',N'@MoDId int,@OpSeq nchar(4)',@MoDId=1000272553,@OpSeq=N'1111'
+
 	public function getVendor($post){
+		$tbody = "";
+		if($post['searchType'] == 3){  // hint 页面
+			$r = $this::field('code,name,contact,phone,email,tel,fax')->order('code asc')->where("name like '%".$post['name']."%' || code like '%".$post['code']."%'")->limit(10)->select();
+			foreach($r as $k => $v){
+				$tbody .= "<tr><td class = 'code'>".$v['code']."</td><td class = 'name'>".$v['name']."</td><td class = 'contact'>".$v['contact']."</td><td class = 'phone'>".$v['phone']."</td></tr>";
+			}
+			return a($tbody,$r?$r:array(),'s');
+		}
 		$w = " 1 = 1 ";
 		if(is_set($post,'basicClassId')) $w .= " && v.basic_class_id = ".$post['basicClassId'];
 		if(is_set($post,'name')) $w .= " && v.name like '%".$post['name']."%'";
@@ -51,9 +62,15 @@ class Vendor extends Model{
         $page['n'] = $post['n'];
         $page['current_page'] = $post['page'];     //当前页 返回
 		$r = Db::table('s_vendor')->alias('v')->join(['s_basic_class' => 'b'],'v.basic_class_id = b.id')->where($w)->field('v.code,v.name,v.contact,v.phone,v.email,v.tel,v.fax')->order('v.code asc')->page($post['page'],$post['n'])->select()->toArray();
-		$tbody = "";
-		foreach($r as $k => $v){
-			$tbody .= "<tr><td><a>".$v['code']."</a></td><td>".$v['name']."</td><td>".$v['contact']."</td><td>".$v['phone']."</td><td>".$v['email']."</td><td>".$v['tel']."</td><td>".$v['fax']."</td></tr>";
+		
+		if($post['searchType'] == 1){  // 基础资料 - 存货档案页面
+			foreach($r as $k => $v){
+				$tbody .= "<tr><td><a>".$v['code']."</a></td><td>".$v['name']."</td><td>".$v['contact']."</td><td>".$v['phone']."</td><td>".$v['email']."</td><td>".$v['tel']."</td><td>".$v['fax']."</td></tr>";
+			}
+		}else if($post['searchType'] == 2){  // 选择layer层页面
+			foreach($r as $k => $v){
+				$tbody .= "<tr><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td>".$v['code']."</td><td>".$v['name']."</td><td>".$v['contact']."</td><td>".$v['phone']."</td></tr>";
+			}
 		}
 		return a(array('tbody' => $tbody,'page' => $page));
 	}
@@ -62,7 +79,6 @@ class Vendor extends Model{
 		return $this::where(" code = '".$get['code']."' ")->find();
 	}
 	
-
 	public function edit($post){
 		try {
 			validate(VendorValidate::class)->check($post);
@@ -81,3 +97,4 @@ class Vendor extends Model{
 
 
 }
+

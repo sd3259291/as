@@ -58,12 +58,18 @@ class ErpBase extends BaseController
 		return $c->insert($_POST);
 	}
 	public function getInventory(Inventory $c){
+		gp();
 		return $c->getInventory($_POST);
 	}
 	public function inventoryInfo(Unit $u,BasicClass $b,Inventory $i){
 		View::assign('inventory',$i->getInventoryByCode($_GET));
 		View::assign('units',$u->get1());
 		View::assign('basicclass',$b->get1(0));
+		return View::fetch();
+	}
+	public function selectInventory(BasicClass $c){
+		$tree = $c->getTree(array('class_id' => 0),false,false);
+		View::assign('tree',json_encode($tree));
 		return View::fetch();
 	}
 
@@ -97,7 +103,12 @@ class ErpBase extends BaseController
 		View::assign('basicclass',$b->get1(1));
 		return View::fetch();
 	}
-
+	public function selectVendor(BasicClass $c){
+		$tree = $c->getTree(array('class_id' => 1),false,false);
+		View::assign('tree',json_encode($tree));
+		return View::fetch();
+	}
+	
 
 	/**
      * 客户
@@ -118,7 +129,6 @@ class ErpBase extends BaseController
 		return $c->dlt($_POST);
 	}
 	public function insertCustomer(Customer $c){
-		sp();
 		return $c->insert($_POST);
 	}
 	public function getCustomer(Customer $c){
@@ -148,9 +158,9 @@ class ErpBase extends BaseController
 	}
 
 
-
 	
-
+	
+	
   
 
 

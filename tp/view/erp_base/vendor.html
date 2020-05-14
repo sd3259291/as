@@ -85,7 +85,9 @@
 
 		table : {},
 
-		searchOption : {},
+		
+
+		searchOption : {searchType : 1},
 
 		add_success : function(data){
 			let tmp = [
@@ -134,9 +136,8 @@
 				callback:{
 					onClick:function(event, treeId, treeNode){
 						let o = get_page();
-						o.basicClassId = treeNode.id;
 						app.searchOption.basicClassId = treeNode.id;
-						page_callback(o,'__APP__/ErpBase/getVendor',app.table);
+						page_callback($.extend(o,app.searchOption),'__APP__/ErpBase/getVendor',app.table);
 					},
 				}
 			};
@@ -160,7 +161,6 @@
 
 			page('__APP__/ErpBase/getVendor',app.table,app.searchOption);
 
-
 			$('#table').click(function(e){
 				if(e.target.nodeName == 'A'){
 					app.edit(e.target);
@@ -171,7 +171,6 @@
 				if($('#tbody tr.selected').length == 0 || $('#tbody tr.selected').eq(0).children().length == 1 ) return false;
 				app.edit($('#tbody tr.selected').eq(0).children().eq(0).find('a'));			
 			});
-
 
 			$('#dlt').click(function(){
 				if($('#tbody tr.selected').length == 0 || $('#tbody tr.selected').eq(0).children().length == 1 ) return false;

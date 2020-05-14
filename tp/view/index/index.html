@@ -13,6 +13,8 @@
 	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/FixedColumns-3.2.4/css/fixedColumns.bootstrap.css">
 	<link rel="stylesheet" href="__PUBLIC__/js/nanoscrollerjs/bin/css/nanoscroller.css">
 	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+
+	<link href="__PUBLIC__/js/jquery-resizable-columns/dist/jquery.resizableColumns.css" />
 	<style type="text/css" media='print'>
 		.printno:not(.print){display:none;}
 		 #page-wrapper{margin:0}
@@ -108,9 +110,12 @@
 	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
 	
 	<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
-
+	
 	<script src="__PUBLIC__/js/custom-scripts.js"></script>
 	<script src="__PUBLIC__/js/nanoscrollerjs/bin/javascripts/jquery.nanoscroller.min.js"></script>
+	<script src="__PUBLIC__/js/form.js"></script>
+	<script src="__PUBLIC__/js/jquery-resizable-columns/dist/jquery.resizableColumns.min.js"></script>
+
 	
 
 <script src = '__PUBLIC__/js/ue/ueditor.config.js'></script>
@@ -130,15 +135,18 @@
 
 	<script>
 
-	
+	var mainUrl =  '__APP__';
+	var publicUrl = '__PUBLIC__';
 	
 	window.layerWidth = '1200px';
 
 	var mainPage = {
+
+		
 		
 		loadIndex : 0,
 		homePage : { 
-			url : '__APP__/Fs/notDone' ,
+			url : '__APP__/Purchase/vendorPrice' ,
 			name : "我的桌面",
 			id : 'indexdeptindex'
 		},
