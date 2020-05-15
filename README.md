@@ -9,7 +9,7 @@
 #### 在线演示地址
 
 
-http://ayasv.com/sa/index.php
+http://ayasv.com/demo/index.php
 
 
 - 管理员账号包含了全部功能（除了个别流程）
