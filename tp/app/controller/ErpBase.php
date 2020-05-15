@@ -58,7 +58,6 @@ class ErpBase extends BaseController
 		return $c->insert($_POST);
 	}
 	public function getInventory(Inventory $c){
-		gp();
 		return $c->getInventory($_POST);
 	}
 	public function inventoryInfo(Unit $u,BasicClass $b,Inventory $i){

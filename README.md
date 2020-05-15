@@ -8,7 +8,6 @@
 
 #### 在线演示地址
 
-（云空间出了问题，可能暂时访问不了）
 
 http://ayasv.com/sa/index.php
 
@@ -20,6 +19,7 @@ http://ayasv.com/sa/index.php
 - 用户密码：  123
 
 #### 备注
+- 因为Thinkphp会写入日志文件，LINUX 服务器要修改 tp文件夹权限 
 - 只支持火狐，谷歌，EDGE浏览器
 - 权限管理暂时没做，打算参考RBAC来做.
 - 存货档案，供应商，客户中，我只列出了一些最常用的字段，有需要的可以自行添加.
@@ -31,9 +31,9 @@ tp\config\database.php中修改
 
 2.然后运行
 
-gitee下载：http://YOURSERVE/sa/index.php
+gitee下载：http://YOURSERVE/index.php
 
-github下载：：http://YOURSERVE/as/index.php
+github下载：：http://YOURSERVE/index.php
 
 3.注意数据库文件可能有更新
 
