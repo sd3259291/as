@@ -30,7 +30,7 @@ class Fs extends BaseController{
      *  加载模板
      */
 	 public function load_template(){
-	
+		if(Session::get('userinfo')['username'] == 'admin' ) return a('','管理员不能引用模板发送流程','e');
 		$auth = FlowAuth::where("node_id = 'creator' && flow_id = ".$_POST['id'])->find();
 		$auth2 = array();
 		if($auth){

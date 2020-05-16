@@ -125,20 +125,21 @@
 
 			app.template_id = id;
 
-		
-			
-			$('#edit-form').hide();
-			$('#see-form').show();
-			$('#form-content-free-flow').hide();
-			$('#form-content-template').show();
-			max_height('form-content-template',false);
 			
 			$.post('__APP__/Fs/load_template',{id:id},function(d){
-				if(d.status != 's') layer_error(d);
+				if(d.status != 's'){
+					 layer_error(d);
+					 return false;
+				}
+				$('#edit-form').hide();
+				$('#see-form').show();
+				$('#form-content-free-flow').hide();
+				$('#form-content-template').show();
+				max_height('form-content-template',false);
 				app.auth = d.data.auth;
 				app.attr = d.data.attr;
 
-			
+				
 				
 				$('#form-content-template').html(d.data.form);
 
