@@ -21,14 +21,19 @@ var form  = {
 		let headHeight = $('#' + tableId + ' thead').height();
 		let tableWidth = $('#' + tableId).width();
 
+		
+
 		$('#' + tableId).wrap("<div id = 'aya-table-wrapper-container' style = 'height:"+tableWrapperHeight+"px;max-height:"+tableWrapperHeight+"px;min-height:"+tableWrapperHeight+"px;position:relative'></div>");
+
+
+	
 
 		$('#' + tableId).wrap("<div class = 'aya-table-wrapper-tbody' id = 'aya-table-wrapper-tbody' style = 'height:"+(tableWrapperHeight - headHeight)+"px;max-height:"+(tableWrapperHeight - headHeight)+"px;min-height:"+(tableWrapperHeight - headHeight)+"px;overflow:scroll;'></div>");
 
 		let tableWrapperWidth = $('#aya-table-wrapper-container').width();
 		let tableClone = $('#' + tableId).clone();
 		
-		let clone_table = "<div class = 'aya-table-wrapper-thead' style = 'position:fixed;top:"+$('#' + tableId).offset().top+"px;left:"+$('#' + tableId).offset().left+"px;z-index:999;opacity:1;width:"+tableWrapperWidth+"px;max-width:"+tableWrapperWidth+"px;min-width:"+tableWrapperWidth+"px;overflow:hidden;'><table class = '"+$('#' + tableId).prop('class')+" clone_thead' style = 'width:100%'><thead>";
+		let clone_table = "<div class = 'aya-table-wrapper-thead' style = 'position:fixed;top:"+$('#' + tableId).offset().top+"px;left:"+$('#' + tableId).offset().left+"px;z-index:999;opacity:1;;overflow:hidden;'><table class = '"+$('#' + tableId).prop('class')+" clone_thead' style = 'width:100%'><thead>";
 
 
 		var clone_thead = $('#' + tableId).find('thead').clone();
@@ -38,13 +43,23 @@ var form  = {
 		for(var i = 0; i < $('#' + tableId+' thead').eq(0).children().length; i++){
 			for(var j = 0; j < $('#' + tableId+' thead').eq(0).children().eq(i).children().length; j++){
 				var tmp = $('#' + tableId+' thead').eq(0).children().eq(i).children().eq(j);
-				clone_thead.children().eq(i).children().eq(j).width(tmp.width()).css('whiteSpace',tmp.css('whiteSpace')).css('fontSize',tmp.css('fontSize'));	
+				
+				let css = {
+					'whiteSpace' : tmp.css('whiteSpace'),
+					'fontSize' : tmp.css('fontSize'),
+					'minWidth' : tmp.width(),
+					
+				};
+
+				clone_thead.children().eq(i).children().eq(j).css(css);	
 			}
 		}
 		clone_table += clone_thead.html();
 		clone_table += "</thead></table></div>";
 
 		$('#aya-table-wrapper-container').prepend("<div style = 'height:"+headHeight+"px'></div>").prepend(clone_table);
+
+		$('.aya-table-wrapper-thead').css('max-width',$('.aya-table-wrapper-tbody').eq(0).width()).css('overflow','hidden');
 
 		$('#' + tableId).css('margin-top','-' + headHeight + 'px');
 
@@ -53,17 +68,66 @@ var form  = {
 			$('.aya-table-wrapper-thead').find('table').css('marginLeft', '-' + scrollLeft + 'px');
 		});
 
+		
+		
+		
+
 		$('table.clone_thead thead tr th').mousemove(function(e){
 			let x = e.pageX;
 			if(form.status2 == 'resize'){
-				let tmp = form.resizeOriginWidth + x - form.resizeOriginX;
-				$('.resized').css('min-width', tmp );
 
-				if( $('.resized').width() > tmp ) $('.resized').css('min-width', $('.resized').eq(0).width() );
+
+				let tmp = form.resizeOriginWidth + x - form.resizeOriginX;
+				$('.resized').css('min-width', tmp ).css('max-width', tmp );
+
+				$('table.clone_thead thead tr th').each(function(i,v){
+					let css = {
+						'min-width' : $(this).width(),
+						'max-width' : $(this).width()
+					};
+					$('#' + tableId + ' thead tr th').eq(i).css(css);
+				});
+
+
+				
+				
+				$('table.clone_thead thead tr th').each(function(i,v){
+					let css = {
+						'min-width' : $(this).width(),
+						'max-width' : $(this).width()
+					};
+					$('#' + tableId + ' thead tr th').eq(i).css(css);
+				});
+
+				$('#' + tableId + ' thead tr th').each(function(i,v){
+					let css = {
+						'min-width' : $(this).width(),
+						'max-width' : $(this).width()
+					};
+					$('table.clone_thead thead tr th').eq(i).css(css);
+				});
+
+
+
+				
+
+				return false;
+
+
+
+
+
+
+				//let tmp = form.resizeOriginWidth + x - form.resizeOriginX;
+				//$('.resized').css('min-width', tmp );
+				
+				// $('.resized').css('min-width', $('.resized').eq(0).width() );
 
 				let index = $('.resized').eq(0).index();
 				
-				$('#' + tableId + ' thead tr th').eq(index).css('min-width', $('.resized').eq(0).width() );
+				$('#' + tableId + ' thead tr th').eq(index).css('min-width', $('.resized').eq(0).width() ).css('max-width', $('.resized').eq(0).width() );
+
+
 				
 			}else{
 				

@@ -39,9 +39,9 @@ class Inventory extends Model{
 	public function getInventory($post){
 		$tbody = "";
 		if($post['searchType'] == 3){  // hint 页面
-			$r = Db::table('s_inventory')->alias('i')->join(['s_unit' => 'u'],'i.unit_id = u.id')->join(['s_basic_class' => 'b'],'i.basic_class_id = b.id')->where("i.name like '%".$post['name']."%' || i.code like '%".$post['code']."%'")->field('i.code,i.name,i.std,i.self,u.name unitName,b.name basicClassName')->order('i.code asc')->limit(10)->select()->toArray();
+			$r = Db::table('s_inventory')->alias('i')->join(['s_unit' => 'u'],'i.unit_id = u.id')->join(['s_basic_class' => 'b'],'i.basic_class_id = b.id')->where("i.name like '%".$post['name']."%' || i.code like '%".$post['code']."%'")->field('i.code,i.name,i.std,i.self,u.name unit,b.name basicClassName')->order('i.code asc')->limit(10)->select()->toArray();
 			foreach($r as $k => $v){
-				$tbody .= "<tr><td class = 'code'>".$v['code']."</td><td class = 'name'>".$v['name']."</td><td class = 'std'>".$v['std']."</td><td class = 'unit'>".$v['unitName']."</td></tr>";
+				$tbody .= "<tr><td class = 'code'>".$v['code']."</td><td class = 'name'>".$v['name']."</td><td class = 'std'>".$v['std']."</td><td class = 'unit'>".$v['unit']."</td></tr>";
 			}
 			return a($tbody,$r?$r:array(),'s');
 		}

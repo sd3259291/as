@@ -144,15 +144,17 @@
 
 
 							<div class = 'row'>
-								<div class = "col s12" id = 'table-con'>
-									<table class = "dataTable centered cell-border hover table-small noselect aya-sort" id='table'  >
+								<div class = "col s12" style = 'text-align:left' id = 'table-con'>
+									<table style = 'width:auto;margin-left:0' class = "dataTable centered cell-border hover table-small noselect aya-sort" id='table'  >
 										<thead>
 											<tr>
+											
 											<th style='min-width:50px;white-space:nowrap;'>序号</th>
 											<th style='min-width:100px;white-space:nowrap;'>供应商编码</th>
 											<th style='min-width:150px;white-space:nowrap;'>供应商名称</th>
 											<th style='min-width:90px;white-space:nowrap;'>物料编码</th>
 											<th style='min-width:120px;white-space:nowrap;'>物料名称</th>
+											
 											<th style='min-width:120px;white-space:nowrap;'>规格型号</th>
 											<th style='min-width:50px;white-space:nowrap;'>单位</th>
 											<th style='min-width:80px;white-space:nowrap;'>原价</th>
@@ -166,6 +168,7 @@
 										</thead>
 										<tbody id = 'tbody'>
 											<tr>
+										
 												<td>1</td>
 												<td class = 'td-input-img'>
 													<input type = 'text' class = 'aya-input2 input-background center vendor_code edit' data-last = ''  readonly>
@@ -183,6 +186,7 @@
 												<td class ='td-input-img'>
 													<input type = 'text' class = 'aya-input2 inventory_name center' readonly>
 												</td>
+											
 												<td class ='td-input-img'>
 													<input type = 'text' class = 'aya-input2 inventory_std center' readonly>
 												</td>
@@ -358,7 +362,6 @@
 			tmp.vendor = $(this).children().eq(1).find('input').val();
 			tmp.code   = $(this).children().eq(3).find('input').val();
 			tmp.index =   $(this).children().eq(0).text();
-			tmp.cdefine26 = $(this).children().eq(14).find('input').val();       //最小采购量
 			tmp.unitprice1 = $(this).children().eq(7).find('input').eq(0).val();
 			tmp.unitprice2 = $(this).children().eq(10).find('input').eq(0).val();
 			tmp.tax1   = $(this).children().eq(8).find('input').eq(0).val();
@@ -376,6 +379,7 @@
 		o.ddh  = $('#ddh_hidden').val();
 		let index = layer.load(2,{offset:'30%'});
 		log(o);
+		return false;
 		$.post('__URL__/add_pricejust',o,function(d){
 			form.saved(d,index);
 		});

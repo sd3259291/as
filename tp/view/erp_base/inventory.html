@@ -73,7 +73,7 @@
 
 		table : {},
 
-		searchOption : {},
+		searchOption : {searchType : 1},
 
 		add_success : function(data){
 			app.table.rows.add( $("<tr><td><a>"+data.code+"</a></td><td>"+data.name+"</td><td>"+data.std+"</td><td>"+data.unit+"</td><td>"+data.basicClass+"</td><td>"+(data.self?'√':'')+"</td></tr>") ).draw();
@@ -112,9 +112,8 @@
 				callback:{
 					onClick:function(event, treeId, treeNode){
 						let o = get_page();
-						o.basicClassId = treeNode.id;
 						app.searchOption.basicClassId = treeNode.id;
-						page_callback(o,'__APP__/ErpBase/getInventory',app.table);
+						page_callback($.extend(o,app.searchOption),'__APP__/ErpBase/getInventory',app.table);
 					},
 				}
 			};
