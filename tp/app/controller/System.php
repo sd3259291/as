@@ -6,7 +6,7 @@ use think\facade\View;
 use think\facade\Session;
 use think\facade\Cache;
 use app\model\Role;
-use app\model\Erp\ErpConfig;
+use app\model\erp\ErpConfig;
 
 
 class System extends BaseController
