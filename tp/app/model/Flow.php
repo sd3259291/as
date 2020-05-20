@@ -22,7 +22,8 @@ class Flow extends Model{
 		'td_width' => 'text',
 		'type_id' => 'int',
 		'cut_form' => 'mediumtext',
-
+		'system_flow' => 'int',
+		'system_flow_type' => 'varchar'
 	];
 
 

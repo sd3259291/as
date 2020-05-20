@@ -92,6 +92,10 @@ class Index extends BaseController
 				'name' => '目录管理',
 				'url' => 'Auth/layout'
 			),
+			[
+				'name' => '系统设置',
+				'url' => 'System/config'
+			],
 		)
 	));
 

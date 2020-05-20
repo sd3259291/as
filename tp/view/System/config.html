@@ -1,0 +1,210 @@
+
+  <script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+ <link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+
+<style type="text/css">
+	.left{
+		text-align:left !important
+	}
+
+	.list{
+		margin:20px
+	}
+
+	.list a{
+		text-decoration:none;
+		cursor:pointer
+	}
+
+</style>
+
+
+<div class="card"  id = 'aa1'>
+	<div class="card-content">
+
+
+
+		<div class = 'row row-body' >
+			<div class = 'col s3' id = 'd1'>
+				<ul id="tree" class="ztree"></ul>
+			</div>
+
+			<!-- 供应商价格表  -->
+			<div class = 'col s7  configs' id = 'vendorPrice' style = 'display:none' >
+
+				<div class = 'row list' >
+					<div class = 'col s6'>
+						<span style = 'margin-right:36px'>
+							启用审核流程
+						</span>
+						<input class = 'aya-checkbox config' type = 'checkbox' data-type = 'vendor_price_just_flow' />
+					</div>
+					
+					<div class = 'col s6 left'>
+						<a class = 'flow' data-name = '供应商价格表' data-type = 'vendor_price_just_flow'>编辑流程</a>
+					</div>
+				</div>
+
+				<div class = 'row list' >
+					<div class = 'col s6'>
+						<span style = 'margin-right:36px'>
+							非制单人不能删除表单
+						</span>
+						<input class = 'aya-checkbox config' type = 'checkbox' data-type = 'vendor_price_just_only_dlt_myself' />
+					</div>
+					
+					
+				
+				</div>
+
+
+
+
+			</div>
+
+
+			<!-- 采购订单  -->
+			<div class = 'col s7  configs' id = 'purchase' style = 'display:none'>
+				
+				<div class = 'row' >
+					<div class = 'col s4'>启发舒服撒发顺丰</div>
+					<div class = 'col s2 left' >
+						<input class = 'flow aya-checkbox' type = 'checkbox'  />
+					</div>
+					<div class = 'col s6 left'>
+						1
+					</div>
+				</div>
+			</div>
+
+
+
+
+		</div>
+		
+
+		
+
+
+
+		
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+	var app = {
+
+		tree : {},
+
+		treeNode : {$tree|raw},
+		
+		type : '',
+
+
+		erpConfig : {$erpconfig|raw},
+
+		ini : function(){
+
+
+			max_height('d1');
+			
+			// tree 开始
+
+			let setting1 = {
+				callback:{
+					onClick:function(event, treeId, treeNode){
+						app.type = treeNode.type;
+						if(app.type == '') return false;
+						$('.configs').hide();
+						$('#' + app.type).show();
+						
+					},
+				}
+			};
+
+
+
+
+			
+
+			app.tree =  $.fn.zTree.init($("#tree"), setting1, app.treeNode);
+			let treeObj = $.fn.zTree.getZTreeObj("tree");
+			treeObj.expandNode( treeObj.getNodeByTId("tree_1"), true, false, false );
+
+			// tree 结束
+
+			$('.flow').click(function(){
+				let type = $(this).data('type');
+				let name = $(this).data('name');
+				let index = parent.layer.open({
+					type:2,
+					isOutAnim:false,
+					title:'制作流程 - ' + name,
+					maxmin:true,
+					shadeClose:true,
+					area:[parent.mainPage.layerWidth,'100%'],
+					offset:'0px',
+					content:'__APP__/F/flow?type=' + type,
+					success : function (layero,index){
+						let top  = ($('.layui-layer-title').eq($('.layui-layer').length - 1).height() - 32) / 2;
+						let left = ($('.layui-layer-title').eq($('.layui-layer').length - 1).width()  - 51) / 2;
+						if(top < 0) top = 4.5;
+						parent.$('.layui-layer').eq($('.layui-layer').length - 1).append('<button id = "flow_save" style = "position:absolute;top:'+top+'px;left:'+left+'px;z-index:9999999999;cursor:pointer" class = "btn btn-default height32 btn-noshadow">保存</button>');
+						$('#flow_save').click(function(){
+							var iframeWin = window[layero.find('iframe')[0]['name']];
+							iframeWin.flow.save();
+						});
+					}
+				});
+			});
+
+			
+			
+			$('.config').click(function(){
+				let value = $(this).is(':checked')?1:0;
+				let type  = $(this).data('type');
+				let o = {type : type , value : value};
+				log('__APP__/System/setConfig');
+				$.post('__APP__/System/setConfig',o,function(d){
+					if(d.status == 's'){
+						layer_success();
+					}else{
+						layer_error(d);
+					}
+				});
+			});
+
+
+			$('.config').each(function(){
+				let type = $(this).data('type');
+				
+				if( app.erpConfig[ type ] ){
+
+					$(this).attr( 'checked', app.erpConfig[ type ] == '1' ? true : false);
+				}
+			});
+
+			
+
+		},	
+
+
+
+
+
+
+
+
+
+
+
+	}
+	app.ini();
+</script>
+
+
+

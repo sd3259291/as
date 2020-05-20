@@ -47,6 +47,8 @@ function is_set($a,$b){
 	return false;
 }
 
+
+
 function sp(){
 	if(count($_POST) > 0 ){
 		cache('tmp',$_POST);

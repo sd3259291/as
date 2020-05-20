@@ -38,7 +38,7 @@
 											制单人
 										</div>
 										<div class = 'col s9 erp-head-div-right'>
-											<input type = 'text' class = 'aya-input center cmaker' id = 'cmaker'    readonly   data-df = '{$Request.session.userinfo.name}'>
+											<input type = 'text' class = 'aya-input center maker' id = 'maker'    readonly   data-df = '{$Request.session.userinfo.name}'>
 										</div>
 									</div>
 								</div>
@@ -46,10 +46,6 @@
 								<div class = "col s1 c1enter" ></div>
 
 								<div class = "col s3 c1enter" >
-									
-
-
-								
 
 									<div class = 'row'>
 										<div class = 'col s3 erp-head-div-left'>
@@ -63,9 +59,6 @@
 										</div>	
 									</div>
 
-									
-
-									
 								</div>
 								
 								<div class = "col s1 c1enter" ></div>
@@ -134,6 +127,14 @@
 													<span>
 												</div>
 											</div>
+
+											<div class = 'erp-head-div-container'>
+												<div class = 'erp-head-div-container-top'>
+													<span class = 'erp-head-div-container-span-con img_off' id = 'flow'>
+														<span class = 'erp-head-div-container-span'>流程</span><img src = '__PUBLIC__/image/erp/flow_off.png'  class = 'height18' />
+													<span>
+												</div>
+											</div>
 											
 										</div>
 									</div>
@@ -148,13 +149,11 @@
 									<table style = 'width:auto;margin-left:0' class = "dataTable centered cell-border hover table-small noselect aya-sort" id='table'  >
 										<thead>
 											<tr>
-											
 											<th style='min-width:50px;white-space:nowrap;'>序号</th>
 											<th style='min-width:100px;white-space:nowrap;'>供应商编码</th>
 											<th style='min-width:150px;white-space:nowrap;'>供应商名称</th>
 											<th style='min-width:90px;white-space:nowrap;'>物料编码</th>
 											<th style='min-width:120px;white-space:nowrap;'>物料名称</th>
-											
 											<th style='min-width:120px;white-space:nowrap;'>规格型号</th>
 											<th style='min-width:50px;white-space:nowrap;'>单位</th>
 											<th style='min-width:80px;white-space:nowrap;'>原价</th>
@@ -194,23 +193,21 @@
 													<input type = 'text' class = 'aya-input2 inventory_unit center' readonly>
 												</td>
 
-
 												<td class ='td-input-img'>
-													<input type = 'text' class = 'aya-input2  center unitprice1' readonly>
+													<input type = 'text' class = 'aya-input2  center origin_price' readonly>
 												</td>
 												<td class ='td-input-img'>
-													<!--<input type = 'text' class = 'aya-input2  center iTaxRate edit retain' readonly value = '16'>-->
-													<input type = 'text' class = 'aya-input2  center tax1' readonly>
+													<input type = 'text' class = 'aya-input2  center origin_tax' readonly>
 												</td>
 												<td class = 'td-input-img'>
-													<input type = 'text' class = 'aya-input2  center  taxprice1' readonly>
+													<input type = 'text' class = 'aya-input2  center  origin_tax_price' readonly>
 												</td>
 
 												<td class = 'td-input-img'>
-													<input type = 'text' class = 'aya-input2 input-background center edit unitprice2 mul-num' readonly>
+													<input type = 'text' class = 'aya-input2 input-background center edit price mul-num' readonly>
 												</td>
 												<td class = 'td-input-img'>
-													<select class = 'browser-default center tax2'>
+													<select class = 'browser-default center tax'>
 														<option value = '0'>0</option>
 														<option value = '3'>3</option>
 														<option value = '6'>6</option>
@@ -222,7 +219,7 @@
 												
 
 												<td class = 'td-input-img'>
-													<input type = 'text' class = 'aya-input2  center  taxprice2' readonly>
+													<input type = 'text' class = 'aya-input2  center  tax_price' readonly>
 												</td>
 
 												<td style='padding:0'><img src = '__PUBLIC__/image/erp/erase.png' class = 'height16 tr_dlt' style='margin:0' /> <img src = '__PUBLIC__/image/erp/add.png' class = 'height16 tr_add_next' style='margin:0' />
@@ -237,6 +234,15 @@
 								</div>
 							</div>
 
+							
+							<div class = 'row' id = 'foot'>
+								<div class = 'col s1' style = 'padding:10px;text-align:right;font-size:12px'>
+									备注：
+								</div>
+								<div class = 'col s11'>
+									<input type = 'text' class = 'aya-input' id = 'remark' style = 'border-top:0;border-left:0;border-right:0' />
+								</div>
+							</di>
 
 
 
@@ -289,12 +295,17 @@
 		],
 		'dataTableConfig':{scrollX:true,autoWidth:false,"bAutoWidth": false},
 		'resource':[],
-		'get':{'url' : '__URL__/get_pricejust','callback' : ''},
-		'canModify':{'url' : '__URL__/can_modify_pricejust','callback' : ''},  //判断能否审核，反审核，修改
-		'check':{'url' : '__URL__/check_pricejust', 'callback' : ''},          //审核地址
+		'get':{'url' : '__APP__/purchase/getVendorPriceJust','callback' : ''},
+		'canModify':{'url' : '__APP__/purchase/canModifyVendorPriceJust','callback' : ''},//判断能否审核，反审核，修改
+		'check':{'url' : '__APP__/purchase/checkVendorPriceJust', 'callback' : ''},          //审核地址
 		'uncheck':{'url' : '__URL__/uncheck_pricejust','callback' : ''},       //弃审地址
-		'dlt':{'url' : '__URL__/dlt_pricejust', 'callback' : ''},              //删除地址
-		'next_prev' : {table:'PU_PriceJustMain',cCode:'ccode','zt':'erp'}
+		'dlt':{'url' : '__APP__/purchase/dltVendorPriceJust', 'callback' : ''},              //删除地址
+		'next_prev' : {table:'PU_PriceJustMain',cCode:'ccode','zt':'erp'},
+		'saveField' : {
+			'main' : ['date','remark'],
+			'listMust' : ['inventory_code','vendor_code'],
+			'list' : ['vendor_code','inventory_code','origin_price','origin_tax','origin_tax_price','price','tax','tax_price']
+		},
 	};
 
 	add_tr('table',30);
@@ -327,12 +338,9 @@
 		});
 		
 
-		
-
-
 		if(oo.length > 0){
 			o.data = JSON.stringify(oo);
-			$.post('__URL__/get_vendor_price',o,function(d){
+			$.post('__URL__/purchase/get_vendor_price',o,function(d){
 				log(d,false);
 				if(d.status == 's'){
 					$(d.data).each(function(i,v){
@@ -355,32 +363,9 @@
 	}
 	
 	function save(){
-		var o = {};
-		var oo = [];
-		$('#tbody tr').each(function(){
-			var tmp = {};
-			tmp.vendor = $(this).children().eq(1).find('input').val();
-			tmp.code   = $(this).children().eq(3).find('input').val();
-			tmp.index =   $(this).children().eq(0).text();
-			tmp.unitprice1 = $(this).children().eq(7).find('input').eq(0).val();
-			tmp.unitprice2 = $(this).children().eq(10).find('input').eq(0).val();
-			tmp.tax1   = $(this).children().eq(8).find('input').eq(0).val();
-			tmp.tax2   = $(this).children().eq(11).find('select').val();
-			tmp.taxprice1 = $(this).children().eq(9).find('input').eq(0).val();
-			tmp.taxprice2 = $(this).children().eq(12).find('input').eq(0).val();
-			tmp.minprice = $(this).children().eq(13).find('input').eq(0).val();
-			if(tmp.unitprice1 != ''){
-				tmp.autoid = $(this).data('autoid');
-			}
-			if(tmp.vendor == '' || tmp.code == '') return true;
-			oo.push(tmp);
-		});
-		o.data = JSON.stringify(oo);
-		o.ddh  = $('#ddh_hidden').val();
+		let o = form.get_field();
 		let index = layer.load(2,{offset:'30%'});
-		log(o);
-		return false;
-		$.post('__URL__/add_pricejust',o,function(d){
+		$.post('__APP__/Purchase/saveVendorPriceJust',o,function(d){
 			form.saved(d,index);
 		});
 	}
@@ -388,7 +373,7 @@
 
 
 	
-	$('#tbody').on('keyup','input.unitprice2',function(){
+	$('#tbody').on('keyup','input.price',function(){
 		let price = parseFloat($(this).val());
 		let tax   = parseFloat($(this).parents('td').next().find('select').eq(0).val());
 		let sum = decimal(price  + price * tax / 100,3) ;
@@ -397,12 +382,15 @@
 	});
 
 
-	$('#tbody').on('change','select.tax2',function(){
+	$('#tbody').on('change','select.tax',function(){
 		let p = $(this).parents('tr');
 		let price = parseFloat(p.children().eq(10).find('input').val());
 		let tax = parseFloat($(this).val());
 		let sum = decimal(price  + price * tax / 100,3);
 		p.children().eq(12).find('input').eq(0).val(sum);
 	});
+
+	form.ddh();
+	
 
 </script>

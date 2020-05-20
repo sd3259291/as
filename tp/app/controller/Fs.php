@@ -277,13 +277,44 @@ class Fs extends BaseController{
 	 /**
      *  发送流程
      */
-	 public function send(){
+	 public function send( $type = '' ){
 		//sp();exit();
 		//gp();
 
 		$userinfo = Session::get('userinfo');
+
+		$flowsAuth = $saveAttr =  $formTable = array();
+
+		if($type != ''){  // 系统内置
+			$flowTemplate = Flow::where("system_flow_type = '$type' ")->find();
+
+			
+			$form = array(
+				'maker' => $userinfo['username'],
+				'maker_name' => $userinfo['name'],
+				'datetime' => date('Y-m-d H:i:s',time()),
+				'status' => 5,
+				'p' => $flowTemplate->p,
+				'node' => $flowTemplate->node,
+				'title' => $flowTemplate->title,
+				'form' => '',
+				'flow_id' => $flowTemplate->id,
+				'system_flow' => 1
+			);
+
+			
+
+			$handleData = array(
+				'nodeId' => 'creator',
+				'executor' => isset($_POST['executor'])?$_POST['executor']:'',
+				'createFalseDelete' => true,
+				'prev' => true,
+				'prevData' => array( 'node' => $form['node'], 'p' => $form['p'] ,'table' => '' )
+			);
+
+			$r = $this->handle($handleData);
 		
-		if( (int)$_POST['template_id'] > 0 ){
+		}else if( (int)$_POST['template_id'] > 0 ){
 			
 			$flowTemplate = Flow::find( $_POST['template_id'] );
 			if(!$flowTemplate || !$flowTemplate->status) return a('','流程不存在或流程还没发布','e');
@@ -320,7 +351,7 @@ class Fs extends BaseController{
 
 		
 	
-			$formTable = array();
+			
 			if(isset($_POST['field'])){
 				foreach($_POST['field'] as $k => $v){
 					$formTable[$attr[$k]['table_name']][$k] = $v;
@@ -334,9 +365,6 @@ class Fs extends BaseController{
 					}
 				}
 			}
-			
-			
-			
 			
 			$form = array(
 				'maker' => $userinfo['username'],
@@ -365,9 +393,6 @@ class Fs extends BaseController{
 				'prevData' => array( 'node' => $form['node'], 'p' => $form['p'] ,'table' => $_POST['field'] )
 			);
 
-
-			
-			
 			$r = $this->handle($handleData);
 		}else{
 
@@ -395,7 +420,7 @@ class Fs extends BaseController{
         
         if($r['ok'] === 'm')    return a($r['data'],'','m');
 
-		
+	
 
 		$form['node'] = json_encode( $r['node'] );
 
@@ -411,8 +436,6 @@ class Fs extends BaseController{
 			}
 		}
 		Db::table('s_flows_executor')->insertAll($executor);
-
-		
 		
 		$exc = array();
 		foreach($executor as $k => $v){
@@ -448,9 +471,13 @@ class Fs extends BaseController{
 			FlowsField::create(array('flows_id' => $flows->id,'field' => json_encode($saveAttr)));
 		}
 		
-		
+		if($type){
+			return a($flows->id,'','s');
+		}else{
+			 return a('','','s');
+		}
 
-        return a('','','s');
+       
 	
 	 }
 	
@@ -516,6 +543,9 @@ class Fs extends BaseController{
         if(isset($post['end']) && $post['end'] != ''){
             $w .= " and b.datetime <= '".$post['start']."  23:59:59'";
         }
+
+		$w .= " and b.system_flow = 0 ";
+
         if($post['type'] == '1'){
             if($w == ''){
                 $r = Db::query("select count(1) as n from s_flows_executor where status < 2 and number = '".SESSION::get('userinfo')['username']."'");
@@ -1661,7 +1691,7 @@ class Fs extends BaseController{
 
 		}
 		
-		return array('ok' => true);
+		return array('ok' => true ,'status' => $isEnd?9:5 );
 	
 		
 	}
@@ -1818,7 +1848,7 @@ class Fs extends BaseController{
 
 
 		// start
-		$hasEndNode  = false;
+	
 		$newExecutor = $mul = $errorNode = $rightNode =  $null = array();
 		
 		
@@ -2611,7 +2641,7 @@ class Fs extends BaseController{
 			Db::table('aya_flows_detail_executor')->where(" id in (".get_w($delete,false).") ")->delete();
 			if(count($dlttip) > 0){
 				foreach($dlttip as $k => $v){
-					dlt_tip(array($flow['table_id']),$flow['tip_id'],$v);
+					//dlt_tip(array($flow['table_id']),$flow['tip_id'],$v);
 				}
 			}
 		}
@@ -2632,7 +2662,6 @@ class Fs extends BaseController{
 		$r = $this->cancel_do($_POST);
 		if($r['ok']) return a('','','s');
 		return a('',$r['msg'],'e');
-		
 
 	}
 
@@ -2655,6 +2684,19 @@ class Fs extends BaseController{
 		Db::table('s_flows_auth')->where('flows_id = '.$flowId)->delete();
 		return array('ok' => true);
 	}
+
+
+	public function cancel_do2($flowId = array()){
+		$w = get_w($flowId,false);
+		Db::table('s_flows')->where('id in ( '.$w.' )')->delete();
+		Db::table('s_flows_executor')->where('flow_id in ( '.$w.' )')->delete();
+		Db::table('s_flows_comment')->where('flow_id in ( '.$w.' )')->delete();
+		Db::table('s_flows_auth')->where('flows_id in ( '.$w.' )')->delete();
+	}
+
+
+
+
 
 	public function flow_log(){
 		$flowId = $_GET['flow_id'];

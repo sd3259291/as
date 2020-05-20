@@ -170,7 +170,7 @@ body .layer-edit-container .layui-layer-content{
 			cursor:default
 		}
 		body{
-			background:url('/a1/index/view/public/Image/flow/bg.png') 13px 12px
+			background:url('__PUBLIC__/image/flow/bg.png') 13px 12px
 		}
 		.text-color1{color:#008afd}
 .text-color2{color:#28a745}
@@ -627,7 +627,8 @@ var flow = {
 
 
 	ini : function(){
-
+		
+		
 	
 		
 		if(flow.count == 0 ){         //新建
@@ -863,12 +864,10 @@ var flow = {
 		o.p = JSON.stringify(flow.p);
 		o.node = JSON.stringify(flow.node);
 		o.id = '{$Request.get.id}';
+		o.type = '{$Request.get.type}';
 		o.max_id = flow.count;
 
-		
 		$.post('__APP__/F/flow_save',o,function(d){	
-
-			
 			if(d.status == 's'){
 				parent.layer_success();
 				var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
@@ -897,9 +896,6 @@ var flow = {
 					flow.p[prev1] = flow.p[prev1].filter(function(x){return x != id;});
 					
 					let nextId = flow.p[id][0];
-
-
-					
 
 
 					if(flow.c[nextId].length > 1){

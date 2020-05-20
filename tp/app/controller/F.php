@@ -953,6 +953,10 @@ class F extends BaseController{
 		if(isset($_GET['id']) && $_GET['id']){
 			$flow = Flow::find($_GET['id']);
 			if(!$flow['p']) $flow = array('id' => $_GET['id'],'p' => json_encode(array()),'node' => json_encode(array()),'max_id' => 0);
+		}else if(is_set($_GET,'type')){
+		
+			$flow = Flow::where("system_flow = 1 && system_flow_type = '".$_GET['type']."'")->find();
+			if(!$flow['p']) $flow = array('id' => 0,'type' => $_GET['type'],'p' => json_encode(array()),'node' => json_encode(array()),'max_id' => 0);
 		}else{
 			$flow = array('p' => array(),'node' => array(),'max_id' => 0);
 		}
@@ -976,7 +980,12 @@ class F extends BaseController{
 		}else{
 			$pst = array('-1' => 0);
 		}
-		$flowTable = Db::query("select b.id,b.enum_id,b.name,a.i,a.label from s_flow_table a left join s_enum_detail b on a.enum_id = b.enum_id where a.flow_id = ".$_GET['id']." && a.table_name like 'f%' ");
+		if(!isset($_GET['type'])){
+			$flowTable = Db::query("select b.id,b.enum_id,b.name,a.i,a.label from s_flow_table a left join s_enum_detail b on a.enum_id = b.enum_id where a.flow_id = ".$_GET['id']." && a.table_name like 'f%' ");
+		}else{
+			$flowTable = array();
+		}
+		
 		$enumI = $enum = array();
 		if($flowTable){
 			foreach($flowTable as $k => $v){
@@ -1020,11 +1029,21 @@ class F extends BaseController{
      */
 	 public function flow_save(){
 
-		$flow = Flow::find($_POST['id']);
+		
+		if(is_set($_POST,'type')){
+			$flow = Flow::where("system_flow = 1 && system_flow_type = '".$_POST['type']."'")->find();
+			if(!$flow){
+				$flow = Flow::create(['system_flow' => 1,'system_flow_type' => $_POST['type']]);
+			}
+		}else{
+			$flow = Flow::find($_POST['id']);
+		}
 		$flow->p = $_POST['p'];
 		$flow->node = $_POST['node'];
 		$flow->max_id = $_POST['max_id'];
 		$flow->save();
+
+		
 		return a('','','s');
 	 }
 
