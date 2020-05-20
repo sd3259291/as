@@ -168,23 +168,16 @@ class VendorPriceJust extends Model{
 		$result = array();
 		$ddh = json_decode($post['ddh'],true);
 		foreach($ddh as $k => $v){
-			 
 			$r = $this->checkBillDo($v);
 			if($r['ok'] === true){
 				$result[$v] = $r['status'];
 			}else{
-
 				if($r['ok'] === false)  return a('',$r['msg'],'e');
-			
 				if($r['ok'] === 'm')    return a($r['data'],'','m');
-
-				//return a('',$r['msg'],'e');
 			}
 		}
-
-		return a($result,'','s');
-
 		
+		return a($result,'','s');
 	}
 
 	public function checkBillDo($ddh){
@@ -205,9 +198,7 @@ class VendorPriceJust extends Model{
 				'field' => []
 			);
 
-			//$r = $fs->handle( $handleData );
-
-			$r = array('ok' => true,'status' => 9);
+			$r = $fs->handle( $handleData );
 
 			if($r['ok'] !== true) return $r;
 
@@ -221,6 +212,11 @@ class VendorPriceJust extends Model{
 		//$bill->save();
 
 		return array( 'ok' => true , 'status' => $bill->status );
+	}
+
+
+	private function afterCheckBill($ddh){
+		
 	}
 
 
