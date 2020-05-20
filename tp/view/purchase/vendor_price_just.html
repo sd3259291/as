@@ -53,8 +53,8 @@
 										</div>
 										<div class = 'col s9 erp-head-div-right' id = 'erp-head-div-right-ddh'>
 											<input type = 'text' class = 'aya-input center ddh' id = 'ddh' data-last = ''     value = '' >
-											<img src = '__PUBLIC__/image/erp/arrow-up.png' class = ' height14' style = 'top:6px;right:0' id = 'ddh-next' />
-											<img src = '__PUBLIC__/image/erp/arrow-down.png' class = ' height14' style = 'top:16px;right:0' id = 'ddh-prev' />
+											<img src = '__PUBLIC__/image/erp/arrow-up.png' class = ' height14' style = 'top:5px;right:0' id = 'ddh-next' />
+											<img src = '__PUBLIC__/image/erp/arrow-down.png' class = ' height14' style = 'top:17px;right:0' id = 'ddh-prev' />
 
 										</div>	
 									</div>
@@ -300,7 +300,7 @@
 		'check':{'url' : '__APP__/purchase/checkVendorPriceJust', 'callback' : ''},          //审核地址
 		'uncheck':{'url' : '__URL__/uncheck_pricejust','callback' : ''},       //弃审地址
 		'dlt':{'url' : '__APP__/purchase/dltVendorPriceJust', 'callback' : ''},              //删除地址
-		'next_prev' : {table:'PU_PriceJustMain',cCode:'ccode','zt':'erp'},
+		'nextPrev' : '__APP__/purchase/nextPrevVendorPriceJust',
 		'saveField' : {
 			'main' : ['date','remark'],
 			'listMust' : ['inventory_code','vendor_code'],

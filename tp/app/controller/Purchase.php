@@ -37,6 +37,11 @@ class Purchase
 		return $v->checkBill($_POST);
 	} 
 
+	public function nextPrevVendorPriceJust(VendorPriceJust $v){
+	
+		return $v->nextPrev($_POST);
+	}
+
 
 
 

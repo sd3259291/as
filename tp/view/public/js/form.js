@@ -1121,45 +1121,26 @@ var form  = {
 		var nextUrl = window.location.protocol + '//' + window.location.host +  '/a1.php/index/U7/next_prev';
 		
 		$('#ddh-prev').click(function(){
-		
-			let o = {};
-			o.type = 'prev';
-			o.ddh = $('#ddh_hidden').val();
-			o.ccode = config.next_prev.cCode;
-			o.table = config.next_prev.table;
-			if(typeof config.next_prev.zt != 'undefined'){
-				o.zt    = config.next_prev.zt;
-			}
-			if(typeof config.next_prev.config != 'undefined'){
-				for(let key in config.next_prev.config){
-					o[key] = config.next_prev.config[key];
-				}
-			}
 			
-			$.post(nextUrl,o,function(d){
-				$('#ddh').val(d.data);
-				form.ddh();
+			$.post(u8Config.nextPrev,{type:'prev',ddh:$('#ddh').val()},function(d){
+				if(d.status == 's'){
+					$('#ddh').val(d.data);
+					form.ddh();
+				}else{
+					layer.msg(d.info,{icon:2,time:1500,offset:'30%'});
+				}
 			});
 		});
 
 		$('#ddh-next').click(function(){
-			let o = {};
-			o.type = 'next';
-			o.ddh = $('#ddh_hidden').val();
-			o.ccode = config.next_prev.cCode;
-			o.table = config.next_prev.table;
-			if(typeof config.next_prev.zt != 'undefined'){
-				o.zt    = config.next_prev.zt;
-			}
-			if(typeof config.next_prev.config != 'undefined'){
-				for(let key in config.next_prev.config){
-					o[key] = config.next_prev.config[key];
+			$.post(u8Config.nextPrev,{type:'next',ddh:$('#ddh').val()},function(d){
+				if(d.status == 's'){
+					$('#ddh').val(d.data);
+					form.ddh();
+				}else{
+					layer.msg(d.info,{icon:2,time:1500,offset:'30%'});
 				}
-			}
-			
-			$.post(nextUrl,o,function(d){
-				$('#ddh').val(d.data);
-				form.ddh();
+				
 			});
 		});
 		
@@ -2014,7 +1995,7 @@ var form  = {
 			$('#ddh').val(d.data);
 			form.ddh();
 		}else{
-			layer.msg(d.info,{icon:2,time:2000,offset:'30%'});
+			layer.msg(d.info,{icon:2,time:3000,offset:'30%'});
 		}
 		layer.close(index);
 	},

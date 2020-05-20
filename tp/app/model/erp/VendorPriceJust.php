@@ -7,6 +7,8 @@ use app\validate\erp\UnitValidate;
 use think\exception\ValidateException;
 use app\model\erp\ErpConfig;
 use app\controller\Fs;
+use app\model\erp\VendorPrice;
+use app\model\erp\VendorPriceJustHistory;
 
 class VendorPriceJust extends Model{
 
@@ -176,7 +178,7 @@ class VendorPriceJust extends Model{
 				if($r['ok'] === 'm')    return a($r['data'],'','m');
 			}
 		}
-		
+		$this->afterCheckBill($result);
 		return a($result,'','s');
 	}
 
@@ -185,7 +187,7 @@ class VendorPriceJust extends Model{
 		if($bill['flow_id']){
 			$userinfo = Session::get('userinfo');
 			$r = Db::table('s_flows_executor')->where("flow_id = ".$bill['flow_id']." && number = '".$userinfo['username']."'")->field('id,flow_id,node_id,status')->find();
-			if(!$r) return array( 'ok' => false , 'msg' => '审核错误' );
+			//if(!$r) return array( 'ok' => false , 'msg' => '审核错误' );
 
 			$fs = new Fs;
 			$handleData = array(
@@ -200,30 +202,53 @@ class VendorPriceJust extends Model{
 
 			$r = $fs->handle( $handleData );
 
+			//$r = ['ok' => true,'status' => 9];
+
 			if($r['ok'] !== true) return $r;
 
 			$bill->status = $r['status'];
-			
 			
 		}else{
 			$bill->status = 9;
 		}
 
-		//$bill->save();
+		$bill->save();
 
 		return array( 'ok' => true , 'status' => $bill->status );
 	}
 
 
-	private function afterCheckBill($ddh){
-		
+	private function afterCheckBill($result){
+		$checked = array();
+		foreach($result as $k => $v){
+			if($v == 9) $checked[] = $k;
+		}
+		$r = Db::table('s_vendor_price_just_list')->alias('a')->join(['s_vendor_price_just' => 'b'],'a.id = b.id')->field('a.price,a.tax,a.tax_price,a.origin_price,a.origin_tax,a.origin_tax_price,a.inventory_code,a.vendor_code,b.maker')->where(" b.ddh in (".get_w($checked).") ")->select()->toArray();
+		$w = "";
+		$vendorPrice = $vendorPriceHistory = array();
+		$now = date('Y-m-d H:i:s',time());
+		foreach($r as $k => $v){
+			$w .= "(vendor_code = '".$v['vendor_code']."' && inventory_code = '".$v['inventory_code']."') || ";
+			$r[$k]['create_datetime'] = $now;
+		}
+		if($w != ''){
+			 $w = substr($w,0,-3);
+			 Db::table('s_vendor_price')->where($w)->delete();
+		}
+
+		$vp = new VendorPrice;
+		$vp->saveAll($r);
+
+		$vpjh = new VendorPriceJustHistory;
+		$vpjh->saveAll($r);
+
 	}
 
 
 	private function validate($postData,$id){
 		$data = array();
+		$w = '';
 		foreach($postData as $k => $v){
-			
 			$tmp = array();
 			$tmp['id'] = $id;
 			$tmp['vendor_code'] = $v['vendor_code'];
@@ -236,8 +261,51 @@ class VendorPriceJust extends Model{
 			$tmp['tax_price'] = $v['tax_price'];
 			if($v['price'] == '' || $tmp['price'] < 0) return array('ok' => false,'msg' => '第'.$v['index'].'行价格错误');
 			$data[] = $tmp;
+			$w .= "(a.vendor_code = '".$v['vendor_code']."' && a.inventory_code = '".$v['inventory_code']."') || ";
 		}
+
+		if($w != ''){
+			 $w = substr($w,0,-3);
+			 $r = Db::table('s_vendor_price_just_list')->alias('a')->join(['s_vendor_price_just' => 'b'],'a.id = b.id')->field('b.ddh,a.inventory_code,a.vendor_code')->where(" b.status = 5 && ( $w ) ")->select()->toArray();
+			 $tmp = "存在相同 <span class = 'text-color3'>供应商</span> 和 <span class = 'text-color3'>物料编码</span> 的未审核完的表单：<br />";
+			 foreach($r as $k => $v){
+				$tmp .= "表单号：".$v['ddh']."，供应商编码：".$v['vendor_code']."，物料编码：".$v['inventory_code']."<br />";
+			 }
+			 $tmp = "<span style = 'font-size:12px'>".$tmp."</span>";
+			 if(count($r) > 0 ) return array('ok' => false,'msg' => $tmp);
+		}
+		
+
+
 		return array('ok' => true,'data' => $data);
+	}
+
+	public function nextPrev($post){
+		
+		if(!$post['ddh']){
+			if($post['type'] == 'next'){
+				$r = $this::order('ddh desc')->field('ddh')->find();
+			}else{
+				$r = $this::order('ddh asc')->field('ddh')->find();
+			}
+		}else{
+			if($post['type'] == 'next'){
+				$r = $this::where("ddh > '".$post['ddh']."'")->order('ddh desc')->field('ddh')->find();
+			}else{
+				$r = $this::where("ddh < '".$post['ddh']."'")->order('ddh asc')->field('ddh')->find();
+			}
+		}
+
+		if($r){
+			return a($r->ddh,'','s');
+		}else{
+			if($post['type'] == 'next'){
+				return a('','已是最后一张','e');
+			}else{
+				return a('','已是第一张','e');
+			}
+			
+		}
 	}
 
 
