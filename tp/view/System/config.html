@@ -30,8 +30,7 @@
 			</div>
 
 			<!-- 供应商价格表  -->
-			<div class = 'col s7  configs' id = 'vendorPrice' style = 'display:none' >
-
+			<div class = 'col s7  configs' id = 'vendorPrice' style = 'display:none' data-type = 'vendor_price_just'>
 				<div class = 'row list' >
 					<div class = 'col s6'>
 						<span style = 'margin-right:36px'>
@@ -48,18 +47,11 @@
 				<div class = 'row list' >
 					<div class = 'col s6'>
 						<span style = 'margin-right:36px'>
-							非制单人不能删除表单
+							只能编辑本人的表单
 						</span>
 						<input class = 'aya-checkbox config' type = 'checkbox' data-type = 'vendor_price_just_only_dlt_myself' />
 					</div>
-					
-					
-				
 				</div>
-
-
-
-
 			</div>
 
 
@@ -140,6 +132,8 @@
 			$('.flow').click(function(){
 				let type = $(this).data('type');
 				let name = $(this).data('name');
+				
+				
 				let index = parent.layer.open({
 					type:2,
 					isOutAnim:false,
@@ -166,9 +160,10 @@
 			
 			$('.config').click(function(){
 				let value = $(this).is(':checked')?1:0;
-				let type  = $(this).data('type');
-				let o = {type : type , value : value};
-				log('__APP__/System/setConfig');
+				let key  = $(this).data('type');
+				let type = $(this).parents('.configs').data('type');
+				let o = {type : type , value : value , key : key };
+			
 				$.post('__APP__/System/setConfig',o,function(d){
 					if(d.status == 's'){
 						layer_success();

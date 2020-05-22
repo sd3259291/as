@@ -590,7 +590,6 @@ function flowsave(save,executor = '' ){
 
 function select_employee(id,callback){
 	let url = window.location.href.substring(0,window.location.href.indexOf('.php') + 4);
-	
 	$(id).click(function(){
 		let that = this;
 		parent.layer.open({					

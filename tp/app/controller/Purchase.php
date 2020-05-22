@@ -7,6 +7,7 @@ use think\facade\Session;
 use think\facade\Cache;
 use think\facade\Db;
 use app\model\erp\VendorPriceJust;
+use app\model\erp\VendorPrice;
 
 class Purchase
 {
@@ -35,11 +36,19 @@ class Purchase
 
 	public function checkVendorPriceJust(VendorPriceJust $v){
 		return $v->checkBill($_POST);
+	}
+	
+	public function uncheckVendorPriceJust(VendorPriceJust $v){
+		return $v->uncheckBill($_POST);
 	} 
 
 	public function nextPrevVendorPriceJust(VendorPriceJust $v){
-	
 		return $v->nextPrev($_POST);
+	}
+	
+	// 根据供应商和物料编码获得价格
+	public function getVendorPriceByData(VendorPrice $v){
+		return $v->getVendorPriceByData($_POST);
 	}
 
 

@@ -266,6 +266,88 @@ class PublicGet extends BaseController{
 		$r = Db::query(" select a.id,a.number k,a.name v,d.name department_name,p.name post_name from s_employee a join s_department d on a.department_id = d.id join s_post p on a.post_id = p.id where a.active = 1 && a.name like '%".$_POST['name']."%'");
 		return json(column($r,'id'));
 	}
+	
+	/**
+	+------------------------------------------------------------------------------
+	* 根据text 返回 U8存货档案明细
+	* text 为 编码 用 ' '的连接
+	+------------------------------------------------------------------------------
+	*/
+	public function get_erp_by_text(){
+		//gp();
+		$code = explode(' ',$_POST['text']);  
+        $i = 0;
+        foreach($code as $k => $v){
+            $tmp = trim($v);
+            if($tmp != ''){
+                 $a[$tmp] = 1;
+                 $codes[] = $tmp;
+            }
+        }
+        
+        if(count($a) < 1) return a('','请输入编码，用空格隔开','e');
+ 
+        $w = get_w($a,true,false);
+ 
+        $type = $_POST['type'];
+        $query = '';
+        $now = date('Y-m-d',time()).' 00:00:00.000';
+      
+        switch($type){
+            case 'inventory':
+				$query = "select a.code,a.name,a.std,b.name unit from s_inventory a join s_unit b on a.unit_id = b.id where a.code in ($w) and a.end_date is null ";
+
+            break;
+ 
+            case 'vendor':
+				$query = "select code,name from s_vendor where code in ($w) ";
+            break;
+ 
+            case 'warehouse':
+                $query = "select cWhCode as code,cWhName as name from Warehouse where cWhCode in ($w)";
+            break;
+ 
+            case 'purchasetype':
+                $query = "select cPTCode as code,cPTName as name from purchasetype where cPTCode in ($w)";
+            break;
+        }
+
+
+        $n = Db::query($query);
+        
+        foreach($n as $k => $v){
+            $m[$v['code']] = $v;
+        }
+
+	
+ 
+        $r = array();
+        foreach($codes as $k => $v){
+            if(!isset($m[$v])) return a('','不存在<br />'.$v,'e');
+ 
+            
+            switch($type){
+                case 'inventory':
+                    $r[] = array(
+                        'name' => $m[$v]['name'],
+                        'code' => $m[$v]['code'],
+                        'std'  => $m[$v]['std']?$m[$v]['std']:'',
+                        'unit' => $m[$v]['unit']
+                    );
+                break;
+ 
+                default:
+                    $r[] = array(
+                        'name' => $m[$v]['name'],
+                        'code' => $m[$v]['code']
+                    );
+            }
+ 
+        }      
+		
+		
+        return a($r,'','s');
+	}
 
 
 	

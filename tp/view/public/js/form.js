@@ -14,6 +14,8 @@ var form  = {
 
 	resizeOriginWith : 0,
 
+	hasEnter : false,
+
 	new_page_ini_table : function(tableId = 'table'){
 		let h1 = parent.mainPage.height;
 		let h2 = $('#' + tableId).offset().top;
@@ -318,8 +320,8 @@ var form  = {
 		}else{
 			let u8_select_callBack3 = function(data){
 				if(tianchong == true) u8_select_callBack2(data);
-				parent_u8_select_callBack(data);
-				//parent_u8_select_callBack(updated_tr_index);
+				//parent_u8_select_callBack(data);
+				parent_u8_select_callBack(updated_tr_index);
 			}
 			window.u8_select_callBack = u8_select_callBack3;
 		}
@@ -374,7 +376,7 @@ var form  = {
 
 		
 		
-		query_url2 = window.location.protocol + '//' + window.location.host + '/a1.php/index/U8/get_u8_by_text';
+		query_url2 = get_parent().mainUrl + '/PublicGet/get_erp_by_text';
 
 		let s = $.trim($(t).val());
 		clearTimeout(form.delaytime);
@@ -387,6 +389,8 @@ var form  = {
 			$(t).data('last',s);
 			if(o.text == '') return false;
 			let index = layer.load(1,{offset:'30%'});
+			form.hasEnter = true;
+
 			$.post(query_url2,o,function(d){
 				layer.close(index);
 				if(d.status == 's'){
@@ -443,12 +447,18 @@ var form  = {
 				//$(t).data('last',s);
 				
 				$('#u8_hint').remove();
-		
+
+				form.hasEnter = false;
 				$.post(query_url,o,function(d){
+					if(form.hasEnter) return false;
+
 					//if($(t).data('last') == s) return false;
 					if(!$(t).is(':focus')){
 						return false;
 					}
+
+
+
 					$(t).data('last',s);
 					let offset = $(t).offset();
 					let top = offset.top + $(t).height();
@@ -977,7 +987,7 @@ var form  = {
 		$('input.empty').val('');// empty ,开始的时候清楚
 
 		$('#tbody').children().each(function(){
-			$(this).data('id','');
+			$(this).data('listid','');
 			if(type != 'recoil') $(this).data('resource_type','');
 			if(type != 'recoil') $(this).data('resource_id','');
 		});
@@ -1156,7 +1166,7 @@ var form  = {
 		});
 
 		$('#save').click(function(){
-			if($(this).hasClass('img_on')) save();
+			if($(this).hasClass('img_on') && u8Config.save) form.save();
 		});
 		$('#check').click(function(){
 			if($(this).hasClass('img_on')) form.check();
@@ -1619,6 +1629,8 @@ var form  = {
 		return table;
 	},
 
+	
+
 	giveup : function (){
 		if($('#ddh_hidden').data('d') == ''){
 			form.n();
@@ -1638,19 +1650,11 @@ var form  = {
 			o.bill_type = $('#bill_type').val(); 
 		}
 
-		
-		
 		if(o.ddh == '') return false;
-
-
 
 		let index = parent.layer.load(2,{offset:'30%'});
 
-
-		
 		$.post(form.config.get.url,o,function(d){
-
-			
 			parent.layer.close(index);
 			if(d.status == 's'){
 				$('#u8tips').html('');
@@ -1671,7 +1675,6 @@ var form  = {
 				$(d.data).each(function(i,v){
 					let c = $('#tbody').children().eq(i);
 					for(let key in v){
-					
 						if(key == 'listid' || key == 'resource_id' || key == 'resource_type') continue;
 						let ipt = c.find('.' + key).eq(0);
 						ipt.val(v[key]);
@@ -1714,6 +1717,8 @@ var form  = {
 						$('#'+type).find('img').prop('src',imgUrl+type+'_off.png');
 					}
 				}else{
+
+				
 					form.status(d.info);
 
 					$('#ddh').data('d',o.ddh);
@@ -1768,8 +1773,7 @@ var form  = {
 		form.ddh('recoil'); 
 	},	
 
-	check : function (type = 'bill',ddh = [],selected = 'selected'){
-
+	check2 : function (type = 'bill',ddh = [],selected = 'selected'){ 
 		let o = {};
 		if(type == 'bill'){
 			let tmp = [];
@@ -1819,8 +1823,222 @@ var form  = {
 			}
 		});
 	},
+	
+
+	
+
+	check : function( type = 'bill',ddh = [],selected = 'selected' ){
+
+			//let index1 = layer.load(2);
+
+		let obj = {};
+
+		
+
+		if(type == 'bill'){
+			let tmp = [];
+			tmp.push($('#ddh_hidden').val());
+			obj.ddh = JSON.stringify(tmp);
+		}else{
+			obj.ddh = JSON.stringify(ddh);
+		}
+		if(typeof $('#bill_type').val() != 'undefined'){
+			obj.bill_type = $('#bill_type').val(); 
+		}
+
+		obj.type = 'check';
+	
+		$.post(form.config.canModify.url,obj,function(d){
+			if(d.status == 's'){
+				form.check_do(obj);
+			}else{
+				layer.close(index);
+				layer.msg(d.info,{icon:2,time:3000,offset:'30%'});
+			}
+		});
+	},
+
+	check_do : function( obj ,exc = '' ){
+			
+			if(exc != '') obj.executor = exc;
+			$.post(u8Config.check.url,obj,function(d){
+
+				//layer.close(index1);
+				if(d.status == 's'){
+					form.ddh();
+					layer.msg('审核成功！',{icon:1,time:1500,offset:'30%'});
+				}else if(d.status == 'm'){
+					form.tmp = new Map();
+					let c = "<div style = 'font-size:12px;'>";
+					for(let i in d.data){
+						let zxmsName = '';
+						if(d.data[i]['zxms'] == 1) zxmsName = '单人执行';
+						if(d.data[i]['zxms'] == 2) zxmsName = '多人执行';
+						c += "<div class = 'row' style = 'margin:0;padding:20px 10px;border-bottom:1px solid #bfbfbf'>"
+						c += "<div class = 'col s3 hint1'>"+d.data[i]['name']+"</div><div class = 'col s3'>"+zxmsName+"</div><div class = 'col s6'><input placeholder = '点击选择执行人' id = '"+i+"' data-id = '"+i+"'  data-zxms = '"+d.data[i]['zxms']+"' type = 'text' class = 'aya-input xzfzclr' style = 'height:24px' readonly /></div>";
+						c += "</div>";
+						form.tmp.set(i,d.data[i]['list']);
+					}
+					c += "</div>";		
+
+					let index = parent.layer.open({
+						title : '<span style = "font-size:12px">选择分支处理人</span>',
+						offset : ['48px'],
+						area  : ['900px','660px'],
+						type  : 1,
+						btn   : ['确定'], //aya_mom_moallocate_change
+						shadeClose:true,
+						content : c,
+						yes : function(){
+							let a = [];
+							let allSelected = true;
+							parent.$('input.xzfzclr').each(function(){
+								let tmp = {};
+								tmp.id = $(this).data('id');
+								if($(this).data('executor') == undefined || $(this).data('executor') == '[]'){
+									allSelected = false;
+									return false;
+								}else{
+									tmp.executor = $(this).data('executor');
+								}
+								a.push(tmp);
+							});
+
+							if(allSelected == false){
+								layer.msg('请选择执行人',{icon:2,time:1500,offset:'30%'});
+								return false;
+							}
+							form.check_do(obj,JSON.stringify(a));
+							layer.close(index);
+
+						},
+						success : function(layero, index){
+							parent.$('input.xzfzclr').click(function(){
+
+								let t = $(this).parent().prev().prev().text();
+
+								let id = $(this).data('id');
+
+								form.mSelected = id;
+
+								let zxms = $(this).data('zxms');
+
+
+								let n = "<div class = 'row' style = 'margin:0'><div class = 'col s12' id = 'top123'><div style = 'display:inline-block;width:50%;position:relative'><input id = 'i20191119' placeholder = '按回车搜索' type = 'text' class = 'aya-input' style = 'height:24px;width:100%' /><img class = 'height18' src = '/a1/index/view/public/Image/o25.png' style = 'position:absolute;right:0;top:3px;'/></div></div><div class = 'col s12'><table id = 't20191119' class = 'centered dataTable row-border noselect table-small'><thead><tr></tr><tr><th></th><th>工号</th><th>姓名</th></tr></thead><tbody>";
+
+								let selected = new Map();
+								if(parent.$('#' + form.mSelected).data('executor') != undefined){
+									JSON.parse(parent.$('#' + form.mSelected).data('executor')).forEach(function(v,k){
+										selected.set(v.k,1);	
+									});
+								}
+								
+								let tmp1 = '',tmp2 = '';
+
+		
+								
+								
+								$.each(form.tmp.get(id),function(k,v){
+									if(selected.get(v.k) == undefined){
+										tmp1 += "<tr><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td>"+v.k+"</td><td>"+v.v+"</td></tr>";
+									}else{
+										tmp2 += "<tr class = 'selected'><td><input type = 'checkbox' class = 'aya-checkbox' checked /></td><td>"+v.k+"</td><td>"+v.v+"</td></tr>";
+									}
+										
+								});
+
+								
+
+								n = n + tmp2 + tmp1;
+
+								n += "</tbody></table></div><div class = 'col s12 center' style = 'padding:8px' ><button class = 'btn btn-primary height32' id = 'btn20191119'>确定</button></div></div>";
+
+
+						
+								parent.layer.open({
+									title : '<span class = "hint2" style = "font-size:12px">选择分支处理人（'+t+'）</span>',
+									offset : ['48px'],
+									area  : ['500px','660px'],
+									type  : 1,
+									shadeClose:false,
+									content: n,
+									success : function(layero2, index2){
+										
+										let scrollY = 562 - $('#top123').height()  - top.$('#btn20191119').parent().height();
+										if(top.mainPage.multiType == 1) scrollY -= 26;
+
+										let setting = {
+											paging: false,
+											scrollY: scrollY ,
+											info:false,
+											ordering:false,
+											dom:'t',	
+										};
+
+										let t20191119 = parent.$('#t20191119').DataTable(setting);
+
+										if(zxms == 1){
+											parent.select_tr('t20191119');
+										}else{
+											parent.select_tr2('t20191119');
+										}
+										
+
+											
+										parent.$('#i20191119').keypress(function(e){
+										
+											let text = $.trim(parent.$('#i20191119').val());
+											
+											if(e.keyCode == 13){
+												t20191119.search(text).draw();
+											}
+										});
+											
+										parent.$('#btn20191119').click(function(){
+											let a = [];
+											parent.$('#t20191119 tbody tr.selected').each(function(){
+												let tmp = {};
+												tmp.k = $(this).children().eq(1).text();
+												tmp.v = $(this).children().eq(2).text();
+												a.push(tmp);
+											});
+											if(a.length == 0){
+												layer.msg('请选择执行人',{icon:2,time:1500,offset:'30%'});
+											}else{
+												parent.$('#'+form.mSelected).data('executor',JSON.stringify(a));
+												let tmp = ''
+												for(let i = 0; i < a.length; i++){
+													if( i == a.length - 1){
+														tmp += a[i]['v'];
+													}else{
+														tmp = tmp + a[i]['v'] + ',';
+													}
+												}
+												$('#'+form.mSelected).val(tmp);
+												parent.layer.close(index2);
+											}
+										});
+
+									}
+										
+								});
+
+							});
+
+						},
+					});
+						
+
+				}else{
+					layer.alert(d.info,{shadeClose:true,'title' : "<span style = 'font-size:12px'>错误信息</span>",area:['500px'],icon:2,offset:'20%'});
+				}		
+			});
+
+	},
+
 
 	uncheck : function (type = 'bill',ddh = [],selected = 'selected'){
+
 		let o = {};
 		if(type == 'bill'){
 			let tmp = [];
@@ -1834,7 +2052,7 @@ var form  = {
 		}
 		o.type = 'uncheck';
 		let index = layer.load(2,{offset:'30%'});
-		
+		log( form.config.canModify.url );
 		$.post(form.config.canModify.url,o,function(d){
 			if(d.status == 's'){
 				$.post(form.config.uncheck.url,o,function(d){
@@ -1842,7 +2060,7 @@ var form  = {
 					if(d.status == 's'){
 						layer.msg('弃审成功！',{icon:1,time:1500,offset:'30%'});
 						if(type == 'bill'){
-							form.status('saved');
+							form.ddh();
 						}else{
 							var imgUrl =get_parent().publicUrl + '/image/erp/';;
 							$(ddh).each(function(i,v){
@@ -1936,7 +2154,7 @@ var form  = {
 		$.post(form.config.canModify.url,o,function(d){
 			if(d.status == 's'){
 				form.m();
-				form.status('modify');
+				form.status({status : 'modify'});
 			}else{
 				layer.msg(d.info,{icon:2,time:1500,offset:'30%'});
 			}
@@ -1946,11 +2164,9 @@ var form  = {
 	status : function (info){
 
 		status = info.status;
-		
+
 		var imgUrl =get_parent().publicUrl + '/image/erp/';
 
-		
-		
 		if(status == 'new' || status == 'modify'){
 			form.img_do('save','on');form.img_do('giveup','on');
 			form.img_do('check','off');form.img_do('uncheck','off');form.img_do('dlt','off');form.img_do('modify','off');form.img_do('recoil','off');
@@ -1959,16 +2175,23 @@ var form  = {
 		}
 
 		if(status == '5'){
-			form.img_do('modify','on');form.img_do('check','on');form.img_do('dlt','on');form.img_do('recoil','on');
-			form.img_do('save','off');form.img_do('uncheck','off');form.img_do('giveup','off');
+			form.img_do('modify','on');form.img_do('dlt','on');form.img_do('recoil','on');
+			form.img_do('save','off');form.img_do('giveup','off');
 			$('#state_info_img').find('img').eq(0).prop('src',imgUrl+'status_5.png');
+			
+			if(info.flow_id == 0 ){
+				form.img_do('uncheck','off');
+				form.img_do('check','on');
+			}else{
+				form.img_do('uncheck',info.canRetrieve?'on':'off');
+				form.img_do('check',info.canCheck?'on':'off');
+			}
 			$('#state_info_text').text('已保存').css('color','#2aa515');
 			$('#state_info').show();
 			$('#tbody tr td img.opr').data('opr','off');
 		}
 
 		if(status == '9'){
-			return false;
 			form.img_do('uncheck','on');form.img_do('recoil','on');
 			form.img_do('save','off');form.img_do('dlt','off');form.img_do('giveup','off');form.img_do('check','off');form.img_do('modify','off');
 			$('#state_info_img').find('img').eq(0).prop('src',imgUrl+'status_9.png');
@@ -1988,8 +2211,23 @@ var form  = {
 		window.$status = status ;
 	},
 
+	save : function(){
+		flowsave(form.save_do);
+	},
+
+	save_do : function( resolve , executor = '' ){
+		let o = form.get_field();
+		$.post(u8Config.save.url,o,function(d){
+			if(d.status == 's'){
+				layer.msg( '保存成功', {icon:1,time:1500,offset:'30%'}	);
+				$('#ddh').val(d.data);
+				form.ddh();
+			}
+			resolve(d);
+		});
+	},
+
 	saved : function (d,index){
-		
 		if(d.status == 's'){
 			layer.msg('保存成功！',{icon:1,time:1500,offset:'30%'});
 			$('#ddh').val(d.data);
@@ -2121,10 +2359,10 @@ var form  = {
 			let tmp = {};
 			let that = this;
 			$(u8Config.saveField.list).each(function(i,v){
-				
 				tmp[v] = $.trim( $(that).find('.' + v).eq(0).val() );
 			});
 			tmp.index =   $(this).children().eq(0).text();
+			tmp.listid = $(this).data('listid')?$(this).data('listid'):'';
 			let a = true;
 			$(u8Config.saveField.listMust).each(function(i,v){
 			

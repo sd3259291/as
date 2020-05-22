@@ -601,10 +601,12 @@ class Fs extends BaseController{
 
             $r = Db::table('s_flows_executor')->alias('a')->join(['s_flows' => 'b'],'a.flow_id = b.id')->where("a.number = '".SESSION::get('userinfo')['username']."' and a.status = 2 $w")->field("a.id,a.flow_id,a.node_id,a.datetime_r,a.sender,b.handler,b.title,b.maker_name,B.datetime,b.show,b.status")->page($post['page'],$post['n'])->order('a.id desc')->select();
 
+		
+
             foreach($r as $k => $v){
                 $zt = $v['status'] == 9 ? '<span class = "hint1">结束</span>' : '<span class = "hint5">流转中</span>';
                 $rizhi = "<img class = 'height16 rizhi' src= '".$imgUrl."/detail.png' data-flow_id =".$v['flow_id']." />";
-                $tbody .= "<tr data-show = '".$v['show']."' data-flow_id =".$v['flow_id']."  data-node_id = '0'  data-id = '0' ><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td><a href = 'javascript:void(0)'  >".$v['title']."</a></td><td>".$v['maker_name']."</td><td>".$v['datetime']."</td><td>".$v['datetime_r']."</td><td>".$v['sender']."</td><td>-</td><td>".$v['handler']."</td><td> $zt </td><td> $rizhi </td></tr>";
+                $tbody .= "<tr data-show = '".$v['show']."' data-flow_id =".$v['flow_id']."  data-node_id = '".$v['node_id']."'  data-id = '".$v['id']."' ><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td><a href = 'javascript:void(0)'  >".$v['title']."</a></td><td>".$v['maker_name']."</td><td>".$v['datetime']."</td><td>".$v['datetime_r']."</td><td>".$v['sender']."</td><td>-</td><td>".$v['handler']."</td><td> $zt </td><td> $rizhi </td></tr>";
             }
             
  
@@ -990,11 +992,6 @@ class Fs extends BaseController{
 	*/
 
 	public function check(){
-
-	
-		//$this->test();
-
-		//gp();
 
 		$valid = $this->validField($_POST);
 
@@ -1432,8 +1429,6 @@ class Fs extends BaseController{
 		}
 
 		$mul = array();
-
-		
 
 		if($allDone){
 	
@@ -1957,7 +1952,8 @@ class Fs extends BaseController{
 							
 					switch($tmpNode['T']){
 						case 'R' :
-						
+							
+							
 							
 							$r1 = $this->get->get_leader_by_department($tmpNode['K']);
 							if($tmpNode['V'] == 'B'){
@@ -2051,7 +2047,7 @@ class Fs extends BaseController{
 
 						if(count($g) > 1){
 							$mul[$v] = array(
-								'name' => $multiMsg.'（'.$tmpNode['V'].'）',
+								'name' => $multiMsg.'（'.$tmpNode['B'].'）',
 								'list' => $g,
 								'zxms' => $tmpNode['Z']
 							);
@@ -2583,82 +2579,62 @@ class Fs extends BaseController{
 	}
 
 
-	public function quhui(){
-		
-		//$_POST['flow_id'] = 60;
+	public function retrieve(){
+		$r = $this->retrieveDo($_POST);
+		if($r['ok']) return a();
+		return a('',$r['msg'],'e');
+	}
+
+
+	public function retrieveDo($post,$checkEnd = true){
 		
 		$username = SESSION::get('userinfo')['username'];
-		$flowId = $_POST['flow_id'];
+		$flowId = $post['flowid'];
+		$id = $post['id'];
 
 		$flow  = Db::table('s_flows')->where('id = '.$flowId)->find();
-		$table = Db::table($flow['table_name'])->where('id = '.$flow['table_id'])->field('checked')->find();
 
-		if($table['checked'] == 1) return  a('','审核完毕，不能取回','e');
-		if($table['checked'] == 9) return  a('','已回退，不能取回','e');
+		if(!$flow) return ['ok' => false,'msg' => '流程不存在'];
 
-		$r = Db::query("select A.pid,B.id,B.number from aya_flows_detail A join aya_flows_detail_executor B on A.autoid = B.autoid where A.id = $flowId and B.done = 0 and A.pid != 0");
-		if(!$r) return a('','不可取回','e');
+		$p = json_decode($flow['p'],true);
+
+		$node = json_decode($flow['node'],true);
+
+		$next = $this->get_next($p,$node,$post['nodeid']);
+
+		if($flow['status'] == 9 && $checkEnd) return ['ok' => false,'msg' => '审核完毕，不能取回'];
+
+		$executor = Db::table('s_flows_executor')->where('id = '.$id)->find();
+
+		if($executor['status'] < 2 || $username != $executor['number'] ) return ['ok' => false,'msg' => '取回错误'];
+
+		if(count($next['p']) > 0){
+			$r = Db::table('s_flows_executor')->where("flow_id = $flowId && status > 1 &&  node_id in (".get_w($next['n']).") ")->field('id')->find();
+			if($r) return ['ok' => false,'msg' => '下续节点已被审核，不能取回'];
+		}
+
+		foreach($next['p'] as $k => $v){
+			$node[$v]['D'] = 0;
+		}
+		foreach($next['n'] as $k => $v){
+			$node[$v]['D'] = 0;
+		}	
+		$node[$post['nodeid']]['D'] = 1;
+
+		Db::table('s_flows')->where('id = '.$flowId)->update(['node' => json_encode($node)]);
+
+		Db::table('s_flows_executor')->where("flow_id = $flowId && node_id in (".get_w($next['n']).") ")->delete();
+
+		Db::table('s_flows_executor')->where('id = '.$id)->update(['status' => 0,'type' => 3]);
+
+		$flowsComment = new FlowsComment;
+		$flowsComment->add_one( '审批取回（系统自动生成）' , (int)$flowId );
 		
-		foreach($r as $k => $v){
-			$pid[] = $v['pid'];
-			
-			$m[$v['pid']][] = $v['id'];
-			$n[$v['pid']][] = $v['number'];
-
-		}
-
-
-		$r = Db::query("select B.id,A.flow_id from aya_flows_detail A join aya_flows_detail_executor B on A.autoid = B.autoid where A.flow_id in (".get_w($pid,false).") and A.id = $flowId and B.number = '$username' ");
-
-		if(!$r) return a('','不可取回','e');
-
-
-		$dlttip = $tip = array();
-		$update2 = $update1 = array();
-		foreach($r as $k => $v){
-			$tip[] = array(
-				$username,$username,$flow['table_id']
-			);
-			$update[] = $v['id'];
-			$delete = array_merge($update2,$m[$v['flow_id']]);
-			foreach($n[$v['flow_id']] as $k => $v){
-				$dlttip[] = $v;
-			}
-			
-		}
-
-		if(count($update) > 0){
-			$u = array(
-				'done' => 0	
-			);
-
-			
-			Db::table('aya_flows_detail_executor')->where(" id in (".get_w($update,false).") ")->update($u);
-			tip($flow['tip_id'],$tip);
-		}
-
-		if(count($delete) > 0){
-			Db::table('aya_flows_detail_executor')->where(" id in (".get_w($delete,false).") ")->delete();
-			if(count($dlttip) > 0){
-				foreach($dlttip as $k => $v){
-					//dlt_tip(array($flow['table_id']),$flow['tip_id'],$v);
-				}
-			}
-		}
-		
-		$a = array(
-			'comment' => "<span class = 'hint2'>审批取回</span>（系统自动生成）",
-			'flowId'  => $flowId
-		);
-
-		action('index/Flowcomment/add',array('post' => $a),'db');
-	
-		return a('','','s');
+		return array('ok' => true);
 	}
 
 
 	public function cancel(){
-	
 		$r = $this->cancel_do($_POST);
 		if($r['ok']) return a('','','s');
 		return a('',$r['msg'],'e');
@@ -2740,6 +2716,21 @@ class Fs extends BaseController{
         
         View::assign('tbody',$tbody);
         return View::fetch();
+	}
+
+	/**
+     * 检查能否审核 和 取回
+     */
+	public function check1($flowId){
+		$username = Session::get('userinfo')['username'];
+		$r = Db::table('s_flows_executor')->where("flow_id = $flowId && number = '".$username."' ")->field('status')->select();
+		$canCheck = $canRetrieve = false;
+		foreach($r as $k => $v){
+			if($v['status'] < 2 ) $canCheck = true;
+			if($v['status'] == 2) $canRetrieve = true;
+		}
+		return [ 'canCheck' => $canCheck , 'canRetrieve' => $canRetrieve ];
+
 	}
 
 

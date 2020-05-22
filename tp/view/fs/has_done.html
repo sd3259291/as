@@ -11,7 +11,7 @@
 				<div class="btn-group left  margin-right-100" role="group" >
 					<button class = 'btn btn-default btn-default-1' id = 'check'>  <i class="material-icons text-color5"  >create</i> 审核</button>
 					<button class = 'btn btn-default btn-default-1' id = 'flow' >  <i class="material-icons text-color3"  >repeat</i> 流程</button>
-					<button class = 'btn btn-default btn-default-1' id = 'back' >  <i class="material-icons text-color4"  >keyboard_backspace</i> 回退</button>
+					<button class = 'btn btn-default btn-default-1' id = 'retrieve' >  <i class="material-icons text-color4"  >keyboard_backspace</i> 取回</button>
 					<button class = 'btn btn-default btn-default-1' id = 'search'> <i class="material-icons text-color1"  >search</i> 搜索</button>
 				</div>
 				<div class = 'relative left'>
@@ -244,24 +244,15 @@
 				app.check()
 			});
 		
-			$('#back').click(function(){
+			$('#retrieve').click(function(){
 				if($('#tbody tr.selected').length == 0) return false;
-				layer.confirm('确定回退此流程？',{title : '提示',offset:['10%']},function(index){
+				layer.confirm('确定取回此流程？',{title : '提示',offset:['10%']},function(index){
 					let index2 = top.layer.load(2);
-					$.post('__APP__/Fs/back',app.parameterO,function(d){
+					$.post('__APP__/Fs/retrieve',app.parameterO,function(d){
 						top.layer.close(index2);
-
 						if(d.status == 's'){
-				
-							//if(backCallback != ''){
-								//backCallback(d.data);
-							//}
-
-
-						
 							app.table.row($('#tbody tr.selected').eq(0)).remove().draw();
 							layer.msg('回退成功',{icon:1,time:1000,offset:'30%'});
-  
 						}else{
 							layer.msg(d.info,{icon:2,time:2000,offset:'30%'});
 						}

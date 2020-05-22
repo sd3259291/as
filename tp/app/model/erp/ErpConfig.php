@@ -9,13 +9,14 @@ class ErpConfig extends Model{
 	protected $schema = [
 		'id'	=> 'int',
 		'type'	=> 'varchar',
+		'key' => 'varchar',
 		'value'	=> 'varchar',
 	];
 	
 
 	public function setConfig($post){
-		$e = $this::where("type = '".$post['type']."'")->find();
-		if(!$e) $e = $this::create(['type' => $post['type']]);
+		$e = $this::where("`key` = '".$post['key']."' && type = '".$post['type']."'")->find();
+		if(!$e) $e = $this::create(['key' => $post['key'],'type' => $post['type']]);
 		$e->value = $post['value'];
 		$e->save();
 		return a('','','s');

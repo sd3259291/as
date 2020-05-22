@@ -5,6 +5,15 @@ function a($data = '',$info = '',$status = 's'){
 	return json(array('data' => $data,'info' => $info,'status' => $status));
 }
 
+function ua($data){
+	return json_decode($data->getContent(),true);
+}
+
+function uas($data){
+	$tmp =  json_decode($data->getContent(),true);
+	return $tmp['status'];
+}
+
 function rt($data = '',$info = '',$status = 's'){
 	json(array('data' => $data,'info' => $info,'status' => $status))->send();exit();
 }
