@@ -444,10 +444,11 @@ class VendorPriceJust extends Model{
 				$r = $this::order('ddh asc')->field('ddh')->find();
 			}
 		}else{
+			
 			if($post['type'] == 'next'){
-				$r = $this::where("ddh > '".$post['ddh']."'")->order('ddh desc')->field('ddh')->find();
+				$r = $this::where("ddh > '".$post['ddh']."'")->order('ddh asc')->field('ddh')->find();
 			}else{
-				$r = $this::where("ddh < '".$post['ddh']."'")->order('ddh asc')->field('ddh')->find();
+				$r = $this::where("ddh < '".$post['ddh']."'")->order('ddh desc')->field('ddh')->find();
 			}
 		}
 
