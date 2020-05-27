@@ -43,12 +43,23 @@ class Purchase
 	} 
 
 	public function nextPrevVendorPriceJust(VendorPriceJust $v){
+		//gp();
 		return $v->nextPrev($_POST);
 	}
 	
 	// 根据供应商和物料编码获得价格
 	public function getVendorPriceByData(VendorPrice $v){
+		
 		return $v->getVendorPriceByData($_POST);
+	}
+
+	public function vendorPriceJustList(){
+		return View::fetch();
+	}
+
+	public function getVendorPriceJustList(VendorPriceJust $v){
+		sp();
+		return $v->getList($_POST);
 	}
 
 

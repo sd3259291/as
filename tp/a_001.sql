@@ -1,5 +1,5 @@
 ﻿# Host: 192.168.3.3  (Version 8.0.12)
-# Date: 2020-05-22 14:47:34
+# Date: 2020-05-27 15:37:25
 # Generator: MySQL-Front 6.1  (Build 1.26)
 
 
@@ -233,7 +233,7 @@ CREATE TABLE `s_erp_config` (
   `value` varchar(255) DEFAULT NULL,
   `type` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`,`key`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 #
 # Data for table "s_erp_config"
@@ -483,7 +483,7 @@ CREATE TABLE `s_flows_executor` (
   `type` tinyint(1) NOT NULL DEFAULT '1',
   `p` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=193 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=MyISAM AUTO_INCREMENT=228 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 #
 # Data for table "s_flows_executor"
@@ -771,13 +771,13 @@ CREATE TABLE `s_layout` (
   `hidenav` int(1) NOT NULL DEFAULT '0' COMMENT '是否隐藏导航栏',
   `public` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=53 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=MyISAM AUTO_INCREMENT=54 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 #
 # Data for table "s_layout"
 #
 
-INSERT INTO `s_layout` VALUES (2,1,'人事','',0,10,NULL,0,'people',0,0),(5,2,'员工档案','Hr/index',2,1,861,0,'',0,0),(6,2,'时间线','Hr/timeline',2,5,NULL,0,'',0,0),(29,2,'组织','Dept/index',2,10,868,0,'',0,0),(30,2,'岗位','Pst/index',2,20,870,0,'',0,0),(31,1,'基础资料','',0,1000,NULL,0,'view_module',0,0),(32,2,'枚举','Basic/enum',31,10,873,0,'',0,0),(33,2,'流程管理','F/manage',31,20,875,0,'',0,0),(34,1,'协同办公','',0,20,NULL,0,'repeat',0,0),(35,2,'新建事项','Fs/newFlow',34,20,878,0,'',0,1),(36,2,'待办事项','Fs/notDone',34,30,879,0,'',0,1),(37,2,'已办事项','Fs/hasDone',34,40,880,0,'',0,1),(39,2,'已发事项','Fs/hasSend',34,50,881,0,'',0,1),(43,2,'流程节点管理','F/node',31,30,882,0,'',0,0),(44,2,'存货档案','ErpBase/inventory',31,100,885,0,'',0,0),(45,2,'供应商档案','ErpBase/vendor',31,110,886,0,'',0,0),(47,2,'客户档案','ErpBase/customer',31,120,887,0,'',0,0),(48,2,'计量单位','ErpBase/unit',31,200,884,0,'',0,0),(49,2,'基础资料分类','ErpBase/basicClass',31,500,888,0,'',0,0),(50,1,'采购','',0,30,NULL,0,'local_shipping',0,0),(52,2,'供应商价格表 - 新增','Purchase/vendorPriceJust',50,30,892,0,'',0,0);
+INSERT INTO `s_layout` VALUES (2,1,'人事','',0,10,NULL,0,'people',0,0),(5,2,'员工档案','Hr/index',2,1,861,0,'',0,0),(6,2,'时间线','Hr/timeline',2,5,NULL,0,'',0,0),(29,2,'组织','Dept/index',2,10,868,0,'',0,0),(30,2,'岗位','Pst/index',2,20,870,0,'',0,0),(31,1,'基础资料','',0,1000,NULL,0,'view_module',0,0),(32,2,'枚举','Basic/enum',31,10,873,0,'',0,0),(33,2,'流程管理','F/manage',31,20,875,0,'',0,0),(34,1,'协同办公','',0,20,NULL,0,'repeat',0,0),(35,2,'新建事项','Fs/newFlow',34,20,878,0,'',0,1),(36,2,'待办事项','Fs/notDone',34,30,879,0,'',0,1),(37,2,'已办事项','Fs/hasDone',34,40,880,0,'',0,1),(39,2,'已发事项','Fs/hasSend',34,50,881,0,'',0,1),(43,2,'流程节点管理','F/node',31,30,882,0,'',0,0),(44,2,'存货档案','ErpBase/inventory',31,100,885,0,'',0,0),(45,2,'供应商档案','ErpBase/vendor',31,110,886,0,'',0,0),(47,2,'客户档案','ErpBase/customer',31,120,887,0,'',0,0),(48,2,'计量单位','ErpBase/unit',31,200,884,0,'',0,0),(49,2,'基础资料分类','ErpBase/basicClass',31,500,888,0,'',0,0),(50,1,'采购','',0,30,NULL,0,'local_shipping',0,0),(52,2,'供应商价格表 - 新增','Purchase/vendorPriceJust',50,30,892,0,'',0,0),(53,2,'供应商价格表 - 列表','Purchase/vendorPriceJustList',50,40,893,0,'',0,0);
 
 #
 # Structure for table "s_max"
@@ -818,13 +818,13 @@ CREATE TABLE `s_node` (
   KEY `name` (`name`),
   KEY `pid` (`pid`),
   KEY `status` (`status`)
-) ENGINE=MyISAM AUTO_INCREMENT=893 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=MyISAM AUTO_INCREMENT=894 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 #
 # Data for table "s_node"
 #
 
-INSERT INTO `s_node` VALUES (860,'人事','Hr',0,NULL,1,0,1,0),(861,'人事首页','index',0,NULL,10,860,2,0),(867,'组织','Dept',0,NULL,5,0,1,0),(868,'组织首页','index',0,NULL,10,867,2,0),(869,'岗位','Pst',0,NULL,2,0,1,0),(870,'岗位首页','index',0,NULL,1,869,2,0),(871,'基础资料','Basic',0,NULL,1000,0,1,0),(873,'枚举','enum',0,NULL,1,871,2,0),(874,'流程管理','F',0,NULL,900,0,1,0),(875,'后台','manage',0,NULL,10,874,2,0),(877,'协同','Fs',0,NULL,10,0,1,0),(878,'新增事项','newFlow',0,NULL,10,877,2,0),(879,'待办事项','notDone',0,NULL,20,877,2,0),(880,'已办事项','hasDone',0,NULL,30,877,2,0),(881,'已发事项','hasSend',0,NULL,40,877,2,0),(882,'流程节点管理','node',0,NULL,20,874,2,0),(883,'基础资料_ERP','ErpBase',0,NULL,800,0,1,0),(884,'计量单位','unit',0,NULL,50,883,2,0),(885,'存货档案','inventory',0,NULL,10,883,2,0),(886,'供应商档案','vendor',0,NULL,30,883,2,0),(887,'供应商档案','customer',0,NULL,40,883,2,0),(888,'基础资料分类','basicClass',0,NULL,100,883,2,0),(889,'采购','Purchase',0,NULL,100,0,1,0),(890,'采购订单','purchaseOrder',0,NULL,10,889,2,0),(892,'供应商价格表（新增）','vendorPriceJust',0,NULL,20,889,2,0);
+INSERT INTO `s_node` VALUES (860,'人事','Hr',0,NULL,1,0,1,0),(861,'人事首页','index',0,NULL,10,860,2,0),(867,'组织','Dept',0,NULL,5,0,1,0),(868,'组织首页','index',0,NULL,10,867,2,0),(869,'岗位','Pst',0,NULL,2,0,1,0),(870,'岗位首页','index',0,NULL,1,869,2,0),(871,'基础资料','Basic',0,NULL,1000,0,1,0),(873,'枚举','enum',0,NULL,1,871,2,0),(874,'流程管理','F',0,NULL,900,0,1,0),(875,'后台','manage',0,NULL,10,874,2,0),(877,'协同','Fs',0,NULL,10,0,1,0),(878,'新增事项','newFlow',0,NULL,10,877,2,0),(879,'待办事项','notDone',0,NULL,20,877,2,0),(880,'已办事项','hasDone',0,NULL,30,877,2,0),(881,'已发事项','hasSend',0,NULL,40,877,2,0),(882,'流程节点管理','node',0,NULL,20,874,2,0),(883,'基础资料_ERP','ErpBase',0,NULL,800,0,1,0),(884,'计量单位','unit',0,NULL,50,883,2,0),(885,'存货档案','inventory',0,NULL,10,883,2,0),(886,'供应商档案','vendor',0,NULL,30,883,2,0),(887,'供应商档案','customer',0,NULL,40,883,2,0),(888,'基础资料分类','basicClass',0,NULL,100,883,2,0),(889,'采购','Purchase',0,NULL,100,0,1,0),(890,'采购订单','purchaseOrder',0,NULL,10,889,2,0),(892,'供应商价格表（新增）','vendorPriceJust',0,NULL,20,889,2,0),(893,'供应商价格表（列表）','vendorPriceJustList',0,NULL,30,889,2,0);
 
 #
 # Structure for table "s_post"
@@ -1100,7 +1100,7 @@ CREATE TABLE `s_user` (
 # Data for table "s_user"
 #
 
-INSERT INTO `s_user` VALUES (171,'admin','407de5e0d85a21d317de8def45fa331b','管理员','42686304@qq.com',NULL,'2020-05-22 13:26:54',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(172,'0101004','123','王泉','','2020-03-05 12:53:27',NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',75,74,73,'),(173,'111','11','322','','2020-03-05 12:56:10',NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(174,'11111','202cb962ac59075b964b07152d234b70','网啊','','2020-03-05 13:10:28',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',73,'),(175,'5555','182be0c5cdcd5072bb1864cdee4d3d6e','222','','2020-03-05 13:14:31',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(176,'1111','f1c1592588411002af340cbaedd6fc33','222','','2020-03-05 13:16:24','2020-04-02 10:07:32',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(177,'111111','182be0c5cdcd5072bb1864cdee4d3d6e','222','','2020-03-05 13:16:52',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(178,'11111155','182be0c5cdcd5072bb1864cdee4d3d6e','222','','2020-03-05 13:17:32',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',76,'),(179,'99999','310dcbbf4cce62f762a2aaa148d556bd','111','','2020-03-05 14:32:26',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',76,'),(180,'666','fae0b27c451c728867a567e8c1bb4e53','666','','2020-03-05 14:32:54',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(181,'777','f1c1592588411002af340cbaedd6fc33','777','','2020-03-05 14:33:44','2020-04-01 21:02:45',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(182,'010101','202cb962ac59075b964b07152d234b70','王泉','','2020-03-05 14:34:24',NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,72,'),(184,'052213','202cb962ac59075b964b07152d234b70','赵四','','2020-03-06 19:00:40',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,76,75,'),(185,'010099','202cb962ac59075b964b07152d234b70','刘德华','','2020-04-02 07:52:43','2020-05-21 13:16:41',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',78,'),(186,'010097','202cb962ac59075b964b07152d234b70','郭富城','','2020-04-02 13:52:39','2020-05-21 15:38:41',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',74,78,');
+INSERT INTO `s_user` VALUES (171,'admin','407de5e0d85a21d317de8def45fa331b','管理员','42686304@qq.com',NULL,'2020-05-27 12:30:16',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(172,'0101004','123','王泉','','2020-03-05 12:53:27',NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',75,74,73,'),(173,'111','11','322','','2020-03-05 12:56:10',NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),(174,'11111','202cb962ac59075b964b07152d234b70','网啊','','2020-03-05 13:10:28',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',73,'),(175,'5555','182be0c5cdcd5072bb1864cdee4d3d6e','222','','2020-03-05 13:14:31',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(176,'1111','f1c1592588411002af340cbaedd6fc33','222','','2020-03-05 13:16:24','2020-04-02 10:07:32',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(177,'111111','182be0c5cdcd5072bb1864cdee4d3d6e','222','','2020-03-05 13:16:52',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(178,'11111155','182be0c5cdcd5072bb1864cdee4d3d6e','222','','2020-03-05 13:17:32',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',76,'),(179,'99999','310dcbbf4cce62f762a2aaa148d556bd','111','','2020-03-05 14:32:26',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',76,'),(180,'666','fae0b27c451c728867a567e8c1bb4e53','666','','2020-03-05 14:32:54',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(181,'777','f1c1592588411002af340cbaedd6fc33','777','','2020-03-05 14:33:44','2020-04-01 21:02:45',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,'),(182,'010101','202cb962ac59075b964b07152d234b70','王泉','','2020-03-05 14:34:24',NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,72,'),(184,'052213','202cb962ac59075b964b07152d234b70','赵四','','2020-03-06 19:00:40',NULL,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',77,76,75,'),(185,'010099','202cb962ac59075b964b07152d234b70','刘德华','','2020-04-02 07:52:43','2020-05-21 13:16:41',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',78,'),(186,'010097','202cb962ac59075b964b07152d234b70','郭富城','','2020-04-02 13:52:39','2020-05-21 15:38:41',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,',74,78,');
 
 #
 # Structure for table "s_vendor"
@@ -1168,13 +1168,13 @@ CREATE TABLE `s_vendor_price_just` (
   `create_time` int(11) DEFAULT NULL,
   `update_time` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=214 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=225 DEFAULT CHARSET=utf8;
 
 #
 # Data for table "s_vendor_price_just"
 #
 
-INSERT INTO `s_vendor_price_just` VALUES (26,'2020-05-20','管理员','admin',9,'00000026','',98,NULL,NULL),(174,'2020-05-21','刘德华','010099',9,'00000174','',106,NULL,NULL),(211,'2020-05-21','管理员','admin',5,'00000211','',0,1590052099,1590052099),(215,'2020-05-21','管理员','admin',9,'00000215','',0,1590109262,1590109374),(216,'2020-05-21','管理员','admin',9,'00000216','',0,1590109483,1590116695),(219,'2020-05-21','管理员','admin',5,'00000219','',0,1590116866,1590116866);
+INSERT INTO `s_vendor_price_just` VALUES (26,'2020-05-20','管理员','admin',9,'00000026','',98,NULL,NULL),(174,'2020-05-21','刘德华','010099',9,'00000174','',106,NULL,NULL),(211,'2020-05-21','管理员','admin',5,'00000211','',0,1590052099,1590052099),(215,'2020-05-21','管理员','admin',9,'00000215','',0,1590109262,1590109374),(216,'2020-05-21','管理员','admin',9,'00000216','',0,1590109483,1590116695);
 
 #
 # Structure for table "s_vendor_price_just_history"
@@ -1193,7 +1193,7 @@ CREATE TABLE `s_vendor_price_just_history` (
   `origin_tax` int(3) DEFAULT NULL,
   `origin_tax_price` decimal(10,2) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 #
 # Data for table "s_vendor_price_just_history"
@@ -1217,10 +1217,10 @@ CREATE TABLE `s_vendor_price_just_list` (
   `tax` int(3) DEFAULT NULL,
   `tax_price` decimal(10,3) DEFAULT NULL,
   PRIMARY KEY (`listid`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8;
 
 #
 # Data for table "s_vendor_price_just_list"
 #
 
-INSERT INTO `s_vendor_price_just_list` VALUES (11,26,'0101001','00002',0.000,0,0.000,1.000,13,1.130),(12,26,'0101002','01000144',0.000,0,0.000,2.000,13,2.260),(27,174,'0101002','00002',0.000,0,0.000,2.000,13,2.260),(61,211,'0101001','00002',0.000,0,0.000,33.000,13,37.290),(63,215,'0101002','00002',0.000,0,0.000,44.000,13,49.720),(64,216,'0101002','00002',0.000,0,0.000,4.000,13,4.520),(68,216,'0101001','00001',0.000,0,0.000,4.000,13,4.520),(70,219,'0101001','01000144',0.000,0,0.000,1.000,6,1.060),(71,219,'0102001','00002',0.000,0,0.000,11.000,13,12.430);
+INSERT INTO `s_vendor_price_just_list` VALUES (11,26,'0101001','00002',0.000,0,0.000,1.000,13,1.130),(12,26,'0101002','01000144',0.000,0,0.000,2.000,13,2.260),(27,174,'0101002','00002',0.000,0,0.000,2.000,13,2.260),(61,211,'0101001','00002',0.000,0,0.000,33.000,13,37.290),(63,215,'0101002','00002',0.000,0,0.000,44.000,13,49.720),(64,216,'0101002','00002',0.000,0,0.000,4.000,13,4.520),(68,216,'0101001','00001',0.000,0,0.000,4.000,13,4.520);

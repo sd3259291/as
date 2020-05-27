@@ -43,6 +43,7 @@ function d_table(setting = {},id = 'table',select = select_tr){
 	let setting1 = {
 		paging: false,
 		scrollY:  get_table_height() ,
+		scrollX:true,
 		info:false,
 		dom:'t',
 		order : []
@@ -311,14 +312,14 @@ function log(s,clear = true){
 	console.log(s);
 }
 
-function page(url,table = '',option = {}){
-	
-	
-	
+
+
+function page(url,table = '',option = {} ){
+
 	$('#first_page').click(function(){
 		let current_page = parseInt($('#current_page').text());
 		let totle_page   = parseInt($('#totle_page').text());
-		let o = typeof option == 'function'?option():option;
+		let o = typeof option == 'function'?option():$.extend({},option);
 		$('#number_page').val($('#number_page').data('d'));
 		if(current_page == 1) return false;
 		if(totle_page == 1) return false;
@@ -330,7 +331,7 @@ function page(url,table = '',option = {}){
 	$('#last_page').click(function(){
 		let current_page = parseInt($('#current_page').text());
 		let totle_page   = parseInt($('#totle_page').text());
-		let o = typeof option == 'function'?option():option;
+		let o = typeof option == 'function'?option():$.extend({},option);
 		$('#number_page').val($('#number_page').data('d'));
 		if(current_page == totle_page || totle_page == 0) return false;
 		o.page = totle_page;
@@ -341,7 +342,7 @@ function page(url,table = '',option = {}){
 	$('#prev_page').click(function(){
 		let current_page = parseInt($('#current_page').text());
 		let totle_page   = parseInt($('#totle_page').text());
-		let o = typeof option == 'function'?option():option;
+		let o = typeof option == 'function'?option():$.extend({},option);
 		$('#number_page').val($('#number_page').data('d'));
 		if(current_page == 1) return false;
 		if(totle_page == 1) return false;
@@ -353,7 +354,7 @@ function page(url,table = '',option = {}){
 	$('#next_page').click(function(){
 		let current_page = parseInt($('#current_page').text());
 		let totle_page   = parseInt($('#totle_page').text());
-		let o = typeof option == 'function'?option():option;
+		let o = typeof option == 'function'?option():$.extend({},option);
 		$('#number_page').val($('#number_page').data('d'));
 		if(current_page == totle_page || totle_page == 0) return false;
 		o.page = current_page + 1;
@@ -362,7 +363,7 @@ function page(url,table = '',option = {}){
 	});
 	
 	$('#modify_number_page').click(function(){
-		let o = typeof option == 'function'?option():option;
+		let o = typeof option == 'function'?option():$.extend({},option);
 		let totles =  parseInt($('#totles').text());
 		let n = parseInt($('#number_page').val());
 		if(isNaN(n) || n <= 0 ) n = $('#number_page').data('d');
@@ -373,8 +374,10 @@ function page(url,table = '',option = {}){
 		page_callback(o,url,table);
 	});
 }
+
 function page_callback(o,url,table){
 	let index = layer.load(1,{offset:['30%']});
+	
 	$.post(url,o,function(d){
 		if(d.status == 's'){
 			set_page(d.data.page);

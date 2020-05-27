@@ -27,6 +27,16 @@ function column($data,$id){
 	return $r;
 }
 
+function dlt_zero($array,$zero){
+	foreach($zero as $k => $v){
+		foreach($array as $k1 => $v1){
+			$array[$k1][$v] += 0;
+			if(!$array[$k1][$v]) $array[$k1][$v] = '';
+		}
+	}
+	return $array;
+}
+
 function img_url(){
 	return 'HTTP://'.$_SERVER['HTTP_HOST'].( dirname($_SERVER['SCRIPT_NAME']) == '/'? '': dirname($_SERVER['SCRIPT_NAME']) ) .'/tp/view/public/image';
 }

@@ -353,6 +353,8 @@ font-size: 19px;
 
 
  /* AYA 添加 */
+img.icon_page{cursor:pointer;height:24px;margin-top:-3px}
+img.icon_page:hover{background:#6699cc}
 body{font-size:12px}
 .top-navbar{text-align:center;}
 #ttl{color:#8a8a8a;line-height:40px;}
@@ -409,6 +411,7 @@ input[type=text]:focus:not([readonly]){
 
 .auto-width{width:auto}
 .width-100{width:100px !important}
+.width-150{width:150px !important}
 .width-200{width:200px !important}
 .width-400{width:400px !important}
 .font-right{text-align:right}
@@ -458,22 +461,18 @@ button.btn-default-1:hover{
 }
 
 
-
-
-
-/*U8相关开始 */
-		div.erp-head-div-left{height:32px;line-height:32px;text-align:right;}
-		div.erp-head-div-right{position:relative}
-		div.erp-head-div-right input{border-top:0 !important;border-right:0 !important;border-left:0 !important;}
-		div.erp-head-div-right-border input{border:1px solid #D2D6DE !important}
-		div.erp-head-div-right2 input{border:1px solid #d2d6de !important}
-		div.erp-head-div-new-container{
+/*ERP相关开始 */
+		.erp-head{height:32px;line-height:32px;text-align:right;position:relative;display:inline-block}
+		input.border-bottom{border-top:0 !important;border-right:0 !important;border-left:0 !important;}
+		.erp-head2 input{border:1px solid #d2d6de !important}
+		.erp-head-border input{border:1px solid #D2D6DE !important}
+		.erp-head-div-new-container{
 			width:40px;
 			border:1px solid #fff;
 			-moz-user-select: none;
 			float:left
 		}
-		div.erp-head-div-new-container:hover{
+		.erp-head-div-new-container:hover{
 			border:1px solid #ff9900;
 			padding:0;
 			cursor:pointer;
@@ -516,7 +515,7 @@ button.btn-default-1:hover{
 			padding:10px
 		}
 
-		div#erp-head-div-right-ddh img{
+		div#erp-head-ddh img{
 			display:none
 		}
 		span.erp-head-div-container-span{
@@ -623,6 +622,7 @@ table.nowrap tbody tr td{
 .height14{height:14px !important;}
 .height16{height:16px;}
 .height18{height:18px;}
+.height24{height:24px;}
 .input-hint{
 	top:7px;
 	right:0px
@@ -730,6 +730,7 @@ table.table-small tbody tr td input{font-size:11px}
 .card .card-content{
 	padding-bottom:6px
 }
+
 ul.dropdown-menu li{
 	font-size:12px;
 	color:#1976D2
@@ -963,7 +964,26 @@ table.aya-sort thead tr th.resize{
 	cursor:w-resize;
 	border-bottom-color:red
 }
-
+table.dataTable{white-space:nowrap}
+.margin-top-3{
+	margin-top:-3px
+}
+table.table-hint thead tr th{
+	padding:0;
+	text-align:center !important
+}
+table.table-hint th,table.table-hint td{
+	padding:0 2px !important;
+	line-height:24px;
+	border-right:1px solid #ddd;
+	border-top:1px solid #ddd !important;
+}
+table.table-hint tbody tr:first-child td{
+	border-top:none !important
+}
+.searchedButton{
+	border-bottom:1px solid #d81e06
+}
 
 
 

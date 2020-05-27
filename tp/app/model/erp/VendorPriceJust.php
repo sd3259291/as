@@ -30,7 +30,8 @@ class VendorPriceJust extends Model{
 	];
 
 	public function get($post){
-		$main = $this::where("ddh = '".$post['ddh']."'")->find();
+
+		$main = $this::where("ddh = '".sprintf('%08d',$post['ddh'])."'")->find();
 		if(!$main) return a('','表单不存在','e');
 		$list = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor v','a.vendor_code = v.code')->join('s_inventory i','a.inventory_code = i.code')->join('s_unit u','i.unit_id = u.id')->where('a.id = '.$main->id)->field('a.listid,a.vendor_code,v.name vendor_name,a.inventory_code,i.name inventory_name,i.std inventory_std,u.name inventory_unit,a.price,a.tax,a.tax_price,a.origin_price,a.origin_tax_price	')->select()->toArray();
 		$main = $main->toArray();
@@ -43,10 +44,7 @@ class VendorPriceJust extends Model{
 		return a($this->dlt_zero($list,$zero),$main,'s');
 	}
 
-
-
 	private function dlt_zero($array,$field){
-	
 		foreach($field as $k => $v){
 			foreach($array as $k1 => $v1){
 				$array[$k1][$v] += 0;
@@ -462,6 +460,48 @@ class VendorPriceJust extends Model{
 			}
 			
 		}
+	}
+
+	public function getList($post){
+
+		$w = " 1 = 1 ";
+
+		if(is_set($post,'option_ddh')){
+			$w .= " &&  b.ddh = '".sprintf('%08d',$post['option_ddh'])."' ";
+		}
+		
+		if(is_set($post,'option_vendor_code')){
+			$w .= " && a.vendor_code = '".$post['option_vendor_code']."' ";
+		}
+
+		if(is_set($post,'option_inventory_code')){
+			$w .= " && a.inventory_code = '".$post['option_inventory_code']."' ";
+		}
+		
+		$totle = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->where($w)->count();
+
+		
+
+		$page = array();
+        $page['totles'] = $totle;     //总记录数 返回
+        $page['totle_page'] = ceil($totle / $post['n']);  //总页数 返回
+        $page['n'] = $post['n'];
+        $page['current_page'] = $post['page'];     //当前页 返回	
+
+		$r = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','a.vendor_code = v.code')->field('b.ddh,b.date,b.maker,b.status,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.origin_price,a.origin_tax,a.origin_tax_price,a.price,a.tax,a.tax_price')->where($w)->page($post['page'],$post['n'])->order('a.id desc')->select()->toArray();
+
+		$zero = ['price','tax_price','tax','origin_tax','origin_price','origin_tax_price'];
+
+		$r = dlt_zero($r,$zero);
+
+		$tbody = "";
+		foreach($r as $k => $v){
+			$tbody .= "<tr><td><a>".$v['ddh']."</a></td><td>".$v['status']."</a></td><td>".$v['date']."</a></td><td>".$v['maker']."</a></td><td>".$v['vendor_code']."</a></td><td>".$v['vendor_name']."</a></td><td>".$v['inventory_code']."</a></td><td>".$v['inventory_name']."</a></td><td>".$v['inventory_std']."</a></td><td>".$v['origin_price']."</a></td><td>".$v['origin_tax']."</a></td><td>".$v['origin_tax_price']."</a></td><td>".$v['price']."</a></td><td>".$v['tax']."</a></td><td>".$v['tax_price']."</td></tr>";
+		}	
+
+		$r = [ 'tbody' => $tbody , 'page' => $page ];
+
+		return a($r,'','s');
 	}
 
 

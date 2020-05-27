@@ -36,7 +36,7 @@
 </head>
 
 <body>
-<div class = 'container' id='container_select_u8_vendor'>
+<div class = 'container' id='container_select_erp_vendor'>
 	<div class="row" style = 'background:#fcfcfc;border-bottom:1px solid #e7e7e7;margin:0;padding:0'>
 		
 		<div class = 'col s5' >
@@ -167,7 +167,7 @@ function qd(){
 			data.push(tmp);
 		}
 	});	
-	P.u8_select_callBack(data);
+	P.erp_select_callBack(data);
 	var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
 	parent.layer.close(index); //再执行关闭
 }

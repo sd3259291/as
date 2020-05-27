@@ -17,10 +17,12 @@ var form  = {
 	hasEnter : false,
 
 	new_page_ini_table : function(tableId = 'table'){
+
 		let h1 = parent.mainPage.height;
 		let h2 = $('#' + tableId).offset().top;
 		let tableWrapperHeight = h1 - h2 + 36;
 		if($('#foot').length == 1) tableWrapperHeight -= $('#foot').height();
+		if($('#page').length == 1) tableWrapperHeight -= $('#page').height();
 		let headHeight = $('#' + tableId + ' thead').height();
 		let tableWidth = $('#' + tableId).width();
 
@@ -216,7 +218,7 @@ var form  = {
 		
 	},
 
-	u8_select : function (type = '',t,mul = 1,index = true,hint = true,parent_u8_select_callBack = null,tianchong = true){
+	erp_select : function (type = '',t,mul = 1,index = true,hint = true,parent_erp_select_callBack = null,tianchong = true){
 		let title;
 		let updated_tr_index = [];
 		switch(type){
@@ -261,10 +263,10 @@ var form  = {
 			}
 		});
 
-		$('#u8_hint').remove();
+		$('#erp_hint').remove();
 			
 		if(tianchong == true){
-			u8_select_callBack2 = function(data){
+			erp_select_callBack2 = function(data){
 
 				let tr = $(t).parents('tr');
 				let td = tr.find('td').eq(0);
@@ -285,16 +287,17 @@ var form  = {
 						updated_tr_index.push(trIndex);
 						trIndex++;
 					}
-					
+
 				}else{    //单行
 
 					updated_tr_index.push(trIndex);
 					let p = $(t).parent().parent();
-					
+
 					p.find('.'+type+'_code').val(data[0]['code']).eq(0).data('last',data[0]['code']).data('d',data[0]['code']);
 					p.find('.'+type+'_name').val(data[0]['name']).data('d',data[0]['name']);
 					p.find('.'+type+'_name_text').text(data[0]['name']).prop('title',data[0]['name']);
 					p.find('.'+type+'_code_text').text(data[0]['code']).prop('title',data[0]['code']);
+
 					
 					if(type == 'inventory'){
 						p.find('.inventory_std').val(data[0]['std']).prop('title',data[0]['std']);
@@ -302,46 +305,43 @@ var form  = {
 						p.find('.inventory_std_text').text(data[0]['std']).prop('title',data[0]['std']);
 						p.find('.inventory_unit_text').text(data[0]['unit']);
 					}
-
 				}
 
 				if(index){
 					reindex(tbody.parent().prop('id'));
 				}
-				
-				
+
 			}
 		}
 		
 		
 		
-		if(parent_u8_select_callBack === null){
-			if(tianchong == true) window.u8_select_callBack = u8_select_callBack2;
+		if(parent_erp_select_callBack === null){
+			if(tianchong == true) window.erp_select_callBack = erp_select_callBack2;
 		}else{
-			let u8_select_callBack3 = function(data){
-				if(tianchong == true) u8_select_callBack2(data);
-				//parent_u8_select_callBack(data);
-				parent_u8_select_callBack(updated_tr_index);
+			let erp_select_callBack3 = function(data){
+				if(tianchong == true) erp_select_callBack2(data);
+				//parent_erp_select_callBack(data);
+				parent_erp_select_callBack(updated_tr_index);
 			}
-			window.u8_select_callBack = u8_select_callBack3;
+			window.erp_select_callBack = erp_select_callBack3;
 		}
 		
 	},
 	
-	u8_hint : function(t,enter = false,keyCode = 0,type,mul = true,parent_u8_select_callBack = null){
+	erp_hint : function(t,enter = false,keyCode = 0,type,mul = true,parent_erp_select_callBack = null){
+
 		let query_url = '';
 		let query_url2 = '';
 		let thead = '';
 		let field = [];
 		let updated_tr_index = [];
 		
-		
-		
 		switch(type){
 			//物料
 			case 'inventory':
 			query_url =  get_parent().mainUrl + '/ErpBase/getInventory';
-			thead = "<table class = 'table-hint'><thead><tr><th style =' white-space:nowrap'>物料编码</th><th style =' white-space:nowrap'>物料名称</th><th style =' white-space:nowrap'>规格型号</th><th style =' white-space:nowrap'>单位</th></tr></thead><tbody>";
+			thead = "<table class = 'table-hint dataTable table-small'><thead><tr><th style =' white-space:nowrap'>物料编码</th><th style =' white-space:nowrap'>物料名称</th><th style =' white-space:nowrap'>规格型号</th><th style =' white-space:nowrap'>单位</th></tr></thead><tbody>";
 			field = ['name','code','std','unit'];
 			break;
 			
@@ -350,25 +350,25 @@ var form  = {
 
 				         
 			query_url =  get_parent().mainUrl + '/ErpBase/getVendor';
-			thead = "<table class = 'table-hint'><thead><tr><th style =' white-space:nowrap'>供应商编码</th><th style =' white-space:nowrap'>供应商名称</th><th>联系人</th><th>电话</th></tr></thead><tbody>";
+			thead = "<table class = 'table-hint dataTable table-small cell-border'><thead><tr><th style =' white-space:nowrap'>供应商编码</th><th style =' white-space:nowrap'>供应商名称</th><th>联系人</th><th>电话</th></tr></thead><tbody>";
 			field = ['name','code'];
 			break;
 
 			case 'warehouse':
-			query_url =  window.location.protocol + '//' + window.location.host + '/a1.php/index/U7/search_u8_warehouse';
-			thead = "<table class = 'table-hint'><thead><tr><th style =' white-space:nowrap'>仓库编码</th><th style =' white-space:nowrap'>仓库名称</th></tr></thead><tbody>";
+			query_url =  window.location.protocol + '//' + window.location.host + '/a1.php/index/U7/search_erp_warehouse';
+			thead = "<table class = 'table-hint dataTable table-small'><thead><tr><th style =' white-space:nowrap'>仓库编码</th><th style =' white-space:nowrap'>仓库名称</th></tr></thead><tbody>";
 			field = ['name','code'];
 			break;
 
 			case 'department':
-			query_url =  window.location.protocol + '//' + window.location.host + '/a1.php/index/U7/search_u8_department';
-			thead = "<table class = 'table-hint'><thead><tr><th style =' white-space:nowrap'>部门编码</th><th style =' white-space:nowrap'>部门名称</th></tr></thead><tbody>";
+			query_url =  window.location.protocol + '//' + window.location.host + '/a1.php/index/U7/search_erp_department';
+			thead = "<table class = 'table-hint dataTable table-small'><thead><tr><th style =' white-space:nowrap'>部门编码</th><th style =' white-space:nowrap'>部门名称</th></tr></thead><tbody>";
 			field = ['name','code'];
 			break;
 
 			case 'purchasetype':
-			query_url =  window.location.protocol + '//' + window.location.host + '/a1.php/index/U7/search_u8_purchasetype';
-			thead = "<table class = 'table-hint'><thead><tr><th style =' white-space:nowrap'>采购类型编码</th><th style =' white-space:nowrap'>采购类型名称</th></tr></thead><tbody>";
+			query_url =  window.location.protocol + '//' + window.location.host + '/a1.php/index/U7/search_erp_purchasetype';
+			thead = "<table class = 'table-hint dataTable table-small'><thead><tr><th style =' white-space:nowrap'>采购类型编码</th><th style =' white-space:nowrap'>采购类型名称</th></tr></thead><tbody>";
 			field = ['name','code'];
 			break;
 		}	
@@ -385,7 +385,7 @@ var form  = {
 			var o = {};
 			o.text = s;
 			o.type = type;
-			$('#u8_hint').remove();
+			$('#erp_hint').remove();
 			$(t).data('last',s);
 			if(o.text == '') return false;
 			let index = layer.load(1,{offset:'30%'});
@@ -418,8 +418,10 @@ var form  = {
 						});
 						p = p.next();
 					}
-					if(parent_u8_select_callBack !== null){
-						parent_u8_select_callBack(updated_tr_index);
+					
+
+					if(parent_erp_select_callBack !== null){
+						parent_erp_select_callBack(updated_tr_index);
 					}
 				}else{
 					let p = $(t).parent().parent();
@@ -446,7 +448,7 @@ var form  = {
 				if($(t).data('last') == s) return false;
 				//$(t).data('last',s);
 				
-				$('#u8_hint').remove();
+				$('#erp_hint').remove();
 
 				form.hasEnter = false;
 				$.post(query_url,o,function(d){
@@ -481,38 +483,46 @@ var form  = {
 								 p.find('.'+type+'_code').data('last',tmp[v]);
 							}
 						});
-						if(parent_u8_select_callBack !== null){
+
+
+						if(parent_erp_select_callBack !== null){
 							updated_tr_index.push(p.index());
-							parent_u8_select_callBack(updated_tr_index);
+							parent_erp_select_callBack(updated_tr_index);
 						}
+
+
 						return false;
 					}
 					
-					let div = "<div id='u8_hint' style = 'box-shadow: 0 6px 6px 0 rgba(0,0,0,0.14),0 1px 5px 0 rgba(0,0,0,0.12),0 3px 1px -2px rgba(0,0,0,0.2);white-space:nowrap;opacity:1;z-index:300;background:#ffffff;display:none;width:auto;border:1px solid #2aa515;z-index:20;position:absolute;top:"+$(t).height()+"px'><div style = 'position:relative'>" + thead + d.data + "</tbody></table><div style = 'background:#fff;position:absolute;top:-9px;right:-9px;height:18px;cursor:pointer'><img src = '"+get_parent().publicUrl + '/image/erp/dlt.png'+"' style = 'height:18px' /></div></div></div>";
+					let div = "<div id='erp_hint' style = 'box-shadow: 0 6px 6px 0 rgba(0,0,0,0.14),0 1px 5px 0 rgba(0,0,0,0.12),0 3px 1px -2px rgba(0,0,0,0.2);white-space:nowrap;opacity:1;z-index:300;background:#ffffff;display:none;width:auto;border:1px solid #2aa515;z-index:20;position:absolute;top:"+$(t).height()+"px'><div style = 'position:relative'>" + thead + d.data + "</tbody></table><div style = 'background:#fff;position:absolute;top:-9px;right:-9px;height:18px;line-height:18px;cursor:pointer'><img src = '"+get_parent().publicUrl + '/image/erp/dlt.png'+"' style = 'height:18px;' /></div></div></div>";
 					
 					$(t).after(div);
 
 					let tmp = $(window).height() - $(t).height() - top;
 
-					if(tmp < $('#u8_hint').height()){
-						$('#u8_hint').css('top',0 - $('#u8_hint').height());
+					if(tmp < $('#erp_hint').height()){
+						$('#erp_hint').css('top',0 - $('#erp_hint').height());
 					}
 
-					$('#u8_hint').show();
+					$('#erp_hint').show();
 					
 					$('.card').click(function(){
-						$('#u8_hint').remove();
+						$('#erp_hint').remove();
 						$('.card').unbind('click');
 					});
 
-					$('#u8_hint').find('img').click(function(){
-						$('#u8_hint').remove();
+					$('#erp_hint').find('img').click(function(){
+						$(t).parent().find('img.select').hide();
+						$('#erp_hint').remove();
+						
 					});
 				
-					$('#u8_hint table tbody tr').click(function(){
+					$('#erp_hint table tbody tr').click(function(){
 						
 						$(t).parent().find('img.select').hide();
 						let ttr = this;
+
+						
 								
 						$(field).each(function(i,v){
 							let tmp2 = $(ttr).find('.'+v).text();
@@ -522,15 +532,14 @@ var form  = {
 							if(v == 'code'){
 								 p.find('.'+type+'_code').data('last',tmp2);
 							}
-
-							
 						});
 
-						if(parent_u8_select_callBack !== null){
+
+						if(parent_erp_select_callBack !== null){
 							updated_tr_index.push(p.index());
-							parent_u8_select_callBack(updated_tr_index);
+							parent_erp_select_callBack(updated_tr_index);
 						} 
-						$('#u8_hint').remove();
+						$('#erp_hint').remove();
 			
 					});
 					
@@ -538,7 +547,9 @@ var form  = {
 			},300);
 
 		}else{
-			$('#u8_hint').remove();
+			
+		
+			$('#erp_hint').remove();
 			$(t).data('last','');
 			let p = $(t).parent().parent();
 			for(let i in field){
@@ -550,8 +561,8 @@ var form  = {
 		}
 	},
 
-	u8_get_qty : function(t,keyCode = 0){
-		let query_url = window.location.protocol + '//' + window.location.host +  '/a1.php/index/U8/get_qty_by_text';
+	erp_get_qty : function(t,keyCode = 0){
+		let query_url = window.location.protocol + '//' + window.location.host +  '/a1.php/index/erp/get_qty_by_text';
 		if(keyCode == 13){
 			var o = {};
 			o.text = $.trim($(t).val());;
@@ -572,7 +583,7 @@ var form  = {
 		}
 	},
 	
-	u8_focusout : function (t){
+	erp_focusout : function (t){
 		if($.trim($(t).val()) != $(t).data('d')){
 			$(t).val($(t).data('d'));
 			if(typeof($(t).data('last')) != "undefined"){
@@ -581,222 +592,126 @@ var form  = {
 		}
 	},
 
-	_switch : function(type,status,h_or_b = 'head',bodyId = 'tbody'){
-
-
+	_switch : function(type,status,h_or_b = 'head',bodyId = 'tbody' , input ){
 
 		let callback = function(){};
 		if(type.callback != '') callback = type.callback;
+
+
 		
-		if(type.name == 'vendor'){
-			if(status == 'on'){
-				
-				if(h_or_b == 'head'){
-					$('.erp-head-div-right input.vendor_name').keyup(function(e){
-						form.u8_hint(this,true,e.keyCode,'vendor',true,callback);
-					});
-					$('.erp-head-div-right input.vendor_name').blur(function(){
-						form.u8_focusout(this);
-					});
-					$('.erp-head-div-right').hover(function(){
-						$(this).find('img.select').show();
-					},function(){
-						$(this).find('img.select').hide();
-					});
-					$('.erp-head-div-right img.img-vendor').click(function(){
-						form.u8_select('vendor',this,0,false,true,callback); 
-					});
-					$('.erp-head-div-right input.vendor_name').each(function(){
-						if($(this).val() == ''){
-							 $(this).val($(this).data('df'));
-							 $(this).data('d',$(this).data('df'));
+		switch( type.type ){
+			case 'date' :
+				if(status == 'on'){
+					if($(input).data('hf') != 1){
+						if($(input).data('hasdatefunction') != 'on'){
+							laydate.render({
+								elem : input,
+								show : false,
+								trigger : 'click'
+							});
+						}else{
+							laydate.render({
+								elem : input,
+								show : true,
+								trigger : 'click'
+							});
 						}
-					});
-					$('.erp-head-div-right input.vendor_code').each(function(){
-						if($(this).val() == ''){
-							 $(this).val($(this).data('df'));
-							 $(this).data('d',$(this).data('df'));
-						}
-					});
+						$(input).data('hf',1);	
+					}
+
+					$(input).data('hasdatefunction','on');
+
+					if($(input).val() == ''){
+						let now = new Date();
+						var year = now.getFullYear();
+						var month = now.getMonth() + 1;
+						var day = now.getDate();
+						var clock = year + "-";
+						if(month < 10) clock += "0";
+						clock += month + "-";
+						if(day < 10) clock += "0";
+						clock += day;
+						$(input).val(clock);
+					}
+					
 				}else{
-					$('#'+bodyId).on('click','img.img-vendor',function(){
-						form.u8_select('vendor',this,1,true,true,callback);
-					});
-					$('#'+bodyId).on('keyup','input.vendor_code',function(e){
-						form.u8_hint(this,true,e.keyCode,'vendor',true,callback);
-					});
-					$('#'+bodyId).on('mouseenter','td.td-input-img',function(){
-						if($(this).data('nohover') == 1) return false;
-						$(this).find('img.select').show();
-					});
-					$('#'+bodyId).on('mouseleave','td.td-input-img',function(){
-						if($(this).data('nohover') == 1) return false;
-						$(this).find('img.select').hide();
-					});
-					$('#'+bodyId).on('blur','input.vendor_code',function(){
-						form.u8_focusout(this);
+					$( container + ' input.date').each(function(){
+						$(input).data('hasdatefunction','off');	
 					});
 				}
-			}
+			break;
+			case 'text' :
+
+			break;
+
+			case 'erp' :
+
+				if( status == 'on' ){
+					if( h_or_b  == 'head' ){
+
+						// 两种方式
+						// 1. code 和 name 都显示，在 code 里输入
+						// 2. code 隐藏  ， name 显示 ， 在 name 里输入
+						// 方式2
+						$(input).keyup(function(e){
+							form.erp_hint(this,true,e.keyCode,type.type2,true,callback);
+						});
+						$(input).blur(function(){
+							form.erp_focusout(this);
+						});
+
+						$(input).parent().find('img.select').click(function(){
+							form.erp_select(type.type2,this,0,false,true,callback); 
+						});
+
+					}else{
+						$('#'+bodyId).on('click','img.img-'+type.type2,function(){
+							form.erp_select(type.type2,this,1,true,true,callback);
+						});
+						$('#'+bodyId).on('keyup','input.'+type.type2+'_code',function(e){
+							form.erp_hint(this,true,e.keyCode,type.type2,true,callback);
+						});
+						$('#'+bodyId).on('mouseenter','td.td-input-img',function(){
+							if($(this).data('nohover') == 1) return false;
+							$(this).find('img.select').show();
+						});
+						$('#'+bodyId).on('mouseleave','td.td-input-img',function(){
+							if($(this).data('nohover') == 1) return false;
+							$(this).find('img.select').hide();
+						});
+						$('#'+bodyId).on('blur','input.'+type.type2+'_code',function(){
+							form.erp_focusout(this);
+						});
+
+					}
+
+				}
+
+			break;
+			default:
+				
+
 		}
+
+
+
+
+		return false;
+
+
+
 		
-		if(type.name == 'warehouse'){
-			if(status == 'on'){
-				if(h_or_b == 'head'){
-					$('div.erp-head-div-right input.warehouse_name').keyup(function(e){
-						form.u8_hint(this,true,e.keyCode,'warehouse',true);
-					});
-					$('div.erp-head-div-right input.warehouse_name').blur(function(){
-						form.u8_focusout(this);
-					});
-					$('div.erp-head-div-right').hover(function(){
-						$(this).find('img.select').show();
-					},function(){
-						$(this).find('img.select').hide();
-					});
-					$('div.erp-head-div-right img.img-warehouse').click(function(){
-						form.u8_select('warehouse',this,0,false,true); 
-					});
-					$('div.erp-head-div-right input.warehouse_name').each(function(){
-						if($(this).val() == ''){
-							 $(this).val($(this).data('df'));
-							 $(this).data('d',$(this).data('df'));
-							 
-						}
-					});
-					$('div.erp-head-div-right input.warehouse_code').each(function(){
-						if($(this).val() == ''){
-							 $(this).val($(this).data('df'));
-							 $(this).data('d',$(this).data('df'));
-						}
-					});
-				}
-			}
-		}
 
-		if(type.name == 'rd_style'){
-			if(status == 'on'){
-				if(h_or_b == 'head'){
-					$('div.erp-head-div-right input.rd_style_name').keyup(function(e){
-						form.u8_hint(this,true,e.keyCode,'rd_style',true);
-					});
-					$('div.erp-head-div-right input.rd_style_name').blur(function(){
-						form.u8_focusout(this);
-					});
-					$('div.erp-head-div-right').hover(function(){
-						$(this).find('img.select').show();
-					},function(){
-						$(this).find('img.select').hide();
-					});
-					$('div.erp-head-div-right img.img-rd_style').click(function(){
-						form.u8_select('rd_style',this,0,false,true); 
-					});
-					$('div.erp-head-div-right input.rd_style_name').each(function(){
-						if($(this).val() == ''){
-							 $(this).val($(this).data('df'));
-							 $(this).data('d',$(this).data('df'));
-							 
-						}
-					});
-					$('div.erp-head-div-right input.rd_style_code').each(function(){
-						if($(this).val() == ''){
-							 $(this).val($(this).data('df'));
-							 $(this).data('d',$(this).data('df'));
-						}
-					});
-				}
-			}
-		}
-
-
-		if(type.name == 'rd_style2'){
-			if(status == 'on'){
-				if(h_or_b == 'head'){
-					$('div.erp-head-div-right input.rd_style2_name').keyup(function(e){
-						form.u8_hint(this,true,e.keyCode,'rd_style2',true);
-					});
-					$('div.erp-head-div-right input.rd_style2_name').blur(function(){
-						form.u8_focusout(this);
-					});
-					$('div.erp-head-div-right').hover(function(){
-						$(this).find('img.select').show();
-					},function(){
-						$(this).find('img.select').hide();
-					});
-					$('div.erp-head-div-right img.img-rd_style2').click(function(){
-						form.u8_select('rd_style2',this,0,false,true); 
-					});
-					$('div.erp-head-div-right input.rd_style2_name').each(function(){
-						if($(this).val() == ''){
-							 $(this).val($(this).data('df'));
-							 $(this).data('d',$(this).data('df'));
-							 
-						}
-					});
-					$('div.erp-head-div-right input.rd_style2_code').each(function(){
-						if($(this).val() == ''){
-							 $(this).val($(this).data('df'));
-							 $(this).data('d',$(this).data('df'));
-						}
-					});
-				}
-			}
-		}
-
-		if(type.name == 'purchasetype'){
-			if(status == 'on'){
-				if(h_or_b == 'head'){
-					$('div.erp-head-div-right input.purchasetype_name').keyup(function(e){
-						form.u8_hint(this,true,e.keyCode,'purchasetype',true);
-					});
-					$('div.erp-head-div-right input.purchasetype_name').blur(function(){
-						form.u8_focusout(this);
-					});
-					$('div.erp-head-div-right').hover(function(){
-						$(this).find('img.select').show();
-					},function(){
-						$(this).find('img.select').hide();
-					});
-					$('div.erp-head-div-right img.img-purchasetype').click(function(){
-						form.u8_select('purchasetype',this,0,false,true); 
-					});
-					$('div.erp-head-div-right input.purchasetype_name').each(function(){
-						if($(this).val() == ''){
-							$(this).val($(this).data('df'));
-							$(this).data('d',$(this).data('df'));
-						}
-					});
-					$('div.erp-head-div-right input.purchasetype_code').each(function(){
-						if($(this).val() == ''){
-							$(this).val($(this).data('df'));
-							$(this).data('d',$(this).data('df'));
-						}
-					});
-				}
-			}
-		}
-
-		if(type.name == 'user'){
-			if(status == 'on'){
-				if(h_or_b == 'head'){
-					let callback = function(){};
-					if(type.callback != '') callback = type.callback;
-					$('#' + type.id).click(function(){
-						form.u8_select('user',this,0,false,true,callback,false); 
-					});
-				}
-			}
-		}
 
 		if(type.name == 'cmaker'){
 			if(status == 'on'){
-				$('div.erp-head-div-right input.cmaker').each(function(){
+				$( container + ' input.cmaker').each(function(){
 					if($(this).val() == ''){
 						$(this).val($(this).data('df'));
 					}
 				});
 			}else{
-				$('div.erp-head-div-right input.date').each(function(){
+				$( container + ' input.date').each(function(){
 					$(this).data('hasdatefunction','off');	
 				});
 			}
@@ -804,136 +719,15 @@ var form  = {
 
 
 		if(type.name == 'date'){
-			if(status == 'on'){
-				$('div.erp-head-div-right input.date').each(function(){
-
-				if($(this).data('hf') != 1){
-					if($(this).data('hasdatefunction') != 'on'){
-						laydate.render({
-							elem: this,
-							show:false,
-							trigger: 'click'
-						});
-					}else{
-						laydate.render({
-							elem: this,
-							show:true,
-							trigger: 'click'
-						});
-					}
-					$(this).data('hf',1);	
-				}
-
-
-
-					$(this).data('hasdatefunction','on');
-					if($(this).val() == ''){
-						let now = new Date();
-						var year = now.getFullYear();       //年
-						var month = now.getMonth() + 1;     //月
-						var day = now.getDate();            //日
-						var clock = year + "-";
-						if(month < 10) clock += "0";
-						clock += month + "-";
-						if(day < 10) clock += "0";
-						clock += day;
-						$(this).val(clock);
-					}
-				});
-			}else{
-				$('div.erp-head-div-right input.date').each(function(){
-					$(this).data('hasdatefunction','off');	
-				});
-			}
+			
 		}
-
-		if(type.name == 'inventory'){
-			if(status == 'on'){
-				if(h_or_b == 'body'){
-					$('#'+bodyId).on('click','img.img-inventory',function(){
-						form.u8_select('inventory',this,1,true,true,callback);
-					});
-					$('#'+bodyId).on('keyup','input.inventory_code',function(e){
-						form.u8_hint(this,true,e.keyCode,'inventory',true,callback);
-					});
-					$('#'+bodyId).on('mouseenter','td.td-input-img',function(){
-						if($(this).data('nohover') == 1) return false;
-						$(this).find('img.select').show();
-					});
-					$('#'+bodyId).on('mouseleave','td.td-input-img',function(){
-						if($(this).data('nohover') == 1) return false;
-						$(this).find('img.select').hide();
-					});
-					$('#'+bodyId).on('blur','input.inventory_code',function(){
-						form.u8_focusout(this);
-					});
-
-				}else{
-					;
-					$('div.erp-head-div-right input.inventory_code').keyup(function(e){
-						form.u8_hint(this,true,e.keyCode,'inventory',true);
-					});
-					$('div.erp-head-div-right input.inventory_code').blur(function(){
-						form.u8_focusout(this);
-					});
-					$('div.erp-head-div-right').hover(function(){
-						$(this).find('img.select').show();
-					},function(){
-						$(this).find('img.select').hide();
-					});
-					$('div.erp-head-div-right img.img-inventory').click(function(){
-						form.u8_select('inventory',this,0,false,true); 
-					});
-					$('div.erp-head-div-right input.inventory_name').each(function(){
-						if($(this).data('d') == ''){
-							$(this).val($(this).data('df'));
-							$(this).data('d',$(this).data('df'));
-						}
-					});
-					$('div.erp-head-div-right input.inventory_code').each(function(){
-						if($(this).data('d') == ''){
-							$(this).val($(this).data('df'));
-							$(this).data('d',$(this).data('df'));
-						}
-					});
-				}
-			}
-		}
-
-		if(type.name == 'department'){
-			if(status == 'on'){
-				if(h_or_b == 'body'){
-					$('#'+bodyId).on('click','img.img-department',function(){
-						form.u8_select('department',this,1,true,true,callback);
-					});
-					$('#'+bodyId).on('keyup','input.department_code',function(e){
-						form.u8_hint(this,true,e.keyCode,'department',true,callback);
-					});
-					$('#'+bodyId).on('mouseenter','td.td-input-img',function(){
-						if($(this).data('nohover') == 1) return false;
-						$(this).find('img.select').show();
-					});
-					$('#'+bodyId).on('mouseleave','td.td-input-img',function(){
-						if($(this).data('nohover') == 1) return false;
-						$(this).find('img.select').hide();
-					});
-					$('#'+bodyId).on('blur','input.department_code',function(){
-						form.u8_focusout(this);
-					});
-
-				}else{
-					
-				}
-			}
-		}
-
 
 
 		if(type.name == 'qty'){
 			if(status == 'on'){
 				if(h_or_b == 'body'){
 					$('#'+bodyId).on('keyup','input.qty',function(e){
-						form.u8_get_qty(this,e.keyCode);
+						form.erp_get_qty(this,e.keyCode);
 					});
 				}
 			}
@@ -943,7 +737,7 @@ var form  = {
 			if(status == 'on'){
 				if(h_or_b == 'body'){
 					$('#'+bodyId).on('keyup','input.mul-num',function(e){
-						form.u8_get_qty(this,e.keyCode);
+						form.erp_get_qty(this,e.keyCode);
 					});
 				}
 			}
@@ -952,16 +746,16 @@ var form  = {
 	},
 	
 	m : function( ){
-		
+
 		for(let i = 0; i < form.config.head.length ; i++){
-			form._switch(form.config.head[i],'on','head');
+			form._switch(form.config.head[i],'on','head','','#' + form.config.head[i].id);
 		}
 
 		for(let i = 0; i < form.config.body.length ; i++){
 			form._switch(form.config.body[i],'on','body');
 		}
 		
-		//u8_switch('inventory','on','body','tbody');  // body 代表表体,tbody代表表体ID
+		//erp_switch('inventory','on','body','tbody');  // body 代表表体,tbody代表表体ID
 		
 		$('input.edit').prop('readonly',false);
 		$('#tbody tr td input.date').each(function(){
@@ -994,7 +788,7 @@ var form  = {
 		$('#tbody tr td input.edit').each(function(){
 			$(this).data('d','');
 		});
-		$('div.erp-head-div-right input').each(function(){
+		$('.erp-head input').each(function(){
 			if(typeof($(this).data('df')) != "undefined")	$(this).val($(this).data('df'));
 			if(typeof($(this).data('last')) != "undefined")	$(this).data('last','');
 		});
@@ -1004,12 +798,12 @@ var form  = {
 	
 	s : function (){   //取消页面的各种选择框事件
 		$('input.edit').prop('readonly',true);
-		$('div.erp-head-div-right input.date').each(function(){
+		$('.erp-head input.date').each(function(){
 			$(this).data('hasdatefunction','off');
 		});
 
-		$('div.erp-head-div-right:not(#erp-head-div-right-ddh)').unbind();
-		$('div.erp-head-div-right img.input-hint').unbind('click');
+		$('.erp-head:not(#erp-head-ddh)').unbind();
+		$('.erp-head img.input-hint').unbind('click');
 		
 		$('#tbody').off('click','img.img-inventory');
 		$('#tbody').off('mouseenter','td.td-input-img');
@@ -1122,17 +916,14 @@ var form  = {
 			});
 		});
 		
-		$('div#erp-head-div-right-ddh').hover(function(){
+		$('div#erp-head-ddh').hover(function(){
 			$(this).find('img').show();
 		},function(){
 			$(this).find('img').hide();
 		});
-
-		var nextUrl = window.location.protocol + '//' + window.location.host +  '/a1.php/index/U7/next_prev';
 		
 		$('#ddh-prev').click(function(){
-			
-			$.post(u8Config.nextPrev,{type:'prev',ddh:$('#ddh').val()},function(d){
+			$.post(form.config.nextPrev,{type:'prev',ddh:$('#ddh').val()},function(d){
 				if(d.status == 's'){
 					$('#ddh').val(d.data);
 					form.ddh();
@@ -1143,7 +934,7 @@ var form  = {
 		});
 
 		$('#ddh-next').click(function(){
-			$.post(u8Config.nextPrev,{type:'next',ddh:$('#ddh').val()},function(d){
+			$.post(form.config.nextPrev,{type:'next',ddh:$('#ddh').val()},function(d){
 				if(d.status == 's'){
 					$('#ddh').val(d.data);
 					form.ddh();
@@ -1166,7 +957,7 @@ var form  = {
 		});
 
 		$('#save').click(function(){
-			if($(this).hasClass('img_on') && u8Config.save) form.save();
+			if($(this).hasClass('img_on') && form.config.save) form.save();
 		});
 		$('#check').click(function(){
 			if($(this).hasClass('img_on')) form.check();
@@ -1190,10 +981,10 @@ var form  = {
 			if(e.keyCode==13) form.ddh();
 		});
 
-		$('#u8_opr_container').children().eq(1).width($('#u8_opr_container').width() - $('#u8_opr_container').children().eq(0).width() - 2);
+		$('#erp_opr_container').children().eq(1).width($('#erp_opr_container').width() - $('#erp_opr_container').children().eq(0).width() - 2);
 
 		$('#ddh').blur(function(){
-			form.u8_focusout(this);
+			form.erp_focusout(this);
 		});
 
 		$('#tbody').on('click','input.date',function(){
@@ -1221,7 +1012,7 @@ var form  = {
 			let code = '';
 			code = $(this).find('input.inventory_code').eq(0).val();
 			o.code = code;
-			o.type = $('#u8tips').data('type');
+			o.type = $('#erptips').data('type');
 			
 			if(o.type == undefined) return false;
 			if(o.type == 'stock' && o.code == '') return false;
@@ -1230,7 +1021,7 @@ var form  = {
 
 			$.post(url,o,function(d){
 				
-				$('#u8tips').html(d.data);
+				$('#erptips').html(d.data);
 			});
 		});
 
@@ -1330,29 +1121,11 @@ var form  = {
 				});
 			}
 			$('#div_resource').hide();
-		});
-		
-		var setting = {
-				paging: false,
-				scrollY:  get_table_height() ,
-				info:false,
-				ordering:false,
-				dom:'t',
-				
-			};
-
-		if(typeof config.dataTableConfig != 'undefined'){
-			for (let key in config.dataTableConfig){
-				setting[key] = config.dataTableConfig[key];
-			};
-		}
-
-		//var table = $('#table').DataTable(setting);
+		});	
 
 		form.new_page_ini_table();
 
-
-
+		/*
 		
 		$('#inventory').click(function(){
 			let o = {};
@@ -1381,7 +1154,7 @@ var form  = {
 				}
 			});
 		});
-
+		*/
 
 		if(config.bodySort == true){
 			$('table.aya-sort thead tr th').addClass('relative');
@@ -1410,7 +1183,7 @@ var form  = {
 				$(this).data('sort',order).append("<img class = 'aya-sort-img aya-sort-img-"+order+"'  src = '"+imgUrl+"sort_"+order+".png' />");
 				let a = [];
 				let tdType = new Map();
-				let inputOfCode = new Map(); //记录哪些input是u8select，防止点击后丢失
+				let inputOfCode = new Map(); //记录哪些input是erpselect，防止点击后丢失
 				let tmp1 = $('#table tbody tr').eq(0).children();
 
 				for(let i = 1; i < length; i++){
@@ -1469,10 +1242,6 @@ var form  = {
 					}
 				});
 
-				
-				
-
-
 				if(a.length > 1){
 					$('#tbody').children().each(function(){
 						$(this).data('id','');
@@ -1526,7 +1295,7 @@ var form  = {
 		}
 
 		window.$status = 'new';
-		window.$table = table;
+		//window.$table = table;
 
 
 		if(window.location.href.indexOf('?') != -1){
@@ -1541,38 +1310,52 @@ var form  = {
 	},
 
 	list_ini : function (config){
+
+		app.searchOption = {};
+
 		if(config.selectMulti == true){
 			select_tr2('table');
 		}else{
 			select_tr('table');
 		}
+
 		form.config = config;
+
 		let setting = {
-				paging: false,
-				scrollY: get_table_height('table',[]) ,
-				info:false,
-				dom:'t',
-				scrollX: true,
-				ordering:false,
-				autoWidth: false
-			};
+			paging: false,
+			scrollY: get_table_height('table',[]) ,
+			info:false,
+			dom:'t',
+			scrollX: true,
+			ordering:false,
+			autoWidth: false,
+			order : []
+		};
 		
 		if(typeof config != 'undefined'){
 			for(let i = 0; i < config.head.length ; i++){
-				if(config.head[i]['type'] == 'u8'){
-					form._switch(config.head[i],'on');
+				if(config.head[i]['type'] == 'erp'){
+				
+					form._switch(config.head[i],'on','head','','#' + config.head[i].id);
 				}else if(config.head[i]['type'] == 'date'){
 					laydate.render({elem: '#'+config.head[i]['name']});
 				}
 			}
 			if(typeof config.dataTableConfig != 'undefined'){
-				
 				for (let key in config.dataTableConfig){
 					setting[key] = config.dataTableConfig[key];
 				};
 			}
 		}
+
+		$('.erp-head').hover(function(){
+			$(this).find('img.select').show();
+		},function(){
+			$(this).find('img.select').hide();
+		});
+
 		form.list_table = $('#table').DataTable(setting);
+
 		$('#merge').click(function(){
 			var imgUrl = get_parent().publicUrl + '/image/erp/';;
 			if($(this).data('merge') == '0'){
@@ -1589,18 +1372,22 @@ var form  = {
 			form.list_table = $('#table').DataTable(setting);
 			form.research({changeType : true});
 		});
+
 		$('#check').click(function(){
 			form.check(type = 'list',form.get_list_ddh());
 			$(this).blur();
 		});
+
 		$('#uncheck').click(function(){
 			form.uncheck(type = 'list',form.get_list_ddh());
 			$(this).blur();
 		});
+
 		$('#dlt').click(function(){
 			form.dlt(type = 'list',form.get_list_ddh());
 			$(this).blur();
 		});
+
 		$('#table_research').keypress(function(e){
 			let s = $.trim($(this).val());
 			if(e.keyCode == 13){
@@ -1608,11 +1395,113 @@ var form  = {
 			}
 			$(this).blur();
 		});
-		$('#research').click(function(){
-			form.research();
-			$(this).blur();
+
+		$('#search').click(function(){
+			app.searchOption = form.get_option('.erp-head');;
+			form.search();
+			$(this).addClass('searchedButton').blur();
+			$('#super_search').removeClass('searchedButton');
+			
+
 		});
-		page(form.research);
+
+		$('#super_search').click(function(){
+
+			let imgUrl = get_parent().publicUrl + '/image/erp/';
+
+			let content = "<div id = 'option-container'><div class = 'row' style = 'margin:0;padding:0'><div class = 'col s12'><div class = 'row' style = 'border-bottom:2px solid #428bca;padding:20px 20px'><div class = 'col s1'><img src = '"+imgUrl+"condition.png'  class = 'height24' /></div><div class = 'col s5'><select class = 'browser-default' id = 'condition'><option value = '' data-name = '无方案'>无方案</option></select></div><div class = 'col s6 btn-group'><button class = 'btn btn-primary height32' id = 'condition_confirm'>确认</button><button class = 'btn btn-default height32' id = 'condition_set_default'>设为默认</button><button class = 'btn btn-default height32' id = 'condition_save'>保存方案</button><button class = 'btn btn-default height32' id = 'condition_dlt'>删除方案</button></div></div></div></div>";
+			
+
+			$.each(form.config.search.superSearch,function(i,v){
+		
+				content += "<div class = 'row' style = 'padding:10px 20px'>";
+				
+				$.each(v,function(ii,vv){
+					
+					switch( vv.type ){
+						case 'aa':
+							
+						break;
+						case 'erp' :
+							if(vv.relation){
+								// 有关联的INPUT ，例如 inventory ,只显示inventory_name，而inventory_code 隐藏起来
+								content += "<div class = 'col s2' style = 'text-align:right;line-height:32px'>"+vv.name+"</div><div class= 'col s4 relative option-container2' ><div><input type = 'text' data-type = '"+vv.type+"' data-type2 = '"+(vv.type2?vv.type2:'')+"'  data-option = '"+vv.option+"' class = 'aya-input border-bottom erp "+vv.clas+"' style = 'width:100%'   />";
+
+								content += "<img src = '"+imgUrl+"selectu8.png' class = 'input-hint height14 img-vendor select'/>";
+
+								content += "<input type = 'text' data-option = '"+vv.option+"' class = '"+vv.relation.clas+"' style = 'display:none'   />"
+
+								content += "</div></div>";
+							}else{
+
+								
+
+								content += "<div class = 'col s2' style = 'text-align:right;line-height:32px'>"+vv.name+"</div><div class= 'col s4 relative option-container2' ><input type = 'text' data-type = '"+vv.type+"' data-type2 = '"+(vv.type2?vv.type2:'')+"' data-option = '"+vv.option+"'  class = 'aya-input border-bottom erp "+vv.clas+"' style = 'width:100%'  "+(vv.readonly?'readonly':'')+" />";
+
+								if(vv.type2) content += "<img src = '"+imgUrl+"selectu8.png' class = 'input-hint height14 img-vendor select'/>"; 
+
+								content += "</div>";
+							}
+				
+						break;
+						default:
+							content += "<div class = 'col s2' style = 'text-align:right;line-height:32px'>"+vv.name+"</div><div class= 'col s4' ><input type = 'text'  data-option = '"+vv.option+"' class = 'aya-input border-bottom ' style = 'width:100%'  /></div>";
+					}
+				});
+
+				content += "</div>";
+			});
+
+			content += '</div>';
+
+			parent.layer.open({
+				//skin: 'layer-search-container',
+				title:'<span style = "font-size:12px">高级查询</span>',
+				area: ['800px','100%'],
+				shadeClose:true,
+				isOutAnim: false ,
+				maxmin: true,
+				type: 1, 
+				content:content,
+				success:function(layero, index){
+
+					form.set_super_search_option( app.superSearchOption );
+
+					$('#option-container').find('input.erp').each(function(){
+						if( $(this).data('type2') ){
+							form._switch({ type : $(this).data('type'), type2 : $(this).data('type2') },'on','head','',this);
+						}
+					});
+
+					$('.option-container2').hover(function(){
+						$(this).find('img.select').show();
+					},function(){
+						$(this).find('img.select').hide();
+					});
+					
+					$('#condition_confirm').click(function(){
+
+						app.superSearchOption = form.get_option('#option-container');
+
+						app.searchOption = app.superSearchOption;
+
+						$('#search').removeClass('searchedButton');
+
+						$('#super_search').addClass('searchedButton');
+
+						form.search();
+
+						parent.layer.close(index);
+
+					});
+					
+
+				}
+			});
+		});
+		
+		if(form.config.search) page(form.config.search.url,form.list_table,form.get_app_search_option);
+		
 		$('#tbody').click(function(e){
 			if(top.mainPage.multiType == 1 && $(e.target).hasClass('detail')){
 				let ddh = $(e.target).text();
@@ -1622,14 +1511,42 @@ var form  = {
 				top.mainPage.add_iframe(url,ttl,id,ddh);
 			}
 		});
+
 		if(config.number_page != undefined){
 			$('#number_page').val(config.number_page);
 			$('#number_page').data('d',config.number_page);
 		}
+
 		return table;
 	},
 
-	
+	set_super_search_option : function(option){
+		$('#option-container').find('input').each(function(){
+			let tmp = $(this).data('option');
+			if( tmp && option[ tmp ]){
+				$(this).val(option[tmp]).data('d',option[tmp]);
+			}
+		});
+	},
+
+	get_option :function( container ){
+		let o = {};
+		$(container).find('input').each(function(){
+			if( $(this).data('option') ){
+				o[ $(this).data('option') ] = $.trim( $(this).val() );
+			}
+		});
+
+		return o;
+	},
+
+	get_app_search_option(){
+		if(app && app.searchOption){
+			return app.searchOption;
+		}else{
+			return {};
+		}
+	},
 
 	giveup : function (){
 		if($('#ddh_hidden').data('d') == ''){
@@ -1657,7 +1574,7 @@ var form  = {
 		$.post(form.config.get.url,o,function(d){
 			parent.layer.close(index);
 			if(d.status == 's'){
-				$('#u8tips').html('');
+				$('#erptips').html('');
 				$('#tbody').children().each(function(){
 					$(this).data('id','');
 					$(this).data('resource_type','');
@@ -1708,7 +1625,7 @@ var form  = {
 					form.n('recoil');
 					form.img_do('recoil','off');
 					
-					let imgUrl =get_parent().publicUrl + '/image/erp/';;
+					let imgUrl =get_parent().publicUrl + '/image/erp/';
 					if(d.info.red == 1){
 						$('#'+type).removeClass('img_on').addClass('img_off');
 						$('#'+type).find('img').prop('src',imgUrl+type+'_on2.png');
@@ -1861,7 +1778,7 @@ var form  = {
 	check_do : function( obj ,exc = '' ){
 			
 			if(exc != '') obj.executor = exc;
-			$.post(u8Config.check.url,obj,function(d){
+			$.post(form.config.check.url,obj,function(d){
 
 				//layer.close(index1);
 				if(d.status == 's'){
@@ -2052,7 +1969,7 @@ var form  = {
 		}
 		o.type = 'uncheck';
 		let index = layer.load(2,{offset:'30%'});
-		log( form.config.canModify.url );
+
 		$.post(form.config.canModify.url,o,function(d){
 			if(d.status == 's'){
 				$.post(form.config.uncheck.url,o,function(d){
@@ -2217,7 +2134,7 @@ var form  = {
 
 	save_do : function( resolve , executor = '' ){
 		let o = form.get_field();
-		$.post(u8Config.save.url,o,function(d){
+		$.post(form.config.save.url,o,function(d){
 			if(d.status == 's'){
 				layer.msg( '保存成功', {icon:1,time:1500,offset:'30%'}	);
 				$('#ddh').val(d.data);
@@ -2302,34 +2219,31 @@ var form  = {
 		return r;
 	},
 
-	research : function (o = {}){
+	search : function (o = {}){
+		
+		o = $.extend(o,app.searchOption);
+		o = $.extend(o,get_page());
 
-		let i = 1;
-		let p = form.config.research.param;
-		for(let key in p){
-			if(key != 'table')  o[p[key]] = $('#'+p[key]).val();
-		}
 		if(typeof $('#merge').data('merge') != 'undefined' && $('#merge').data('merge') != 0){
 			o.merge = form.config.merge;
 		}else{
 			o.merge = 0;
 		}
-		
 
-		let n = parseInt($('#number_page').val());
-		if(!isNaN(n) || n <= 0 ) n = $('#number_page').data('d');
-		o.n = n;
 		form.query(o);	
 	},
 
 	query : function (o){
+
+		
+
 		if(typeof o.page == 'undefined') o.page = 1;
 		let index = parent.layer.load(2,{offset:['20%']});
-		$.post(form.config.research.url,o,function(d){
+		$.post(form.config.search.url,o,function(d){
 			if(d.status == 's'){
 				let page = d.data.page;
 				form.list_table.clear();
-				form.list_table.rows.add($(d.data.table)).draw();
+				form.list_table.rows.add($(d.data.tbody)).draw();
 				set_page(page);
 				
 			}else{
@@ -2352,19 +2266,19 @@ var form  = {
 		let o = {};
 		let oo = [];
 		o.ddh  = $('#ddh_hidden').val();
-		$(u8Config.saveField.main).each(function(i,v){
+		$(form.config.saveField.main).each(function(i,v){
 			o[v] = $.trim($('#' + v).val());
 		});
 		$('#tbody tr').each(function(){
 			let tmp = {};
 			let that = this;
-			$(u8Config.saveField.list).each(function(i,v){
+			$(form.config.saveField.list).each(function(i,v){
 				tmp[v] = $.trim( $(that).find('.' + v).eq(0).val() );
 			});
 			tmp.index =   $(this).children().eq(0).text();
 			tmp.listid = $(this).data('listid')?$(this).data('listid'):'';
 			let a = true;
-			$(u8Config.saveField.listMust).each(function(i,v){
+			$(form.config.saveField.listMust).each(function(i,v){
 			
 				if(tmp[v] == ''){
 					 a = false;
@@ -2500,19 +2414,19 @@ var form  = {
 };
 
 /*
-u8_inventory
+erp_inventory
 例如：
 <td> <input /><img></td>
 点击img，弹出选择框，选择后弹框消失，数据填入input，支持多选
 如果是多选，一定是在table  tbody  tr  td 中的input的方式
 
-u8_inventory()
+erp_inventory()
 参数说明：
 t 触发元素
 mul 是否多行
 index 是否对第一列重新index
 hint  输入值是否弹出候选框
-u8_inventory_callBack 回调函数
+erp_inventory_callBack 回调函数
 tianchong 需不需要填充
 */
 

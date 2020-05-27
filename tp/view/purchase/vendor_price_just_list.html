@@ -1,0 +1,162 @@
+<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
+<link rel="stylesheet" href="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.min.css" type="text/css">
+
+<div class="card" id = 'card' >
+	<div class="card-content" style = 'padding-right:0'>
+		<div class = 'row row-head' >
+			<div class = 'col s12'>
+				<div class="left"  >
+
+					<span class = 'erp-head' >
+						<span>
+							<input type = 'text' class = 'vendor_name width-150'  placeholder = '供应商' id = 'gys'/>
+							<input type = 'text' class = 'vendor_code hide' data-option = 'option_vendor_code' />
+							<img src = '__PUBLIC__/image/erp/selectu8.png' class = 'input-hint height14 img-vendor select' style = ''/>
+						</span>
+					</span>
+					
+					<span class = 'erp-head'>
+						<span>
+							<input type = 'text' class = 'inventory_name width-150' placeholder = '物料' id = 'wl' />
+							<input type = 'text' class = 'inventory_code hide' data-option = 'inventory_code' />
+							<img src = '__PUBLIC__/image/erp/selectu8.png' class = 'input-hint height14 img-inventory select' style = ''/>
+						</span>
+					</span>
+
+					<div class = 'btn-group'>
+						<button class = 'btn btn-default margin-top-3 ' id = 'search'>搜索</button>
+						<button class = 'btn btn-default margin-top-3' id = 'super_search'>高级搜索</button>
+						<button class = 'btn btn-default margin-top-3' id = 'check'  >审核</button>
+						<button class = 'btn btn-default margin-top-3' id = 'uncheck'  >弃审</button>
+						<button class = 'btn btn-default margin-top-3' id = 'flow'  >流程</button>
+						<button class = 'btn btn-default margin-top-3' id = 'export'  >导出</button>
+					</div>
+
+					
+				</div>
+
+
+
+				<div class = 'relative' style = 'display:inline-block;float:right'>
+					<input type = 'text' id = 'search_table' class = 'width-200' placeholder = '表单内搜索' />
+					<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
+				</div>
+			</div>
+
+			
+		</div>
+
+		<div class = 'row row-body'>
+			<div class = 'col s12'>
+				<table class = 'dataTable centered table-gray-heade1r cell-border stripe table-small' id = 'table'>
+					<thead>
+						<tr>
+							<th>表单号</th>
+							<th>状态</th>
+							<th>日期</th>
+							<th>发起者</th>
+							<th>供应商编码</th>
+							<th>供应商名称</th>
+							<th>物料编码</th>
+							<th>物料名称</th>
+							<th>规格型号</th>
+							<th>原单价</th>
+							<th>原税率</th>
+							<th>原含税价</th>
+							<th>现单价</th>
+							<th>现税率</th>
+							<th>现含税价</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		{include file='public/page/page' /}
+					
+	</div>
+</div>
+<style type="text/css">
+	
+</style>
+
+<script>
+
+	
+	
+	var app = {
+
+		searchOption : {},
+
+		superSearchOption : {},
+		
+		u8Config : {
+			type : 'list',
+			searchFrame : {
+				
+			},
+			
+			head:[
+				{id : 'gys' , type2 : 'vendor',type : 'erp'},
+				{id : 'wl'  , type2 : 'inventory',type : 'erp'},
+			],
+			dataTableConfig:{ordering:true, order: [[ 0, 'desc' ]]},
+			canModify:{ 
+				url : '__URL__/can_modify_rd11',
+				callback : ''
+			},
+			check:{
+				url : '__URL__/check_rd11',
+				callback : ''
+			},
+			uncheck:{
+				url : '__URL__/uncheck_rd11',
+				callback : ''
+			},
+			dlt:{
+				url : '__URL__/dlt_rd11',
+				callback : ''
+			},
+			search : {
+				url :'__APP__/Purchase/getVendorPriceJustList', 
+				superSearch : [
+					[
+						{ name : '订单号' , option : 'option_ddh' , type : 'text' , },
+					],
+					[
+						//	{ name : '供应商编码', option : 'option_vendor_name',clas : 'vendor_name', type : 'erp' , type2 : 'vendor', relation : {clas : 'vendor_code' ,option : 'option_vendor_code'}},
+
+						{ name : '供应商编码', option : 'option_vendor_code',clas : 'vendor_code',type : 'erp' , type2 : 'vendor'},
+						{ name : '供应商名称', option : 'option_vendor_name',clas : 'vendor_name',type : 'erp' , readonly : true},
+						
+					],
+					[
+						{ name : '物料编码', option : 'option_inventory_code',clas : 'inventory_code',type : 'erp' , type2 : 'inventory'},
+						{ name : '物料名称', option : 'option_inventory_name',clas : 'inventory_name',type : 'erp' , readonly : true},
+						
+					],
+
+				]
+			},
+			merge: 4 ,
+			detail : {'id' : 'indexwckd1'},
+			number_page : 1000
+		},
+		ini : function(){
+			form.list_ini(app.u8Config);
+		},	
+
+	}
+	app.ini();
+
+	//$('#super_search').trigger('click');
+	
+
+
+</script>
+
+
+
