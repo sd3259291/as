@@ -118,11 +118,6 @@
 				}
 			};
 
-
-
-
-			
-
 			app.tree =  $.fn.zTree.init($("#tree"), setting1, app.treeNode);
 			let treeObj = $.fn.zTree.getZTreeObj("tree");
 			treeObj.expandNode( treeObj.getNodeByTId("tree_1"), true, false, false );
@@ -179,6 +174,8 @@
 				
 				if( app.erpConfig[ type ] ){
 
+
+
 					$(this).attr( 'checked', app.erpConfig[ type ] == '1' ? true : false);
 				}
 			});
@@ -190,7 +187,7 @@
 
 
 
-
+	
 
 
 

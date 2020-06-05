@@ -15,6 +15,7 @@ class ErpConfig extends Model{
 	
 
 	public function setConfig($post){
+		
 		$e = $this::where("`key` = '".$post['key']."' && type = '".$post['type']."'")->find();
 		if(!$e) $e = $this::create(['key' => $post['key'],'type' => $post['type']]);
 		$e->value = $post['value'];
@@ -23,10 +24,10 @@ class ErpConfig extends Model{
 	}
 
 	public function getAllConfig(){
-		$e = $this::field('type,value')->select()->toArray();
+		$e = $this::field('type,value,key')->select()->toArray();
 		$tmp = [];
 		foreach($e as $k => $v){
-			$tmp[$v['type']] = $v['value'];
+			$tmp[$v['key']] = $v['value'];
 		}
 		return $tmp;
 	}

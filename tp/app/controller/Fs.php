@@ -287,8 +287,6 @@ class Fs extends BaseController{
 
 		if($type != ''){  // 系统内置
 			$flowTemplate = Flow::where("system_flow_type = '$type' ")->find();
-
-			
 			$form = array(
 				'maker' => $userinfo['username'],
 				'maker_name' => $userinfo['name'],
@@ -299,7 +297,8 @@ class Fs extends BaseController{
 				'title' => $flowTemplate->title,
 				'form' => '',
 				'flow_id' => $flowTemplate->id,
-				'system_flow' => 1
+				'system_flow' => 1,
+				'table' => $type
 			);
 
 			
@@ -959,22 +958,22 @@ class Fs extends BaseController{
 	}
 
 	public function test1(){
-		$flow = Flows::find(3);
+		$flow = Flows::find(125);
 		Cache::set('node',$flow->node);
 		Cache::set('p',$flow->p);
 		Cache::set('handler',$flow->handler);
-		$exe = Db::table('s_flows_executor')->where('flow_id = 3')->select()->toArray();
+		$exe = Db::table('s_flows_executor')->where('flow_id = 125')->select()->toArray();
 		Cache::set('executor',$exe);
 	}
 
 	public function test(){
-		$flow = Flows::find(3);
+		$flow = Flows::find(125);
 		$flow->node = Cache::get('node');
 		$flow->p = Cache::get('p');
 		$flow->handler = Cache::get('handler');
 		$flow->save();
 		$executor = Cache::get('executor');
-		Db::table('s_flows_executor')->where('flow_id = 3')->delete();
+		Db::table('s_flows_executor')->where('flow_id = 125')->delete();
 		Db::table('s_flows_executor')->insertAll($executor);
 	}
 
@@ -1351,6 +1350,8 @@ class Fs extends BaseController{
 		$prevData = isset($handleData['prevData'])?$handleData['prevData']:[];
 		$opinion = isset($handleData['opinion'])?$handleData['opinion']:'';
 
+		
+
 		if($executor){
 			$tmp = json_decode($executor,true);
 			$executor = array();
@@ -1377,6 +1378,7 @@ class Fs extends BaseController{
 		}
 
 		if($prev){
+			
 			$flow = array('maker' => SESSION::get('userinfo')['username']);
 			$node = json_decode($prevData['node'],true);
 			$p    = json_decode($prevData['p'],true);
@@ -1430,6 +1432,8 @@ class Fs extends BaseController{
 
 		$mul = array();
 
+		$isEnd = true;
+
 		if($allDone){
 	
 			$currentNodeAllDone = true;
@@ -1468,7 +1472,8 @@ class Fs extends BaseController{
 	
 		
 			if($prev){
-
+				
+				
 				$r = $this->get_next_executor2($p,$node,$c,$nodeId,$flow,$executor,$prevData['table']);
 							
 				if($r['ok'] === false){
@@ -1522,11 +1527,7 @@ class Fs extends BaseController{
 				return array('ok' => 'm','data' => $r['mul']);
 			}
 
-			$node = $r['node'];
-
-			$isEnd = true;
-
-			
+			$node = $r['node'];	
 			
 			$tmp = $this->get_PN($p,$r['node'],$c);
 
@@ -1646,6 +1647,8 @@ class Fs extends BaseController{
 
 		}else{
 			
+			$isEnd = false;
+
 			$currentNodeAllDone = true;
 
 			Db::table('s_flows_executor')->where('id = '.$executeId)->update(array('status' => 2,'datetime_h' => $now));
@@ -1762,6 +1765,7 @@ class Fs extends BaseController{
 	}
 
 	public function get_next_executor2($p,$node,$c,$id,$flow,$executor,$table = '',$xdzxr = ''){
+		
 
 		$r = $this->get_next_executor( $p,$node,$c,$id,$flow,$executor,$table,$xdzxr);
 		
@@ -1817,6 +1821,8 @@ class Fs extends BaseController{
 	}
 
 	public function get_next_executor($p,$node,$c,$id,$flow,$executor,$table,$xdzxr){ ///相对执行人
+
+		
 		
 
 		$r = array();
@@ -1862,24 +1868,35 @@ class Fs extends BaseController{
 		
 			//判断分支条件
 			if(isset($tmpNode['X']) && $tmpNode['X']){
+
 				if($table == ''){
 
-					if($flow['table_resource']){
+					if(isset($flow['table_resource'])){
+
 						$table = Db::connect($flow['table_resource'])->table(substr($flow['table_name'],0,strpos($flow['table_name'],',') === false ? strlen($flow['table_name']) : strpos($flow['table_name'],',') ))->where('id = '.$flow['table_id'])->find();
 					}else{
+
 						//$table = Db::table(substr($flow['table_name'],0,strpos($flow['table_name'],',') === false ? strlen($flow['table_name']) : strpos($flow['table_name'],',') ))->where('id = '.$flow['table_id'])->find();
-						$tmp = explode(',',$flow['table_name']);
-						$table = Db::table('s_'.$tmp[0])->where('flows_id = '.$flow['id'])->find();
+						
+						if(is_set($flow,'table_name')){
+							$tmp = explode(',',$flow['table_name']);
+							$table = Db::table('s_'.$tmp[0])->where('flows_id = '.$flow['id'])->find();
+						}
+
+						
 					}
 				}
 				if($xdzxr == ''){
+
 					$xdzxr = array();
 					
 					$tmp0 = $this->get->get_employee( array('number' => $flow['maker']) );
+
+
 					$xdzxr['aya1'] = $tmp0['department_id'];
 					$xdzxr['aya2'] = $tmp0['post_id'];
-					$xdzxr['aya3'] = SESSION::get('userinfo')['department_id'];
-					$xdzxr['aya4'] = SESSION::get('userinfo')['post_id'];
+					$xdzxr['aya3'] = SESSION::get('userinfo')['department'];
+					$xdzxr['aya4'] = SESSION::get('userinfo')['post'];
 				}
 				
 				
@@ -1932,7 +1949,7 @@ class Fs extends BaseController{
 				);
 				
 			}else{
-				if(is_array($executor) && count($executor[$v]) > 0){
+				if(is_array($executor) && isset($executor[$v]) &&  count($executor[$v]) > 0){
 					foreach($executor[$v] as $k1 => $v1){
 						$newExecutor[] = array(
 							'flow_id' => $id,
@@ -2730,6 +2747,110 @@ class Fs extends BaseController{
 			if($v['status'] == 2) $canRetrieve = true;
 		}
 		return [ 'canCheck' => $canCheck , 'canRetrieve' => $canRetrieve ];
+
+	}
+	
+	/*
+		$bill = array( 'flow_id' => '' , 'ddh' => '' )
+	*/
+
+	public function checkFlow($bill,$nodeId){
+
+		$flowsId = array();
+		foreach($bill as $k => $v){
+			$flowsId[$v['flow_id']] = 1;
+		}
+
+		$userinfo = Session::get('userinfo');
+
+		$fs = Db::table('s_flows')->where('id in ('.get_w($flowsId,false,false).')')->field('node,id,p')->select()->toArray();
+		$checkFs = array();
+		$node = $p = '';
+		foreach($fs as $k => $v){
+			$checkFs[$v['node']][] = $flowsId[$v['id']];
+			if($node == ''){
+				$node = $v['node'];
+				$p = $v['p'];
+			}
+		}
+			
+		if( count($checkFs) > 1 ){
+			return array( 'ok' => 'error' , 'msg' => '不同流程的订单不能合并审核');
+		}
+
+		$executors = Db::table('s_flows_executor')->where('flow_id in ('.get_w($flowsId,false,false).')')->where("status < 2 && number = '".$userinfo['username']."'")->field('node_id,number,flow_id,id')->select()->toArray();
+
+		$NodeflowIdIdToId = array();
+
+		$check = array();		
+		$selectIds = array();
+	
+		foreach($executors as $k => $v){
+			$selectIds[$v['node_id']] = $flowsId[$v['flow_id']];
+			$check[$v['flow_id']] = 1;
+			$NodeflowIdIdToId[ $v['node_id'].$v['flow_id'] ] = $v['id'];
+		}
+
+		
+				
+		$checkResult = array();
+
+		foreach($bill as $k => $v){
+			if($v['flow_id']){
+				if( !isset($check[$v['flow_id']]) ){
+					$checkResult[$v['ddh']] = array( 'ok' => false, 'msg' => '非当前审核人不能审核' );
+				}else{
+					if( count($selectIds) > 1 ){
+
+						if( $nodeId == ''){
+
+							$department = $post = array();
+							$node = json_decode($node,true);
+							$p = json_decode($p,true);
+							foreach($node as $k => $v){
+								if(isset($v['X']) && count($v['X']) > 0){
+									foreach($v['X'] as $k1 => $v1){
+										if($v1[1] == 'aya1' || $v1[1] == 'aya3'){
+											$tmp = explode('|',$v1[3]);
+											$department[] = $tmp[0];
+										}else if($v1[1] == 'aya2' || $v1[1] == 'aya4'){
+											$post[] = $v1[3];
+										}
+									}
+								}
+							}
+							if( count($department) > 0 ){
+								$department = column(Db::table('s_department')->where("id in (".get_w($department,false).")")->field('id,name')->select()->toArray(),'id');
+							}
+							if( count($post) > 0 ){
+								$post = column(Db::table('s_post')->where("id in (".get_w($post,false).")")->field('id,name')->select()->toArray(),'id');
+							}
+							return array( 'ok' => 'selectId' , 'data' => ['node' => $node, 'p' => $p , 'department' => $department,'post' => $post, 'data' => $selectIds] );
+
+						}else{
+							$checkResult[$v['ddh']] = array( 'ok' => true , 'ddh' => $v['ddh'],'node_id' => $nodeId,'flow_id' => $v['flow_id'] ,'id' => $NodeflowIdIdToId[$nodeId.$v['flow_id']] );
+						}
+
+						
+					}else{
+						$tmp = '';
+						foreach( $selectIds as $k1 => $v1 ){
+							$tmp = $k1;
+						}
+
+						$checkResult[$v['ddh']] = array( 'ok' => true ,'ddh' => $v['ddh'],'node_id' => $tmp , 'flow_id' => $v['flow_id'] ,'id' => $NodeflowIdIdToId[$tmp.$v['flow_id']] );
+
+
+						
+					}
+				}
+			}
+		}
+
+		return array( 'ok' => true , 'checkResult' => $checkResult);
+
+			
+
 
 	}
 

@@ -1335,7 +1335,6 @@ var form  = {
 		if(typeof config != 'undefined'){
 			for(let i = 0; i < config.head.length ; i++){
 				if(config.head[i]['type'] == 'erp'){
-				
 					form._switch(config.head[i],'on','head','','#' + config.head[i].id);
 				}else if(config.head[i]['type'] == 'date'){
 					laydate.render({elem: '#'+config.head[i]['name']});
@@ -1357,20 +1356,8 @@ var form  = {
 		form.list_table = $('#table').DataTable(setting);
 
 		$('#merge').click(function(){
-			var imgUrl = get_parent().publicUrl + '/image/erp/';;
-			if($(this).data('merge') == '0'){
-				setting.ordering = false;
-				$(this).prop('src',imgUrl+'o44.png');
-				$(this).data('merge','1');	
-			}else{
-				setting.ordering = true;
-				$(this).prop('src',imgUrl+'o45.png'); 
-				$(this).data('merge','0');
-			}
-			form.list_table.destroy();
-			$('#table tbody').empty();
-			form.list_table = $('#table').DataTable(setting);
-			form.research({changeType : true});
+			$(this).toggleClass('merged').blur();
+			form.search({changeType : true});
 		});
 
 		$('#check').click(function(){
@@ -1388,16 +1375,32 @@ var form  = {
 			$(this).blur();
 		});
 
-		$('#table_research').keypress(function(e){
+		$('#search_table').keypress(function(e){
 			let s = $.trim($(this).val());
 			if(e.keyCode == 13){
-				table.search(s).draw();
+				form.list_table.search(s).draw();
 			}
-			$(this).blur();
+		});
+
+		$('#flow').click(function(){
+			if($('#table tbody tr.selected').length == 0) return false;
+			if(!$('#table tbody tr.selected').eq(0).data('flow_id') ) return false;
+
+			
+		
+			parent.layer.open({
+				title:'<span style = "font-size:12px">流程查看</span>',
+				type: 2,
+				shadeClose:true,
+				offset:'0',
+				area: ['90%','100%'],
+				content: get_parent().mainUrl + "/Fs/see?flowid=" + $('#table tbody tr.selected').eq(0).data('flow_id'),
+				isOutAnim: false,
+			});
 		});
 
 		$('#search').click(function(){
-			app.searchOption = form.get_option('.erp-head');;
+			app.searchOption = form.get_option('.erp-head');
 			form.search();
 			$(this).addClass('searchedButton').blur();
 			$('#super_search').removeClass('searchedButton');
@@ -1536,7 +1539,7 @@ var form  = {
 				o[ $(this).data('option') ] = $.trim( $(this).val() );
 			}
 		});
-
+		o.merge = $('#merge').hasClass('merged')?1:0;
 		return o;
 	},
 
@@ -1741,17 +1744,75 @@ var form  = {
 		});
 	},
 	
+	list_error : function(data,type = 'dlt'){
+		
+		let table = "<table id = 'resultTable' class = 'row-border table-small centered'><thead><th>序号</th><th>订单号</th><th>操作结果</th></thead><tbody>";
+		let i = 1;
+		$.each(data,function(k,v){
+			table += "<tr><td>"+ i++ +"</td><td>"+k+"</td>";
+			if( v.ok ){
+				if(type == 'dlt'){
+					form.list_table.row( $('#table tbody tr.c' + k) ).remove().draw();
+				}else if(type == 'check'){
 
+					$('#table tbody tr.c' + k).each(function(){
+						if( $(this).children().eq(1).text() == '') return true;
+						let data = form.list_table.row( this ).data();
+						if(v.status == 5){
+							data[1] = "<i class='material-icons text-color1' style='font-size:12px'>arrow_forward</i>";
+						}else{
+							data[1] = "<i class='material-icons text-color3' style='font-size:12px'>done</i>";
+						}
+						
+						form.list_table.row( this ).data( data );
+					});
+
+					form.list_table.draw();
+
+
+					
+				}
+				table += "<td  class = 'text-color3'>√</td>";
+			}else{
+				table += "<td>" + v.msg +  "</td>";
+			}
+			table += "</tr>";
+		});
+
+		table += "</tbody></table>";
+
+		parent.layer.open({
+			title:'操作结果',
+			area: ['800px','100%'],
+			offset:'1px',
+			shadeClose:true,
+			isOutAnim: false ,
+			maxmin: true,
+			type: 1,
+			success : function(){
+				let setting = {
+					paging: false,
+					scrollY: get_table_height('resultTable',[]) ,
+					info:false,
+					dom:'t',
+					scrollX: true,
+					autoWidth: false,
+					order : []
+				};
+
+				$('#resultTable').DataTable(setting);
+			},
+			content:table
+		});
+	},
 	
 
-	check : function( type = 'bill',ddh = [],selected = 'selected' ){
-
-			//let index1 = layer.load(2);
+	check : function( type = 'bill',ddh = [], nodeId = '',selected = 'selected'  ){
+		if( type != 'bill' &&  $('#table tbody tr.' + selected).length < 1 || $('#table tbody tr.' + selected).eq(0).text() == '-' ){
+			 return false;
+		}
 
 		let obj = {};
-
-		
-
 		if(type == 'bill'){
 			let tmp = [];
 			tmp.push($('#ddh_hidden').val());
@@ -1760,19 +1821,13 @@ var form  = {
 			obj.ddh = JSON.stringify(ddh);
 		}
 		if(typeof $('#bill_type').val() != 'undefined'){
-			obj.bill_type = $('#bill_type').val(); 
+			obj.bill_type = $('#bill_type').val();
 		}
+		obj.type = type;
+		obj.nodeId = nodeId;
+		form.check_do(obj);
 
-		obj.type = 'check';
-	
-		$.post(form.config.canModify.url,obj,function(d){
-			if(d.status == 's'){
-				form.check_do(obj);
-			}else{
-				layer.close(index);
-				layer.msg(d.info,{icon:2,time:3000,offset:'30%'});
-			}
-		});
+		
 	},
 
 	check_do : function( obj ,exc = '' ){
@@ -1780,10 +1835,58 @@ var form  = {
 			if(exc != '') obj.executor = exc;
 			$.post(form.config.check.url,obj,function(d){
 
-				//layer.close(index1);
 				if(d.status == 's'){
-					form.ddh();
-					layer.msg('审核成功！',{icon:1,time:1500,offset:'30%'});
+					if(obj.type == 'bill'){
+						$.each(d.data,function(i,v){
+							if( v.ok ){
+								layer.msg('审核成功！',{icon:1,time:1500,offset:'30%'});
+								form.ddh();
+							}else{
+								layer.msg( v.msg ,{icon:2,time:2000,offset:'30%'});
+							}
+						});
+						
+					}else{
+						let length = 0;
+						$.each(d.data,function(k,v){length++});
+						if( length == 1 ){
+							$.each(d.data,function(k,v){
+								if( v.ok ){
+									layer.msg('审核成功！',{icon:1,time:1500,offset:'30%'});
+
+									
+
+
+									$('#table tbody tr.c' + k).each(function(){
+										if( $(this).children().eq(1).text() == '') return true;
+										let data = form.list_table.row( this ).data();
+										if(v.status == 5){
+											data[1] = "<i class='material-icons text-color1' style='font-size:12px'>arrow_forward</i>";
+										}else{
+											data[1] = "<i class='material-icons text-color3' style='font-size:12px'>done</i>";
+										}
+										
+										form.list_table.row( this ).data( data );
+									});
+
+
+
+
+								}else{
+									parent.layer.msg(v.msg,{icon:2,time:2000,offset:'30%'});
+								}
+							});
+						}else{
+
+							
+
+							form.list_error( d.data ,'check' );
+
+
+
+						}
+					}
+
 				}else if(d.status == 'm'){
 					form.tmp = new Map();
 					let c = "<div style = 'font-size:12px;'>";
@@ -1946,6 +2049,81 @@ var form  = {
 					});
 						
 
+				}else if(d.status == 'error'){
+
+					layer_error(d);
+					
+				}else if(d.status == 'selectId'){
+					let content = "<div id = 'tmp20200601'></div>";
+
+					layer.open({
+						//skin: 'layer-search-container',
+						title:'<span style = "font-size:12px">选择分支</span>',
+						area: ['800px','100%'],
+						shadeClose:true,
+						isOutAnim: false ,
+						maxmin: true,
+						type: 1, 
+						content:content,
+						success:function(layero, index){
+							let tmp;
+							
+							$.each(d.data.data,function(k,v){
+								tmp = '';
+								tmp += "<div class = 'flow-container'><div style = 'padding:10px 0 0 20px'>分支："+k.substring(2)+"<div style = 'display:inline-block;padding-left:36px'  ><input name = 'afsfa' class = 'aya-radio' type = 'radio' value = '"+k+"' /></div></div><div style = 'border-bottom:1px solid #d7d7d7' class = 'relative' id = 'id"+k+"'>2</div></div>";
+								$('#tmp20200601').append( tmp );
+
+								let offset = $('#id' + k).offset();
+								
+								flow.ini(
+									$.extend({ multiIndex : k, stopId : k, offset : offset ,container : $('#id' + k) },d.data)	
+								)
+								
+								let topest = 1000000,lowest = 0;
+								$('#id' + k).find('div').each(function(){
+									let offset = $(this).offset();
+									let height = $(this).height();
+									if( offset.top < topest ) topest = offset.top;
+									if( offset.top + height > lowest ) lowest = offset.top + height;
+								});
+
+								$('#id' + k).height( lowest - topest + 60);
+
+								
+
+							});
+
+							$('#tmp20200601').find("input[type='radio']").eq(0).prop('checked',true);
+
+							$('#tmp20200601').append("<div class = 'center' style = 'padding-top:10px'><button class = 'btn btn-primary height32'>确定</button></div>");
+
+							$('#tmp20200601').find('div.flow-container').click(function(){
+								$('#tmp20200601').find("input[type='radio']").prop('checked',false);
+								$(this).find("input[type='radio']").prop('checked',true);
+							});
+
+							$('#tmp20200601').find('button').click(function(){
+								let nodeId = '';
+								$('#tmp20200601').find('input').each(function(){
+									if( $(this).is(':checked') ){
+										nodeId = $(this).val();
+									}
+								});
+								
+								if(nodeId == ''){
+									 layer_error({info : 'aaa'});
+								}else{
+									layer.close(index);
+									form.check(type = 'list',form.get_list_ddh(),nodeId);
+								}
+
+							});
+							
+							
+							
+						}
+					});
+		
 				}else{
 					layer.alert(d.info,{shadeClose:true,'title' : "<span style = 'font-size:12px'>错误信息</span>",area:['500px'],icon:2,offset:'20%'});
 				}		
@@ -2006,7 +2184,9 @@ var form  = {
 	},
 
 	dlt : function (type = 'bill',ddh = [],selected = 'selected'){
-
+		if( type != 'bill' &&  $('#table tbody tr.selected').length < 1 || $('#table tbody tr.selected').eq(0).text() == '-' ){
+			 return false;
+		}
 		parent.layer.confirm('确定删除?', {icon: 3, title:'提示',offset:'30%'}, function(index){
 			let o = {};
 			if(type == 'bill'){
@@ -2016,49 +2196,55 @@ var form  = {
 			}else{
 				o.ddh = JSON.stringify(ddh);
 			}
-			o.type = 'dlt';
+
 			if(typeof $('#bill_type').val() != 'undefined'){
 				o.bill_type = $('#bill_type').val(); 
 			}
 
 			parent.layer.close(index);
 			let index2 = parent.layer.load(2,{offset:'30%'});
+
 			
-			$.post(form.config.canModify.url,o,function(d){
-				if(d.status == 's'){
-					$.post(form.config.dlt.url,o,function(d){
-						parent.layer.close(index2);
-						if(d.status == 's'){
-							parent.layer.msg('删除成功',{icon:1,time:2000,offset:'30%'});
-							if(type == 'bill'){
-								$('#ddh').val('');
-								$('#ddh').data('d','');
-								$('#ddh_hidden').val('');
-								$('#ddh_hidden').data('d','');
-								form.n();
-							}else{
-								$(ddh).each(function(i,v){
-									let tmp = $('#tbody tr.c' + v).eq(0);
-									let ddh = tmp.data('ddh');
-									while(tmp.next().data('ddh') == ddh){
-										tmp.next().remove();
-									}
-									$('#tbody tr.c' + v).eq(0).remove();
-								});
+			$.post(form.config.dlt.url,o,function(d){
+				parent.layer.close(index2);		
 
-							}
-						}else{
-							parent.layer.msg(d.info,{icon:2,time:1500,offset:'30%'});
-						}
+				if(type == 'bill'){
 					
-
+					$.each(d.data,function(i,v){
+						if(v.ok){
+							parent.layer.msg('删除成功',{icon:1,time:2000,offset:'30%'});
+							$('#ddh').val('');
+							$('#ddh').data('d','');
+							$('#ddh_hidden').val('');
+							$('#ddh_hidden').data('d','');
+							form.n();
+						}else{
+							parent.layer.msg(v.msg,{icon:2,time:3000,offset:'30%'});
+						}
 					});
-				}else{
-					parent.layer.close(index2);
-					parent.layer.msg(d.info,{icon:2,time:2000,offset:'30%'});
 
+
+					
+				}else{
+					let length = 0;
+
+					$.each(d.data,function(k,v){length++});
+
+					if( length == 1 ){
+						$.each(d.data,function(k,v){
+							if( v.ok ){
+								form.list_table.row( $('#table tbody tr.c' + k) ).remove().draw();
+							}else{
+								parent.layer.msg(v.msg,{icon:2,time:1500,offset:'30%'});
+							}
+						});
+					}else{
+						form.list_error( d.data );
+					}
 				}
-			});	
+
+			});
+			
 		});	
 	},
 	
@@ -2134,6 +2320,7 @@ var form  = {
 
 	save_do : function( resolve , executor = '' ){
 		let o = form.get_field();
+		o.executor = executor;
 		$.post(form.config.save.url,o,function(d){
 			if(d.status == 's'){
 				layer.msg( '保存成功', {icon:1,time:1500,offset:'30%'}	);
@@ -2210,12 +2397,15 @@ var form  = {
 
 	get_list_ddh : function (selected = 'selected'){
 		let r = new Array();
-		$('#tbody tr.' + selected).each(function(){
+		$('#table tbody tr.' + selected).each(function(){
 			let ddh = $(this).data('ddh');
 			if(ddh != '' && $.inArray(ddh,r) == -1 ){
 				r.push(ddh);
 			}
 		});
+
+		
+
 		return r;
 	},
 
@@ -2223,41 +2413,56 @@ var form  = {
 		
 		o = $.extend(o,app.searchOption);
 		o = $.extend(o,get_page());
-
-		if(typeof $('#merge').data('merge') != 'undefined' && $('#merge').data('merge') != 0){
-			o.merge = form.config.merge;
-		}else{
-			o.merge = 0;
-		}
+		o.merge = $('#merge').hasClass('merged')?1:0;
 
 		form.query(o);	
 	},
 
 	query : function (o){
-
-		
-
 		if(typeof o.page == 'undefined') o.page = 1;
 		let index = parent.layer.load(2,{offset:['20%']});
+
+
 		$.post(form.config.search.url,o,function(d){
+
 			if(d.status == 's'){
-				let page = d.data.page;
-				form.list_table.clear();
-				form.list_table.rows.add($(d.data.tbody)).draw();
-				set_page(page);
+
+				if(o.changeType){
+
+					form.list_table.destroy();
+					$('#table tbody').html(d.data.tbody);
+
+					let setting = {
+						paging: false,
+						scrollY: get_table_height('table',[]) ,
+						info:false,
+						dom:'t',
+						scrollX: true,
+						autoWidth: false,
+						order : []
+					};
+
+					if(o.merge == 1 ){
+						setting.ordering = false;
+						layer.msg('合并表头模式',{'icon':1,time:1000,offset:'30%'});
+					}else{
+						layer.msg('详细表头模式',{'icon':1,time:1000,offset:'30%'});
+					}
+
+					
+					form.list_table = $('#table').DataTable(setting);
+					
+				}else{
+					form.list_table.clear();
+					form.list_table.rows.add($(d.data.tbody)).draw();
+				}
+
+				set_page(d.data.page);
 				
 			}else{
-				
 				layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
 			}
 			
-			if(typeof o.changeType != 'undefined'){
-				if($('#merge').data('merge') == 0){
-					layer.msg('详细表头模式',{'icon':1,time:1000,offset:'30%'});
-				}else{
-					layer.msg('合并表头模式',{'icon':1,time:1000,offset:'30%'});
-				}
-			}
 			parent.layer.close(index);
 		});
 	},

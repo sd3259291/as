@@ -23,10 +23,12 @@ class Purchase
 	}
 
 	public function saveVendorPriceJust(VendorPriceJust $v){
+		//gp();
 		return $v->saveBill($_POST);
 	}
 
 	public function dltVendorPriceJust(VendorPriceJust $v){
+		
 		return $v->dltBill($_POST);
 	}
 
@@ -35,6 +37,7 @@ class Purchase
 	}
 
 	public function checkVendorPriceJust(VendorPriceJust $v){
+		//gp();
 		return $v->checkBill($_POST);
 	}
 	
@@ -43,7 +46,6 @@ class Purchase
 	} 
 
 	public function nextPrevVendorPriceJust(VendorPriceJust $v){
-		//gp();
 		return $v->nextPrev($_POST);
 	}
 	
@@ -58,7 +60,7 @@ class Purchase
 	}
 
 	public function getVendorPriceJustList(VendorPriceJust $v){
-		sp();
+		
 		return $v->getList($_POST);
 	}
 

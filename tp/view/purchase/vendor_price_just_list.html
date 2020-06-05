@@ -28,10 +28,18 @@
 						<button class = 'btn btn-default margin-top-3' id = 'super_search'>高级搜索</button>
 						<button class = 'btn btn-default margin-top-3' id = 'check'  >审核</button>
 						<button class = 'btn btn-default margin-top-3' id = 'uncheck'  >弃审</button>
+						<button class = 'btn btn-default margin-top-3' id = 'dlt'  >删除</button>
 						<button class = 'btn btn-default margin-top-3' id = 'flow'  >流程</button>
 						<button class = 'btn btn-default margin-top-3' id = 'export'  >导出</button>
-					</div>
+						<button class = 'btn btn-default margin-top-3' id = 'merge'  >
+							<i class="material-icons">call_split</i>
+						</button>
 
+					</div>
+					
+					<div>
+						
+					</div>
 					
 				</div>
 
@@ -48,13 +56,13 @@
 
 		<div class = 'row row-body'>
 			<div class = 'col s12'>
-				<table class = 'dataTable centered table-gray-heade1r cell-border stripe table-small' id = 'table'>
+				<table class = 'dataTable centered table-gray-heade1r cell-border stripe table-small no-select' id = 'table'>
 					<thead>
 						<tr>
 							<th>表单号</th>
 							<th>状态</th>
 							<th>日期</th>
-							<th>发起者</th>
+							<th>制单人</th>
 							<th>供应商编码</th>
 							<th>供应商名称</th>
 							<th>物料编码</th>
@@ -95,29 +103,32 @@
 		
 		u8Config : {
 			type : 'list',
+
+			selectMulti : true,
+
 			searchFrame : {
 				
 			},
-			
+
 			head:[
 				{id : 'gys' , type2 : 'vendor',type : 'erp'},
 				{id : 'wl'  , type2 : 'inventory',type : 'erp'},
 			],
 			dataTableConfig:{ordering:true, order: [[ 0, 'desc' ]]},
 			canModify:{ 
-				url : '__URL__/can_modify_rd11',
+				url : '__APP__/purchase/canModifyVendorPriceJust',
 				callback : ''
 			},
 			check:{
-				url : '__URL__/check_rd11',
+				url : '__APP__/purchase/checkVendorPriceJust',
 				callback : ''
 			},
 			uncheck:{
-				url : '__URL__/uncheck_rd11',
+				url : '__APP__/purchase/uncheckVendorPriceJust',
 				callback : ''
 			},
 			dlt:{
-				url : '__URL__/dlt_rd11',
+				url : '__APP__/purchase/dltVendorPriceJust',
 				callback : ''
 			},
 			search : {
@@ -151,6 +162,15 @@
 
 	}
 	app.ini();
+
+	
+	$('#search').trigger('click');
+	window.setTimeout(function(){
+		$('#table tbody tr').eq(0).addClass('selected');
+	//	$('#check').trigger('click');
+	},200);
+
+	
 
 	//$('#super_search').trigger('click');
 	

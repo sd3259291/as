@@ -984,8 +984,133 @@ table.table-hint tbody tr:first-child td{
 .searchedButton{
 	border-bottom:1px solid #d81e06
 }
+button.merged{
+	color:#0b988f
+}
+table.dataTable tbody tr.top-border td{
+	border-top:1px solid #919191
+}
+table.dataTable tbody tr td a{
+	color:#474747
+}
+/* flow 相关 */
+.item_creator{
+			left:10px;
+			top:30px
+		}
+		#item_left,#item_right,#item_right2{
+			 position:absolute;
+		}
+		div.item{
+			line-height:30px;
+			height:30px;width:96px;
+			text-align:center;
+			border-radius:16px;
+
+			border:1px solid #959595;
+			-moz-user-select: none;
+			position:absolute;
+			font-size:11px;
+			color: #515151;
+			padding:0;
+			background:#fff;
+			box-sizing:content-box;
+		}
+		div.item img{
+			vertical-align:top
+		}
+
+		div.item .material-icons{
+			font-size:30px;
+			color:#e8e8e8;
+			font-weight:300
+
+		}
+		
+		div.item-in{
+			float:right;
+			width:74px;
+			padding:0;
+			height: 100%;
+			line-height:15px;
+			text-align:center;
+		}
+		div.item-in-text{
+			display:flex;
+			justify-content: center; 
+			align-items: center;
+			height:100%;
+		}
+		.item-in-icon{
+			float:left;
+			padding:0;
+			width:18px;
+			padding-top:3px;
+			
+		}
+		.item-in-icon img.icon1{
+			height:18px;
+			width:18px;
+			margin-left:5px
+
+		}
 
 
+		span.item-in-in{
+			position:absolute;
+			top:-15px;
+			left:-40px;
+			color:red;
+		}
+		
+		.item-in-icon img.icon2{
+			height:16px;
+			margin-top:3px;
+			margin-left:5px
+
+		}
+		.item-in-icon img.icon3{
+			height:18px;
+			margin-left:5px
+			
+		}
+		div.item_creator{
+			width:60px;
+			border:2px solid #4cae4c
+		}
+		div.item_creator img{
+			width:24px;
+			margin-top:3px
+		}
+		div.point{
+			position:absolute;
+	
+			width:0px;
+			height:0px;
+		}
+		div.point2{
+			position:absolute;
+	
+			width:0px;
+			height:0px;
+		}
+
+		 div.done-status1{
+			border:2px solid #adadad;
+			color:#666666;
+			background:#FFB117;
+			animation-direction: normal;
+			animation-duration: 2s;
+			animation-iteration-count: infinite;
+			animation-name: colors;
+			animation-timing-function: ease;
+		 }
+
+		 div.done-status2{
+			border:2px solid #4cae4c;
+			color:#4cae4c;
+		 }
+/* flow 相关结束 */
 
 
 
