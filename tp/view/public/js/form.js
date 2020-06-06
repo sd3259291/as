@@ -2067,17 +2067,26 @@ var form  = {
 						content:content,
 						success:function(layero, index){
 							let tmp;
+
+
+							
 							
 							$.each(d.data.data,function(k,v){
+							
 								tmp = '';
 								tmp += "<div class = 'flow-container'><div style = 'padding:10px 0 0 20px'>分支："+k.substring(2)+"<div style = 'display:inline-block;padding-left:36px'  ><input name = 'afsfa' class = 'aya-radio' type = 'radio' value = '"+k+"' /></div></div><div style = 'border-bottom:1px solid #d7d7d7' class = 'relative' id = 'id"+k+"'>2</div></div>";
 								$('#tmp20200601').append( tmp );
 
 								let offset = $('#id' + k).offset();
+
+								let tmpData = $.extend({},d.data);
+								
 								
 								flow.ini(
-									$.extend({ multiIndex : k, stopId : k, offset : offset ,container : $('#id' + k) },d.data)	
+									$.extend({ multiIndex : k, stopId : k, offset : offset ,container : $('#id' + k) },tmpData)	
 								)
+
+								
 								
 								let topest = 1000000,lowest = 0;
 								$('#id' + k).find('div').each(function(){

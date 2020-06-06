@@ -124,6 +124,8 @@ var flow = {
 
 	draw : function( id ){
 
+	
+
 		let imgUrl = get_parent().publicUrl + '/image/flow/';
 		if( $('#creator' + flow.multiIndex).length == 0 ){
 			flow.container.empty().append("<div class = 'item item_creator' id = 'creator"+flow.multiIndex+"'><img src = '"+imgUrl+"creator.png'  /></div>");
@@ -139,6 +141,8 @@ var flow = {
 		}
 
 		let top,left;
+
+		
 
 		for(let i in flow.p[id]){
 
@@ -174,6 +178,7 @@ var flow = {
 				
 				flow.container.append("<div class = 'point' style = 'top:"+top+"px;left:"+left+"px' id = '"+N.id+"'></div>");
 				flow.isDrawed.set(flow.p[id][i],true);
+				
 				let tmp = flow.draw(N.id);
 				flow.H[id] += tmp;
 				continue;
@@ -209,6 +214,8 @@ var flow = {
 			}
 
 			let tmp2 = N['D'] == 0?'_noreach':'';
+
+			
 
 			if(N['id'].substring(0,3) == 'end'){
 				flow.container.append("<div  style = 'width:60px;top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"' data-key = '' id = 'end'>结束</div>");
@@ -426,6 +433,34 @@ var flow = {
 		
 		
 	},
+
+	handleStopId2 : function(stopId){
+
+		let tmp = '';
+	
+		$.each(flow.p,function(k,v){
+
+			
+			for( let i = 0; i < v.length; i++){
+				if( v[i] == stopId ){
+					let a = [];
+					a.push(stopId);
+					
+					flow.tmpP[k] = a;
+					
+					tmp = k;
+					return false;
+				}
+			}
+		});
+		
+		if( stopId.substring(0,5) != 'crea' && tmp != ''){
+			flow.handleStopId2(tmp);
+		}
+
+
+		
+	},
 	
 
 	ini : function(obj = {} ){
@@ -463,19 +498,31 @@ var flow = {
 		for(let i in flow.node){
 			flow.node[i].id = i;
 		}
-		
+	
 	
 		if( obj.stopId ){
+			
 			flow.handleStopId( obj.stopId );
 			flow.p[ obj.stopId ] = [ 'nextP' + obj.multiIndex ];
 			flow.p[ 'nextP' + obj.multiIndex] = ['nextN' + obj.multiIndex];
 			flow.node[ 'nextP' + obj.multiIndex] = { S:'p' , D:0, id:'nextP'  + obj.multiIndex };
 			flow.node[ 'nextN' + obj.multiIndex] = { S:'n' , D:0, id:'nextN'  + obj.multiIndex, T:'P', V:'...'};
+			flow.tmpP = {};
+			flow.handleStopId2( 'nextN' + obj.multiIndex );
+
+
+		
+
+			flow.p = flow.tmpP;
+
 			
+
+			
+
+
 		}
 
-
-
+		
 
 		if(top.tmp2 != undefined && top[top.tmp2] != undefined ){
 			if(top[top.tmp2].flow.add.length > 0){
@@ -752,8 +799,11 @@ var flow = {
 
 		if(needReGetC) flow.re_get_c();
 
+
+
 		for(let i in flow.node){
-			if(flow.node[i]['S'] == 'n') continue;
+			
+			if(flow.node[i]['S'] == 'n' || !flow.p[i] ) continue;
 			
 			if(flow.node[flow.p[i][0]]['S'] == 'p'){
 				if(flow.c[i].length == 1 || flow.p[flow.p[i][0]].length == 1){
