@@ -60,7 +60,7 @@ class Purchase
 	}
 
 	public function getVendorPriceJustList(VendorPriceJust $v){
-		
+		//gp();
 		return $v->getList($_POST);
 	}
 

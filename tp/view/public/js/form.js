@@ -26,8 +26,6 @@ var form  = {
 		let headHeight = $('#' + tableId + ' thead').height();
 		let tableWidth = $('#' + tableId).width();
 
-		
-
 		$('#' + tableId).wrap("<div id = 'aya-table-wrapper-container' style = 'height:"+tableWrapperHeight+"px;max-height:"+tableWrapperHeight+"px;min-height:"+tableWrapperHeight+"px;position:relative'></div>");
 
 		let height1 = tableWrapperHeight - headHeight;
@@ -584,12 +582,15 @@ var form  = {
 	},
 	
 	erp_focusout : function (t){
-		if($.trim($(t).val()) != $(t).data('d')){
-			$(t).val($(t).data('d'));
-			if(typeof($(t).data('last')) != "undefined"){
-				 $(t).data('last',$(t).data('d'));
+		window.setTimeout(function(){
+			if($.trim($(t).val()) != $(t).data('d')){
+				$(t).val($(t).data('d'));
+				if(typeof($(t).data('last')) != "undefined"){
+					 $(t).data('last',$(t).data('d'));
+				}
 			}
-		}
+		},100);
+		
 	},
 
 	_switch : function(type,status,h_or_b = 'head',bodyId = 'tbody' , input ){
@@ -1311,7 +1312,11 @@ var form  = {
 
 	list_ini : function (config){
 
-		app.searchOption = {};
+		form.searchOption = {};
+
+		form.superSearchOption = null;
+
+		form.superSearchSelectOption = null;
 
 		if(config.selectMulti == true){
 			select_tr2('table');
@@ -1360,6 +1365,12 @@ var form  = {
 			form.search({changeType : true});
 		});
 
+		
+		$('#my').click(function(){
+			form.search({my:true});
+			$(this).blur();
+		});
+
 		$('#check').click(function(){
 			form.check(type = 'list',form.get_list_ddh());
 			$(this).blur();
@@ -1386,8 +1397,6 @@ var form  = {
 			if($('#table tbody tr.selected').length == 0) return false;
 			if(!$('#table tbody tr.selected').eq(0).data('flow_id') ) return false;
 
-			
-		
 			parent.layer.open({
 				title:'<span style = "font-size:12px">流程查看</span>',
 				type: 2,
@@ -1400,107 +1409,30 @@ var form  = {
 		});
 
 		$('#search').click(function(){
-			app.searchOption = form.get_option('.erp-head');
+			form.searchOption = form.get_option('.erp-head');
 			form.search();
 			$(this).addClass('searchedButton').blur();
 			$('#super_search').removeClass('searchedButton');
-			
-
 		});
 
 		$('#super_search').click(function(){
 
-			let imgUrl = get_parent().publicUrl + '/image/erp/';
+			if( form.superSearchSelectOption == null ){
 
-			let content = "<div id = 'option-container'><div class = 'row' style = 'margin:0;padding:0'><div class = 'col s12'><div class = 'row' style = 'border-bottom:2px solid #428bca;padding:20px 20px'><div class = 'col s1'><img src = '"+imgUrl+"condition.png'  class = 'height24' /></div><div class = 'col s5'><select class = 'browser-default' id = 'condition'><option value = '' data-name = '无方案'>无方案</option></select></div><div class = 'col s6 btn-group'><button class = 'btn btn-primary height32' id = 'condition_confirm'>确认</button><button class = 'btn btn-default height32' id = 'condition_set_default'>设为默认</button><button class = 'btn btn-default height32' id = 'condition_save'>保存方案</button><button class = 'btn btn-default height32' id = 'condition_dlt'>删除方案</button></div></div></div></div>";
-			
-
-			$.each(form.config.search.superSearch,function(i,v){
-		
-				content += "<div class = 'row' style = 'padding:10px 20px'>";
+				let o = {};
+				o.name = form.config.name;
 				
-				$.each(v,function(ii,vv){
-					
-					switch( vv.type ){
-						case 'aa':
-							
-						break;
-						case 'erp' :
-							if(vv.relation){
-								// 有关联的INPUT ，例如 inventory ,只显示inventory_name，而inventory_code 隐藏起来
-								content += "<div class = 'col s2' style = 'text-align:right;line-height:32px'>"+vv.name+"</div><div class= 'col s4 relative option-container2' ><div><input type = 'text' data-type = '"+vv.type+"' data-type2 = '"+(vv.type2?vv.type2:'')+"'  data-option = '"+vv.option+"' class = 'aya-input border-bottom erp "+vv.clas+"' style = 'width:100%'   />";
-
-								content += "<img src = '"+imgUrl+"selectu8.png' class = 'input-hint height14 img-vendor select'/>";
-
-								content += "<input type = 'text' data-option = '"+vv.option+"' class = '"+vv.relation.clas+"' style = 'display:none'   />"
-
-								content += "</div></div>";
-							}else{
-
-								
-
-								content += "<div class = 'col s2' style = 'text-align:right;line-height:32px'>"+vv.name+"</div><div class= 'col s4 relative option-container2' ><input type = 'text' data-type = '"+vv.type+"' data-type2 = '"+(vv.type2?vv.type2:'')+"' data-option = '"+vv.option+"'  class = 'aya-input border-bottom erp "+vv.clas+"' style = 'width:100%'  "+(vv.readonly?'readonly':'')+" />";
-
-								if(vv.type2) content += "<img src = '"+imgUrl+"selectu8.png' class = 'input-hint height14 img-vendor select'/>"; 
-
-								content += "</div>";
-							}
-				
-						break;
-						default:
-							content += "<div class = 'col s2' style = 'text-align:right;line-height:32px'>"+vv.name+"</div><div class= 'col s4' ><input type = 'text'  data-option = '"+vv.option+"' class = 'aya-input border-bottom ' style = 'width:100%'  /></div>";
-					}
+				$.post(get_parent().mainUrl + '/PublicGet/getOptions',o,function(d){
+					form.superSearchSelectOption = d.data;
+					form.super_search_frame( form.superSearchSelectOption );
 				});
 
-				content += "</div>";
-			});
+			}else{
+				form.super_search_frame( form.superSearchSelectOption );
+			}
 
-			content += '</div>';
-
-			parent.layer.open({
-				//skin: 'layer-search-container',
-				title:'<span style = "font-size:12px">高级查询</span>',
-				area: ['800px','100%'],
-				shadeClose:true,
-				isOutAnim: false ,
-				maxmin: true,
-				type: 1, 
-				content:content,
-				success:function(layero, index){
-
-					form.set_super_search_option( app.superSearchOption );
-
-					$('#option-container').find('input.erp').each(function(){
-						if( $(this).data('type2') ){
-							form._switch({ type : $(this).data('type'), type2 : $(this).data('type2') },'on','head','',this);
-						}
-					});
-
-					$('.option-container2').hover(function(){
-						$(this).find('img.select').show();
-					},function(){
-						$(this).find('img.select').hide();
-					});
-					
-					$('#condition_confirm').click(function(){
-
-						app.superSearchOption = form.get_option('#option-container');
-
-						app.searchOption = app.superSearchOption;
-
-						$('#search').removeClass('searchedButton');
-
-						$('#super_search').addClass('searchedButton');
-
-						form.search();
-
-						parent.layer.close(index);
-
-					});
-					
-
-				}
-			});
+			
+			
 		});
 		
 		if(form.config.search) page(form.config.search.url,form.list_table,form.get_app_search_option);
@@ -1521,6 +1453,268 @@ var form  = {
 		}
 
 		return table;
+	},
+
+	set_super_option : function( val ){
+		let o = {};
+		$.each(form.superSearchSelectOption,function(k,v){
+			if( v.id == val ){
+				o = v;
+			}
+		});
+		form.clear_super_option();
+		
+		if(o.option){
+			let option =  $.parseJSON(o.option);
+			$('#option-container input').each(function(){
+				let tmp = $(this).data('option');
+				if( option[tmp] ){
+					$(this).val( option[tmp] ).data('d',option[tmp]);
+				}else{
+					$(this).val('').data('d','');
+				}
+			});
+		}
+
+	},
+
+	clear_super_option : function(){
+		$('#option-container input').each(function(){
+			$(this).val('').data('d','');	
+		});
+	},
+
+	super_search_frame : function( option = [] ){
+
+		let tmp = '';
+
+		$.each(option,function(k,v){
+			if(v.dft == 1){
+				tmp += "<option value = '"+v.id+"' >"+v.title+" - 默认</option>";
+			}else{
+				tmp += "<option value = '"+v.id+"' >"+v.title+"</option>";
+			}
+			
+		});
+		
+		let imgUrl = get_parent().publicUrl + '/image/erp/';
+
+		let content = "<div id = 'option-container'><div class = 'row' style = 'margin:0;padding:0'><div class = 'col s12'><div class = 'row' style = 'border-bottom:2px solid #428bca;padding:20px 20px'><div class = 'col s1'><img src = '"+imgUrl+"condition.png'  class = 'height24' /></div><div class = 'col s5'><select class = 'browser-default' id = 'condition'><option value = ''>无方案</option>"+tmp+"</select></div><div class = 'col s6 btn-group'><button class = 'btn btn-primary height32' id = 'condition_confirm'>确认</button><button class = 'btn btn-default height32' id = 'condition_set_default'>设为默认</button><button class = 'btn btn-default height32' id = 'condition_save'>保存方案</button><button class = 'btn btn-default height32' id = 'condition_dlt'>删除方案</button></div></div></div></div>";
+
+		$.each(form.config.search.superSearch,function(i,v){
+			content += "<div class = 'row' style = 'padding:10px 20px'>";
+			$.each(v,function(ii,vv){
+					
+				switch( vv.type ){
+					case 'aa':
+							
+					break;
+					case 'erp' :
+						if(vv.relation){
+							// 有关联的INPUT ，例如 inventory ,只显示inventory_name，而inventory_code 隐藏起来
+							content += "<div class = 'col s2' style = 'text-align:right;line-height:32px'>"+vv.name+"</div><div class= 'col s4 relative option-container2' ><div><input type = 'text' data-type = '"+vv.type+"' data-type2 = '"+(vv.type2?vv.type2:'')+"'  data-option = '"+vv.option+"' class = 'aya-input border-bottom erp "+vv.clas+"' style = 'width:100%'   />";
+
+							content += "<img src = '"+imgUrl+"selectu8.png' class = 'input-hint height14 img-vendor select'/>";
+
+							content += "<input type = 'text' data-option = '"+vv.option+"' class = '"+vv.relation.clas+"' style = 'display:none'   />"
+
+							content += "</div></div>";
+						}else{
+
+							content += "<div class = 'col s2' style = 'text-align:right;line-height:32px'>"+vv.name+"</div><div class= 'col s4 relative option-container2' ><input type = 'text' data-type = '"+vv.type+"' data-type2 = '"+(vv.type2?vv.type2:'')+"' data-option = '"+vv.option+"'  class = 'aya-input border-bottom erp "+vv.clas+"' style = 'width:100%'  "+(vv.readonly?'readonly':'')+" />";
+
+							if(vv.type2) content += "<img src = '"+imgUrl+"selectu8.png' class = 'input-hint height14 img-vendor select'/>"; 
+
+							content += "</div>";
+						}
+				
+					break;
+					default:
+						content += "<div class = 'col s2' style = 'text-align:right;line-height:32px'>"+vv.name+"</div><div class= 'col s4' ><input type = 'text'  data-option = '"+vv.option+"' class = 'aya-input border-bottom ' style = 'width:100%'  /></div>";
+				}
+			});
+
+			content += "</div>";
+		});
+
+		content += '</div>';
+
+		parent.layer.open({
+			//skin: 'layer-search-container',
+			title:'<span style = "font-size:12px">高级搜索</span>',
+			area: ['800px','100%'],
+			shadeClose:true,
+			isOutAnim: false ,
+			maxmin: true,
+			type: 1, 
+			content:content,
+			success:function(layero, index){
+
+				$('#condition_set_default').click(function(){
+					let o = {};
+					o.id = $('#option-container #condition').val();
+					o.name = form.config.name;
+					$.post(get_parent().mainUrl + '/PublicGet/setDefaultOption',o,function(d){
+						if(d.status == 's'){
+							let tmp = new Map();
+							$.each(form.superSearchSelectOption,function(k,v){
+								
+								if( v.id == o.id ){
+									form.superSearchSelectOption[k].dft = 1;
+								}else{
+									form.superSearchSelectOption[k].dft = 0;
+								}
+								tmp.set(v.id,form.superSearchSelectOption[k]);
+							});
+							
+							$('#option-container #condition option').each(function(){
+								if( $(this).val() == '' ) return true;
+								let tmp1 = tmp.get( parseInt($(this).val()) );
+
+								if( tmp1.dft == 1){
+									$(this).text(tmp1.title + ' - 默认');
+								}else{
+									$(this).text(tmp1.title);
+								}
+								
+							});
+
+							
+		
+
+
+							layer.msg('设置成功',{'icon':1,time:1500,offset:'30%'});
+						}else{
+							layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
+						}
+					});
+				});
+
+				$(layero).click(function(){
+					$('#erp_hint').remove();
+				});
+	
+				$('#option-container #condition').change(function(){
+					form.set_super_option( $(this).val() );
+				});
+
+				if( form.superSearchOption != null ){
+					form.set_super_search_option( form.superSearchOption );
+					let tmp = form.get_option('#option-container');
+					delete tmp.merge;
+					tmp = JSON.stringify(tmp);
+					$.each(form.superSearchSelectOption,function(k,v){
+						if( v.option == tmp){
+							$('#option-container #condition').val(v.id);
+						}
+					});
+				}else{
+					let dft = 0;
+					$.each( form.superSearchSelectOption ,function(k,v){
+						if( v.dft == 1 ){
+							dft = v.id;
+							return false;
+						}
+					});
+					if( dft > 0 ){
+						$('#option-container #condition').val( dft );
+						form.set_super_option( dft );
+					}
+				}
+				
+				$('#condition_dlt').click(function(){
+					let o = {};
+					o.id = $('#option-container #condition').val();
+					if(o.id == '') return false;
+					parent.layer.confirm('确定删除方案?', {icon: 3, title:'提示',offset:'10%'}, function(index){
+						$.post(get_parent().mainUrl + '/PublicGet/dltOption',o,function(d){
+							
+							if(d.status == 's'){
+								$('#option-container #condition').val('');
+								$('#option-container #condition option').each(function(){
+									if( $(this).val() == o.id ){
+										$(this).remove();
+										return false;
+									}
+								});
+								form.clear_super_option();
+								layer.msg('删除成功',{'icon':1,time:1500,offset:'30%'});
+							}else{
+								layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
+							}
+
+							parent.layer.close(index);
+						});
+					});
+
+					
+
+				});
+				
+				
+				$('#option-container').find('input.erp').each(function(){
+					if( $(this).data('type2') ){
+						form._switch({ type : $(this).data('type'), type2 : $(this).data('type2') },'on','head','',this);
+					}
+				});
+
+				$('.option-container2').hover(function(){
+					$(this).find('img.select').show();
+				},function(){
+					$(this).find('img.select').hide();
+				});
+					
+				$('#condition_confirm').click(function(){
+					form.superSearchOption = form.get_option('#option-container');
+					form.searchOption = form.superSearchOption;
+					$('#search').removeClass('searchedButton');
+					$('#super_search').addClass('searchedButton');
+					form.search();
+					parent.layer.close(index);
+				});
+
+				$('#condition_save').click(function(){
+					let tmp = form.get_option('#option-container');
+					if(tmp.merge != null) delete tmp.merge;
+					layer.prompt({title:'保存方案',offset : ['10%']},function(value, index, elem){
+						var o = {};
+						o.title = $.trim(value);
+						if( o.title == ''){
+							layer.msg("方案名称不能为空",{'icon':2,time:2000,offset:'30%'});
+						}else{
+							o.option = JSON.stringify(tmp);
+							o.name = form.config.name;
+
+							$.post(get_parent().mainUrl + '/PublicGet/setOption',o,function(d){
+								if(d.status == 's'){
+
+									if(d.info == 'insert'){
+										form.superSearchSelectOption.push(d.data);
+										$('#option-container #condition').append("<option data-dft value = '"+d.data.id+"'>"+d.data.title+"</option>");
+									}else{
+										for(let i = 0; i<form.superSearchSelectOption.length ; i++){
+											if( form.superSearchSelectOption[i].id == d.data.id){
+												form.superSearchSelectOption[i] = d.data;
+												break;
+											}
+										}
+									}
+
+									$('#option-container #condition').val(d.data.id);
+										
+									layer.msg('保存成功',{'icon':1,time:1500,offset:'30%'});
+
+								}else{
+									layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
+								}
+							});
+							layer.close(index);
+						}
+					});
+				});
+			}
+		});
+
 	},
 
 	set_super_search_option : function(option){
@@ -1544,8 +1738,8 @@ var form  = {
 	},
 
 	get_app_search_option(){
-		if(app && app.searchOption){
-			return app.searchOption;
+		if(app && form.searchOption){
+			return form.searchOption;
 		}else{
 			return {};
 		}
@@ -2420,9 +2614,11 @@ var form  = {
 
 	search : function (o = {}){
 		
-		o = $.extend(o,app.searchOption);
+		o = $.extend(o,form.searchOption);
 		o = $.extend(o,get_page());
 		o.merge = $('#merge').hasClass('merged')?1:0;
+
+		
 
 		form.query(o);	
 	},

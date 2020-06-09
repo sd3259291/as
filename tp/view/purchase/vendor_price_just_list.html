@@ -34,6 +34,9 @@
 						<button class = 'btn btn-default margin-top-3' id = 'merge'  >
 							<i class="material-icons">call_split</i>
 						</button>
+						<button class = 'btn btn-default margin-top-3 text-color2' id = 'my' title = '我的待审核' >
+							<i class="material-icons">check_circle</i>
+						</button>
 
 					</div>
 					
@@ -102,13 +105,12 @@
 		superSearchOption : {},
 		
 		u8Config : {
+
+			name : 'vendor_price_just_list',
+
 			type : 'list',
 
 			selectMulti : true,
-
-			searchFrame : {
-				
-			},
 
 			head:[
 				{id : 'gys' , type2 : 'vendor',type : 'erp'},
@@ -132,7 +134,7 @@
 				callback : ''
 			},
 			search : {
-				url :'__APP__/Purchase/getVendorPriceJustList', 
+				url :'__APP__/Purchase/getVendorPriceJustList',
 				superSearch : [
 					[
 						{ name : '订单号' , option : 'option_ddh' , type : 'text' , },

@@ -12,17 +12,15 @@ use think\facade\Db;
 use app\model\Department;
 use app\model\Employee;
 use think\facade\Cache;
+use app\model\erp\ErpOption;
 
 class PublicGet extends BaseController{
-
-	
 
 	public function __construct(){
        
     }
 
-	
-	
+
 	/**
      * 根据部门 id 返回人员名单
      */
@@ -348,8 +346,23 @@ class PublicGet extends BaseController{
 		
         return a($r,'','s');
 	}
-
-
+	/**
+	+------------------------------------------------------------------------------
+	* option
+	+------------------------------------------------------------------------------
+	*/
+	public function getOptions(ErpOption $o){
+		return $o->getOptions($_POST);
+	}
+	public function setOption(ErpOption $o){
+		return $o->setOption($_POST);
+	}
+	public function setDefaultOption(ErpOption $o){
+		return $o->setDefaultOption($_POST);
+	}
+	public function dltOption(ErpOption $o){
+		return $o->dltOption($_POST);
+	}
 	
 	
 }

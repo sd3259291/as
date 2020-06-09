@@ -209,3 +209,8 @@ function tbody($array,$structure,$dltSame = array(),$borderTop = 'top-border',$t
 	if($tbody) $t .= "</tbody>";
 	return $t;
 }
+function checkAuth($url){
+	
+
+	return true;
+}

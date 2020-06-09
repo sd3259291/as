@@ -531,31 +531,70 @@ class VendorPriceJust extends Model{
 
 	public function getList($post){
 
-		$w = " 1 = 1 ";
+		$r = $page = [];
+		if(is_set($post,'my')){
+			// 检查 是否有审核权限
+			$auth = checkAuth('');
 
-		if(is_set($post,'option_ddh')){
-			$w .= " &&  b.ddh = '".sprintf('%08d',$post['option_ddh'])."' ";
+			if($auth){
+
+				$r = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','a.vendor_code = v.code')->field('b.ddh,b.date,b.maker,b.status,b.flow_id,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.origin_price,a.origin_tax,a.origin_tax_price,a.price,a.tax,a.tax_price')->where('status < 9')->order('a.id desc,a.listid asc')->select()->toArray();
+				//有权限的情况下，检查流程上是是否到本人
+				$hasFlow = [];
+				foreach($r as $k => $v){
+					if($v['flow_id']) $hasFlow[] = $v['flow_id'];
+				}
+				if(count($hasFlow) > 0 ){
+					$r1 = Db::table('s_flows_executor')->where("number = '".Session::get('userinfo')['username']."' && flow_id in (".get_w($hasFlow,false).")")->field('flow_id')->select()->toArray();
+					$flow = [];
+					foreach($r1 as $k => $v){
+						$flow[$v['flow_id']] = 1;
+					}
+					foreach($r as $k => $v){
+						if( !isset($flow[$v['flow_id']]) ) unset($r[$k]);
+					}
+				}
+
+			}
+
+
+
+
+
+
+
+
+
+
+			//我的待审核
+			
+			
+
+
+
+		}else{
+			//搜索
+			$w = " 1 = 1 ";
+			if(is_set($post,'option_ddh')){
+				$w .= " &&  b.ddh = '".sprintf('%08d',$post['option_ddh'])."' ";
+			}
+			if(is_set($post,'option_vendor_code')){
+				$w .= " && a.vendor_code = '".$post['option_vendor_code']."' ";
+			}
+			if(is_set($post,'option_inventory_code')){
+				$w .= " && a.inventory_code = '".$post['option_inventory_code']."' ";
+			}
+			$totle = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->where($w)->count();
+			
+			$page['totles'] = $totle;     //总记录数 返回
+			$page['totle_page'] = ceil($totle / $post['n']);  //总页数 返回
+			$page['n'] = $post['n'];
+			$page['current_page'] = $post['page'];     //当前页 返回	
+
+			$r = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','a.vendor_code = v.code')->field('b.ddh,b.date,b.maker,b.status,b.flow_id,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.origin_price,a.origin_tax,a.origin_tax_price,a.price,a.tax,a.tax_price')->where($w)->page($post['page'],$post['n'])->order('a.id desc,a.listid asc')->select()->toArray();
 		}
+
 		
-		if(is_set($post,'option_vendor_code')){
-			$w .= " && a.vendor_code = '".$post['option_vendor_code']."' ";
-		}
-
-		if(is_set($post,'option_inventory_code')){
-			$w .= " && a.inventory_code = '".$post['option_inventory_code']."' ";
-		}
-
-		$merge = is_set($post,'merge');
-		
-		$totle = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->where($w)->count();
-
-		$page = array();
-        $page['totles'] = $totle;     //总记录数 返回
-        $page['totle_page'] = ceil($totle / $post['n']);  //总页数 返回
-        $page['n'] = $post['n'];
-        $page['current_page'] = $post['page'];     //当前页 返回	
-
-		$r = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','a.vendor_code = v.code')->field('b.ddh,b.date,b.maker,b.status,b.flow_id,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.origin_price,a.origin_tax,a.origin_tax_price,a.price,a.tax,a.tax_price')->where($w)->page($post['page'],$post['n'])->order('a.id desc,a.listid asc')->select()->toArray();
 
 		$structure = array(
 			array('key' => 'ddh' , 'type' => 'a' , 'class' => 'detail'),
@@ -574,13 +613,12 @@ class VendorPriceJust extends Model{
 			array('key' => 'tax' , 'type' => 'number' , 'zero' => ''),
 			array('key' => 'tax_price' , 'type' => 'number' , 'zero' => ''),
 		);
-
 		$tbody = tbody($r,$structure,is_set($post,'merge')?[4]:[] );
+		$result = [ 'tbody' => $tbody , 'page' => $page ];
 
+		
 
-		$r = [ 'tbody' => $tbody , 'page' => $page ];
-
-		return a($r,'','s');
+		return a($result,'','s');
 	}
 
 
