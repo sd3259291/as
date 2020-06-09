@@ -1,5 +1,5 @@
 ﻿# Host: 192.168.3.3  (Version 8.0.12)
-# Date: 2020-06-09 15:43:10
+# Date: 2020-06-09 15:58:35
 # Generator: MySQL-Front 6.1  (Build 1.26)
 
 
@@ -247,10 +247,10 @@ INSERT INTO `s_erp_config` VALUES (4,'vendor_price_just_flow','1','vendor_price_
 
 CREATE TABLE `s_erp_option` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `option` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `username` varchar(50) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `option` text,
   `dft` tinyint(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
