@@ -2627,9 +2627,10 @@ class Fs extends BaseController{
 
 		if(count($next['p']) > 0){
 			$r = Db::table('s_flows_executor')->where("flow_id = $flowId && status > 1 &&  node_id in (".get_w($next['n']).") ")->field('id')->find();
-			if($r) return ['ok' => false,'msg' => '下续节点已被审核，不能取回'];
+			if($r) return ['ok' => false,'msg' => '下续节点已被审核，不能取回 或 弃审'];
 		}
-
+		
+		
 		foreach($next['p'] as $k => $v){
 			$node[$v]['D'] = 0;
 		}
@@ -2847,6 +2848,120 @@ class Fs extends BaseController{
 			}
 		}
 
+		return array( 'ok' => true , 'checkResult' => $checkResult);
+
+			
+
+
+	}
+	public function uncheckFlow($bill,$nodeId){
+
+		$flowsId = array();
+		foreach($bill as $k => $v){
+			$flowsId[$v['flow_id']] = 1;
+		}
+
+		$userinfo = Session::get('userinfo');
+
+		$fs = Db::table('s_flows')->where('id in ('.get_w($flowsId,false,false).')')->field('node,id,p')->select()->toArray();
+		$checkFs = array();
+		$node = $p = '';
+		foreach($fs as $k => $v){
+			$checkFs[$v['node']][] = $flowsId[$v['id']];
+			if($node == ''){
+				$node = $v['node'];
+				$p = $v['p'];
+			}
+		}
+			
+		if( count($checkFs) > 1 ){
+			return array( 'ok' => 'error' , 'msg' => '不同流程的订单不能合并弃审');
+		}
+
+		$node = json_decode($node,true);
+
+		
+		
+
+
+		$executors = Db::table('s_flows_executor')->where('flow_id in ('.get_w($flowsId,false,false).')')->where("status = 2 && number = '".$userinfo['username']."'")->field('node_id,number,flow_id,id')->select()->toArray();
+
+		
+		
+		
+
+		$NodeflowIdIdToId = array();
+
+		$check = array();		
+		$selectIds = array();
+	
+		foreach($executors as $k => $v){
+			$selectIds[$v['node_id']] = $flowsId[$v['flow_id']];
+			$check[$v['flow_id']] = 1;
+			$NodeflowIdIdToId[ $v['node_id'].$v['flow_id'] ] = $v['id'];
+		}
+
+		
+		
+		$checkResult = array();
+
+		foreach($bill as $k => $v){
+			if($v['flow_id']){
+				if( !isset($check[$v['flow_id']]) ){
+					$checkResult[$v['ddh']] = array( 'ok' => false, 'msg' => '非审核人不能弃审' );
+				}else{
+					if( count($selectIds) > 1 ){
+						if( $nodeId == ''){
+							$department = $post = array();
+							$p = json_decode($p,true);
+							foreach($node as $k => $v){
+								if(isset($v['X']) && count($v['X']) > 0){
+									foreach($v['X'] as $k1 => $v1){
+										if($v1[1] == 'aya1' || $v1[1] == 'aya3'){
+											$tmp = explode('|',$v1[3]);
+											$department[] = $tmp[0];
+										}else if($v1[1] == 'aya2' || $v1[1] == 'aya4'){
+											$post[] = $v1[3];
+										}
+									}
+								}
+							}
+
+							
+							if( count($department) > 0 ){
+								$department = column(Db::table('s_department')->where("id in (".get_w($department,false).")")->field('id,name')->select()->toArray(),'id');
+							}
+							if( count($post) > 0 ){
+								$post = column(Db::table('s_post')->where("id in (".get_w($post,false).")")->field('id,name')->select()->toArray(),'id');
+							}
+
+
+							return array( 'ok' => 'selectId' , 'data' => ['node' => $node, 'p' => $p , 'department' => $department,'post' => $post, 'data' => $selectIds] );
+
+							
+
+						}else{
+							$checkResult[$v['ddh']] = array( 'ok' => true , 'ddh' => $v['ddh'],'node_id' => $nodeId,'flow_id' => $v['flow_id'] ,'id' => $NodeflowIdIdToId[$nodeId.$v['flow_id']] );
+						}
+
+						
+					}else{
+						$tmp = '';
+						foreach( $selectIds as $k1 => $v1 ){
+							$tmp = $k1;
+						}
+
+						$checkResult[$v['ddh']] = array( 'ok' => true ,'ddh' => $v['ddh'],'node_id' => $tmp , 'flow_id' => $v['flow_id'] ,'id' => $NodeflowIdIdToId[$tmp.$v['flow_id']] );
+
+
+						
+					}
+				}
+			}
+		}
+
+			
+	
 		return array( 'ok' => true , 'checkResult' => $checkResult);
 
 			

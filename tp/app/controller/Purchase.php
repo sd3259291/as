@@ -23,12 +23,10 @@ class Purchase
 	}
 
 	public function saveVendorPriceJust(VendorPriceJust $v){
-		//gp();
 		return $v->saveBill($_POST);
 	}
 
-	public function dltVendorPriceJust(VendorPriceJust $v){
-		
+	public function dltVendorPriceJust(VendorPriceJust $v){	
 		return $v->dltBill($_POST);
 	}
 
@@ -37,7 +35,7 @@ class Purchase
 	}
 
 	public function checkVendorPriceJust(VendorPriceJust $v){
-		//gp();
+	//	gp();
 		return $v->checkBill($_POST);
 	}
 	
@@ -51,17 +49,18 @@ class Purchase
 	
 	// 根据供应商和物料编码获得价格
 	public function getVendorPriceByData(VendorPrice $v){
-		
 		return $v->getVendorPriceByData($_POST);
 	}
 
 	public function vendorPriceJustList(){
 		return View::fetch();
 	}
-
 	public function getVendorPriceJustList(VendorPriceJust $v){
-		//gp();
 		return $v->getList($_POST);
+	}
+	public function exportVendorPriceJust(VendorPriceJust $v){
+		gp();
+		return $v->export($_POST);
 	}
 
 

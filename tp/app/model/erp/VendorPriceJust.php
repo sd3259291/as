@@ -25,13 +25,14 @@ class VendorPriceJust extends Model{
 		'remark' => 'varchar',
 		'flow_id' => 'int',
 		'date' => 'date',
-		'create_time' => 'int',
-		'update_time' => 'int'
+		'create_time' => 'datetime',
+		'update_time' => 'datetime'
 	];
 
 	public function get($post){
 
 		$main = $this::where("ddh = '".sprintf('%08d',$post['ddh'])."'")->find();
+		
 		if(!$main) return a('','表单不存在','e');
 		$list = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor v','a.vendor_code = v.code')->join('s_inventory i','a.inventory_code = i.code')->join('s_unit u','i.unit_id = u.id')->where('a.id = '.$main->id)->field('a.listid,a.vendor_code,v.name vendor_name,a.inventory_code,i.name inventory_name,i.std inventory_std,u.name inventory_unit,a.price,a.tax,a.tax_price,a.origin_price,a.origin_tax_price	')->select()->toArray();
 		$main = $main->toArray();
@@ -62,10 +63,8 @@ class VendorPriceJust extends Model{
 		}
 	}
 
-	public function canModify($post,$type){
-
+	public function canModify($post,$type = 'modify'){
 		
-		 
 		$ddh = json_decode($post['ddh'],true);
 
 		$checkResult = $ddhId = array();
@@ -74,7 +73,9 @@ class VendorPriceJust extends Model{
 			$checkResult[$v] = [ 'ok' => false , 'msg' => '表单不存在' ];
 		}
 
-		$r = $this::where("ddh in (".get_w($ddh).")")->field('id,ddh,status,maker_number,flow_id')->select()->toArray();
+		$r = $this::where("ddh in (".get_w($ddh).")")->field('id,ddh,status,maker_number,flow_id,update_time')->select()->toArray();
+
+		$flowsId = array();
 		
 		if($type == 'dlt'){
 
@@ -91,16 +92,19 @@ class VendorPriceJust extends Model{
 			}
 
 		}else if($type == 'check'){
-			$flowsId = array();
+			// 表单相关的判断
+
 			
 
-			// 表单相关的判断
+			
+
+			
 			foreach($r as $k => $v){
 				if($v['flow_id']){
 					if($v['status'] >= 9){
 						$checkResult[$v['ddh']] = ['ok' => false ,'msg' => '已审核完毕'];
 					}else{
-						$flowsId[$v['flow_id']] = $v['ddh'];
+						$flowsId[$v['flow_id']] = $v;
 					}
 					
 				}else{
@@ -112,12 +116,11 @@ class VendorPriceJust extends Model{
 				}
 			}
 
-			
 			// 流程相关的判断
 			if(count($flowsId) > 0){
 				$fs = new Fs;
 				
-				$check = $fs->checkFlow($r,$post['nodeId']);
+				$check = $fs->checkFlow($flowsId,$post['nodeId']);
 				if($check['ok'] !== true){
 					return $check;
 				}else{
@@ -126,25 +129,68 @@ class VendorPriceJust extends Model{
 					}
 				}
 			}
-
-
-
 			
-			
-
-		}else if($type == 'uncheck'){
-			foreach($r as $k => $v){
-				if( $v['status'] >= 9 ){
-					$checkResult[$v['ddh']] = array( 'ok' => false , 'msg' => '已审核完毕' );
-				}else{
-					$checkResutl[$v['ddh']] = array( 'ok' => true);
+			if($post['type'] == 'bill' && $checkResult[$ddh[0]]['ok'] && $r){
+				if($post['update_time'] != $r[0]['update_time']){
+					$checkResult[$ddh[0]] = ['ok' => false ,'msg' => '订单已被修改，请重新载入'];
 				}
 			}
-		}else if($type == 'modify'){
+
+
+
+		}else if($type == 'uncheck'){
+
 			foreach($r as $k => $v){
-				$ddhId[$v['ddh']] = $v['id'];
-				if( $v['status'] >= 9 ) return a('',"表单（ ".$v['ddh']." ）已审核完毕，不能修改",'e');
+				if($v['flow_id']){
+					if($v['status'] >= 9){
+						$checkResult[$v['ddh']] = ['ok' => false ,'msg' => '已审核完毕'];
+					}else{
+						$flowsId[$v['flow_id']] = $v;
+					}
+					
+				}else{
+					if($v['status'] >= 9){
+						$checkResult[$v['ddh']] = ['ok' => false ,'msg' => '已审核完毕'];
+					}else{
+						$checkResult[$v['ddh']] = array( 'ok' => true);
+					}
+				}
 			}
+
+
+			// 流程相关的判断
+			if(count($flowsId) > 0){
+				$fs = new Fs;
+				
+				$check = $fs->uncheckFlow($flowsId,$post['nodeId']);
+
+			
+
+				if($check['ok'] !== true){
+					return $check;
+				}else{
+					foreach($check['checkResult'] as $k => $v){
+						$checkResult[$k] = $v;
+					}
+				}
+			}
+			
+			if($post['type'] == 'bill' && $checkResult[$ddh[0]]['ok'] && $r){
+				if($post['update_time'] != $r[0]['update_time']){
+					$checkResult[$ddh[0]] = ['ok' => false ,'msg' => '订单已被修改，请重新载入'];
+				}
+			}
+			
+		}else if($type == 'modify'){
+			if(!$r) return a('','表单不存在','e');
+			if($r[0]['flow_id']){
+				$tmp = Db::table('s_flows_executor')->where('flow_id = '.$r[0]['flow_id'].' && status = 2')->field('id')->find();
+				if($tmp) return a('','已审核，不能修改','e');
+			}else{
+				if($r[0]['status'] == 9) return a('','已审核完毕，不能修改','e');
+			}
+			return a();
+			
 
 		}
 
@@ -227,13 +273,15 @@ class VendorPriceJust extends Model{
 			'type' => 'modify',
 			'ddh' => json_encode( [$post['ddh']] )
 		];
-		$r = $this->canModify($checkData);
-		$tmp = ua($r);
-		if( $tmp['status'] != 's') return $r;
-		$id = $tmp['data'][$post['ddh']];
+		$main = $this::where("ddh = '".$post['ddh']."'")->find();
+		if($main->update_time != $post['update_time']) return a('','订单已被修改，请重新载入','e');
+		
+		$id = $main['id'];
+		
 		$data = json_decode($post['data'],true);
 		$validata = $this->validate($data,$id);
 		if(!$validata['ok']) return a('',$validata['msg'],'e');
+	
 		$list = Db::table('s_vendor_price_just_list')->where('id = '.$id)->field('listid')->select()->toArray();
 		if( count($list) == 0 ) return a('','表单错误','e');
 		$checkList = array();
@@ -305,7 +353,11 @@ class VendorPriceJust extends Model{
 
 			Db::execute(" update s_vendor_price_just_list set $s where listid in ( $w ) ");
 		}
-		return a();
+
+		$this::update(['date' => $post['date'],'remark' => $post['remark']],['ddh' => $main['ddh']]);
+
+
+		return a($main['ddh']);
 	}
 
 
@@ -344,11 +396,9 @@ class VendorPriceJust extends Model{
 			if( $checkResult['ok'] === 'error' ) return a('',$checkResult['msg'],'error');
 			if( $checkResult['ok'] === 'selectId' ) return a($checkResult['data'],'','selectId');
 		}
-	
-	
+
 		$w = $q = "";
 		$checkDone = [];
-
 		foreach($checkResult as $k => $v){
 			if( $v['ok'] ){
 				$r = $this->checkBillDo( $v );
@@ -367,16 +417,14 @@ class VendorPriceJust extends Model{
 		if($w != ''){
 			Db::execute(" update s_vendor_price_just set status = case ddh $q end where ddh in (".substr($w,0,-1).")");
 		}
+		$this->afterCheckBill($checkResult);
 
 		return a($checkResult);
-
-		$this->afterCheckBill($result);
-		return a($result,'','s');
 	}
 
 	public function checkBillDo($bill){
 		$status = 0;
-		if($bill['flow_id']){
+		if(is_set($bill,'flow_id')){
 			$fs = new Fs;
 			$handleData = array(
 				'flowId' => $bill['flow_id'],
@@ -394,57 +442,64 @@ class VendorPriceJust extends Model{
 		}else{
 			$status = 9;
 		}
-
-
-
-
-		return array( 'ok' => true , 'status' => $status , 'imgType' => $status.($bill['flow_id']>0?1:0) );
-		
+		return array( 'ok' => true , 'status' => $status , 'imgType' => $status.(is_set($bill,'flow_id')?1:0) );	
 	}
 
 	public function uncheckBill($post){
-		$result = array();
-		$ddh = json_decode($post['ddh'],true);
-		foreach($ddh as $k => $v){
-			$r = $this->uncheckBillDo($v);
-			if(!$r['ok']) return a('',$r['msg'],'e');
-			$result[$v] = $r['status'];
+				
+		$checkResult = $this->canModify($post,'uncheck');
+
+		if(isset($checkResult['ok'])){
+			if( $checkResult['ok'] === 'error' ) return a('',$checkResult['msg'],'error');
+			if( $checkResult['ok'] === 'selectId' ) return a($checkResult['data'],'','selectId');
 		}
-		return a($result,'','s');
+		
+		foreach($checkResult as $k => $v){
+			if( $v['ok'] ){
+				$r = $this->uncheckBillDo( $v );
+
+				if($r['ok'] === true){
+					$checkResult[$k] = array('ok' => true,'status' => $r['status']);
+					
+				}else{
+					if($r['ok'] === false)  $checkResult[$k] = array( 'ok' => false , 'msg' => $r['msg']);
+				}
+			}
+		}
+
+		return a($checkResult,'','s');
+		
 	}
 
-	public function uncheckBillDo($ddh){
-		
-		$bill = $this::where("ddh = '$ddh'")->field('flow_id,id,ddh')->find();
-		if($bill['flow_id']){
-			$userinfo = Session::get('userinfo');
-			$r = Db::table('s_flows_executor')->where("flow_id = ".$bill['flow_id']." && status = 2 && number = '".$userinfo['username']."'")->field('id,flow_id,node_id,status')->find();
+	public function uncheckBillDo($bill){
 
-			if(!$r) return array( 'ok' => false , 'msg' => '弃审错误' );
+		
+
+		if(is_set($bill,'flow_id')){
+			
 			$fs = new Fs;
 
 			$handleData = array(
-				'flowid' => $r['flow_id'],
-				'nodeid' => $r['node_id'],
-				'id' => $r['id'],
+				'flowid' => $bill['flow_id'],
+				'nodeid' => $bill['node_id'],
+				'id' => $bill['id'],
 			);
 			$r = $fs->retrieveDo( $handleData );
 
 			if(!$r['ok']) return $r;	
 		}
-		if($bill->status >= 9){
-			$bill->status = 5;
-			$bill->save();
-		}
 		
-		return array( 'ok' => true , 'status' => 5, 'imgType' => '5'.($bill['flow_id']>0?1:0) );
+		
+		return array( 'ok' => true , 'status' => 5, 'imgType' => '5'.(is_set($bill,'flow_id')?1:0) );
 	}
 
 
 	private function afterCheckBill($result){
+
+	
 		$checked = array();
 		foreach($result as $k => $v){
-			if($v == 9) $checked[] = $k;
+			if($v['ok'] && $v['status'] == 9) $checked[] = $k;
 		}
 		if(count($checked) == 0) return ;
 		$r = Db::table('s_vendor_price_just_list')->alias('a')->join(['s_vendor_price_just' => 'b'],'a.id = b.id')->field('a.price,a.tax,a.tax_price,a.origin_price,a.origin_tax,a.origin_tax_price,a.inventory_code,a.vendor_code,b.maker')->where(" b.ddh in (".get_w($checked).") ")->select()->toArray();
@@ -529,6 +584,9 @@ class VendorPriceJust extends Model{
 		}
 	}
 
+
+
+
 	public function getList($post){
 
 		$r = $page = [];
@@ -537,7 +595,6 @@ class VendorPriceJust extends Model{
 			$auth = checkAuth('');
 
 			if($auth){
-
 				$r = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','a.vendor_code = v.code')->field('b.ddh,b.date,b.maker,b.status,b.flow_id,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.origin_price,a.origin_tax,a.origin_tax_price,a.price,a.tax,a.tax_price')->where('status < 9')->order('a.id desc,a.listid asc')->select()->toArray();
 				//有权限的情况下，检查流程上是是否到本人
 				$hasFlow = [];
@@ -556,42 +613,15 @@ class VendorPriceJust extends Model{
 				}
 
 			}
-
-
-
-
-
-
-
-
-
-
 			//我的待审核
-			
-			
-
-
 
 		}else{
 			//搜索
-			$w = " 1 = 1 ";
-			if(is_set($post,'option_ddh')){
-				$w .= " &&  b.ddh = '".sprintf('%08d',$post['option_ddh'])."' ";
-			}
-			if(is_set($post,'option_vendor_code')){
-				$w .= " && a.vendor_code = '".$post['option_vendor_code']."' ";
-			}
-			if(is_set($post,'option_inventory_code')){
-				$w .= " && a.inventory_code = '".$post['option_inventory_code']."' ";
-			}
-			$totle = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->where($w)->count();
 			
-			$page['totles'] = $totle;     //总记录数 返回
-			$page['totle_page'] = ceil($totle / $post['n']);  //总页数 返回
-			$page['n'] = $post['n'];
-			$page['current_page'] = $post['page'];     //当前页 返回	
-
-			$r = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','a.vendor_code = v.code')->field('b.ddh,b.date,b.maker,b.status,b.flow_id,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.origin_price,a.origin_tax,a.origin_tax_price,a.price,a.tax,a.tax_price')->where($w)->page($post['page'],$post['n'])->order('a.id desc,a.listid asc')->select()->toArray();
+			$tmp = $this->getSearchData($post);
+			$r = $tmp['r'];
+			$page = $tmp['page'];
+			
 		}
 
 		
@@ -616,9 +646,59 @@ class VendorPriceJust extends Model{
 		$tbody = tbody($r,$structure,is_set($post,'merge')?[4]:[] );
 		$result = [ 'tbody' => $tbody , 'page' => $page ];
 
-		
-
 		return a($result,'','s');
+	}
+
+	public function export($post){
+		$post['page'] = 1;
+		$post['n'] = 10000000;
+		$r = $this->getSearchData($post);
+		$excel = array(
+			'ddh' => '表单号',
+			'status' => '状态',
+			'date' => '日期',
+			'maker' => '制单人',
+			'vendor_code' => '供应商编码',
+			'vendor_name' => '供应商名称',
+			'inventory_code' => '物料编码',
+			'inventory_name' => '物料名称',
+			'inventory_std' => '规格型号',
+			'origin_price' => '原单价',
+			'origin_tax' => '原税率',
+			'origin_tax_price' => '原含税价',
+			'price' => '现单价',
+			'tax' => '现税率',
+			'tax_price' => '现含税价'
+		);
+
+		dump($excel);
+	}
+
+
+	public function getSearchData($post){
+		$w = " 1 = 1 ";
+		if(is_set($post,'option_ddh')){
+			$w .= " &&  b.ddh = '".sprintf('%08d',$post['option_ddh'])."' ";
+		}
+		if(is_set($post,'option_vendor_code')){
+			$w .= " && a.vendor_code = '".$post['option_vendor_code']."' ";
+		}
+		if(is_set($post,'option_inventory_code')){
+			$w .= " && a.inventory_code = '".$post['option_inventory_code']."' ";
+		}
+		$totle = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->where($w)->count();
+			
+		$page['totles'] = $totle;     //总记录数 返回
+		$page['totle_page'] = ceil($totle / $post['n']);  //总页数 返回
+		$page['n'] = $post['n'];
+		$page['current_page'] = $post['page'];     //当前页 返回	
+
+		$r = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','a.vendor_code = v.code')->field('b.ddh,b.date,b.maker,b.status,b.flow_id,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.origin_price,a.origin_tax,a.origin_tax_price,a.price,a.tax,a.tax_price')->where($w)->page($post['page'],$post['n'])->order('a.id desc,a.listid asc')->select()->toArray();
+
+		return array(
+			'r' => $r,
+			'page' => $page
+		);
 	}
 
 

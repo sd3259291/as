@@ -1,7 +1,6 @@
 # aya
 
-网站里的例子，供应商价格表列表的审核流程图相对复杂，一般正常情况下，供应链的审核流程不会这么复杂，这么做的原因主要是为了预防。
-
+((::))
 
 
 #### 介绍
@@ -22,6 +21,7 @@ http://ayasv.com/demo/index.php
 - 管理员密码: duoduo
 - 用户账号：  010099
 - 用户密码：  123
+- 其他账号可参考账号管理
 
 #### 备注
 - 因为Thinkphp会写入日志文件，LINUX 服务器要修改 tp文件夹权限 
@@ -36,9 +36,7 @@ tp\config\database.php中修改
 
 2.然后运行
 
-gitee下载：http://YOURSERVE/index.php
-
-github下载：：http://YOURSERVE/index.php
+http://YOURSERVE/index.php
 
 3.注意数据库文件可能有更新
 

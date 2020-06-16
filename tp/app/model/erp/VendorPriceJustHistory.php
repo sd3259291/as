@@ -5,6 +5,8 @@ use app\validate\erp\UnitValidate;
 use think\exception\ValidateException;
 
 class VendorPriceJustHistory extends Model{
+
+	protected $autoWriteTimestamp = 'datetime';
   
 	protected $schema = [
 		'id'	=> 'int',
@@ -14,7 +16,7 @@ class VendorPriceJustHistory extends Model{
 		'tax' => 'int',
 		'tax_price' => 'numeric',
 		'maker' => 'varchar',
-		'create_datetime' => 'datetime',
+		'create_time' => 'datetime',
 		'origin_price' => 'numeric',
 		'origin_tax' => 'int',
 		'origin_tax_price' => 'numeric'

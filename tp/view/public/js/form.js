@@ -1393,6 +1393,12 @@ var form  = {
 			}
 		});
 
+		$('#export').click(function(){
+			$.post(form.config.check.url,form.searchOption,function(d){
+				
+			});
+		});
+
 		$('#flow').click(function(){
 			if($('#table tbody tr.selected').length == 0) return false;
 			if(!$('#table tbody tr.selected').eq(0).data('flow_id') ) return false;
@@ -1769,6 +1775,7 @@ var form  = {
 		let index = parent.layer.load(2,{offset:'30%'});
 
 		$.post(form.config.get.url,o,function(d){
+			
 			parent.layer.close(index);
 			if(d.status == 's'){
 				$('#erptips').html('');
@@ -1805,6 +1812,7 @@ var form  = {
 				});
 
 				for(let i in d.info){
+
 
 					if(document.getElementById(i) != null){
 						
@@ -1975,8 +1983,14 @@ var form  = {
 
 		table += "</tbody></table>";
 
+		let typeName = {
+			'dlt' : '删除',
+			'check' : '审核',
+			'uncheck' : '弃审'
+		};
+
 		parent.layer.open({
-			title:'操作结果',
+			title:"操作结果<span class = 'text-color5'>（ " + typeName[type] + " ）</span>",
 			area: ['800px','100%'],
 			offset:'1px',
 			shadeClose:true,
@@ -2005,12 +2019,15 @@ var form  = {
 		if( type != 'bill' &&  $('#table tbody tr.' + selected).length < 1 || $('#table tbody tr.' + selected).eq(0).text() == '-' ){
 			 return false;
 		}
+		
+		
 
 		let obj = {};
 		if(type == 'bill'){
 			let tmp = [];
 			tmp.push($('#ddh_hidden').val());
 			obj.ddh = JSON.stringify(tmp);
+			obj.update_time = $('#update_time').val();
 		}else{
 			obj.ddh = JSON.stringify(ddh);
 		}
@@ -2019,6 +2036,7 @@ var form  = {
 		}
 		obj.type = type;
 		obj.nodeId = nodeId;
+
 		form.check_do(obj);
 
 		
@@ -2048,9 +2066,6 @@ var form  = {
 								if( v.ok ){
 									layer.msg('审核成功！',{icon:1,time:1500,offset:'30%'});
 
-									
-
-
 									$('#table tbody tr.c' + k).each(function(){
 										if( $(this).children().eq(1).text() == '') return true;
 										let data = form.list_table.row( this ).data();
@@ -2072,11 +2087,7 @@ var form  = {
 							});
 						}else{
 
-							
-
 							form.list_error( d.data ,'check' );
-
-
 
 						}
 					}
@@ -2252,7 +2263,7 @@ var form  = {
 
 					layer.open({
 						//skin: 'layer-search-container',
-						title:'<span style = "font-size:12px">选择分支</span>',
+						title:'<span style = "font-size:12px">选择分支（审核）</span>',
 						area: ['800px','100%'],
 						shadeClose:true,
 						isOutAnim: false ,
@@ -2316,8 +2327,9 @@ var form  = {
 								if(nodeId == ''){
 									 layer_error({info : 'aaa'});
 								}else{
+									
+									form.check( obj.type,form.get_list_ddh(),nodeId);
 									layer.close(index);
-									form.check(type = 'list',form.get_list_ddh(),nodeId);
 								}
 
 							});
@@ -2334,56 +2346,159 @@ var form  = {
 
 	},
 
+	uncheck_do : function(obj, exc = '' ){
+		if(exc != '') obj.executor = exc;
 
-	uncheck : function (type = 'bill',ddh = [],selected = 'selected'){
+		$.post(form.config.uncheck.url,obj,function(d){
 
-		let o = {};
+			if(d.status == 's'){
+				
+				if(obj.type == 'bill'){
+					$.each(d.data,function(i,v){
+						if( v.ok ){
+							layer.msg('弃审成功！',{icon:1,time:1500,offset:'30%'});
+							form.ddh();
+						}else{
+							layer.msg( v.msg ,{icon:2,time:2000,offset:'30%'});
+						}
+					});
+						
+				}else{
+						let length = 0;
+						$.each(d.data,function(k,v){length++});
+						if( length == 1 ){
+							$.each(d.data,function(k,v){
+								if( v.ok ){
+									layer.msg('弃审成功！',{icon:1,time:1500,offset:'30%'});
+
+									$('#table tbody tr.c' + k).each(function(){
+										if( $(this).children().eq(1).text() == '') return true;
+										let data = form.list_table.row( this ).data();
+										if(v.status == 5){
+											data[1] = "<i class='material-icons text-color1' style='font-size:12px'>arrow_forward</i>";
+										}else{
+											data[1] = "<i class='material-icons text-color3' style='font-size:12px'>done</i>";
+										}
+										
+										form.list_table.row( this ).data( data );
+									});
+
+
+
+
+								}else{
+									parent.layer.msg(v.msg,{icon:2,time:2000,offset:'30%'});
+								}
+							});
+						}else{
+
+							form.list_error( d.data ,'check' );
+
+						}
+					}
+
+				}else if(d.status == 'error'){
+
+					layer_error(d);
+					
+				}else if(d.status == 'selectId'){
+					let content = "<div id = 'tmp20200601'></div>";
+
+					layer.open({
+						//skin: 'layer-search-container',
+						title:'<span style = "font-size:12px">选择分支（弃审）</span>',
+						area: ['800px','100%'],
+						shadeClose:true,
+						isOutAnim: false ,
+						maxmin: true,
+						type: 1, 
+						content:content,
+						success:function(layero, index){
+							let tmp;
+
+							$.each(d.data.data,function(k,v){
+							
+								tmp = '';
+								tmp += "<div class = 'flow-container'><div style = 'padding:10px 0 0 20px'>分支："+k.substring(2)+"<div style = 'display:inline-block;padding-left:36px'  ><input name = 'afsfa' class = 'aya-radio' type = 'radio' value = '"+k+"' /></div></div><div style = 'border-bottom:1px solid #d7d7d7' class = 'relative' id = 'id"+k+"'>2</div></div>";
+								$('#tmp20200601').append( tmp );
+
+								let offset = $('#id' + k).offset();
+
+								let tmpData = $.extend({},d.data);
+								
+								
+								flow.ini(
+									$.extend({ multiIndex : k, stopId : k, offset : offset ,container : $('#id' + k) },tmpData)	
+								)
+
+								
+								
+								let topest = 1000000,lowest = 0;
+								$('#id' + k).find('div').each(function(){
+									let offset = $(this).offset();
+									let height = $(this).height();
+									if( offset.top < topest ) topest = offset.top;
+									if( offset.top + height > lowest ) lowest = offset.top + height;
+								});
+
+								$('#id' + k).height( lowest - topest + 60);
+
+							});
+
+							$('#tmp20200601').find("input[type='radio']").eq(0).prop('checked',true);
+
+							$('#tmp20200601').append("<div class = 'center' style = 'padding-top:10px'><button class = 'btn btn-primary height32'>确定</button></div>");
+
+							$('#tmp20200601').find('div.flow-container').click(function(){
+								$('#tmp20200601').find("input[type='radio']").prop('checked',false);
+								$(this).find("input[type='radio']").prop('checked',true);
+							});
+
+							$('#tmp20200601').find('button').click(function(){
+								let nodeId = '';
+								$('#tmp20200601').find('input').each(function(){
+									if( $(this).is(':checked') ){
+										nodeId = $(this).val();
+									}
+								});
+								
+								if(nodeId == ''){
+									 layer_error({info : 'aaa'});
+								}else{
+									layer.close(index);
+									form.uncheck(obj.type,form.get_list_ddh(),nodeId);
+								}
+
+							});
+							
+							
+							
+						}
+					});
+		
+				}else{
+					layer.alert(d.info,{shadeClose:true,'title' : "<span style = 'font-size:12px'>错误信息</span>",area:['500px'],icon:2,offset:'20%'});
+				}		
+			});
+	},
+
+
+	uncheck : function (type = 'bill',ddh = [], nodeId = '',selected = 'selected'){
+		let obj = {};
 		if(type == 'bill'){
 			let tmp = [];
 			tmp.push($('#ddh_hidden').val());
-			o.ddh = JSON.stringify(tmp);
+			obj.ddh = JSON.stringify(tmp);
+			obj.update_time = $('#update_time').val();
 		}else{
-			o.ddh = JSON.stringify(ddh);
+			obj.ddh = JSON.stringify(ddh);
 		}
 		if(typeof $('#bill_type').val() != 'undefined'){
-			o.bill_type = $('#bill_type').val(); 
+			obj.bill_type = $('#bill_type').val(); 
 		}
-		o.type = 'uncheck';
-		let index = layer.load(2,{offset:'30%'});
-
-		$.post(form.config.canModify.url,o,function(d){
-			if(d.status == 's'){
-				$.post(form.config.uncheck.url,o,function(d){
-					layer.close(index);
-					if(d.status == 's'){
-						layer.msg('弃审成功！',{icon:1,time:1500,offset:'30%'});
-						if(type == 'bill'){
-							form.ddh();
-						}else{
-							var imgUrl =get_parent().publicUrl + '/image/erp/';;
-							$(ddh).each(function(i,v){
-								
-								$('#tbody tr.c' + v).each(function(){
-									if($(this).children().eq(0).text() != ''){
-										$(this).children().eq(1).find('img').eq(0).prop('src',imgUrl + 'o9.png');
-									}
-								});
-
-								//$('#tbody tr.c' + v).eq(0).children().eq(1).find('img').eq(0).prop('src',imgUrl + 'o9.png');
-							});
-						}
-						if(form.config.uncheck.callback != undefined && form.config.uncheck.callback != ''){
-							form.config.uncheck.callback(d);
-						}
-					}else{
-						layer.msg(d.info,{icon:2,time:1500,offset:'30%'});
-					}
-				});
-			}else{
-				layer.close(index);
-				layer.msg(d.info,{icon:2,time:1500,offset:'30%'});
-			}
-		});
+		obj.type = type;
+		obj.nodeId = nodeId;
+		form.uncheck_do(obj);
 	},
 
 	dlt : function (type = 'bill',ddh = [],selected = 'selected'){
@@ -2458,6 +2573,7 @@ var form  = {
 		o.ddh = JSON.stringify(tmp);
 		o.type = 'modify';
 		$.post(form.config.canModify.url,o,function(d){
+			log(d);
 			if(d.status == 's'){
 				form.m();
 				form.status({status : 'modify'});
@@ -2618,8 +2734,6 @@ var form  = {
 		o = $.extend(o,get_page());
 		o.merge = $('#merge').hasClass('merged')?1:0;
 
-		
-
 		form.query(o);	
 	},
 
@@ -2676,6 +2790,7 @@ var form  = {
 		let o = {};
 		let oo = [];
 		o.ddh  = $('#ddh_hidden').val();
+		o.update_time = $('#update_time').val();
 		$(form.config.saveField.main).each(function(i,v){
 			o[v] = $.trim($('#' + v).val());
 		});
@@ -2689,7 +2804,6 @@ var form  = {
 			tmp.listid = $(this).data('listid')?$(this).data('listid'):'';
 			let a = true;
 			$(form.config.saveField.listMust).each(function(i,v){
-			
 				if(tmp[v] == ''){
 					 a = false;
 					 return false;
