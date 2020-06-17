@@ -672,18 +672,9 @@ class VendorPriceJust extends Model{
 			'tax' => '现税率',
 			'tax_price' => '现含税价'
 		);
-
-
 		$pG = new PublicGet();
-
 		$r = $pG->excel($excel,$data);
-
 		return a($r);
-
-		
-
-		
-		
 	}
 
 

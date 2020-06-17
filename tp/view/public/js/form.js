@@ -1436,8 +1436,6 @@ var form  = {
 				form.super_search_frame( form.superSearchSelectOption );
 			}
 
-			
-			
 		});
 		
 		if(form.config.search) page(form.config.search.url,form.list_table,form.get_app_search_option);
