@@ -9,6 +9,8 @@ use app\model\erp\ErpConfig;
 use app\controller\Fs;
 use app\model\erp\VendorPrice;
 use app\model\erp\VendorPriceJustHistory;
+use app\controller\PublicGet;
+
 
 class VendorPriceJust extends Model{
 
@@ -652,7 +654,7 @@ class VendorPriceJust extends Model{
 	public function export($post){
 		$post['page'] = 1;
 		$post['n'] = 10000000;
-		$r = $this->getSearchData($post);
+		$data = $this->getSearchData($post)['r'];
 		$excel = array(
 			'ddh' => '表单号',
 			'status' => '状态',
@@ -671,7 +673,17 @@ class VendorPriceJust extends Model{
 			'tax_price' => '现含税价'
 		);
 
-		dump($excel);
+
+		$pG = new PublicGet();
+
+		$r = $pG->excel($excel,$data);
+
+		return a($r);
+
+		
+
+		
+		
 	}
 
 

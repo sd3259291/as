@@ -59,7 +59,6 @@ class Purchase
 		return $v->getList($_POST);
 	}
 	public function exportVendorPriceJust(VendorPriceJust $v){
-		gp();
 		return $v->export($_POST);
 	}
 

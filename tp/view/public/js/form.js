@@ -1394,8 +1394,8 @@ var form  = {
 		});
 
 		$('#export').click(function(){
-			$.post(form.config.check.url,form.searchOption,function(d){
-				
+			$.post(form.config.export.url,form.searchOption,function(d){
+				window.open( get_parent().mainUrl + "/PublicGet/download?path=" + d.data.path + "&name=" + d.data.name);
 			});
 		});
 
@@ -1427,7 +1427,6 @@ var form  = {
 
 				let o = {};
 				o.name = form.config.name;
-				
 				$.post(get_parent().mainUrl + '/PublicGet/getOptions',o,function(d){
 					form.superSearchSelectOption = d.data;
 					form.super_search_frame( form.superSearchSelectOption );

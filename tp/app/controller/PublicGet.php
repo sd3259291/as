@@ -13,6 +13,8 @@ use app\model\Department;
 use app\model\Employee;
 use think\facade\Cache;
 use app\model\erp\ErpOption;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class PublicGet extends BaseController{
 
@@ -362,6 +364,62 @@ class PublicGet extends BaseController{
 	}
 	public function dltOption(ErpOption $o){
 		return $o->dltOption($_POST);
+	}
+
+	public function excel($excel,$data){
+		$spreadsheet = new Spreadsheet();
+		$sheet = $spreadsheet->getActiveSheet();
+		$spreadsheet->getDefaultStyle()->getFont()->setSize(10);
+
+		$h = 1;$l = 'A';
+		foreach($excel as $k => $v){
+			$sheet->setCellValue($l.$h,$v);
+			$l++;
+		}
+
+		
+		foreach($data as $k => $v){
+			$h++;$l = 'A';
+			foreach($excel as $k1 => $v1){
+				$sheet->setCellValue($l.$h,$v[$k1]);
+				$l++;
+			}
+		}
+		
+		$writer = new Xlsx($spreadsheet);
+		$fileName = Session::get('userinfo')['username'].time().rand(1,1000).'.xlsx';
+		$path = './tp/tmp/tmp_file/';
+		$url = $path.$fileName;
+		$writer->save($url);
+		return ['path' => $path ,'name' => $fileName,'url' => $url];
+	}
+
+	public function download(){
+		
+		$path = $_GET['path'];
+		$name = $_GET['name'];
+		$url = $path.$name;
+
+
+		if ( !file_exists ( $url )) {
+			echo "文件找不到";
+		} else {
+			
+
+			//打开文件
+			$file = fopen ( $url, "r" );
+			//输入文件标签
+			Header ( "Content-type: application/octet-stream" );
+			Header ( "Accept-Ranges: bytes" );
+			Header ( "Accept-Length: " . filesize ( $url) );
+			Header ( "Content-Disposition: attachment; filename=" . $name );
+			//输出文件内容
+			//读取文件内容并直接输出到浏览器
+			echo fread ( $file, filesize ( $url ) );
+			fclose ( $file );
+
+		}
+
 	}
 	
 	
