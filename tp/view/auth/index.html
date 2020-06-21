@@ -1,5 +1,4 @@
-<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
-<link rel="stylesheet" href="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.min.css" type="text/css">
+
 
 <div class="card">
 	<div class="card-content">
@@ -62,35 +61,39 @@
 
 			$('#new').click(function(){
 				
-				let index = parent.layer.open({
+				let index = top.layer.open({
 					skin: 'layer-new-container',
 					title : '新增用户',
 					offset : ['40px'],
-					area  : ['600px',"70%"],
+					area  : ['600px',"80%"],
 					type  : 1,
 					btn   : ['确定'],
 					shadeClose:true,
 					isOutAnim: false,
 					content : create_new_div( div ),
 					success: function(){
-						$('#role').selectpicker({
+						top.$('#role').selectpicker({
 							width:'100%',
 							noneSelectedText:'用户组'
 						});
 					},
 					yes : function(index){
 						let o = {};
-						o.username = $.trim($('#username').val());
-						o.name = $.trim($('#name').val());
-						o.password = $.trim($('#password').val());
-						o.role = $('#role').val();
+						o.username = $.trim(top.$('#username').val());
+						o.name = $.trim(top.$('#name').val());
+						o.password = $.trim(top.$('#password').val());
+						o.role = top.$('#role').val();
+
+					
+					
 						$.post('__APP__/Auth/addUser',o,function(d){
+							log(d);
 							if(d.status == 's'){
 								table.rows.add($(d.data)).draw();
-								layer_success();
-								parent.layer.close(index);
+								top.layer_success();
+								top.layer.close(index);
 							}else{
-								layer_error(d);
+								top.layer_error(d);
 							}
 						});
 					}
@@ -101,46 +104,49 @@
 				if($('#table tbody tr.selected').length == 0) return false;
 				let id = $('#table tbody tr.selected').eq(0).data('id');
 
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-edit-container',
 					title : '编辑用户',
 					offset : ['40px'],
-					area  : ['600px',"700px"],
+					area  : ['600px',"80%"],
 					type  : 1,
 					btn   : ['确定'],
 					shadeClose:true,
 					isOutAnim: false,
 					content : create_new_div( div ),
 					success : function(){
-						$('#username').val($('#table tbody tr.selected').eq(0).children().eq(0).text());
-						$('#name').val($('#table tbody tr.selected').eq(0).children().eq(1).text());
+						top.$('#username').val($('#table tbody tr.selected').eq(0).children().eq(0).text());
+						top.$('#name').val($('#table tbody tr.selected').eq(0).children().eq(1).text());
 						let role_id = $('#table tbody tr.selected').eq(0).data('role_id');
 						if(role_id) role_id = role_id.split(',');
-						$('#role').selectpicker({
+						top.$('#role').selectpicker({
 							width:'100%',
 							noneSelectedText:'用户组'
 						});
-						$('#role').selectpicker('val',role_id);
-						$('#role').selectpicker('render');
+						top.$('#role').selectpicker('val',role_id);
+						top.$('#role').selectpicker('render');
 					
 					},
 					yes : function(index){
+						let body = top.layer.getChildFrame('body', index);
+						
 						let o = {};
 						o.id = id;
-						o.name = $.trim($('#name').val());
-						o.password = $.trim($('#password').val());
-						o.username = $.trim($('#username').val());
-						o.role = $('#role').val();
+						o.name = $.trim(top.$('#name').val());
+						o.password = $.trim(top.$('#password').val());
+						o.username = $.trim(top.$('#username').val());
+						o.role = top.$('#role').val();
+					
 						$.post('__APP__/Auth/editUser',o,function(d){
 							if(d.status == 's'){
-								parent.layer.close(index);
 								$('#table tbody tr.selected').eq(0).children().eq(0).text(o.username);
 								$('#table tbody tr.selected').eq(0).children().eq(1).text(o.name);
 								$('#table tbody tr.selected').eq(0).children().eq(2).text(d.data.role_name);
 								$('#table tbody tr.selected').eq(0).data('role_id',d.data.role_id);
-								layer_success();
+								top.layer.close(index);
+								top.layer_success();
 							}else{
-								layer_error(d);
+								top.layer_error(d);
 							}
 						});
 					}
@@ -155,9 +161,9 @@
 				$.post('__APP__/Auth/changeUserStatus',o,function(d){
 					if(d.status == 's'){
 						$('#table tbody tr.selected').eq(0).children().eq(3).text(d.data);
-						layer_success();
+						top.layer_success();
 					}else{
-						layer_error(d);
+						top.layer_error(d);
 					}
 				});
 			});
@@ -165,17 +171,17 @@
 			$('#dlt').click(function(){
 				if($('#table tbody tr.selected').length == 0) return false;
 
-				layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+				top.layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
 					let o = {};
 					o.id = $('#table tbody tr.selected').eq(0).data('id');
 					$.post('__APP__/Auth/dltUser',o,function(d){
 						if(d.status == 's'){
 							table.row( $('#table tbody tr.selected').eq(0) ).remove().draw();
-							layer_success();
+							top.layer_success();
 						}else{
-							layer_error(d);
+							top.layer_error(d);
 						}
-						layer.close(index);
+						top.layer.close(index);
 					});	
 				});
 			});
@@ -196,7 +202,7 @@
 					{ 'name' : '用户组：' ,'id' : 'role_id' ,'type' : 'select' ,'data' : {$role|raw},'empty' : true }  
 				];
 
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-search-container',
 					title : '搜索用户',
 					offset : ['40px'],
@@ -208,12 +214,12 @@
 					content : create_new_div( div2 ),
 					success : function(){
 						for(let s of div2){
-							$('#' + s.id).val( app.searchOption[s.id] );
+							top.$('#' + s.id).val( app.searchOption[s.id] );
 						}
 					},
 					btn2 : function(){
 						for(let s of div2){
-							$('#' + s.id).val('');
+							top.$('#' + s.id).val('');
 						}
 						return false;
 					},
@@ -222,8 +228,8 @@
 						
 						let hasOption = false;
 						for(let s of div2){
-							o[s.id] = $('#' + s.id).val();
-							app.searchOption[s.id] = $('#' + s.id).val();
+							o[s.id] = top.$('#' + s.id).val();
+							app.searchOption[s.id] = top.$('#' + s.id).val();
 							if(app.searchOption[s.id] != '') hasOption = true;
 						}
 
@@ -232,9 +238,9 @@
 						}else{
 							$('#search').removeClass('has-option');
 						}
-						
+						log(o);
 						page_callback(o,'__APP__/Auth/getUser',table);
-						parent.layer.close(index);
+						top.layer.close(index);
 					}
 				});
 

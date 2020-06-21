@@ -49,7 +49,7 @@ class Hr extends BaseController{
 	/**
      * 增加员工
      */
-	 
+
 	public function insert(){
 
 		try {
@@ -73,6 +73,10 @@ class Hr extends BaseController{
 			}
 			$workexperience->saveAll($_POST['workexperience']);
 		}
+
+		$employee->post_name = $employee->post->name;
+		$employee->department_name = $employee->department->name;
+
 		return a($employee,'','s');
 	}
 

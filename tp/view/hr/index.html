@@ -199,8 +199,10 @@
 		
 		
 
-		save_success : function(){
-			alert(5);
+		save_success : function(data){
+		
+			let tmp = "<tr><td>"+data.number+"</td><td><a>"+data.name+"</a></td><td>"+data.department_name+"</td><td>"+data.post_name+"</td><td>"+(data.sex == 1?'男':'女')+"</td><td>"+data.entry_date+"</td></tr>";
+			app.table.rows.add($(tmp)).draw();
 		},
 
 

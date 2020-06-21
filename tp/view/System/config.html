@@ -128,7 +128,7 @@
 				let type = $(this).data('type');
 				let name = $(this).data('name');
 				
-				
+				log('__APP__/F/flow?type=' + type);
 				let index = parent.layer.open({
 					type:2,
 					isOutAnim:false,
@@ -171,11 +171,7 @@
 
 			$('.config').each(function(){
 				let type = $(this).data('type');
-				
 				if( app.erpConfig[ type ] ){
-
-
-
 					$(this).attr( 'checked', app.erpConfig[ type ] == '1' ? true : false);
 				}
 			});

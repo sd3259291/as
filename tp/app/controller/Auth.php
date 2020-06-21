@@ -28,16 +28,11 @@ class Auth extends BaseController
     }
 	
 	public function getUser(){
-	Cache::set('tmp',$_POST);
+		
 		$user = new User;
 		$tmp = $user->p($_POST);
 		return a($tmp,'','s');
 	}
-
-	public function test(){
-		dump(Cache::get('tmp'));
-	}
-
 
 	/**
      * 用户组管理
@@ -105,8 +100,7 @@ class Auth extends BaseController
 		if(!$_POST['username']) return a('','登录名不能为空','e');
 		if(!$_POST['name']) return a('','用户名不能为空','e');
 		if(!$_POST['password']) return a('','密码不能为空','e');
-		if(!$_POST['role']) return a('','用户组不能为空','e');
-
+		if(!is_set($_POST,'role')) return a('','用户组不能为空','e');
 		$role_name = column(Role::select($_POST['role']),'id');
 
 		$user1 = User::where("username = '".$_POST['username']."'")->find();

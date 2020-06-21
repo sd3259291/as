@@ -1,0 +1,9 @@
+{php}
+	$session = session();
+	if($session['multi'] == 1 && !isset($_GET['nolayout']) ){
+{/php}
+{include file='public/layout_head' /}
+{php}
+}
+{/php}
+{__CONTENT__}

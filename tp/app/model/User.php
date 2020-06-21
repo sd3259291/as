@@ -31,6 +31,7 @@ class User extends Model{
      */
 	
 	public function p( $post ){
+		
 		$p = $post['page'];
 		$n = $post['n'];
 		$w = '1 = 1';
@@ -51,9 +52,15 @@ class User extends Model{
 		foreach($data as $k => $v){
 			$tmp .= $v['id'].',';
 		}
+
+
 		$tmp = substr($tmp,0,-1);
 
+
+
 		$role = column(Role::select(),'id');	
+
+		
 
 		$role_user = RoleUser::where("user_id in ($tmp)")->select()->toArray();
 	

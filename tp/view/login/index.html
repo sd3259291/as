@@ -5496,8 +5496,6 @@ h1.page{text-align:center;line-height:1.5em}h2.page{padding-top:2em;margin-botto
 		o.password = password;
 		o.multi    = $('#multi').is(':checked');
 
-		
-	
 		$.post('__APP__/Login/check_login',o,function(d){
 			if(d.status  == 's'){
 				$.cookie('multiType',o.multi);
@@ -5506,12 +5504,7 @@ h1.page{text-align:center;line-height:1.5em}h2.page{padding-top:2em;margin-botto
 				$('#info').text(d.info);
 			}
 		});
-
-		
 	});
-
-
-	
 
 	if($.cookie('multiType') == 'true' || $.cookie('multiType') == true){
 		$('#multi').prop('checked','checked');

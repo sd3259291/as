@@ -1,4 +1,11 @@
-<?php //if($_SESSION['a1']['multi'] == 1) echo ("<script src='/a1/index/view/public/theme1/js/form.js'></script>");?>	
+{php}
+	$session = session();
+	if($session['multi'] == 1 && !isset($_GET['nolayout']) ){
+{/php}
+{include file='public/form_js' /}
+{php}
+}
+{/php}
 <style type="text/css">
 		table.dataTable thead th{padding-left:0;padding-right:0}
 	</style>
@@ -331,8 +338,6 @@
 	
 	form.new_page_ini(erpConfig);
 
-	
-
 	function update_price(updated_tr_index){
 		let o = {};
 		let oo = [];
@@ -367,7 +372,7 @@
 		}else{
 			
 		}
-		
+
 	}
 	
 	
@@ -389,6 +394,6 @@
 	});
 
 
-	
+	$('#ddh-next').trigger('click');
 
 </script>

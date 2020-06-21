@@ -1,14 +1,17 @@
+
+
 <style type="text/css">
 	table img{
 		cursor:pointer
 	}
+
 </style>
 
 <div class="card">
 	<div class="card-content">
 		<div class = 'row row-head' >
 			<div class = 'col s12'>
-				<div class="btn-group left  margin-right-100" role="group" >
+				<div class="btn-group left  margin-right-100" role="group" style = 'max-height:32px;min-height:32px'>
 					
 					<button class = 'btn btn-default btn-default-1' id = 'check'>  <i class="material-icons text-color5"  >create</i> 审核</button>
 					<button class = 'btn btn-default btn-default-1' id = 'flow' >  <i class="material-icons text-color3"  >repeat</i> 流程</button>
@@ -39,7 +42,7 @@
 		
 		
 		
-		{include file='public/page/page' /}
+	{include file='public/page/page' /}
 	
 		
 
@@ -411,6 +414,8 @@
 			});
 
 			//$('#tbody a').eq(0).trigger('click');
+
+			
 		},	
 
 	}

@@ -1,3 +1,4 @@
+{__NOLAYOUT__}
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,9 +12,8 @@
 	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
 	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/extensions/AutoFill/css/dataTables.autoFill.min.css">
 	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/FixedColumns-3.2.4/css/fixedColumns.bootstrap.css">
-
 	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
-
+	<link rel="stylesheet" href="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.min.css" type="text/css">
 	<style type="text/css" media='print'>
 		.printno:not(.print){display:none;}
 		 #page-wrapper{margin:0}
@@ -104,33 +104,27 @@
 	<script type="text/javascript" src="__PUBLIC__/js/DataTables-1.10.0/media/js/jquery.dataTables.min.js"></script>
 	<script src="__PUBLIC__/js/DataTables-1.10.0/FixedColumns-3.2.4/js/dataTables.fixedColumns.js"></script>
 	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
-	<!--<script src="__PUBLIC__/Js/echarts.js"></script>
-	<script src="__PUBLIC__/Js/echarts_theme1.js"></script>-->
 	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
-	
 	<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
-	
 	<script src="__PUBLIC__/js/custom-scripts.js"></script>
-
 	<script src="__PUBLIC__/js/form.js"></script>
 	<script src="__PUBLIC__/js/flow.js"></script>
 
-	
+	<script src = '__PUBLIC__/js/ue/ueditor.config.js'></script>
+	<script src = '__PUBLIC__/js/ue/ueditor.all.min.js'></script>
+	<script src = '__PUBLIC__/js/ue/lang/zh-cn/zh-cn.js'></script>
 
-<script src = '__PUBLIC__/js/ue/ueditor.config.js'></script>
-<script src = '__PUBLIC__/js/ue/ueditor.all.min.js'></script>
-<script src = '__PUBLIC__/js/ue/lang/zh-cn/zh-cn.js'></script>
 
-	<style type="text/css">
-		div.mul-page{display:inline-block;height:24px;background:#fff;padding:0 0 0 10px;cursor:pointer;border-right:1px solid #e0e0e0}
-		div.mul-page div{display:inline-block;height:24px;}
-		div.mul-page-div1{color:#7c7c7c}
-		div.mul-page-div2{width:24px;text-align:center;font-size:14px;}
-		div.mul-dlt{height:16px !important;width:16px;line-height:16px;vertical-align:middle;color:#a3a3a3}
-		div.mul-dlt:hover{color:#E85244}
-		.show-iframe{border-bottom:2px solid #2aa515;height:25px !important}
-		.show-iframe div.mul-page-div1{color:#2a2a2a}
-	</style>
+{php}
+	$session = session();
+	if($session['multi'] == 1 && !isset($_GET['nolayout']) ){
+{/php}
+{include file='public/multi_css' /}
+{php}
+}
+{/php}
+
+
 
 	<script>
 
@@ -148,9 +142,9 @@
 			id : 'indexdeptindex'
 		},
 		mainFlag : 1,
-		mainHeight : $('#page-inner').height() + parseInt(($('#page-inner').css('marginTop'))),
+		mainHeight : $('#page-inner').height() + parseInt(($('#page-inner').css('marginTop'))) ,
 		height : $('#page-inner').height()  + parseInt(($('#page-inner').css('marginTop'))),
-		multiType : 0,  // 1 多窗口   0 单窗口
+		multiType : {$Request.session.multi},  // 1 多窗口   0 单窗口
 		layerWidth : 0,
 		iframes : new Map(),
 		lastPageId : '',
@@ -217,12 +211,13 @@
 		},
 		add_iframe : function(url,name,id = '',ddh = '') {
 
-			if(id == '') id = url.substr(url.lastIndexOf('/',  url.lastIndexOf( '/', url.lastIndexOf('/') - 1 ) - 1)+1 ).toLowerCase().replace('/','').replace('/','');
+			if(id == '') id = url.substr(url.lastIndexOf('/',  url.lastIndexOf( '/' ) - 1) + 1 ).toLowerCase().replace('/','').replace('/','');
+			
 			
 			this.currentPageId = id;
 			if($('#multi-head').children().length == 0){
 				
-				$('#multi-head').append("<div id = 'multipage' style = 'font-size:12px;font-weight:normal;position:absolute;top:6px;left:30px;width:100%;height:24px;line-height:24px'></div>");
+				$('#multi-head').append("<div id = 'multipage' style = 'font-size:12px;font-weight:normal;position:absolute;top:6px;left:10px;width:100%;height:24px'></div>");
 				$('#multipage').width(($(window).width() - $('#multipage').offset().left));
 
 				$('#multipage').on('click','.mul-page-div1',function(){
@@ -234,7 +229,10 @@
 					mainPage.dlt_iframe($(this).parent().prev().data('id'));
 				});
 			}
+
 			$('.iframe').hide();
+
+			
 	
 			if(mainPage.iframes.get(id) != undefined && mainPage.iframes.get(id).exist == 1){
 				
@@ -250,20 +248,23 @@
 
 					mainPage.change_iframe(url,name,'',id);
 				}
+
+				
 			}else{
+
 				mainPage.iframes.set(id,{exist : 1,id : id ,url : url});
+
 				if( id == mainPage.homePage.id){
 					$('#multipage').append("<div class = 'mul-page' ><div class = 'mul-page-div1' id = 'l"+id+"' data-name = '"+name+"' data-url = '"+url+"' data-id = '"+id+"'>"+name+"</div><div class = 'mul-page-div2' style = 'width:10px'><div class = 'mul-dlt'></div></div></div>");
 				}else{
 					$('#multipage').append("<div class = 'mul-page' ><div class = 'mul-page-div1' id = 'l"+id+"' data-name = '"+name+"' data-url = '"+url+"' data-id = '"+id+"'>"+name+"</div><div class = 'mul-page-div2'><div class = 'mul-dlt'>×</div></div></div>");
 				}
 				mainPage.loadIndex = layer.load(2,{offset:['20%']});
-				$('#page-inner').append("<iframe id = 'i"+id+"' class = 'iframe' style = 'margin:0;padding:0;height:"+mainPage.mainHeight+"px;width:100%' src = '"+url+"' name = '"+id+"' frameborder = '0' scrolling='no' ></iframe>");
+				
+				$('#page-inner').append("<iframe id = 'i"+id+"' class = 'iframe' style = 'margin:0;padding:0;height:"+(mainPage.mainHeight - 14)+"px;width:100%' src = '"+url+"' name = '"+id+"' frameborder = '0' scrolling='no' ></iframe>");
 			}
 			
 			mainPage.show_iframe(id);
-
-			
 		},
 
 
@@ -277,14 +278,16 @@
 			}else{
 				this.layerWidth = '98%';
 			}
+			
 			if(this.multiType == 0 ){   // 单页面模式
 
 				$.post(mainPage.homePage.url,'',function(d){
 					$('#page-inner').html(d);
 				});
 			}else{		//多页面模式
+
 				this.height -= 58;
-				//this.add_iframe(this.homePage.url,this.homePage.name,this.homePage.id);
+				this.add_iframe(this.homePage.url,this.homePage.name,this.homePage.id);
 				//this.add_iframe('__APP__/index/C/thd_list','Test','fafasf');
 			}
 

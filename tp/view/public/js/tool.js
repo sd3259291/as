@@ -29,17 +29,16 @@ function create_new_div( div ){
 }
 
 function layer_error(d,time = 2000){
-	layer.alert(d.info,{shadeClose:true,'title' : "<span style = 'font-size:12px'>Error</span>",area:['500px'],icon:2,offset:'20%'});
+	top.layer.alert(d.info,{shadeClose:true,'title' : "<span style = 'font-size:12px'>Error</span>",area:['500px'],offset:'20%'});
 	//layer.msg(d.info,{icon:2,time:time,offset:'30%'});
 }
 function layer_success(info = '操作成功',time = 1000){
-	layer.msg(info,{icon:1,time:time,offset:'30%'});
+	top.layer.msg(info,{icon:1,time:time,offset:'30%'});
 
 	
 }
 
 function d_table(setting = {},id = 'table',select = select_tr){
-
 
 	let setting1 = {
 		paging: false,
@@ -50,15 +49,12 @@ function d_table(setting = {},id = 'table',select = select_tr){
 		order : []
 	};
 
-	
 
 	if(select_tr != ''){
 	
 		select_tr(id);
 	}
 	
-	
-
 	return $('#' + id).DataTable($.extend(setting1,setting));
 }
 
@@ -78,9 +74,14 @@ function get_width(widthMax = 1000){
 }
 
 function get_table_height(tableid = 'table',exclude = []){
+
 	let h1 = parent.mainPage.height;
 	let h2 = $('#' + tableid).offset().top;
-	let r = h1 - h2;
+
+	
+
+	let r = h1 - h2 - 1;
+
 	if($('#page').length > 0) r = r - $('#page').height();
 	if($('#' + tableid + ' tfoot').length > 0){
 		r = r - 48;
@@ -94,7 +95,6 @@ function get_table_height(tableid = 'table',exclude = []){
 }
 
 function get_parent(){
-	
 	if(top.mainPage.multiType == 1){
 		return top.frames[top.mainPage.currentPageId];
 	}else{
@@ -429,7 +429,7 @@ function flowsave(save,executor = '' ){
 			if(d.info != '') layer.msg( d.info, {icon:1,time:1500,offset:'30%'}	);
 			
 		}else if(d.status == 'e'){
-			layer.msg( d.info , {icon:2,time:3000,offset:'30%'} );
+			layer_error( d  );
 		}else if(d.status == 'm'){
 			let map = new Map();
 			let mSelected;
@@ -593,10 +593,10 @@ function flowsave(save,executor = '' ){
 }
 
 function select_employee(id,callback){
-	let url = window.location.href.substring(0,window.location.href.indexOf('.php') + 4);
+	let url = top.mainUrl;
 	$(id).click(function(){
 		let that = this;
-		parent.layer.open({					
+		top.layer.open({					
 			type: 2,
 			isOutAnim: false ,
 			title: '选择员工',
@@ -606,7 +606,7 @@ function select_employee(id,callback){
 			content: url+'/S/select_employee',
 			btn : ['确定'],
 			yes : function(index,layero){
-				let selected = window[layero.find('iframe')[0]['name']].app.selected;
+				let selected = top[layero.find('iframe')[0]['name']].app.selected;
 				callback(selected,that);
 				parent.layer.close(index);
 			}

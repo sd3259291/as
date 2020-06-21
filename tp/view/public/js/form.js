@@ -80,7 +80,7 @@ var form  = {
 				shadeClose:true,
 				offset:'0',
 				area: ['800px','100%'],
-				content:  get_parent().mainUrl +  '/Fs/see?flowid='+flowId,
+				content:  top.mainUrl +  '/Fs/see?flowid='+flowId,
 				isOutAnim: false,
 			});
 		});
@@ -243,7 +243,7 @@ var form  = {
 			break;
 		}
 		
-		var url = get_parent().mainUrl +  '/ErpBase/select'+type+'?mul='+mul;
+		var url = top.mainUrl +  '/ErpBase/select'+type+'?mul='+mul;
 		
 		let width = get_width();
 		top.layer.open({
@@ -334,11 +334,13 @@ var form  = {
 		let thead = '';
 		let field = [];
 		let updated_tr_index = [];
+
+		
 		
 		switch(type){
 			//物料
 			case 'inventory':
-			query_url =  get_parent().mainUrl + '/ErpBase/getInventory';
+			query_url =  top.mainUrl + '/ErpBase/getInventory';
 			thead = "<table class = 'table-hint dataTable table-small'><thead><tr><th style =' white-space:nowrap'>物料编码</th><th style =' white-space:nowrap'>物料名称</th><th style =' white-space:nowrap'>规格型号</th><th style =' white-space:nowrap'>单位</th></tr></thead><tbody>";
 			field = ['name','code','std','unit'];
 			break;
@@ -347,7 +349,7 @@ var form  = {
 			case 'vendor':
 
 				         
-			query_url =  get_parent().mainUrl + '/ErpBase/getVendor';
+			query_url =  top.mainUrl + '/ErpBase/getVendor';
 			thead = "<table class = 'table-hint dataTable table-small cell-border'><thead><tr><th style =' white-space:nowrap'>供应商编码</th><th style =' white-space:nowrap'>供应商名称</th><th>联系人</th><th>电话</th></tr></thead><tbody>";
 			field = ['name','code'];
 			break;
@@ -374,7 +376,7 @@ var form  = {
 
 		
 		
-		query_url2 = get_parent().mainUrl + '/PublicGet/get_erp_by_text';
+		query_url2 = top.mainUrl + '/PublicGet/get_erp_by_text';
 
 		let s = $.trim($(t).val());
 		clearTimeout(form.delaytime);
@@ -446,7 +448,7 @@ var form  = {
 				if($(t).data('last') == s) return false;
 				//$(t).data('last',s);
 				
-				$('#erp_hint').remove();
+				top.$('#erp_hint').remove();
 
 				form.hasEnter = false;
 				$.post(query_url,o,function(d){
@@ -461,7 +463,7 @@ var form  = {
 
 					$(t).data('last',s);
 					let offset = $(t).offset();
-					let top = offset.top + $(t).height();
+					let topest = offset.top + $(t).height();
 					let left = offset.left;
 
 					if(d.data == null) return false;
@@ -469,9 +471,6 @@ var form  = {
 					let p = $(t).parent().parent();
 					
 					if(d.info.length == 1){  //如果只有一条符合的记录，则自动填充
-
-						
-						
 
 						let tmp = d.info[0];
 						$(field).each(function(i,v){
@@ -482,40 +481,39 @@ var form  = {
 							}
 						});
 
-
 						if(parent_erp_select_callBack !== null){
 							updated_tr_index.push(p.index());
 							parent_erp_select_callBack(updated_tr_index);
 						}
-
-
 						return false;
 					}
 					
-					let div = "<div id='erp_hint' style = 'box-shadow: 0 6px 6px 0 rgba(0,0,0,0.14),0 1px 5px 0 rgba(0,0,0,0.12),0 3px 1px -2px rgba(0,0,0,0.2);white-space:nowrap;opacity:1;z-index:300;background:#ffffff;display:none;width:auto;border:1px solid #2aa515;z-index:20;position:absolute;top:"+$(t).height()+"px'><div style = 'position:relative'>" + thead + d.data + "</tbody></table><div style = 'background:#fff;position:absolute;top:-9px;right:-9px;height:18px;line-height:18px;cursor:pointer'><img src = '"+get_parent().publicUrl + '/image/erp/dlt.png'+"' style = 'height:18px;' /></div></div></div>";
+					let div = "<div id='erp_hint' style = 'box-shadow: 0 6px 6px 0 rgba(0,0,0,0.14),0 1px 5px 0 rgba(0,0,0,0.12),0 3px 1px -2px rgba(0,0,0,0.2);white-space:nowrap;opacity:1;z-index:300;background:#ffffff;display:none;width:auto;border:1px solid #2aa515;z-index:20;position:absolute;top:"+$(t).height()+"px'><div style = 'position:relative'>" + thead + d.data + "</tbody></table><div style = 'background:#fff;position:absolute;top:-9px;right:-9px;height:18px;line-height:18px;cursor:pointer'><img src = '"+top.publicUrl + '/image/erp/dlt.png'+"' style = 'height:18px;' /></div></div></div>";
 					
 					$(t).after(div);
 
-					let tmp = $(window).height() - $(t).height() - top;
+				
+
+					let tmp = $(window).height() - $(t).height() - topest;
 
 					if(tmp < $('#erp_hint').height()){
-						$('#erp_hint').css('top',0 - $('#erp_hint').height());
+						top.$('#erp_hint').css('top',0 - $('#erp_hint').height());
 					}
 
-					$('#erp_hint').show();
+					top.$('#erp_hint').show();
 					
-					$('.card').click(function(){
-						$('#erp_hint').remove();
-						$('.card').unbind('click');
+					top.$('.card').click(function(){
+						top.$('#erp_hint').remove();
+						top.$('.card').unbind('click');
 					});
 
-					$('#erp_hint').find('img').click(function(){
+					top.$('#erp_hint').find('img').click(function(){
 						$(t).parent().find('img.select').hide();
-						$('#erp_hint').remove();
+						top.$('#erp_hint').remove();
 						
 					});
 				
-					$('#erp_hint table tbody tr').click(function(){
+					top.$('#erp_hint table tbody tr').click(function(){
 						
 						$(t).parent().find('img.select').hide();
 						let ttr = this;
@@ -537,7 +535,7 @@ var form  = {
 							updated_tr_index.push(p.index());
 							parent_erp_select_callBack(updated_tr_index);
 						} 
-						$('#erp_hint').remove();
+						top.$('#erp_hint').remove();
 			
 					});
 					
@@ -547,7 +545,7 @@ var form  = {
 		}else{
 			
 		
-			$('#erp_hint').remove();
+			top.$('#erp_hint').remove();
 			$(t).data('last','');
 			let p = $(t).parent().parent();
 			for(let i in field){
@@ -819,7 +817,7 @@ var form  = {
 		
 	img_do : function (type,on){
 		
-		var imgUrl = get_parent().publicUrl + '/image/erp/';
+		var imgUrl = top.publicUrl + '/image/erp/';
 
 		if(on == 'on'){
 			$('#'+type).removeClass('img_off').addClass('img_on');
@@ -1026,7 +1024,7 @@ var form  = {
 			});
 		});
 
-		var imgUrl = './tp/view/public/image/erp/'; 
+		var imgUrl = top.publicUrl + '/image/erp/';
 		let tmp = $('#new_resource').offset();
 		let div = "<ul id='div_resource'>";
 
@@ -1167,7 +1165,7 @@ var form  = {
 					return false;
 				}
 
-				var imgUrl = './tp/view/public/image/erp/';
+				var imgUrl = top.publicUrl + '/image/erp/';
 				
 				let index = $(this).index();
 				let length = $(this).parents('tr').children().length - 1;
@@ -1395,7 +1393,7 @@ var form  = {
 
 		$('#export').click(function(){
 			$.post(form.config.export.url,form.searchOption,function(d){
-				window.open( get_parent().mainUrl + "/PublicGet/download?path=" + d.data.path + "&name=" + d.data.name);
+				window.open( top.mainUrl + "/PublicGet/download?path=" + d.data.path + "&name=" + d.data.name);
 			});
 		});
 
@@ -1409,7 +1407,7 @@ var form  = {
 				shadeClose:true,
 				offset:'0',
 				area: ['90%','100%'],
-				content: get_parent().mainUrl + "/Fs/see?flowid=" + $('#table tbody tr.selected').eq(0).data('flow_id'),
+				content: top.mainUrl + "/Fs/see?flowid=" + $('#table tbody tr.selected').eq(0).data('flow_id'),
 				isOutAnim: false,
 			});
 		});
@@ -1424,10 +1422,9 @@ var form  = {
 		$('#super_search').click(function(){
 
 			if( form.superSearchSelectOption == null ){
-
 				let o = {};
 				o.name = form.config.name;
-				$.post(get_parent().mainUrl + '/PublicGet/getOptions',o,function(d){
+				$.post(top.mainUrl + '/PublicGet/getOptions',o,function(d){
 					form.superSearchSelectOption = d.data;
 					form.super_search_frame( form.superSearchSelectOption );
 				});
@@ -1435,7 +1432,6 @@ var form  = {
 			}else{
 				form.super_search_frame( form.superSearchSelectOption );
 			}
-
 		});
 		
 		if(form.config.search) page(form.config.search.url,form.list_table,form.get_app_search_option);
@@ -1469,7 +1465,7 @@ var form  = {
 		
 		if(o.option){
 			let option =  $.parseJSON(o.option);
-			$('#option-container input').each(function(){
+			top.$('#option-container input').each(function(){
 				let tmp = $(this).data('option');
 				if( option[tmp] ){
 					$(this).val( option[tmp] ).data('d',option[tmp]);
@@ -1500,7 +1496,7 @@ var form  = {
 			
 		});
 		
-		let imgUrl = get_parent().publicUrl + '/image/erp/';
+		let imgUrl = top.publicUrl + '/image/erp/';
 
 		let content = "<div id = 'option-container'><div class = 'row' style = 'margin:0;padding:0'><div class = 'col s12'><div class = 'row' style = 'border-bottom:2px solid #428bca;padding:20px 20px'><div class = 'col s1'><img src = '"+imgUrl+"condition.png'  class = 'height24' /></div><div class = 'col s5'><select class = 'browser-default' id = 'condition'><option value = ''>无方案</option>"+tmp+"</select></div><div class = 'col s6 btn-group'><button class = 'btn btn-primary height32' id = 'condition_confirm'>确认</button><button class = 'btn btn-default height32' id = 'condition_set_default'>设为默认</button><button class = 'btn btn-default height32' id = 'condition_save'>保存方案</button><button class = 'btn btn-default height32' id = 'condition_dlt'>删除方案</button></div></div></div></div>";
 
@@ -1515,6 +1511,8 @@ var form  = {
 					case 'erp' :
 						if(vv.relation){
 							// 有关联的INPUT ，例如 inventory ,只显示inventory_name，而inventory_code 隐藏起来
+
+							
 							content += "<div class = 'col s2' style = 'text-align:right;line-height:32px'>"+vv.name+"</div><div class= 'col s4 relative option-container2' ><div><input type = 'text' data-type = '"+vv.type+"' data-type2 = '"+(vv.type2?vv.type2:'')+"'  data-option = '"+vv.option+"' class = 'aya-input border-bottom erp "+vv.clas+"' style = 'width:100%'   />";
 
 							content += "<img src = '"+imgUrl+"selectu8.png' class = 'input-hint height14 img-vendor select'/>";
@@ -1542,7 +1540,7 @@ var form  = {
 
 		content += '</div>';
 
-		parent.layer.open({
+		top.layer.open({
 			//skin: 'layer-search-container',
 			title:'<span style = "font-size:12px">高级搜索</span>',
 			area: ['800px','100%'],
@@ -1553,11 +1551,11 @@ var form  = {
 			content:content,
 			success:function(layero, index){
 
-				$('#condition_set_default').click(function(){
+				top.$('#condition_set_default').click(function(){
 					let o = {};
-					o.id = $('#option-container #condition').val();
+					o.id = top.$('#option-container #condition').val();
 					o.name = form.config.name;
-					$.post(get_parent().mainUrl + '/PublicGet/setDefaultOption',o,function(d){
+					$.post(top.mainUrl + '/PublicGet/setDefaultOption',o,function(d){
 						if(d.status == 's'){
 							let tmp = new Map();
 							$.each(form.superSearchSelectOption,function(k,v){
@@ -1570,7 +1568,7 @@ var form  = {
 								tmp.set(v.id,form.superSearchSelectOption[k]);
 							});
 							
-							$('#option-container #condition option').each(function(){
+							top.$('#option-container #condition option').each(function(){
 								if( $(this).val() == '' ) return true;
 								let tmp1 = tmp.get( parseInt($(this).val()) );
 
@@ -1582,13 +1580,11 @@ var form  = {
 								
 							});
 
-							
-		
 
 
-							layer.msg('设置成功',{'icon':1,time:1500,offset:'30%'});
+							top.layer.msg('设置成功',{'icon':1,time:1500,offset:'30%'});
 						}else{
-							layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
+							top.layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
 						}
 					});
 				});
@@ -1597,7 +1593,7 @@ var form  = {
 					$('#erp_hint').remove();
 				});
 	
-				$('#option-container #condition').change(function(){
+				top.$('#option-container #condition').change(function(){
 					form.set_super_option( $(this).val() );
 				});
 
@@ -1608,7 +1604,7 @@ var form  = {
 					tmp = JSON.stringify(tmp);
 					$.each(form.superSearchSelectOption,function(k,v){
 						if( v.option == tmp){
-							$('#option-container #condition').val(v.id);
+							top.$('#option-container #condition').val(v.id);
 						}
 					});
 				}else{
@@ -1620,55 +1616,51 @@ var form  = {
 						}
 					});
 					if( dft > 0 ){
-						$('#option-container #condition').val( dft );
+						top.$('#option-container #condition').val( dft );
 						form.set_super_option( dft );
 					}
 				}
 				
-				$('#condition_dlt').click(function(){
+				top.$('#condition_dlt').click(function(){
 					let o = {};
-					o.id = $('#option-container #condition').val();
+					o.id = top.$('#option-container #condition').val();
 					if(o.id == '') return false;
-					parent.layer.confirm('确定删除方案?', {icon: 3, title:'提示',offset:'10%'}, function(index){
-						$.post(get_parent().mainUrl + '/PublicGet/dltOption',o,function(d){
+					top.layer.confirm('确定删除方案?', {icon: 3, title:'提示',offset:'10%'}, function(index){
+						$.post(top.mainUrl + '/PublicGet/dltOption',o,function(d){
 							
 							if(d.status == 's'){
-								$('#option-container #condition').val('');
-								$('#option-container #condition option').each(function(){
+								top.$('#option-container #condition').val('');
+								top.$('#option-container #condition option').each(function(){
 									if( $(this).val() == o.id ){
 										$(this).remove();
 										return false;
 									}
 								});
 								form.clear_super_option();
-								layer.msg('删除成功',{'icon':1,time:1500,offset:'30%'});
+								top.layer.msg('删除成功',{'icon':1,time:1500,offset:'30%'});
 							}else{
-								layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
+								top.layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
 							}
-
-							parent.layer.close(index);
+							top.layer.close(index);
 						});
 					});
-
-					
-
 				});
 				
 				
-				$('#option-container').find('input.erp').each(function(){
+				top.$('#option-container').find('input.erp').each(function(){
 					if( $(this).data('type2') ){
 						form._switch({ type : $(this).data('type'), type2 : $(this).data('type2') },'on','head','',this);
 					}
 				});
 
-				$('.option-container2').hover(function(){
+				top.$('.option-container2').hover(function(){
 					$(this).find('img.select').show();
 				},function(){
 					$(this).find('img.select').hide();
 				});
 					
-				$('#condition_confirm').click(function(){
-					form.superSearchOption = form.get_option('#option-container');
+				top.$('#condition_confirm').click(function(){
+					form.superSearchOption = form.get_option(top.$('#option-container'));
 					form.searchOption = form.superSearchOption;
 					$('#search').removeClass('searchedButton');
 					$('#super_search').addClass('searchedButton');
@@ -1676,24 +1668,24 @@ var form  = {
 					parent.layer.close(index);
 				});
 
-				$('#condition_save').click(function(){
-					let tmp = form.get_option('#option-container');
+				top.$('#condition_save').click(function(){
+					let tmp = form.get_option(top.$('#option-container'));
 					if(tmp.merge != null) delete tmp.merge;
-					layer.prompt({title:'保存方案',offset : ['10%']},function(value, index, elem){
+					top.layer.prompt({title:'保存方案',offset : ['10%']},function(value, index, elem){
 						var o = {};
 						o.title = $.trim(value);
 						if( o.title == ''){
-							layer.msg("方案名称不能为空",{'icon':2,time:2000,offset:'30%'});
+							top.layer.msg("方案名称不能为空",{'icon':2,time:2000,offset:'30%'});
 						}else{
 							o.option = JSON.stringify(tmp);
 							o.name = form.config.name;
 
-							$.post(get_parent().mainUrl + '/PublicGet/setOption',o,function(d){
+							$.post(top.mainUrl + '/PublicGet/setOption',o,function(d){
 								if(d.status == 's'){
 
 									if(d.info == 'insert'){
 										form.superSearchSelectOption.push(d.data);
-										$('#option-container #condition').append("<option data-dft value = '"+d.data.id+"'>"+d.data.title+"</option>");
+										top.$('#option-container #condition').append("<option data-dft value = '"+d.data.id+"'>"+d.data.title+"</option>");
 									}else{
 										for(let i = 0; i<form.superSearchSelectOption.length ; i++){
 											if( form.superSearchSelectOption[i].id == d.data.id){
@@ -1703,15 +1695,15 @@ var form  = {
 										}
 									}
 
-									$('#option-container #condition').val(d.data.id);
+									top.$('#option-container #condition').val(d.data.id);
 										
-									layer.msg('保存成功',{'icon':1,time:1500,offset:'30%'});
+									top.layer.msg('保存成功',{'icon':1,time:1500,offset:'30%'});
 
 								}else{
-									layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
+									top.layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
 								}
 							});
-							layer.close(index);
+							top.layer.close(index);
 						}
 					});
 				});
@@ -1810,12 +1802,13 @@ var form  = {
 
 				for(let i in d.info){
 
-
 					if(document.getElementById(i) != null){
 						
 						if(document.getElementById(i).tagName == 'INPUT'){
 							$('#'+i).val(d.info[i]);
 							$('#'+i).data('d',d.info[i]);
+							
+
 						}else{
 							$('#'+i).text(d.info[i]);
 						}
@@ -1823,11 +1816,13 @@ var form  = {
 					}
 				}
 				
+			
+
 				if(type == 'recoil'){
 					form.n('recoil');
 					form.img_do('recoil','off');
 					
-					let imgUrl =get_parent().publicUrl + '/image/erp/';
+					let imgUrl = top.publicUrl + '/image/erp/';
 					if(d.info.red == 1){
 						$('#'+type).removeClass('img_on').addClass('img_off');
 						$('#'+type).find('img').prop('src',imgUrl+type+'_on2.png');
@@ -1840,11 +1835,13 @@ var form  = {
 				
 					form.status(d.info);
 
-					$('#ddh').data('d',o.ddh);
-					$('#ddh_hidden').val(o.ddh);
-					$('#ddh_hidden').data('d',o.ddh);
+					$('#ddh').data('d',d.info.ddh);
+					$('#ddh_hidden').val(d.info.ddh);
+					$('#ddh_hidden').data('d',d.info.ddh);
 					form.s();
 				}
+
+					
 
 				if(d.info.flow_id){
 					form.img_do('flow','on');
@@ -1918,7 +1915,7 @@ var form  = {
 
 							form.status( {status : 9} );
 						}else{
-							var imgUrl =get_parent().publicUrl + '/image/erp/';;
+							var imgUrl = top.publicUrl + '/image/erp/';;
 							$(ddh).each(function(i,v){
 								$('#tbody tr.c' + v).each(function(){
 									if($(this).children().eq(0).text() != ''){
@@ -2103,7 +2100,7 @@ var form  = {
 					}
 					c += "</div>";		
 
-					let index = parent.layer.open({
+					let index = top.layer.open({
 						title : '<span style = "font-size:12px">选择分支处理人</span>',
 						offset : ['48px'],
 						area  : ['900px','660px'],
@@ -2114,7 +2111,7 @@ var form  = {
 						yes : function(){
 							let a = [];
 							let allSelected = true;
-							parent.$('input.xzfzclr').each(function(){
+							top.$('input.xzfzclr').each(function(){
 								let tmp = {};
 								tmp.id = $(this).data('id');
 								if($(this).data('executor') == undefined || $(this).data('executor') == '[]'){
@@ -2126,16 +2123,18 @@ var form  = {
 								a.push(tmp);
 							});
 
+	
+
 							if(allSelected == false){
-								layer.msg('请选择执行人',{icon:2,time:1500,offset:'30%'});
+								top.layer.msg('请选择执行人',{icon:2,time:1500,offset:'30%'});
 								return false;
 							}
 							form.check_do(obj,JSON.stringify(a));
-							layer.close(index);
+							top.layer.close(index);
 
 						},
 						success : function(layero, index){
-							parent.$('input.xzfzclr').click(function(){
+							top.$('input.xzfzclr').click(function(){
 
 								let t = $(this).parent().prev().prev().text();
 
@@ -2149,16 +2148,13 @@ var form  = {
 								let n = "<div class = 'row' style = 'margin:0'><div class = 'col s12' id = 'top123'><div style = 'display:inline-block;width:50%;position:relative'><input id = 'i20191119' placeholder = '按回车搜索' type = 'text' class = 'aya-input' style = 'height:24px;width:100%' /><img class = 'height18' src = '/a1/index/view/public/Image/o25.png' style = 'position:absolute;right:0;top:3px;'/></div></div><div class = 'col s12'><table id = 't20191119' class = 'centered dataTable row-border noselect table-small'><thead><tr></tr><tr><th></th><th>工号</th><th>姓名</th></tr></thead><tbody>";
 
 								let selected = new Map();
-								if(parent.$('#' + form.mSelected).data('executor') != undefined){
-									JSON.parse(parent.$('#' + form.mSelected).data('executor')).forEach(function(v,k){
+								if(top.$('#' + form.mSelected).data('executor') != undefined){
+									JSON.parse(top.$('#' + form.mSelected).data('executor')).forEach(function(v,k){
 										selected.set(v.k,1);	
 									});
 								}
 								
 								let tmp1 = '',tmp2 = '';
-
-		
-								
 								
 								$.each(form.tmp.get(id),function(k,v){
 									if(selected.get(v.k) == undefined){
@@ -2175,9 +2171,9 @@ var form  = {
 
 								n += "</tbody></table></div><div class = 'col s12 center' style = 'padding:8px' ><button class = 'btn btn-primary height32' id = 'btn20191119'>确定</button></div></div>";
 
-
+								
 						
-								parent.layer.open({
+								top.layer.open({
 									title : '<span class = "hint2" style = "font-size:12px">选择分支处理人（'+t+'）</span>',
 									offset : ['48px'],
 									area  : ['500px','660px'],
@@ -2197,37 +2193,36 @@ var form  = {
 											dom:'t',	
 										};
 
-										let t20191119 = parent.$('#t20191119').DataTable(setting);
+										let t20191119 = top.$('#t20191119').DataTable(setting);
 
 										if(zxms == 1){
-											parent.select_tr('t20191119');
+											top.select_tr('t20191119');
 										}else{
-											parent.select_tr2('t20191119');
+											top.select_tr2('t20191119');
 										}
-										
-
 											
-										parent.$('#i20191119').keypress(function(e){
-										
-											let text = $.trim(parent.$('#i20191119').val());
-											
+										top.$('#i20191119').keypress(function(e){
+											let text = $.trim(top.$('#i20191119').val());
 											if(e.keyCode == 13){
 												t20191119.search(text).draw();
 											}
 										});
 											
-										parent.$('#btn20191119').click(function(){
+										top.$('#btn20191119').click(function(){
+
 											let a = [];
-											parent.$('#t20191119 tbody tr.selected').each(function(){
+											top.$('#t20191119 tbody tr.selected').each(function(){
 												let tmp = {};
 												tmp.k = $(this).children().eq(1).text();
 												tmp.v = $(this).children().eq(2).text();
 												a.push(tmp);
 											});
+
+											
 											if(a.length == 0){
 												layer.msg('请选择执行人',{icon:2,time:1500,offset:'30%'});
 											}else{
-												parent.$('#'+form.mSelected).data('executor',JSON.stringify(a));
+												top.$('#'+form.mSelected).attr('data-executor',JSON.stringify(a));
 												let tmp = ''
 												for(let i = 0; i < a.length; i++){
 													if( i == a.length - 1){
@@ -2236,8 +2231,8 @@ var form  = {
 														tmp = tmp + a[i]['v'] + ',';
 													}
 												}
-												$('#'+form.mSelected).val(tmp);
-												parent.layer.close(index2);
+												top.$('#'+form.mSelected).val(tmp);
+												top.layer.close(index2);
 											}
 										});
 
@@ -2258,7 +2253,7 @@ var form  = {
 				}else if(d.status == 'selectId'){
 					let content = "<div id = 'tmp20200601'></div>";
 
-					layer.open({
+					top.layer.open({
 						//skin: 'layer-search-container',
 						title:'<span style = "font-size:12px">选择分支（审核）</span>',
 						area: ['800px','100%'],
@@ -2270,52 +2265,45 @@ var form  = {
 						success:function(layero, index){
 							let tmp;
 
-
-							
-							
 							$.each(d.data.data,function(k,v){
 							
 								tmp = '';
-								tmp += "<div class = 'flow-container'><div style = 'padding:10px 0 0 20px'>分支："+k.substring(2)+"<div style = 'display:inline-block;padding-left:36px'  ><input name = 'afsfa' class = 'aya-radio' type = 'radio' value = '"+k+"' /></div></div><div style = 'border-bottom:1px solid #d7d7d7' class = 'relative' id = 'id"+k+"'>2</div></div>";
-								$('#tmp20200601').append( tmp );
+								tmp += "<div class = 'flow-container'><div style = 'padding:10px 0 0 20px'>分支："+k.substring(2)+"<div style = 'display:inline-block;padding-left:36px'  ><input name = 'afsfa' class = 'aya-radio' type = 'radio' value = '"+k+"' /></div></div><div style = 'border-bottom:1px solid #d7d7d7' class = 'relative' id = 'id"+k+"'></div></div>";
+								top.$('#tmp20200601').append( tmp );
 
-								let offset = $('#id' + k).offset();
+								let offset = top.$('#id' + k).offset();
 
 								let tmpData = $.extend({},d.data);
-								
-								
-								flow.ini(
-									$.extend({ multiIndex : k, stopId : k, offset : offset ,container : $('#id' + k) },tmpData)	
-								)
 
-								
-								
+								top.flow.ini(
+									$.extend({ multiIndex : k, stopId : k, offset : offset ,container : top.$('#id' + k) },tmpData)	
+								)
+																
 								let topest = 1000000,lowest = 0;
-								$('#id' + k).find('div').each(function(){
+
+								top.$('#id' + k).find('div').each(function(){
 									let offset = $(this).offset();
 									let height = $(this).height();
 									if( offset.top < topest ) topest = offset.top;
 									if( offset.top + height > lowest ) lowest = offset.top + height;
 								});
 
-								$('#id' + k).height( lowest - topest + 60);
-
-								
+								top.$('#id' + k).height( lowest - topest + 60);
 
 							});
 
-							$('#tmp20200601').find("input[type='radio']").eq(0).prop('checked',true);
+							top.$('#tmp20200601').find("input[type='radio']").eq(0).prop('checked',true);
 
-							$('#tmp20200601').append("<div class = 'center' style = 'padding-top:10px'><button class = 'btn btn-primary height32'>确定</button></div>");
+							top.$('#tmp20200601').append("<div class = 'center' style = 'padding-top:10px'><button class = 'btn btn-primary height32'>确定</button></div>");
 
-							$('#tmp20200601').find('div.flow-container').click(function(){
-								$('#tmp20200601').find("input[type='radio']").prop('checked',false);
+							top.$('#tmp20200601').find('div.flow-container').click(function(){
+								top.$('#tmp20200601').find("input[type='radio']").prop('checked',false);
 								$(this).find("input[type='radio']").prop('checked',true);
 							});
 
-							$('#tmp20200601').find('button').click(function(){
+							top.$('#tmp20200601').find('button').click(function(){
 								let nodeId = '';
-								$('#tmp20200601').find('input').each(function(){
+								top.$('#tmp20200601').find('input').each(function(){
 									if( $(this).is(':checked') ){
 										nodeId = $(this).val();
 									}
@@ -2326,7 +2314,7 @@ var form  = {
 								}else{
 									
 									form.check( obj.type,form.get_list_ddh(),nodeId);
-									layer.close(index);
+									top.layer.close(index);
 								}
 
 							});
@@ -2401,7 +2389,7 @@ var form  = {
 				}else if(d.status == 'selectId'){
 					let content = "<div id = 'tmp20200601'></div>";
 
-					layer.open({
+					top.layer.open({
 						//skin: 'layer-search-container',
 						title:'<span style = "font-size:12px">选择分支（弃审）</span>',
 						area: ['800px','100%'],
@@ -2416,44 +2404,43 @@ var form  = {
 							$.each(d.data.data,function(k,v){
 							
 								tmp = '';
-								tmp += "<div class = 'flow-container'><div style = 'padding:10px 0 0 20px'>分支："+k.substring(2)+"<div style = 'display:inline-block;padding-left:36px'  ><input name = 'afsfa' class = 'aya-radio' type = 'radio' value = '"+k+"' /></div></div><div style = 'border-bottom:1px solid #d7d7d7' class = 'relative' id = 'id"+k+"'>2</div></div>";
-								$('#tmp20200601').append( tmp );
+								tmp += "<div class = 'flow-container'><div style = 'padding:10px 0 0 20px'>分支："+k.substring(2)+"<div style = 'display:inline-block;padding-left:36px'  ><input name = 'afsfa' class = 'aya-radio' type = 'radio' value = '"+k+"' /></div></div><div style = 'border-bottom:1px solid #d7d7d7' class = 'relative' id = 'id"+k+"'></div></div>";
+								top.$('#tmp20200601').append( tmp );
 
-								let offset = $('#id' + k).offset();
+								let offset = top.$('#id' + k).offset();
 
 								let tmpData = $.extend({},d.data);
 								
-								
-								flow.ini(
-									$.extend({ multiIndex : k, stopId : k, offset : offset ,container : $('#id' + k) },tmpData)	
+								top.flow.ini(
+									$.extend({ multiIndex : k, stopId : k, offset : offset ,container : top.$('#id' + k) },tmpData)	
 								)
 
 								
 								
 								let topest = 1000000,lowest = 0;
-								$('#id' + k).find('div').each(function(){
+								top.$('#id' + k).find('div').each(function(){
 									let offset = $(this).offset();
 									let height = $(this).height();
 									if( offset.top < topest ) topest = offset.top;
 									if( offset.top + height > lowest ) lowest = offset.top + height;
 								});
 
-								$('#id' + k).height( lowest - topest + 60);
+								top.$('#id' + k).height( lowest - topest + 60);
 
 							});
 
-							$('#tmp20200601').find("input[type='radio']").eq(0).prop('checked',true);
+							top.$('#tmp20200601').find("input[type='radio']").eq(0).prop('checked',true);
 
-							$('#tmp20200601').append("<div class = 'center' style = 'padding-top:10px'><button class = 'btn btn-primary height32'>确定</button></div>");
+							top.$('#tmp20200601').append("<div class = 'center' style = 'padding-top:10px'><button class = 'btn btn-primary height32'>确定</button></div>");
 
-							$('#tmp20200601').find('div.flow-container').click(function(){
-								$('#tmp20200601').find("input[type='radio']").prop('checked',false);
+							top.$('#tmp20200601').find('div.flow-container').click(function(){
+								top.$('#tmp20200601').find("input[type='radio']").prop('checked',false);
 								$(this).find("input[type='radio']").prop('checked',true);
 							});
 
-							$('#tmp20200601').find('button').click(function(){
+							top.$('#tmp20200601').find('button').click(function(){
 								let nodeId = '';
-								$('#tmp20200601').find('input').each(function(){
+								top.$('#tmp20200601').find('input').each(function(){
 									if( $(this).is(':checked') ){
 										nodeId = $(this).val();
 									}
@@ -2462,8 +2449,10 @@ var form  = {
 								if(nodeId == ''){
 									 layer_error({info : 'aaa'});
 								}else{
-									layer.close(index);
+									
 									form.uncheck(obj.type,form.get_list_ddh(),nodeId);
+
+									top.layer.close(index);
 								}
 
 							});
@@ -2570,7 +2559,6 @@ var form  = {
 		o.ddh = JSON.stringify(tmp);
 		o.type = 'modify';
 		$.post(form.config.canModify.url,o,function(d){
-			log(d);
 			if(d.status == 's'){
 				form.m();
 				form.status({status : 'modify'});
@@ -2584,7 +2572,7 @@ var form  = {
 
 		status = info.status;
 
-		var imgUrl =get_parent().publicUrl + '/image/erp/';
+		var imgUrl = top.publicUrl + '/image/erp/';
 
 		if(status == 'new' || status == 'modify'){
 			form.img_do('save','on');form.img_do('giveup','on');

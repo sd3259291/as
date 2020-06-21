@@ -1,3 +1,4 @@
+{__NOLAYOUT__}
 <!DOCTYPE html>
 <html>
 <head>
@@ -353,7 +354,8 @@ var flow = {
 
 	draw : function( id ){
 
-		let imgUrl = '__PUBLIC__/image/flow/';
+		let imgUrl = top.publicUrl + '/image/flow/';
+		
 		if( $('#creator').length == 0 ){
 			$('#diagramContainer').empty().append("<div class = 'item item_creator' id = 'creator'><img src = '"+imgUrl+"o75.png' class = 'icon2' /></div>");
 		}	

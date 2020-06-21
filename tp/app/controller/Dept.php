@@ -66,15 +66,12 @@ class Dept extends BaseController{
 		return a('','','s');	
 	}
 
-	public function editDept(){
-		
+	public function editDept(){		
 		$dept = Department::find($_POST['id']);
 		if(!$_POST['name']) return a('','部门名称不能为空','e');
 		$dept->name = $_POST['name'];
 		$dept->sort = (int)$_POST['sort'];
 		$dept->status = $_POST['status'];
-	
-
 		if(!$_POST['status']){
 			$r = Employee::where("department_id = ".$_POST['id'])->find();
 			if($r) return a('','部门员工数不为0，不能禁用','e');
@@ -83,6 +80,7 @@ class Dept extends BaseController{
 		$tmp = array();
 		if($_POST['fgld']){
 			$fgld = explode(',',substr($_POST['fgld'],0,-1));
+			
 			$fgld_name = explode(',',substr($_POST['fgld_name'],0,-1));
 			foreach($fgld as $k => $v){
 				$tmp[] = array( 
@@ -92,6 +90,7 @@ class Dept extends BaseController{
 					'value' => $fgld_name[$k]
 				);
 			}
+			
 		}
 		if($_POST['bmzg']){
 			$bmzg = explode(',',substr($_POST['bmzg'],0,-1));
@@ -110,12 +109,10 @@ class Dept extends BaseController{
 		if(count($tmp) > 0){
 			$departmentAttr->saveAll($tmp);
 		}
-
 		return a('','','s');
 	}
 
-	public function info(){
-		
+	public function info(){		
 		$department = Department::find($_POST['id'])->toArray();
 		$attr = DepartmentAttr::where("department_id = ".$_POST['id']." && type <= 2")->select();
 		$department['fgld'] = $department['fgld_name'] = $department['bmzg'] = $department['bmzg_name'] = '';

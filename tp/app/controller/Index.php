@@ -16,7 +16,6 @@ class Index extends BaseController
 {
     public function index()
     {	
-
 		$list = array();
 		if(Session::get('userinfo')['username'] == 'admin'){
 			foreach(Layout::order('level asc,sort asc')->select()->toArray() as $k => $v){
@@ -52,8 +51,6 @@ class Index extends BaseController
 
 		}
 		
-		
-
 		if(Session::get('userinfo')['username'] == 'admin') $list = array_merge($list,$this->adminList);		
 		View::assign('name',Session::get('Authinfo')['name']);
 		View::assign('lists',$list );

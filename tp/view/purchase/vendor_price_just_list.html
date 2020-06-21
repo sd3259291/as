@@ -1,10 +1,15 @@
-<script type="text/javascript" src="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.js"></script>
-<link rel="stylesheet" href="__PUBLIC__/js/silviomoreto-bootstrap20160104/bootstrap-select.min.css" type="text/css">
-
+{php}
+	$session = session();
+	if($session['multi'] == 1 && !isset($_GET['nolayout']) ){
+{/php}
+{include file='public/form_js' /}
+{php}
+}
+{/php}
 <div class="card" id = 'card' >
 	<div class="card-content" style = 'padding-right:0'>
-		<div class = 'row row-head' >
-			<div class = 'col s12'>
+		<div class = 'row row-head' style = 'h1eight:53px'>
+			<div class = 'col s11'>
 				<div class="left"  >
 
 					<span class = 'erp-head' >
@@ -45,11 +50,14 @@
 					</div>
 					
 				</div>
+	
 
+				
+			</div>
 
-
-				<div class = 'relative' style = 'display:inline-block;float:right'>
-					<input type = 'text' id = 'search_table' class = 'width-200' placeholder = '表单内搜索' />
+			<div class = 'col s1'>
+				<div class = 'relative' style = 'display:inline-block;float:right' id = 'aaaa'>
+					<input type = 'text' id = 'search_table'  placeholder = '表单内搜索' style = 'width:200px'/>
 					<img src = '__PUBLIC__/image/search.png' class = 'absolute height18 input-hint' />
 				</div>
 			</div>
@@ -166,20 +174,17 @@
 		},	
 
 	}
-	app.ini();
 
-	
+	app.ini();
 
 	//window.setTimeout(function(){
 		//$('#table tbody tr').eq(0).addClass('selected');
 	//	$('#check').trigger('click');
 	//},200);
 
-	
-
 	//$('#super_search').trigger('click');
-	
 
+	
 
 </script>
 

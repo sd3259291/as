@@ -159,22 +159,24 @@
 		
 			$('#dlt').click(function(){
 
-				if(app.node == null) return false;
+				
+				if($('#table tr.selected').length == 0 ) return false;
+
+				
 
 				parent.layer.confirm('确定删除?', { icon: 3, title:'提示',offset : ['10%' ] }, function(index){
 
 					let o = {};
 
-					o.id = app.node.id;
+					o.name = $('#table tr.selected').eq(0).children().eq(0).text();
 
-					$.post('__APP__/Dept/dltDept',o,function(d){
+					
+
+					$.post('__APP__/Pst/dltPst',o,function(d){
 
 						if(d.status == 's'){
-
-							app.zTreeObj.removeNode(app.node);
-
-							parent.layer.close(index);
-
+							$('#table tr.selected').remove();
+							
 							layer_success();
 
 						}else{
@@ -198,7 +200,7 @@
 				
 				];
 
-				parent.layer.open({
+				top.layer.open({
 
 					skin: 'layer-edit-container',
 
@@ -225,7 +227,7 @@
 						let o = {};
 
 						for(let f of div){
-							o[f.id] = $.trim($('#' + f.id).val());
+							o[f.id] = $.trim(top.$('#' + f.id).val());
 						}
 
 						$.post('__APP__/Pst/addPst',o,function(d){
@@ -233,7 +235,7 @@
 								
 								table.rows.add($(d.data)).draw();
 								app.maxSort = d.info;
-								parent.layer.close(index);
+								top.layer.close(index);
 							
 								layer_success();
 							}else{

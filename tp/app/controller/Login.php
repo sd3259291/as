@@ -123,6 +123,7 @@ class Login
 				}
 
 				Session::set('userinfo',$authInfo);
+				Session::set('multi',$_POST['multi']=='true'?1:0);
 				
 				if(substr($authInfo['username'],0,5)=='admin'){
 					Session::set('admin_auth_key',true);

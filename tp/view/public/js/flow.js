@@ -124,25 +124,22 @@ var flow = {
 
 	draw : function( id ){
 
-	
+		let imgUrl = top.publicUrl+'/image/flow/' ;
 
-		let imgUrl = get_parent().publicUrl + '/image/flow/';
 		if( $('#creator' + flow.multiIndex).length == 0 ){
 			flow.container.empty().append("<div class = 'item item_creator' id = 'creator"+flow.multiIndex+"'><img src = '"+imgUrl+"creator.png'  /></div>");
 		}
 
 		flow.H[id] = -1;	
 		
-		let offset = $('#' + id).offset();
+		let offset = $(flow.container).find('#' + id).offset();
 
 		if(flow.offset){
 			offset.left -= flow.offset.left;
-			offset.top -= flow.offset.top;
+			offset.top  -= flow.offset.top;
 		}
 
-		let top,left;
-
-		
+		let tmpTop,tmpLeft;
 
 		for(let i in flow.p[id]){
 
@@ -153,30 +150,30 @@ var flow = {
 			if(N.S == 'p'){
 	
 				if(flow.node[id].D > 0){
-					top  = offset.top  + flow.H[id] * flow.unitHeight + 17;   
+					tmpTop  = offset.top  + flow.H[id] * flow.unitHeight + 17;
 				}else{
-					top  = offset.top  + flow.H[id] * flow.unitHeight + 16;   
+					tmpTop  = offset.top  + flow.H[id] * flow.unitHeight + 16;   
 				}
 
 				if(flow.node[id].S == 'n'){
 					// 块 => 点
-					left = offset.left + $('#'+id).width() + flow.unitWidth / 2;
+					tmpLeft = offset.left + $('#'+id).width() + flow.unitWidth / 2;
 					
 				}else{
-					left = offset.left + $('#'+id).width() + flow.unitWidth / 2;
-					top  = offset.top  + flow.H[id] * flow.unitHeight ;  
+					tmpLeft = offset.left + $('#'+id).width() + flow.unitWidth / 2;
+					tmpTop  = offset.top  + flow.H[id] * flow.unitHeight ;  
 					// 点 => 点
 				}
 
 				if(flow.isDrawed.get(flow.p[id][i]) == true){
-					if(left > $('#' + flow.p[id][i]).offset().left){
-						let tmp = left - $('#' + flow.p[id][i]).offset().left;
+					if(tmpLeft > $('#' + flow.p[id][i]).offset().left){
+						let tmp = tmpLeft - $('#' + flow.p[id][i]).offset().left;
 						flow.adjustLeft(flow.p[id][i],tmp);
 					}
 					continue;
 				}
 				
-				flow.container.append("<div class = 'point' style = 'top:"+top+"px;left:"+left+"px' id = '"+N.id+"'></div>");
+				flow.container.append("<div class = 'point' style = 'top:"+tmpTop+"px;left:"+tmpLeft+"px' id = '"+N.id+"'></div>");
 				flow.isDrawed.set(flow.p[id][i],true);
 				
 				let tmp = flow.draw(N.id);
@@ -203,40 +200,40 @@ var flow = {
 				
 			if(flow.node[id].S == 'p'){
 				if(N.D > 0 ){
-					top  = offset.top + HNum * flow.unitHeight - 17;
+					tmpTop  = offset.top + HNum * flow.unitHeight - 17;
 				}else{
-					top  = offset.top + HNum * flow.unitHeight - 16;
+					tmpTop  = offset.top + HNum * flow.unitHeight - 16;
 				}
-				left = offset.left + $('#' + id).width()  + flow.unitWidth / 2;
+				tmpLeft = offset.left + $('#' + id).width()  + flow.unitWidth / 2;
 			}else{
-				top  = offset.top  + flow.nH.get(nextId) * flow.unitHeight;
-				left = offset.left + $('#'+id).width() + flow.unitWidth;
+				tmpTop  = offset.top  + flow.nH.get(nextId) * flow.unitHeight;
+				tmpLeft = offset.left + $('#'+id).width() + flow.unitWidth;
 			}
 
 			let tmp2 = N['D'] == 0?'_noreach':'';
 
-			
+		
 
 			if(N['id'].substring(0,3) == 'end'){
-				flow.container.append("<div  style = 'width:60px;top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"' data-key = '' id = 'end'>结束</div>");
+				flow.container.append("<div  style = 'width:60px;top:"+tmpTop+"px;left:"+tmpLeft+"px' class = 'item done-status"+N['D']+"' data-key = '' id = 'end'>结束</div>");
 			}else if(N['id'].substring(0,5) == 'nextN'){
-				flow.container.append("<div  style = 'width:60px;top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"' data-key = '' id = 'nextN"+flow.multiIndex+"'>...</div>");
+				flow.container.append("<div  style = 'width:60px;top:"+tmpTop+"px;left:"+tmpLeft+"px' class = 'item done-status"+N['D']+"' data-key = '' id = 'nextN"+flow.multiIndex+"'>...</div>");
 			}else if(N['T'] == 'P'){
-				flow.container.append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"person"+tmp2+".png' class = 'icon1' title = '个人' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['V']+"</div></div></div>");
+				flow.container.append("<div style = 'top:"+tmpTop+"px;left:"+tmpLeft+"px' class = 'item done-status"+N['D']+"' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"person"+tmp2+".png' class = 'icon1' title = '个人' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['V']+"</div></div></div>");
 				
 			}else if(N['T'] == 'R'){
 				if(N['V'] == 'F'){
-					flow.container.append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"leader"+tmp2+".png' class = 'icon2' title = '分管领导' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['B']+"</div></div></div>");
+					flow.container.append("<div style = 'top:"+tmpTop+"px;left:"+tmpLeft+"px' class = 'item done-status"+N['D']+"'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"leader"+tmp2+".png' class = 'icon2' title = '分管领导' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['B']+"</div></div></div>");
 				}else{
-					flow.container.append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"leader"+tmp2+".png' class = 'icon2' title = '部门主管' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['B']+"</div></div></div>");
+					flow.container.append("<div style = 'top:"+tmpTop+"px;left:"+tmpLeft+"px' class = 'item done-status"+N['D']+"'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"leader"+tmp2+".png' class = 'icon2' title = '部门主管' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['B']+"</div></div></div>");
 				}
 			}else if(N['T'] == 'G'){
-				flow.container.append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"post"+tmp2+".png' class = 'icon1' title = '岗位' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['V']+"</div></div></div>");
+				flow.container.append("<div style = 'top:"+tmpTop+"px;left:"+tmpLeft+"px' class = 'item done-status"+N['D']+"' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"post"+tmp2+".png' class = 'icon1' title = '岗位' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['V']+"</div></div></div>");
 			}else if(N['T'] == 'D'){
-				flow.container.append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"department"+tmp2+".png' class = 'icon1' title = '部门' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['V']+"</div></div></div>");
+				flow.container.append("<div style = 'top:"+tmpTop+"px;left:"+tmpLeft+"px' class = 'item done-status"+N['D']+"' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"department"+tmp2+".png' class = 'icon1' title = '部门' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['V']+"</div></div></div>");
 				
 			}else if(N['T'] == 'Z'){
-				flow.container.append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"group"+tmp2+".png' class = 'icon1' title = '组' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['V']+"</div></div></div>");
+				flow.container.append("<div style = 'top:"+tmpTop+"px;left:"+tmpLeft+"px' class = 'item done-status"+N['D']+"' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"group"+tmp2+".png' class = 'icon1' title = '组' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['V']+"</div></div></div>");
 				
 			}else if(N['T'] == 'X'){
 				let tmp = '';
@@ -248,7 +245,7 @@ var flow = {
 						tmp = '执行者部门<br />分管领导';
 					}
 
-					flow.container.append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"leader"+tmp2+".png' class = 'icon3' title = '"+N['K']+"' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+tmp+"</div></div></div>");
+					flow.container.append("<div style = 'top:"+tmpTop+"px;left:"+tmpLeft+"px' class = 'item done-status"+N['D']+"'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"leader"+tmp2+".png' class = 'icon3' title = '"+N['K']+"' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+tmp+"</div></div></div>");
 				}else if(N['K'] == 1 || N['K'] == 3){
 					
 					if(N['K'] == 1){
@@ -257,11 +254,11 @@ var flow = {
 						tmp = '执行者<br />部门主管';
 					}
 
-					flow.container.append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"leader"+tmp2+".png' class = 'icon3' title = '"+N['V']+"' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+tmp+"</div></div></div>");
+					flow.container.append("<div style = 'top:"+tmpTop+"px;left:"+tmpLeft+"px' class = 'item done-status"+N['D']+"'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"leader"+tmp2+".png' class = 'icon3' title = '"+N['V']+"' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+tmp+"</div></div></div>");
 				}else if(N['K'] == 9){
-					flow.container.append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"null"+tmp2+".png' class = 'icon2' title = '空' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['V']+"</div></div></div>");
+					flow.container.append("<div style = 'top:"+tmpTop+"px;left:"+tmpLeft+"px' class = 'item done-status"+N['D']+"'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"null"+tmp2+".png' class = 'icon2' title = '空' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['V']+"</div></div></div>");
 				}else if(N['K'] == 5){
-					flow.container.append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item done-status"+N['D']+"'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"person"+tmp2+".png' class = 'icon2' title = '发起者' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['V']+"</div></div></div>");
+					flow.container.append("<div style = 'top:"+tmpTop+"px;left:"+tmpLeft+"px' class = 'item done-status"+N['D']+"'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"person"+tmp2+".png' class = 'icon2' title = '发起者' /></div><div  class = 'item-in' ><div class = 'item-in-text'>"+N['V']+"</div></div></div>");
 				}
 			}
 
@@ -570,9 +567,6 @@ var flow = {
 
 	},
 
-	
-
-	
 
 	get_prev_id : function(id){
 		let prev = [];
@@ -588,10 +582,8 @@ var flow = {
 		return prev;
 	},
 	
-	
-
 	add_x : function(){
-		let imgUrl = get_parent().publicUrl + '/image/flow/';
+		let imgUrl = top.publicUrl+'/image/flow/' ;
 		for(let i in flow.node){
 			if(flow.node[i].S == 'p' || flow.node[i].D == -1) continue;
 			if(flow.node[i].X == undefined || flow.node[i].X.length == 0 || $('#' + i).length == 0) continue;
@@ -830,11 +822,21 @@ var flow = {
 		
 		
 		//整体右移
+
+
 		
-		if(!flow.offset){
-			
-			let tmp = (($(window).width() - $('#end').offset().left + $('#end').width() - $('#creator').offset().left)/2 - $('#creator').offset().left) / 3;
-		
+		if(!flow.offset && !flow.stopId){
+
+			let tmp1 = flow.multiIndex?flow.multiIndex:'';
+
+			let tmp;
+
+			if( flow.container.find('#end').length == 1){
+				tmp = (($(window).width() - flow.container.find('#end').offset().left + flow.container.find('#end').width() - flow.container.find('#creator' + tmp1).offset().left)/2 - flow.container.find('#creator' + tmp1).offset().left) / 3;
+			}else{
+				tmp = (($(window).width() - flow.container.find('#nextN' + tmp1).offset().left + flow.container.find('#nextN' + tmp1 ).width() - flow.container.find('#creator' + tmp1).offset().left)/2 - flow.container.find('#creator' + tmp1).offset().left) / 3;
+			}
+
 			if(tmp > 0){
 				$('div.item').each(function(){
 					$(this).css('left',$(this).offset().left + tmp);
@@ -848,13 +850,12 @@ var flow = {
 			}
 		}
 
-		
-
 		flow.add_x();
 
 		flow.add_hover();
 
 		flow.createLine('creator' + flow.multiIndex);
+		
 	
 	},
 	
@@ -890,7 +891,6 @@ var flow = {
 			}
 			let o1 = $('#' + id).offset();
 			let o2 = $('#' + flow.p[id][i]).offset();
-	
 
 			if(flow.offset){
 				o1.left -= flow.offset.left;
@@ -909,43 +909,41 @@ var flow = {
 			let tmp1 = o1.top +  h1 / 2;
 			let tmp2 = o2.top +  h2 / 2;
 			
-			let top,left,width,height,div;
+			let top1,left,width,height,div;
 
 			if(tmp1 == tmp2){
 
-				top = tmp1;
+				top1 = tmp1;
 				left = o1.left + w1;
 				width = o2.left - o1.left - w1 ;
-				flow.createDiv(top,left,width,0,color);
+				flow.createDiv(top1,left,width,0,color);
 				
-			}else if(tmp1 < tmp2){
-			
+			}else if(tmp1 < tmp2){		
 				
-				top = tmp1;
+				top1 = tmp1;
 				left = o1.left + w1 / 2;
-
 			
 				height = o2.top + h2 / 2 - o1.top - h1 / 2;
 			
-				flow.createDiv(top,left,0,height,color);
+				flow.createDiv(top1,left,0,height,color);
 				
-				top = tmp2;
+				top1 = tmp2;
 				left = left + w1;
 				width = o2.left - o1.left - w1 / 2;
-				flow.createDiv(top,left,width,0,color);
+				flow.createDiv(top1,left,width,0,color);
 				
 
 			}else{
-				top = tmp1;
+				top1 = tmp1;
 				left = o1.left + w1;
 				width = o2.left - o1.left - w1 + tmpWidth ;
-				flow.createDiv(top,left,width,0,color);
+				flow.createDiv(top1,left,width,0,color);
 
-				top = o2.top;
+				top1 = o2.top;
 				left = o2.left;
 				height = tmp1 - tmp2  ;
 				
-				flow.createDiv(top,left,0,height,color);
+				flow.createDiv(top1,left,0,height,color);
 			}
 			if(flow.p[flow.p[id][i]] != undefined){
 				flow.createLine(flow.p[id][i]);

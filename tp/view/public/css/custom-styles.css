@@ -632,7 +632,8 @@ table.nowrap tbody tr td{
 }
 
 .btn i{
-	line-height:16px;height:16px;font-size:16px;
+	line-height:16px;height:16px;font-size:14px;
+	
 	padding: 2px 0 0 0;
 	vertical-align:text-bottom;	
 }
@@ -1111,7 +1112,6 @@ table.dataTable tbody tr td a{
 			color:#4cae4c;
 		 }
 /* flow 相关结束 */
-
 
 
 

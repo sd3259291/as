@@ -58,7 +58,7 @@ class EmployeeValidate extends Validate
     }
 
 	protected function checkNumber($value,$rule,$data=[]){
-		if($data['id']){
+		if(is_set($data,'id')){
 			$r = Db::table('s_employee')->where("number = '$value' && id != ".$data['id'])->find();
 			return $r?'工号重复':true;
 		}else{

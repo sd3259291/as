@@ -15,6 +15,7 @@ use think\facade\Cache;
 use app\model\Enum;
 use app\model\EnumDetail;
 use app\model\Post;
+use app\model\Employee;
 
 class Pst extends BaseController{
 	/**
@@ -43,6 +44,11 @@ class Pst extends BaseController{
 		$type_name = EnumDetail::find($_POST['type_id_new']);
 
 		$_POST['sort_new'] = (int)$_POST['sort_new'];
+
+		$r = Post::where("name = '".$_POST['name_new']."'")->find();
+
+		if($r) return a('','岗位名称（'.$_POST['name_new'].'）已存在','e');
+
 		$p = new Post;
 		$p->name = $_POST['name_new'];
 		$p->sort = $_POST['sort_new'];
@@ -84,8 +90,12 @@ class Pst extends BaseController{
      */
 	public function dltPst(){
 		
-
-		
+		$post = Post::where("name = '".$_POST['name']."'")->find();
+		if(!$post) return a('','删除错误','e');
+		$r = Employee::where('post_id = '.$post['id'])->find();
+		if($r) return a('','岗位已被使用，不能删除','e');
+		$post->delete();
+		return a();
 	}
 	
 }
