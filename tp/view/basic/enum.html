@@ -111,7 +111,7 @@
 					{ 'name' : '排序：' , 'id' : 'enum_type_sort' ,'type' : 'text'},
 					{ 'type' : 'hidden' , 'id' : 'enum_type_pid'}
 				];
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-new-container',
 					title : '新建枚举类别',
 					offset : ['40px'],
@@ -122,14 +122,14 @@
 					content : create_new_div( div ),
 					success : function(){
 						if(app.node != null){
-							$('#enum_type_pname').val( app.node.name);
-							$('#enum_type_pid').val(app.node.id);
+							top.$('#enum_type_pname').val( app.node.name);
+							top.$('#enum_type_pid').val(app.node.id);
 						}
 					},
 					yes : function(index){
 						let o = {};
 						for(let f of div){
-							o[f.id] = $.trim($('#' + f.id).val());
+							o[f.id] = $.trim(top.$('#' + f.id).val());
 						}
 
 
@@ -139,7 +139,7 @@
 								let tmp = d.data;
 
 								app.zTreeObj.addNodes( tmp.pid == 0 ? null : app.node , {name : tmp.name,id:tmp.id } );
-								parent.layer.close(index);
+								top.layer.close(index);
 								layer_success();
 							}else{
 								layer_error(d);
@@ -158,7 +158,7 @@
 					{ 'type' : 'hidden' , 'id' : 'enum_type_id'}
 				];
 
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-new-container',
 					title : '编辑枚举类别',
 					offset : ['40px'],
@@ -168,19 +168,19 @@
 					shadeClose:true,
 					content : create_new_div( div ),
 					success : function(){
-						$('#enum_type_name').val( app.node.name);
-						$('#enum_type_id').val(app.node.id);
-						$('#enum_type_sort').val(app.node.sort);
+						top.$('#enum_type_name').val( app.node.name);
+						top.$('#enum_type_id').val(app.node.id);
+						top.$('#enum_type_sort').val(app.node.sort);
 					},
 					yes : function(index){
 						let o = {};
 						for(let f of div){
-							o[f.id] = $.trim($('#' + f.id).val());
+							o[f.id] = $.trim(top.$('#' + f.id).val());
 						}
 						$.post('__APP__/Basic/editEnum',o,function(d){
 							if(d.status == 's'){
 
-								parent.layer.close(index);
+								top.layer.close(index);
 								layer_success('操作成功，刷新页面显示修改结果',2000);
 
 							}else{
@@ -194,7 +194,7 @@
 
 			$('#enum_type_dlt').click(function(){
 				if(app.node == null) return false;
-				layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+				top.layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
 					let o = {};
 					o.id = app.node.id;
 					$.post('__APP__/Basic/dltEnum',o,function(d){
@@ -204,10 +204,9 @@
 						}else{
 							layer_error(d);
 						}
-						layer.close(index);
+						top.layer.close(index);
 					});	
 				});
-
 			});
 
 
@@ -220,7 +219,7 @@
 					{ 'name' : '排序：' , 'id' : 'sort' ,'type' : 'text'},
 					{ 'type' : 'hidden' , 'id' : 'enum_type_pid'}
 				];
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-new-container',
 					title : '新建枚举明细',
 					offset : ['40px'],
@@ -231,23 +230,18 @@
 					content : create_new_div( div ),
 					success : function(){
 						if(app.node != null){
-							$('#enum_type_pname').val( app.node.name);
-							$('#enum_type_pid').val(app.node.id);
+							top.$('#enum_type_pname').val( app.node.name);
+							top.$('#enum_type_pid').val(app.node.id);
 						}
 					},
 					yes : function(index){
 						let o = {};
 						for(let f of div){
-							o[f.id] = $.trim($('#' + f.id).val());
+							o[f.id] = $.trim(top.$('#' + f.id).val());
 						}
-
-
 						$.post('__APP__/Basic/addEnumDetail',o,function(d){
 							if(d.status == 's'){
-
 								table.rows.add($(d.data)).draw();
-
-								
 								layer_success();
 							}else{
 								layer_error(d);
@@ -269,7 +263,7 @@
 					{ 'type' : 'hidden' , 'id' : 'enum_type_id'}
 				];
 
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-new-container',
 					title : '编辑枚举明细',
 					offset : ['40px'],
@@ -280,19 +274,18 @@
 					content : create_new_div( div ),
 					success : function(){
 						let tmp = $('#table tbody tr.selected').eq(0).children();
-						$('#name').val(tmp.eq(0).text());
-						$('#value').val(tmp.eq(1).text());
-						$('#sort').val(tmp.eq(2).text());
-						$('#status').val( tmp.eq(3).text() == '启用'?1:0 );
-						$('#enum_type_pid').val($('#table tbody tr.selected').eq(0).data('id'));
+						top.$('#name').val(tmp.eq(0).text());
+						top.$('#value').val(tmp.eq(1).text());
+						top.$('#sort').val(tmp.eq(2).text());
+						top.$('#status').val( tmp.eq(3).text() == '启用'?1:0 );
+						top.$('#enum_type_pid').val($('#table tbody tr.selected').eq(0).data('id'));
 					},
 					yes : function(index){
 						let o = {};
 						for(let f of div){
-							o[f.id] = $.trim($('#' + f.id).val());
+							o[f.id] = $.trim(top.$('#' + f.id).val());
 						}
 						o.id = $('#table tbody tr.selected').eq(0).data('id');
-						log(o);
 						$.post('__APP__/Basic/editEnumDetail',o,function(d){
 							if(d.status == 's'){
 
@@ -323,7 +316,7 @@
 			$('#dlt').click(function(){
 				if($('#table tbody tr.selected').length == 0) return false;
 
-				layer.confirm('删除可能会造成不可预知的错误<br />确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+				top.layer.confirm('删除可能会造成不可预知的错误<br />确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
 					let o = {};
 					o.id = $('#table tbody tr.selected').eq(0).data('id');
 					$.post('__APP__/Basic/dltEnumDetail',o,function(d){

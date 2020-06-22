@@ -29,8 +29,7 @@ function create_new_div( div ){
 }
 
 function layer_error(d,time = 2000){
-	top.layer.alert(d.info,{shadeClose:true,'title' : "<span style = 'font-size:12px'>Error</span>",area:['500px'],offset:'20%'});
-	//layer.msg(d.info,{icon:2,time:time,offset:'30%'});
+	top.layer.alert(d.info,{shadeClose:true,'title' : "<span style = 'font-size:12px'>Error</span>",area:['500px'],offset:'20%',icon:2});
 }
 function layer_success(info = '操作成功',time = 1000){
 	top.layer.msg(info,{icon:1,time:time,offset:'30%'});

@@ -54,7 +54,7 @@
 
 			$('#new').click(function(){
 				
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-new-container',
 					title : '新增组',
 					offset : ['40px'],
@@ -65,11 +65,11 @@
 					content : create_new_div( div ),
 					yes : function(index){
 						let o = {};
-						o.name = $.trim($('#name').val());
-						o.remark = $.trim($('#remark').val());
+						o.name = $.trim(top.$('#name').val());
+						o.remark = $.trim(top.$('#remark').val());
 						$.post('__APP__/Auth/addGroup',o,function(d){
 							if(d.status == 's'){
-								parent.layer.close(index);
+								top.layer.close(index);
 								table.rows.add($(d.data)).draw();
 							}else{
 								layer_error(d);
@@ -83,7 +83,7 @@
 				if($('#table tbody tr.selected').length == 0) return false;
 				let id = $('#table tbody tr.selected').eq(0).data('id');
 
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-edit-container',
 					title : '编辑组',
 					offset : ['40px'],
@@ -93,14 +93,14 @@
 					shadeClose:true,
 					content : create_new_div( div ),
 					success : function(){
-						$('#name').val($('#table tbody tr.selected').eq(0).children().eq(0).text());
-						$('#remark').val($('#table tbody tr.selected').eq(0).children().eq(3).text());
+						top.$('#name').val($('#table tbody tr.selected').eq(0).children().eq(0).text());
+						top.$('#remark').val($('#table tbody tr.selected').eq(0).children().eq(3).text());
 					},
 					yes : function(index){
 						let o = {};
 						o.id = id;
-						o.name = $.trim($('#name').val());
-						o.remark = $.trim($('#remark').val());
+						o.name = $.trim(top.$('#name').val());
+						o.remark = $.trim(top.$('#remark').val());
 						$.post('__APP__/Auth/editGroup',o,function(d){
 							if(d.status == 's'){
 								parent.layer.close(index);
@@ -133,7 +133,7 @@
 			$('#dlt').click(function(){
 				if($('#table tbody tr.selected').length == 0) return false;
 
-				layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+				top.layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
 					
 					let o = {};
 					o.id = $('#table tbody tr.selected').eq(0).data('id');
@@ -146,7 +146,7 @@
 						}else{
 							layer_error(d);
 						}
-						layer.close(index);
+						top.layer.close(index);
 					});	
 				});	
 			});
@@ -158,8 +158,6 @@
 					table.search(text).draw();
 				}
 			});
-
-			
 
 		},	
 

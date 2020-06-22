@@ -297,15 +297,10 @@ var flow = {
 		return flow.get_H_N2(p1,p2);
 	},
 
-
-
-
 	get_H_N2 : function(p1,p2,f = true,first = true){
 
 		if(first) flow.hasCaled = {};
 		
-
-		//if(p1 == 'id27' && p2 == 'id93') alert(1);
 		let r = 0;
 		for(let i in flow.p[p1]){
 			if(flow.isDrawed.get(flow.p[p1][i])){
@@ -314,7 +309,6 @@ var flow = {
 						flow.hasCaled[flow.p[p1][i]] = 1;
 						r++;
 					}
-					
 				}else{
 					if(i > 0){
 						if(flow.hasCaled[flow.p[p1][i]] == undefined){
@@ -331,7 +325,6 @@ var flow = {
 		if(flow.p[p1][0] == p2){
 			return r;
 		}else{
-			
 			for(let i in flow.p[p1]){
 				if( flow.p[p1][i] != 'end'){
 					r += flow.get_H_N2(flow.p[p1][i],p2,false,false);
@@ -363,7 +356,7 @@ var flow = {
 		
 		let offset = $('#' + id).offset();
 
-		let top,left;
+		let top1,left;
 
 		for(let i in flow.p[id]){
 
@@ -383,19 +376,15 @@ var flow = {
 					noAddBranchClass = 'no-add-branch';
 				} 
 
-				//top = offset.top + flow.nH.get(N.id
 				if(flow.node[id].S == 'n'){
 					// 块 => 点
 					left = offset.left + $('#'+id).width() + flow.unitWidth / 2;
-					top  = offset.top  + flow.H[id] * flow.unitHeight + 12;   // 32 / 2 - 8 / 2
-
-					
-					
+					top1  = offset.top  + flow.H[id] * flow.unitHeight + 12;   // 32 / 2 - 8 / 2
 
 				}else{
 					// 点 => 点
 					left = offset.left + $('#'+id).width() + flow.unitWidth / 2;
-					top  = offset.top  + flow.H[id] * flow.unitHeight ;   // 32 / 2 - 8 / 2
+					top1  = offset.top  + flow.H[id] * flow.unitHeight ;   // 32 / 2 - 8 / 2
 					tmpPointClass = 'point3';
 				}
 
@@ -410,7 +399,7 @@ var flow = {
 					}
 					continue;
 				}
-				$('#diagramContainer').append("<div class = 'point "+tmpPointClass+" " + noAddBranchClass + "' style = 'top:"+top+"px;left:"+left+"px' id = '"+N.id+"'></div>");
+				$('#diagramContainer').append("<div class = 'point "+tmpPointClass+" " + noAddBranchClass + "' style = 'top:"+top1+"px;left:"+left+"px' id = '"+N.id+"'></div>");
 				flow.isDrawed.set(flow.p[id][i],true);
 				let tmp = flow.draw(N.id);
 				flow.H[id] += tmp;
@@ -447,43 +436,36 @@ var flow = {
 				} 
 			}
 
-
-			
 			if(flow.node[id].S == 'p'){
 				if(N.id == 'end'){
-					top = offset.top - 12;
+					top1 = offset.top - 12;
 				}else{
-					top  = offset.top + HNum * flow.unitHeight - 12;
+					top1  = offset.top + HNum * flow.unitHeight - 12;
 				}
 				
 				left = offset.left + $('#' + id).width()  + flow.unitWidth / 2;
-
-				
 			}else{
-				
-				
-				
-				top  = offset.top  + flow.nH.get(nextId) * flow.unitHeight;
+				top1  = offset.top  + flow.nH.get(nextId) * flow.unitHeight;
 				left = offset.left + $('#'+id).width() + flow.unitWidth;
 			}
 					
 			if(N['id'] == 'end'){
-				$('#diagramContainer').append("<div  style = 'width:60px;top:"+top+"px;left:"+left+"px' class = 'item' data-key = '' id = 'end'>结束</div>");
+				$('#diagramContainer').append("<div  style = 'width:60px;top:"+top1+"px;left:"+left+"px' class = 'item' data-key = '' id = 'end'>结束</div>");
 			}else if(N['T'] == 'P'){
-				$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o69.png' class = 'icon1' title = '个人' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
+				$('#diagramContainer').append("<div style = 'top:"+top1+"px;left:"+left+"px' class = 'item' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o69.png' class = 'icon1' title = '个人' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
 				
 			}else if(N['T'] == 'R'){
 				if(N['V'] == 'F'){
-					$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o73.png' class = 'icon2' title = '分管领导' /></div><div  class = 'item-in' >"+N['B']+"</div></div>");
+					$('#diagramContainer').append("<div style = 'top:"+top1+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o73.png' class = 'icon2' title = '分管领导' /></div><div  class = 'item-in' >"+N['B']+"</div></div>");
 				}else{
-					$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o74.png' class = 'icon2' title = '部门主管' /></div><div  class = 'item-in' >"+N['B']+"</div></div>");
+					$('#diagramContainer').append("<div style = 'top:"+top1+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o74.png' class = 'icon2' title = '部门主管' /></div><div  class = 'item-in' >"+N['B']+"</div></div>");
 				}
 			}else if(N['T'] == 'G'){
-				$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o76.png' class = 'icon1' title = '岗位' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
+				$('#diagramContainer').append("<div style = 'top:"+top1+"px;left:"+left+"px' class = 'item' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o76.png' class = 'icon1' title = '岗位' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
 			}else if(N['T'] == 'D'){
-				$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o120.png' class = 'icon1' title = '部门' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
+				$('#diagramContainer').append("<div style = 'top:"+top1+"px;left:"+left+"px' class = 'item' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o120.png' class = 'icon1' title = '部门' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
 			}else if(N['T'] == 'Z'){
-				$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o77.png' class = 'icon1' title = '组' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
+				$('#diagramContainer').append("<div style = 'top:"+top1+"px;left:"+left+"px' class = 'item' data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o77.png' class = 'icon1' title = '组' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
 				
 			}else if(N['T'] == 'X'){
 				let tmp = '';
@@ -495,7 +477,7 @@ var flow = {
 						tmp = '执行者部门<br />分管领导';
 					}
 
-					$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o73.png' class = 'icon3' title = '"+N['K']+"' /></div><div  class = 'item-in2' >"+tmp+"</div></div>");
+					$('#diagramContainer').append("<div style = 'top:"+top1+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o73.png' class = 'icon3' title = '"+N['K']+"' /></div><div  class = 'item-in2' >"+tmp+"</div></div>");
 				}else if(N['K'] == 1 || N['K'] == 3){
 					
 					if(N['K'] == 1){
@@ -504,26 +486,22 @@ var flow = {
 						tmp = '执行者<br />部门主管';
 					}
 
-					$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o74.png' class = 'icon3' title = '"+N['V']+"' /></div><div  class = 'item-in2' >"+tmp+"</div></div>");
+					$('#diagramContainer').append("<div style = 'top:"+top1+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o74.png' class = 'icon3' title = '"+N['V']+"' /></div><div  class = 'item-in2' >"+tmp+"</div></div>");
 				}else if(N['K'] == 9){
-					$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o87.png' class = 'icon2' title = '空' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
+					$('#diagramContainer').append("<div style = 'top:"+top1+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o87.png' class = 'icon2' title = '空' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
 				}else if(N['K'] == 5){
-					$('#diagramContainer').append("<div style = 'top:"+top+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o69.png' class = 'icon2' title = '发起者' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
+					$('#diagramContainer').append("<div style = 'top:"+top1+"px;left:"+left+"px' class = 'item'  data-key = '"+N['K']+"' id = '"+N['id']+"'><div class = 'item-in-icon'><img src = '"+imgUrl+"o69.png' class = 'icon2' title = '发起者' /></div><div  class = 'item-in' >"+N['V']+"</div></div>");
 				}
 			}
 
 			flow.isDrawed.set(flow.p[id][i],true);
-			
-			
-			
+
 			if(typeof flow.p[N.id] != 'undefined'){
 				let tmp = flow.draw(N.id);
 				flow.H[id] += tmp;
 			}
 		}
 		
-
-
 		return flow.H[id];
 
 	},

@@ -93,7 +93,7 @@
 
 		edit : function(a){
 			let code = $(a).text();
-			parent.layer.open({					
+			top.layer.open({					
 				type: 2,
 				skin: 'layer-edit-container',
 				isOutAnim: false ,
@@ -122,7 +122,7 @@
 			treeObj.expandNode(treeObj.getNodeByTId("tree_1"), true, false, false);
 
 			$('#add').click(function(){
-				parent.layer.open({					
+				top.layer.open({					
 					type: 2,
 					skin: 'layer-new-container',
 					isOutAnim: false ,
@@ -191,7 +191,7 @@
 					
 				];
 
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-search-container',
 					title : '搜索物料',
 					offset : ['40px'],
@@ -227,23 +227,13 @@
 							$('#search').removeClass('has-option');
 						}
 						page_callback(o,'__APP__/ErpBase/getInventory',app.table);
-						parent.layer.close(index);
-				
+						top.layer.close(index);
 					}
 				});
-
 			});
-
 		},
-
-
-		
-		
-
-		
-
-
 	}
+
 	app.ini();
 </script>
 

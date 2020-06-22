@@ -71,12 +71,9 @@
 				}
 				o.public = $('#public').is(':checked');
 
-				
-			
 				$.post('__APP__/Auth/addLayout',o,function(d){
 					
 					if(d.status == 's'){
-
 						let tmp = d.data;
 						let icon  = o['level'] == '2'?'__PUBLIC__/image/tree_level_2.png':'__PUBLIC__/image/tree_level_1.png';
 						let level = o['level'] == '2'?'2':'1';
@@ -117,7 +114,7 @@
 
 				if(app.node == null) return false;
 
-				parent.layer.confirm('确定删除?', { icon: 3, title:'提示',offset : ['10%' ] }, function(index){
+				top.layer.confirm('确定删除?', { icon: 3, title:'提示',offset : ['10%' ] }, function(index){
 
 					let o = {};
 
@@ -129,7 +126,7 @@
 
 							app.zTreeObj.removeNode(app.node);
 
-							parent.layer.close(index);
+							top.layer.close(index);
 
 							layer_success();
 
@@ -158,7 +155,7 @@
 					{ 'name' : '公共目录' , 'id' : 'public_edit' , 'type' : 'checkbox'}
 				];
 
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-edit-container',
 					title : '编辑节点',
 					offset : ['40px'],
@@ -168,24 +165,26 @@
 					shadeClose:true,
 					content : create_new_div( div ),
 					success : function(){
-						$('#name_edit').val( app.node.true_name );
-						$('#url_edit').val(app.node.u);
-						$('#sort_edit').val( app.node.sort );
-						$('#icon_edit').val( app.node.i );
+						log(app.node);
+						top.$('#name_edit').val( app.node.true_name );
+						top.$('#url_edit').val(app.node.u);
+						top.$('#sort_edit').val( app.node.sort );
+						top.$('#icon_edit').val( app.node.i );
 						
-						$('#public_edit').attr('checked',app.node.public == 1?true:false);
+						top.$('#public_edit').attr('checked',app.node.public == 1?true:false);
+						
 					},
 					yes : function(index){
 						let o = {};
 						o.id = id;
-						o.name = $.trim($('#name_edit').val());
-						o.url = $.trim($('#url_edit').val());
-						o.sort = $.trim($('#sort_edit').val());
-						o.icon = $.trim($('#icon_edit').val());
-						o.public = $('#public_edit').is(':checked')?1:0;
+						o.name = $.trim(top.$('#name_edit').val());
+						o.url = $.trim(top.$('#url_edit').val());
+						o.sort = $.trim(top.$('#sort_edit').val());
+						o.icon = $.trim(top.$('#icon_edit').val());
+						o.public = top.$('#public_edit').is(':checked')?1:0;
 						$.post('__APP__/Auth/editLayout',o,function(d){
 							if(d.status == 's'){
-								parent.layer.close(index);
+								top.layer.close(index);
 								layer_success('操作成功，刷新页面显示修改结果',2000);
 							}else{
 								layer_error(d);

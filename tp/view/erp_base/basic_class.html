@@ -1,6 +1,5 @@
-
-  <script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
- <link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+<link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
 
 
 
@@ -138,19 +137,20 @@
 
 				if(!app.node[app.class_id]) return false;
 
-				parent.layer.confirm('确定删除?', { icon: 3, title:'提示',offset : ['10%' ] }, function(index){
+				top.layer.confirm('确定删除?', { icon: 3, title:'提示',offset : ['10%' ] }, function(index){
 
 					let o = {};
 
 					o.id = app.node[app.class_id].id;
+
+					log(o);
 					$.post('__APP__/erpBase/dltBasicClass',o,function(d){
 						if(d.status == 's'){
 							app.zTreeObj[app.class_id].removeNode(app.node[app.class_id]);
-							parent.layer.close(index);
+							top.layer.close(index);
 							layer_success();
 
 						}else{
-
 							layer_error(d);
 
 						}
@@ -168,7 +168,7 @@
 					{ 'type' : 'hidden' , 'id' : 'pid_new'}
 				];
 
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-new-container',
 					title : '新增分类 - ' + app.class_name,
 					offset : ['40px'],
@@ -181,11 +181,11 @@
 						
 						if(app.node[app.class_id]){
 							if(app.node[app.class_id]){
-								$('#pname_new').val( app.node[app.class_id].name );
-								$('#pid_new').val( app.node[app.class_id].id );
+								top.$('#pname_new').val( app.node[app.class_id].name );
+								top.$('#pid_new').val( app.node[app.class_id].id );
 							}else{
-								$('#pname_new').val('');
-								$('#pid_new').val('');
+								top.$('#pname_new').val('');
+								top.$('#pid_new').val('');
 							}
 							
 						}
@@ -194,7 +194,7 @@
 					yes : function(index){
 						let o = {};
 						for(let f of div){
-							o[f.id] = $.trim($('#' + f.id).val());
+							o[f.id] = $.trim(top.$('#' + f.id).val());
 						}
 
 						o.class_id = app.class_id;
@@ -203,7 +203,7 @@
 							if(d.status == 's'){
 								let tmp = d.data;
 								app.zTreeObj[app.class_id].addNodes( tmp.pid == 0 ? null : app.node[app.class_id] , {name : tmp.name + ' - ' + tmp.code,code:tmp.code,realname:tmp.name, id :tmp.id} );
-								parent.layer.close(index);
+								top.layer.close(index);
 								layer_success();
 							}else{
 								layer_error(d);

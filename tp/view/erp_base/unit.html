@@ -58,7 +58,7 @@
 					{ 'name' : '名称：' ,'id' : 'name' ,'type' : 'text'},
 					{ 'name' : '排序：' , 'id' : 'sort' ,'type' : 'text'},
 				];
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-new-container',
 					title : '新建计量单位',
 					offset : ['40px'],
@@ -73,16 +73,16 @@
 					yes : function(index){
 						let o = {};
 						for(let f of div){
-							o[f.id] = $.trim($('#' + f.id).val());
+							o[f.id] = $.trim(top.$('#' + f.id).val());
 						}
 						$.post('__APP__/erpBase/addUnit',o,function(d){
 							if(d.status == 's'){
 								let newTr = "<tr data-id = "+d.data.id+" ><td>"+($('#tbody tr').length + 1)+"</td><td>"+d.data.name+"</td><td>"+d.data.sort+"</td><td>启用</td></tr>";
 								app.table.rows.add($(newTr)).draw();
-								parent.layer_success();
-								parent.layer.close(index);
+								top.layer_success();
+								top.layer.close(index);
 							}else{
-								parent.layer_error(d);
+								top.layer_error(d);
 							}
 						});
 
@@ -98,7 +98,7 @@
 					{ 'name' : '排序：' , 'id' : 'sort' ,'type' : 'text'},
 				];
 
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-edit-container',
 					title : '编辑计量单位',
 					offset : ['40px'],
@@ -109,19 +109,19 @@
 					isOutAnim: false,
 					content : create_new_div( div ),
 					success : function(){
-						$('#sort').val($('#table tbody tr.selected').eq(0).children().eq(2).text());
+						top.$('#sort').val($('#table tbody tr.selected').eq(0).children().eq(2).text());
 					},
 					yes : function(index){
 						let o = {};
-						o.sort = $('#sort').val();
+						o.sort = top.$('#sort').val();
 						o.id = id;
 						$.post('__APP__/erpBase/editUnit',o,function(d){
 							if(d.status == 's'){
 								$('#table tbody tr.selected').eq(0).children().eq(2).text(o.sort);
-								parent.layer_success();
-								parent.layer.close(index);
+								top.layer_success();
+								top.layer.close(index);
 							}else{
-								parent.layer_error(d);
+								top.layer_error(d);
 							}
 						});
 					}
@@ -136,9 +136,9 @@
 				$.post('__APP__/erpBase/changeStatusUnit',o,function(d){
 					if(d.status == 's'){
 						$('#tbody tr.selected').eq(0).children().eq(3).text(d.data);
-						parent.layer_success();
+						top.layer_success();
 					}else{
-						parent.layer_error(d);
+						top.layer_error(d);
 					}
 				});
 			});

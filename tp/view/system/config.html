@@ -1,6 +1,5 @@
-
-  <script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
- <link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+<link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
 
 <style type="text/css">
 	.left{
@@ -129,23 +128,28 @@
 				let name = $(this).data('name');
 				
 				log('__APP__/F/flow?type=' + type);
-				let index = parent.layer.open({
+				top.layer.open({
 					type:2,
 					isOutAnim:false,
 					title:'制作流程 - ' + name,
 					maxmin:true,
 					shadeClose:true,
-					area:[parent.mainPage.layerWidth,'100%'],
+					area:[top.mainPage.layerWidth,'100%'],
 					offset:'0px',
 					content:'__APP__/F/flow?type=' + type,
 					success : function (layero,index){
-						let top  = ($('.layui-layer-title').eq($('.layui-layer').length - 1).height() - 32) / 2;
-						let left = ($('.layui-layer-title').eq($('.layui-layer').length - 1).width()  - 51) / 2;
-						if(top < 0) top = 4.5;
-						parent.$('.layui-layer').eq($('.layui-layer').length - 1).append('<button id = "flow_save" style = "position:absolute;top:'+top+'px;left:'+left+'px;z-index:9999999999;cursor:pointer" class = "btn btn-default height32 btn-noshadow">保存</button>');
-						$('#flow_save').click(function(){
-							var iframeWin = window[layero.find('iframe')[0]['name']];
+
+						let top1 = ($(layero).find('.layui-layer-title').height() - 32) / 2;
+						let left = ($(layero).find('.layui-layer-title').width() - 51) / 2;
+
+						if(top1 < 0) top1 = 4.5;
+						$(layero).append('<button id = "flow_save" style = "position:absolute;top:'+top1+'px;left:'+left+'px;z-index:9999999999;cursor:pointer" class = "btn btn-default height32 btn-noshadow">保存</button>');
+						top.$('#flow_save').click(function(){
+							
+							var iframeWin = top[layero.find('iframe')[0]['name']];
 							iframeWin.flow.save();
+
+							
 						});
 					}
 				});

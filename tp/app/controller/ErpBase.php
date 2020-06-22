@@ -153,6 +153,7 @@ class ErpBase extends BaseController
 		return $c->add($_POST);
 	}
 	public function dltBasicClass(BasicClass $c){
+		gp();
 		return $c->dlt($_POST);
 	}
 

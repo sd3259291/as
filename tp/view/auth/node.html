@@ -1,6 +1,5 @@
-
-  <script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
- <link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<script type="text/javascript" src="__PUBLIC__/js/zTree_v3/js/jquery.ztree.all-3.5.min.js"></script>
+<link rel="stylesheet" href="__PUBLIC__/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
 <div class="card">
 	<div class="card-content">
 		<div class = 'row row-head' >
@@ -107,13 +106,13 @@
 			$('#dlt').click(function(){
 				if(app.node == null) return false;
 
-				parent.layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
+				top.layer.confirm('确定删除?', {icon: 3, title:'提示',offset : ['10%' ]}, function(index){
 					let o = {};
 					o.id = app.node.node_id;
 					$.post('__APP__/Auth/dltNode',o,function(d){
 						if(d.status == 's'){
 							app.zTreeObj.removeNode(app.node);
-							parent.layer.close(index);
+							top.layer.close(index);
 						}else{
 							layer_error(d);
 						}
@@ -133,7 +132,7 @@
 					{ 'name' : '排序：' ,'id' : 'sort_edit' ,'type' : 'text'},
 				];
 
-				parent.layer.open({
+				top.layer.open({
 					skin: 'layer-edit-container',
 					title : '编辑节点',
 					offset : ['40px'],
@@ -143,23 +142,22 @@
 					shadeClose:true,
 					content : create_new_div( div ),
 					success : function(){
-						$('#name_edit').val( app.node.true_name );
-						$('#action_edit').val(app.node.action);
-						$('#sort_edit').val( app.node.sort );
+						top.$('#name_edit').val( app.node.true_name );
+						top.$('#action_edit').val(app.node.action);
+						top.$('#sort_edit').val( app.node.sort );
 					},
 					yes : function(index){
 						let o = {};
 						o.id = id;
-						o.name = $.trim($('#name_edit').val());
-						o.action = $.trim($('#action_edit').val());
-						o.sort = $.trim($('#sort_edit').val());
-						
+						o.name = $.trim(top.$('#name_edit').val());
+						o.action = $.trim(top.$('#action_edit').val());
+						o.sort = $.trim(top.$('#sort_edit').val());					
 						$.post('__APP__/Auth/editNode',o,function(d){
 							if(d.status == 's'){
-								parent.layer.close(index);
+								top.layer.close(index);
 								layer_success('操作成功，刷新页面显示修改结果',2000);
 							}else{
-								layer_error(d);
+								top.layer_error(d);
 							}
 						});
 					}

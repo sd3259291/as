@@ -144,13 +144,13 @@ class BasicClass extends Model{
 		$check = null;
 		switch($class->class_id){
 			case 0 :
-				$check = Db::table('s_inventory')->where('class_id = '.$post['id'])->field('id')->find();
+				$check = Db::table('s_inventory')->where('basic_class_id = '.$post['id'])->field('id')->find();
 			break;
 			case 1 :
-
+				$check = Db::table('s_vendor')->where('basic_class_id = '.$post['id'])->field('id')->find();
 			break;
 			case 2 :
-
+				$check = Db::table('s_customer')->where('basic_class_id = '.$post['id'])->field('id')->find();
 			break;
 			default:
 		}
