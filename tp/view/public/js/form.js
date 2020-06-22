@@ -652,16 +652,23 @@ var form  = {
 						// 1. code 和 name 都显示，在 code 里输入
 						// 2. code 隐藏  ， name 显示 ， 在 name 里输入
 						// 方式2
+
 						$(input).keyup(function(e){
 							form.erp_hint(this,true,e.keyCode,type.type2,true,callback);
 						});
 						$(input).blur(function(){
 							form.erp_focusout(this);
 						});
-
 						$(input).parent().find('img.select').click(function(){
 							form.erp_select(type.type2,this,0,false,true,callback); 
 						});
+						$('.erp-head').hover(function(){
+							$(this).find('img.select').show();
+						},function(){
+							$(this).find('img.select').hide();
+						});
+
+
 
 					}else{
 						$('#'+bodyId).on('click','img.img-'+type.type2,function(){

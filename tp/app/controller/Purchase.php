@@ -8,6 +8,7 @@ use think\facade\Cache;
 use think\facade\Db;
 use app\model\erp\VendorPriceJust;
 use app\model\erp\VendorPrice;
+use app\model\erp\Po;
 
 class Purchase
 {
@@ -99,6 +100,14 @@ class Purchase
 	public function exportVendorPrice(VendorPrice $v){
 		return $v->export($_POST);
 	}
+
+	/**
+     * 采购订单 - 新增
+     */
+	public function purchaseOrder(){
+		return View::fetch();
+	}
+
 
 
 

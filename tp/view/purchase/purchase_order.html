@@ -67,6 +67,22 @@
 										</div>	
 									</div>
 
+
+									<div class = 'row'>
+										<div class = 'col s3 erp-head'>
+											供应商
+										</div>
+										<div class = 'col s9 erp-head'>
+											 <input type = 'hidden' class = 'vendor_code'   id = 'vendor_code'  data-df = '0101001' value = '0101001' />
+											<input type = 'text' class = 'aya-input center  border-bottom edit vendor_name' id = 'vendor_name' data-last = '南京多云科技有限公司'     value = '南京多云科技有限公司' readonly />
+
+											<img src = '__PUBLIC__/image/erp/selectu8.png' class = 'input-hint height14 img-vendor select' />
+
+								
+
+										</div>	
+									</div>
+
 								</div>
 								
 								<div class = "col s1 c1enter" ></div>
@@ -158,18 +174,18 @@
 										<thead>
 											<tr>
 												<th style='min-width:50px;white-space:nowrap;'>序号</th>
-												<th style='min-width:100px;white-space:nowrap;'>供应商编码</th>
-												<th style='min-width:150px;white-space:nowrap;'>供应商名称</th>
+
 												<th style='min-width:90px;white-space:nowrap;'>物料编码</th>
 												<th style='min-width:120px;white-space:nowrap;'>物料名称</th>
 												<th style='min-width:120px;white-space:nowrap;'>规格型号</th>
 												<th style='min-width:50px;white-space:nowrap;'>单位</th>
-												<th style='min-width:80px;white-space:nowrap;'>原价</th>
-												<th style='min-width:80px;white-space:nowrap;'>原税率</th>
-												<th style='min-width:80px;white-space:nowrap;'>原含税价</th>
-												<th style='min-width:80px;white-space:nowrap;'>现价</th>
-												<th style='min-width:80px;white-space:nowrap;'>现税率</th>
-												<th style='min-width:80px;white-space:nowrap;'>现含税价</th>
+
+												<th style='min-width:80px;white-space:nowrap;'>价格</th>
+												<th style='min-width:80px;white-space:nowrap;'>税率</th>
+												<th style='min-width:80px;white-space:nowrap;'>含税价</th>
+												<th style='min-width:80px;white-space:nowrap;'>数量</th>
+												<th style='min-width:80px;white-space:nowrap;'>价税合计</th>
+												<th style='min-width:80px;white-space:nowrap;'>交货期</th>
 												<th style='min-width:50px;white-space:nowrap;'>操作</th>
 											</tr>
 										</thead>
@@ -177,13 +193,7 @@
 											<tr>
 										
 												<td>1</td>
-												<td class = 'td-input-img'>
-													<input type = 'text' class = 'aya-input2 input-background center vendor_code edit' data-last = ''  readonly>
-													<img src = '__PUBLIC__/image/erp/selectu8.png' class = 'input-hint height14  img-vendor select' />
-												</td>
-												<td class ='td-input-img'>
-													<input type = 'text' class = 'aya-input2 center vendor_name' readonly >
-												</td>
+												
 												<td class = 'td-input-img'>
 													<input type = 'text' class = 'aya-input2 center inventory_code input-background center edit' data-last = '' readonly>
 													<img src = '__PUBLIC__/image/erp/selectu8.png' class = 'input-hint height14  img-inventory select' />
@@ -201,15 +211,7 @@
 													<input type = 'text' class = 'aya-input2 inventory_unit center' readonly>
 												</td>
 
-												<td class ='td-input-img'>
-													<input type = 'text' class = 'aya-input2  center origin_price' readonly>
-												</td>
-												<td class ='td-input-img'>
-													<input type = 'text' class = 'aya-input2  center origin_tax' readonly>
-												</td>
-												<td class = 'td-input-img'>
-													<input type = 'text' class = 'aya-input2  center  origin_tax_price' readonly>
-												</td>
+											
 
 												<td class = 'td-input-img'>
 													<input type = 'text' class = 'aya-input2 input-background center edit price mul-num' readonly>
@@ -227,7 +229,19 @@
 												
 
 												<td class = 'td-input-img'>
-													<input type = 'text' class = 'aya-input2  center  tax_price' readonly>
+													<input type = 'text' class = 'aya-input2  center  tax_price edit input-background' readonly>
+												</td>
+
+												<td class = 'td-input-img'>
+													<input type = 'text' class = 'aya-input2  center  qty input-background edit' readonly>
+												</td>
+
+												<td class = 'td-input-img'>
+													<input type = 'text' class = 'aya-input2  center  sum ' readonly>
+												</td>
+
+												<td class = 'td-input-img'>
+													<input type = 'text' class = 'aya-input2  center  arrive_date' readonly>
 												</td>
 
 												<td style='padding:0'><img src = '__PUBLIC__/image/erp/erase.png' class = 'height16 tr_dlt' style='margin:0' /> <img src = '__PUBLIC__/image/erp/add.png' class = 'height16 tr_add_next' style='margin:0' />
@@ -251,28 +265,10 @@
 									<input type = 'text' class = 'aya-input' id = 'remark' style = 'border-top:0;border-left:0;border-right:0' />
 								</div>
 							</di>
-
-
-
-
-
 					
 				</div>
 			</div>
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-
 <script>
 	
 
@@ -282,17 +278,22 @@
 	var resource_layero = {};
 
 	var erpConfig = {
-		type : 'page',
+
+		type : 'page',  // page or list
+		
+		name : 'po',
 
 		bodySort : true,
 
 		head:[
 			{type : 'date' , id : 'date' , callback:''},
-			{type : 'text' , id : 'maker', callback:''}
+			{type : 'text' , id : 'maker', callback:''},
+			{type : 'erp'  , type2 : 'vendor' , id : 'vendor_name', callback:''},
+			
 		],
 		body:[
-			{type : 'erp' , type2:'inventory',callback:update_price},
-			{type : 'erp' , type2:'vendor',callback:update_price},
+			{type : 'erp' , type2:'inventory',callback : update_price},
+
 			{type : 'mul-num' , type2: 'mul-num' , callback : function(){
 				$('#tbody tr').each(function(){
 					let p = parseFloat($.trim($(this).children().eq(10).find('input').val()));
@@ -338,60 +339,111 @@
 	
 	form.new_page_ini(erpConfig);
 
+	$('#new').trigger('click');
+
+	$('#tbody tr input.qty').keyup(function(){
+		change_ptq(this);
+	});
+
+	$('#tbody tr input.price').keyup(function(){
+		change_ptq(this);
+	});
+
+
+	$('#tbody tr input.tax_price').keyup(function(){
+		change_ptq2(this);
+	});
+
+
 	function update_price(updated_tr_index){
 		let o = {};
 		let oo = [];
-		
-		let trs = $('#tbody').children();
 
 		$(updated_tr_index).each(function(i,v){
 			let tmp = {};
-			tmp.vendor_code = $.trim(trs.eq(v).children().eq(1).find('input').val());
-			tmp.inventory_code   = $.trim(trs.eq(v).children().eq(3).find('input').val());
+			tmp.vendor_code = $('#vendor_code').val();
+			tmp.inventory_code = $.trim( $('#tbody tr').eq( updated_tr_index ).find('input.inventory_code').val() );
 			tmp.index  = v;
-			
-			if(tmp.vendor != '' && tmp.code != '') oo.push(tmp);
+			if(tmp.code != '') oo.push(tmp);
 		});
-
+		
 		if(oo.length > 0){
 			o.data = JSON.stringify(oo);
 			$.post('__APP__/purchase/getVendorPriceByData',o,function(d){
 				if(d.status == 's'){
-					
-					for(let i in d.data){
-						for(let ii in d.data[i]){
-							trs.eq(i).find('.'+ii).val(d.data[i][ii]);
+
+					for(let i = 0; i < oo.length ; i++){
+
+						if( d.data[oo[i].index] ){
+							$('#tbody').children().eq(oo[i].index).find('.price').val(d.data[oo[i].index]['origin_price']);
+							$('#tbody').children().eq(oo[i].index).find('.tax').val(d.data[oo[i].index]['origin_tax']);
+						}else{
+							$('#tbody').children().eq(oo[i].index).find('.price').val('');
 						}
-					}
+
+						change_ptq($('#tbody').children().eq(oo[i].index).find('.price'));
 						
+						
+					}
+
+
+					
 				}else{
 					layer.msg(d.info,{time:2000,offset:'30%'});
 				}
 			});
-			
 		}else{
 			
 		}
-
 	}
 	
 	
-	$('#tbody').on('keyup','input.price',function(){
-		let price = parseFloat($(this).val());
-		let tax   = parseFloat($(this).parents('td').next().find('select').eq(0).val());
-		let sum = decimal(price  + price * tax / 100,3) ;
-		if(isNaN(sum)) sum = '';
-		$(this).parents('td').next().next().find('input').eq(0).val(sum);
-	});
 
+	function change_ptq(t){
+		let tr = $(t).parents('tr');
+		let price = parseFloat($.trim(tr.find('.price').val()));
+		let tax = parseInt(tr.find('.tax').val());
+		let qty = parseFloat($.trim(tr.find('.qty').val()));
+		
+		if( isNaN(price)){
+			tr.find('.sum').val('');
+			tr.find('.tax_price').val('');
+		}else{
+			let tax_price = decimal(price * ( 1 + tax / 100 ),2);
+			tr.find('.tax_price').val( tax_price );
+			if(isNaN(qty)){
+				tr.find('.sum').val( '' );
+			}else{
+				let sum = decimal( tax_price * qty,2 );
+				tr.find('.sum').val( sum );
+			}
+		}
+	}
 
-	$('#tbody').on('change','select.tax',function(){
-		let p = $(this).parents('tr');
-		let price = parseFloat(p.children().eq(10).find('input').val());
-		let tax = parseFloat($(this).val());
-		let sum = decimal(price  + price * tax / 100,3);
-		p.children().eq(12).find('input').eq(0).val(sum);
-	});
+	function change_ptq2(t){
+		let tr = $(t).parents('tr');
+		let tax_price = parseFloat($.trim(tr.find('.tax_price').val()));
+		let tax = parseInt(tr.find('.tax').val());
+		let qty = parseFloat($.trim(tr.find('.qty').val()));
+		
+		if( isNaN(tax_price)){
+			tr.find('.sum').val('');
+			tr.find('.price').val('');
+		}else{
+			let price = decimal(tax_price / ( 1 + tax / 100 ),2);
+			tr.find('.price').val( price );
+			if(isNaN(qty)){
+				tr.find('.sum').val( '' );
+			}else{
+				let sum = decimal( tax_price * qty,2 );
+				tr.find('.sum').val( sum );
+			}
+		}
+		
+	}
+
+	
+
 
 
 
