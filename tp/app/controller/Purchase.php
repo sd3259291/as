@@ -9,6 +9,7 @@ use think\facade\Db;
 use app\model\erp\VendorPriceJust;
 use app\model\erp\VendorPrice;
 use app\model\erp\Po;
+use app\model\erp\PoList;
 
 class Purchase
 {
@@ -106,6 +107,40 @@ class Purchase
      */
 	public function purchaseOrder(){
 		return View::fetch();
+	}
+	/**
+     * 采购订单 - 保存
+     */
+	public function savePo(Po $p){
+		gp();
+		return $p->saveBill($_POST);
+	}
+
+	public function test(){
+		
+		
+
+		//Db::table('s_po_list')->insertAll($data);
+
+
+		$tmp = Db::table('s_po_list')->where('listid = 1')->find();
+
+
+		unset($tmp['listid']);
+
+
+		dump($tmp);
+
+		
+
+		$poList = new PoList;
+
+		$poList->test([$tmp,$tmp]);
+
+		//$r = $poList->saveAll($data);
+
+		
+
 	}
 
 

@@ -17,7 +17,7 @@ class EmployeeValidate extends Validate
      */	
 	protected $rule = [
 		'name'  =>  'require',
-		'idcard'  =>  'require|number|checcIdcard',
+		'idcard'  =>  'require|number|checkIdcard',
 		'idcard_date'  =>  'require',
 		'number'  =>  'require|checkNumber',
 		'tel'  =>  'require',
@@ -52,8 +52,7 @@ class EmployeeValidate extends Validate
 	];
 
 
-	protected function checcIdcard($value, $rule, $data=[])
-    {
+	protected function checkIdcard($value, $rule, $data=[]){
 		return strlen($value) == 18?true:'身份证号 长度错误';
     }
 
@@ -65,6 +64,8 @@ class EmployeeValidate extends Validate
 			$r = Db::table('s_employee')->where("number = '$value'")->find();
 			return $r?'工号重复':true;
 		}
-		
 	}
+
+	
+
 }

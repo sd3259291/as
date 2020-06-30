@@ -595,9 +595,7 @@ var form  = {
 
 		let callback = function(){};
 		if(type.callback != '') callback = type.callback;
-
-
-		
+	
 		switch( type.type ){
 			case 'date' :
 				if(status == 'on'){
