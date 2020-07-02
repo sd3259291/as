@@ -2618,19 +2618,33 @@ class Fs extends BaseController{
 		$node = json_decode($flow['node'],true);
 
 		$next = $this->get_next($p,$node,$post['nodeid']);
+		
+		if($checkEnd){
+			if($flow['status'] == 9) return ['ok' => false,'msg' => '审核完毕，不能取回'];
+		}
 
-		if($flow['status'] == 9 && $checkEnd) return ['ok' => false,'msg' => '审核完毕，不能取回'];
+		
 
 		$executor = Db::table('s_flows_executor')->where('id = '.$id)->find();
 
 		if($executor['status'] < 2 || $username != $executor['number'] ) return ['ok' => false,'msg' => '取回错误'];
+		
+		
 
 		if(count($next['p']) > 0){
-			$r = Db::table('s_flows_executor')->where("flow_id = $flowId && status > 1 &&  node_id in (".get_w($next['n']).") ")->field('id')->find();
-			if($r) return ['ok' => false,'msg' => '下续节点已被审核，不能取回 或 弃审'];
+			
+			if(!$checkEnd && $next['n'][0] == 'end'){
+				foreach($next['p'] as $k => $v) $node[$v]['D'] = 0;
+				foreach($next['n'] as $k => $v) $node[$v]['D'] = 0;
+			}else{
+				$r = Db::table('s_flows_executor')->where("flow_id = $flowId && status > 1 &&  node_id in (".get_w($next['n']).") ")->field('id')->find();
+				if($r) return ['ok' => false,'msg' => '下续节点已被审核，不能取回 或 弃审'];
+			}
+
+			
 		}
 		
-		
+		;
 		foreach($next['p'] as $k => $v){
 			$node[$v]['D'] = 0;
 		}
@@ -2639,7 +2653,7 @@ class Fs extends BaseController{
 		}	
 		$node[$post['nodeid']]['D'] = 1;
 
-		Db::table('s_flows')->where('id = '.$flowId)->update(['node' => json_encode($node)]);
+		Db::table('s_flows')->where('id = '.$flowId)->update(['status' => 5,'node' => json_encode($node)]);
 
 		Db::table('s_flows_executor')->where("flow_id = $flowId && node_id in (".get_w($next['n']).") ")->delete();
 
@@ -2879,16 +2893,9 @@ class Fs extends BaseController{
 		}
 
 		$node = json_decode($node,true);
-
 		
-		
-
 
 		$executors = Db::table('s_flows_executor')->where('flow_id in ('.get_w($flowsId,false,false).')')->where("status = 2 && number = '".$userinfo['username']."'")->field('node_id,number,flow_id,id')->select()->toArray();
-
-		
-		
-		
 
 		$NodeflowIdIdToId = array();
 
@@ -2900,7 +2907,8 @@ class Fs extends BaseController{
 			$check[$v['flow_id']] = 1;
 			$NodeflowIdIdToId[ $v['node_id'].$v['flow_id'] ] = $v['id'];
 		}
-
+		
+		
 		
 		
 		$checkResult = array();
@@ -2911,6 +2919,7 @@ class Fs extends BaseController{
 					$checkResult[$v['ddh']] = array( 'ok' => false, 'msg' => '非审核人不能弃审' );
 				}else{
 					if( count($selectIds) > 1 ){
+
 						if( $nodeId == ''){
 							$department = $post = array();
 							$p = json_decode($p,true);

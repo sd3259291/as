@@ -73,8 +73,8 @@
 											供应商
 										</div>
 										<div class = 'col s9 erp-head'>
-											 <input type = 'hidden' class = 'vendor_code'   id = 'vendor_code'  data-df = '0101001' value = '0101001' />
-											<input type = 'text' class = 'aya-input center  border-bottom edit vendor_name' id = 'vendor_name' data-last = '南京多云科技有限公司'     value = '南京多云科技有限公司' readonly />
+											 <input type = 'hidden' class = 'vendor_code'   id = 'vendor_code'  data-df = '' value = '' />
+											<input type = 'text' class = 'aya-input center  border-bottom edit vendor_name' id = 'vendor_name' data-last = ''     value = '' readonly />
 
 											<img src = '__PUBLIC__/image/erp/selectu8.png' class = 'input-hint height14 img-vendor select' />
 
@@ -180,11 +180,11 @@
 												<th style='min-width:120px;white-space:nowrap;'>规格型号</th>
 												<th style='min-width:50px;white-space:nowrap;'>单位</th>
 
-												<th style='min-width:80px;white-space:nowrap;'>价格</th>
+												<th style='min-width:80px;white-space:nowrap;'>价格（元）</th>
 												<th style='min-width:60px;white-space:nowrap;'>税率</th>
-												<th style='min-width:80px;white-space:nowrap;'>含税价</th>
+												<th style='min-width:80px;white-space:nowrap;'>含税价（元）</th>
 												<th style='min-width:80px;white-space:nowrap;'>数量</th>
-												<th style='min-width:80px;white-space:nowrap;'>价税合计</th>
+												<th style='min-width:80px;white-space:nowrap;'>价税合计（元）</th>
 												<th style='min-width:100px;white-space:nowrap;'>交货期</th>
 												<th style='min-width:50px;white-space:nowrap;'>操作</th>
 											</tr>
@@ -300,26 +300,26 @@
 		dataTableConfig:{scrollX:true,autoWidth:false,bAutoWidth: false},
 		resource:[],
 		get:{
-			url : '__APP__/purchase/getVendorPriceJust',
+			url : '__APP__/purchase/getPo',
 			callback : ''
 		},
 		canModify:{
-			url : '__APP__/purchase/canModifyVendorPriceJust',
+			url : '__APP__/purchase/canModifyPo',
 			callback : ''
 		},
 		check:{
-			url : '__APP__/purchase/checkVendorPriceJust',
+			url : '__APP__/purchase/checkPo',
 			callback : ''
 		},         
 		uncheck:{
-			url : '__APP__/purchase/uncheckVendorPriceJust',
+			url : '__APP__/purchase/uncheckPo',
 			callback : ''
 		},       
 		dlt:{
-			url : '__APP__/purchase/dltVendorPriceJust',
+			url : '__APP__/purchase/dltPo',
 			callback : ''
 		},             
-		nextPrev : '__APP__/purchase/nextPrevVendorPriceJust',
+		nextPrev : '__APP__/purchase/nextPrevPo',
 		save : { url : '__APP__/Purchase/savePo' },
 		saveField : {
 			main : ['date','remark','vendor_code'],

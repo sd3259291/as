@@ -101,7 +101,7 @@ function tbody($array,$structure,$dltSame = array(),$borderTop = 'top-border',$t
 		}
 	}
 
-	if(isset($dltSame[0]) && $dltSame[0] > 0){
+	/*if(isset($dltSame[0]) && $dltSame[0] > 0){
 		$i = 1;
 		foreach($firstRow as $k => $v){
 			if($i <= $dltSame[0]){
@@ -119,7 +119,13 @@ function tbody($array,$structure,$dltSame = array(),$borderTop = 'top-border',$t
 			}
 				$i++;
 		}
-	}
+	}*/
+
+	
+
+
+	
+
 
 	$imgTypeUrl = array(
 		'90' => "<i class='material-icons text-color3' style = 'font-size:12px'>done</i>", //无流程审核完毕
@@ -135,14 +141,14 @@ function tbody($array,$structure,$dltSame = array(),$borderTop = 'top-border',$t
 			$trData .= " data-".$kk."='".$v[$vv]."' ";
 		}
 		$ddh = $v[$firstKey];
-		if(count($d1) > 0){
-			if($s1 == $v[$f1]){
-				foreach($d1 as $kk => $vv){
+		if(count($dltSame) > 0){
+			if($s1 == $v[$dltSame['key']]){
+				foreach($dltSame['list'] as $kk => $vv){
 					$v[$vv] = '';
 				}
 				$t .= "<tr data-ddh = '".$ddh."' data-flow_id = '".(isset($v['flow_id'])?$v['flow_id']:'')."' class = 'c".$ddh."' $trData >";
 			}else{
-				$s1 = $v[$f1];
+				$s1 = $v[$dltSame['key']];
 				if(!$firstLine){
 					$t .= "<tr data-ddh = '".$ddh."' data-flow_id = '".(isset($v['flow_id'])?$v['flow_id']:'')."' class = 'c".$ddh."  $borderTop' $trData >";
 				}else{
@@ -210,7 +216,8 @@ function tbody($array,$structure,$dltSame = array(),$borderTop = 'top-border',$t
 	return $t;
 }
 function checkAuth($url){
-	
-
 	return true;
+}
+function decimal($num,$n){
+	return round($num * pow(10,$n))/pow(10,$n);
 }

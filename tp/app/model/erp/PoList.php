@@ -5,6 +5,8 @@ namespace app\model\erp;
 use think\Model;
 
 class PoList extends Model{
+
+	protected $pk = 'listid';
   
 	protected $schema = [
 		'listid' => 'int',
@@ -14,13 +16,11 @@ class PoList extends Model{
 		'tax' => 'int',
 		'tax_price' => 'numeric',
 		'arrive_date' => 'date',
-		'qty' => 'numeric'
+		'qty' => 'numeric',
+		'sum' => 'numeric'
 	];
 
-	public function test($data){
-		dump($data);
-		$this::saveAll($data);
-	}
+	
 
 
 }

@@ -2724,12 +2724,17 @@ var form  = {
 		o = $.extend(o,get_page());
 		o.merge = $('#merge').hasClass('merged')?1:0;
 
+		
+
+
 		form.query(o);	
 	},
 
 	query : function (o){
 		if(typeof o.page == 'undefined') o.page = 1;
 		let index = parent.layer.load(2,{offset:['20%']});
+
+		
 
 
 		$.post(form.config.search.url,o,function(d){

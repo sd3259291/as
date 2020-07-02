@@ -21,7 +21,7 @@ class System extends BaseController
 			'name' => '采购',
 			'children' => [
 				['type' => 'vendorPrice' , 'name' => '供应商价格表'],
-				['type' => 'purchase' , 'name' => '采购订单']
+				['type' => 'po' , 'name' => '采购订单']
 			]
 		],
 		[
@@ -42,6 +42,7 @@ class System extends BaseController
     }
 
 	public function setConfig(ErpConfig $e){
+	
 		return $e->setConfig($_POST);
 	}
 	

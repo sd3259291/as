@@ -112,36 +112,59 @@ class Purchase
      * 采购订单 - 保存
      */
 	public function savePo(Po $p){
-		gp();
 		return $p->saveBill($_POST);
 	}
+	/**
+     * 根据订单号等，获取采购订单
+     */
+	 public function getPo(Po $p){
+		return $p->get($_POST);
+	 }
+	/**
+     * 删除采购订单
+     */
+	public function dltPo(Po $p){
 
-	public function test(){
-		
-		
-
-		//Db::table('s_po_list')->insertAll($data);
-
-
-		$tmp = Db::table('s_po_list')->where('listid = 1')->find();
-
-
-		unset($tmp['listid']);
-
-
-		dump($tmp);
-
-		
-
-		$poList = new PoList;
-
-		$poList->test([$tmp,$tmp]);
-
-		//$r = $poList->saveAll($data);
-
-		
-
+		return $p->dltBill($_POST);
 	}
+	/**
+     * 是否可以删除 采购订单
+     */
+	public function canPo(Po $p){
+		return $p->canModify($_POST);
+	}
+	/**
+     * 审核供应商价格调整单
+     */
+	public function checkPo(Po $p){
+		return $p->checkBill($_POST);
+	}
+	/**
+     * 弃审供应商价格调整单
+     */
+	public function uncheckPo(Po $p){
+		return $p->uncheckBill($_POST);
+	} 
+	/**
+     * 获取下一个，上一个供应商价格调整单
+     */
+	public function nextPrevPo(Po $p){
+		return $p->nextPrev($_POST);
+	}
+	/**
+     * 采购订单列表
+     */
+	public function purchaseOrderList(){
+		return View::fetch();
+	}
+	/**
+     * 采购订单列表-搜索
+     */
+	public function getPoList(Po $p){
+
+		return $p->getList($_POST);
+	}
+	
 
 
 
