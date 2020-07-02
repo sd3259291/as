@@ -1,5 +1,5 @@
 ﻿# Host: 192.168.3.3  (Version 8.0.12)
-# Date: 2020-07-02 17:06:29
+# Date: 2020-07-02 17:17:19
 # Generator: MySQL-Front 6.1  (Build 1.26)
 
 
@@ -878,7 +878,7 @@ INSERT INTO `s_po` VALUES (21,'2020-06-30','管理员','admin',5,'00000021','fas
 CREATE TABLE `s_po_list` (
   `listid` int(11) NOT NULL AUTO_INCREMENT,
   `id` int(11) DEFAULT NULL,
-  `inventory_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `inventory_code` varchar(255) DEFAULT NULL,
   `price` decimal(10,3) DEFAULT NULL,
   `tax` int(3) DEFAULT NULL,
   `tax_price` decimal(10,3) DEFAULT NULL,
@@ -887,7 +887,7 @@ CREATE TABLE `s_po_list` (
   `sum` decimal(12,3) DEFAULT NULL,
   `arrive_qty` decimal(10,3) NOT NULL DEFAULT '0.000',
   PRIMARY KEY (`listid`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
 
 #
 # Data for table "s_po_list"
