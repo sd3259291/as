@@ -137,7 +137,7 @@
 
 		loadIndex : 0,
 		homePage : { 
-			url : '__APP__/Fs/notDone' ,
+			url : '__APP__/Purchase/purchaseOrderList' ,
 			name : "我的桌面",
 			id : 'indexdeptindex'
 		},
@@ -154,9 +154,10 @@
 		show_iframe(id){
 			$('.mul-page-div1').parent().removeClass('show-iframe');
 			$('#l' + id).parent().addClass('show-iframe');
-
 		},
 		change_iframe : function(url,name,args,id = ''){
+			
+			
 			if(top.mainPage.multiType == 0){
 				$.post(url,args,function(d){
 					$('#page-inner').html(d);
@@ -176,10 +177,24 @@
 				let tmp = mainPage.iframes.get(id);
 				tmp.url = url;
 				mainPage.iframes.set(id,tmp);
-
-
+				
 				if(args == ''){
-					get_parent().location = url;
+
+					let tmp = url.lastIndexOf('?');
+
+					
+					if( tmp != -1 ){
+						let tmp1 = url.substring(tmp + 1).split('=');
+						for(let i = 0; i < tmp1.length ; i+=2){
+							if(tmp1[i] == 'ddh' && tmp1[i+1]){
+
+								frames[id].$('#ddh').val( tmp1[i+1] );
+								frames[id].form.ddh();
+							}
+						}
+					}
+
+					
 				}else{
 					let form = $("<form method='post'></form>");
 					form.attr({"action":url});
@@ -210,9 +225,10 @@
 			return false;
 		},
 		add_iframe : function(url,name,id = '',ddh = '') {
+			
 
 			if(id == '') id = url.substr(url.lastIndexOf('/',  url.lastIndexOf( '/' ) - 1) + 1 ).toLowerCase().replace('/','').replace('/','');
-			
+
 			
 			this.currentPageId = id;
 			if($('#multi-head').children().length == 0){
@@ -225,31 +241,25 @@
 				});
 
 				$('#multipage').on('click','.mul-dlt',function(){
-					
 					mainPage.dlt_iframe($(this).parent().prev().data('id'));
 				});
 			}
 
 			$('.iframe').hide();
-
-			
 	
 			if(mainPage.iframes.get(id) != undefined && mainPage.iframes.get(id).exist == 1){
+
 				
-				if(ddh != ''){
-					frames[id].$('#ddh').val(ddh);
-					frames[id].form.ddh();
-				}
+				
 				$('#i'+id).show();
 
 				if(url == '' || url == mainPage.iframes.get(id).url){
 					
 				}else{
-
+					
 					mainPage.change_iframe(url,name,'',id);
 				}
 
-				
 			}else{
 
 				mainPage.iframes.set(id,{exist : 1,id : id ,url : url});
@@ -262,6 +272,7 @@
 				mainPage.loadIndex = layer.load(2,{offset:['20%']});
 				
 				$('#page-inner').append("<iframe id = 'i"+id+"' class = 'iframe' style = 'margin:0;padding:0;height:"+(mainPage.mainHeight - 14)+"px;width:100%' src = '"+url+"' name = '"+id+"' frameborder = '0' scrolling='no' ></iframe>");
+
 			}
 			
 			mainPage.show_iframe(id);

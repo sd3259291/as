@@ -645,7 +645,14 @@ class VendorPriceJust extends Model{
 			array('key' => 'tax' , 'type' => 'number' , 'zero' => ''),
 			array('key' => 'tax_price' , 'type' => 'number' , 'zero' => ''),
 		);
-		$tbody = tbody($r,$structure,is_set($post,'merge')?[4]:[] );
+
+		$dltSameList = ['ddh','status','date','maker'];
+		$dltSameKey = 'ddh';
+		$dltSame = ['key' => $dltSameKey,'list' => $dltSameList];
+
+		$tbody = tbody($r,$structure,is_set($post,'merge')?$dltSame:[] );
+
+		
 		$result = [ 'tbody' => $tbody , 'page' => $page ];
 
 		return a($result,'','s');

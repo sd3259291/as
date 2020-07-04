@@ -1113,7 +1113,9 @@ table.dataTable tbody tr td a{
 		 }
 /* flow 相关结束 */
 .pointer{cursor:pointer}
-
+a.detail{
+	color:#4289ca !important
+}
 
 
 

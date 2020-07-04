@@ -161,8 +161,13 @@ class Purchase
      * 采购订单列表-搜索
      */
 	public function getPoList(Po $p){
-
 		return $p->getList($_POST);
+	}
+	/**
+     * 采购订单 -导出
+     */
+	public function exportPo(Po $p){
+		return $p->export($_POST);
 	}
 	
 

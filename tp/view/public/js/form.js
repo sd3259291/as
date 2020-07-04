@@ -872,10 +872,7 @@ var form  = {
 			}else{
 				form.blue();
 			}
-		});
-
-
-		
+		});	
 
 		$('#stock').click(function(){
 			let o = {};
@@ -1129,37 +1126,6 @@ var form  = {
 
 		form.new_page_ini_table();
 
-		/*
-		
-		$('#inventory').click(function(){
-			let o = {};
-			let oo = [];
-			$('#tbody tr').each(function(){
-				let tmp = {};
-				tmp.code = $.trim($(this).find('.inventory_code').eq(0).val());
-				if(tmp.code != '') oo.push(tmp);
-				
-			});
-			o.data = JSON.stringify(oo);
-			let url1 = window.location.protocol + '//' + window.location.host +  '/a1.php/index/P/return_cache2';
-			$.post(url1,o,function(d){
-				if(d.status == 's'){
-					parent.layer.open({
-						title:'物料查询',
-						area: [top.mainPage.layerWidth,'100%'],
-						offset:'1px',
-						isOutAnim: false ,
-						maxmin: true,
-						type: 2, 
-						content:window.location.protocol + '//' + window.location.host +  '/a1.php/index/U7/query_inventory'
-					});
-				}else{
-					layer.msg(d.info,{icon:2,time:1500,offset:'30%'});
-				}
-			});
-		});
-		*/
-
 		if(config.bodySort == true){
 			$('table.aya-sort thead tr th').addClass('relative');
 	
@@ -1303,6 +1269,7 @@ var form  = {
 
 
 		if(window.location.href.indexOf('?') != -1){
+			
 			let tmp = window.location.href.substr(window.location.href.indexOf('?') + 1).split('=');
 			$('#ddh').val(tmp[1]);
 			form.ddh();
@@ -1441,14 +1408,22 @@ var form  = {
 		
 		if(form.config.search) page(form.config.search.url,form.list_table,form.get_app_search_option);
 		
-		$('#tbody').click(function(e){
-			if(top.mainPage.multiType == 1 && $(e.target).hasClass('detail')){
-				let ddh = $(e.target).text();
-				let id = form.config.detail.id;
-				let url = top.$('#' + id).data('url')+'?ddh='+ddh;
-				let ttl = top.$('#' + id).data('ttl');
-				top.mainPage.add_iframe(url,ttl,id,ddh);
+		$('#table tbody').click(function(e){
+
+			if(form.config.detailUrl){
+				if(top.mainPage.multiType == 1 && $(e.target).hasClass('detail')){
+					let ddh = $(e.target).text();
+					let id = form.config.detailUrl.replace('/','').toLowerCase();
+					let url = top.mainUrl + '/' + form.config.detailUrl;
+					let ttl = '未知';
+					top.$('.a_url').each(function(){
+						if($(this).data('url') == url) ttl = $(this).data('ttl');
+					});
+					top.mainPage.add_iframe(url + '?ddh=' + ddh ,ttl,id,ddh);
+				}
 			}
+		
+			
 		});
 
 		if(config.number_page != undefined){
@@ -1689,8 +1664,12 @@ var form  = {
 								if(d.status == 's'){
 
 									if(d.info == 'insert'){
+										d.data.id = parseInt(d.data.id);
 										form.superSearchSelectOption.push(d.data);
 										top.$('#option-container #condition').append("<option data-dft value = '"+d.data.id+"'>"+d.data.title+"</option>");
+
+										log(d);
+										log(form.superSearchSelectOption,false);
 									}else{
 										for(let i = 0; i<form.superSearchSelectOption.length ; i++){
 											if( form.superSearchSelectOption[i].id == d.data.id){
@@ -2733,9 +2712,6 @@ var form  = {
 	query : function (o){
 		if(typeof o.page == 'undefined') o.page = 1;
 		let index = parent.layer.load(2,{offset:['20%']});
-
-		
-
 
 		$.post(form.config.search.url,o,function(d){
 

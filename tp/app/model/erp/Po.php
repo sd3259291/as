@@ -629,7 +629,10 @@ class Po extends Model{
 			$auth = checkAuth('');
 
 			if($auth){
-				$r = Db::table('s_vendor_price_just_list')->alias('a')->join('s_vendor_price_just b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','a.vendor_code = v.code')->field('b.ddh,b.date,b.maker,b.status,b.flow_id,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.origin_price,a.origin_tax,a.origin_tax_price,a.price,a.tax,a.tax_price')->where('status < 9')->order('a.id desc,a.listid asc')->select()->toArray();
+				$r = Db::table('s_po_list')->alias('a')->join('s_po b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','b.vendor_code = v.code')->join('s_unit u','i.unit_id = u.id')->field('a.qty,a.sum,b.ddh,b.date,b.maker,b.status,b.flow_id,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.price,a.tax,a.tax_price,a.arrive_date,u.name unit_name')->where('b.status < 9')->order('a.id desc,a.listid asc')->select()->toArray();
+
+
+			
 				//有权限的情况下，检查流程上是是否到本人
 				$hasFlow = [];
 				foreach($r as $k => $v){
@@ -650,8 +653,7 @@ class Po extends Model{
 			//我的待审核
 
 		}else{
-			//搜索
-			
+			//搜索	
 			$tmp = $this->getSearchData($post);
 			$r = $tmp['r'];
 			$page = $tmp['page'];
@@ -676,6 +678,7 @@ class Po extends Model{
 			array('key' => 'tax_price' , 'type' => 'number' , 'zero' => '0'),
 			array('key' => 'qty' , 'type' => 'number' , 'zero' => '0'),
 			array('key' => 'sum' , 'type' => 'number' , 'zero' => '0'),
+			'arrive_date'
 
 		);
 
@@ -708,12 +711,12 @@ class Po extends Model{
 			'inventory_code' => '物料编码',
 			'inventory_name' => '物料名称',
 			'inventory_std' => '规格型号',
-			'origin_price' => '原单价',
-			'origin_tax' => '原税率',
-			'origin_tax_price' => '原含税价',
-			'price' => '现单价',
-			'tax' => '现税率',
-			'tax_price' => '现含税价'
+			'price' => '单价',
+			'tax' => '税率',
+			'tax_price' => '含税价',
+			'qty' => '数量',
+			'sum' => '价税合计',
+			'arrive_date' => '交货期'
 		);
 		$pG = new PublicGet();
 		$r = $pG->excel($excel,$data);
@@ -740,10 +743,8 @@ class Po extends Model{
 		$page['n'] = $post['n'];
 		$page['current_page'] = $post['page'];     //当前页 返回	
 
-		$r = Db::table('s_po_list')->alias('a')->join('s_po b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','b.vendor_code = v.code')->join('s_unit u','i.unit_id = u.id')->field('b.ddh,b.date,b.maker,b.status,b.flow_id,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.price,a.tax,a.tax_price,a.qty,a.sum,u.name unit_name')->where($w)->page($post['page'],$post['n'])->order('a.id desc,a.listid asc')->select()->toArray();
-
+		$r = Db::table('s_po_list')->alias('a')->join('s_po b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','b.vendor_code = v.code')->join('s_unit u','i.unit_id = u.id')->field('b.ddh,b.date,b.maker,b.status,b.flow_id,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.price,a.tax,a.tax_price,a.qty,a.arrive_date,a.sum,u.name unit_name')->where($w)->page($post['page'],$post['n'])->order('a.id desc,a.listid asc')->select()->toArray();
 		
-
 		return array(
 			'r' => $r,
 			'page' => $page
