@@ -169,6 +169,25 @@ class Purchase
 	public function exportPo(Po $p){
 		return $p->export($_POST);
 	}
+	/**
+     * 源单 采购订单 -> 到货单
+     */
+	public function resourcePoToPoArrive(){
+		return View::fetch();
+	}
+
+	public function resourcePoToPoArriveSearch(Po $p){
+		gp();
+		return $p->resourcePoToPoArriveSearch($_POST);
+	}
+
+	/**
+     * 到货单 - 新增
+     */
+	public function poArrive(){
+		return View::fetch();
+	}
+
 	
 
 

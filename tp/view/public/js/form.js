@@ -117,16 +117,9 @@ var form  = {
 					};
 					$('table.clone_thead thead tr th').eq(i).css(css);
 				});
-
-
-
-				
+	
 
 				return false;
-
-
-
-
 
 
 				//let tmp = form.resizeOriginWidth + x - form.resizeOriginX;
@@ -1039,7 +1032,7 @@ var form  = {
 				});
 			
 				if(config != '') thisconfig = thisconfig.substr(0,thisconfig.length - 1);
-				div += "<li class = 'li_new_resource' data-config = '"+thisconfig+"' data-url = '"+config.resource[i]['url']+"' data-callback = '"+config.resource[i]['callback']+"'><img src = '"+imgUrl+"file01.png' /><span>"+config.resource[i]['name']+"</span></li>";
+				div += "<li class = 'li_new_resource' data-resource_type = '"+config.resource[i]['resource_type']+"' data-config = '"+thisconfig+"' data-url = '"+config.resource[i]['url']+"' data-callback = '"+config.resource[i]['callback']+"'><img src = '"+imgUrl+"blank.png' /><span>"+config.resource[i]['name']+"</span></li>";
 			}
 			if(typeof config.research != 'undefined'){
 				//ayaResearch.ini(config);
@@ -1074,43 +1067,51 @@ var form  = {
 
 				//if($('#recoil').hasClass('img_on')) return false;
 
+
+
 				let url = $(this).data('url');
 				let name = $(this).text();
 				let config2 = $(this).data('config').split(',');
+				let resource_type = $(this).data('resource_type');
+
+				if( !window.resource_option){
+					window.resource_option = new Map();
+					if( !window.resource_option.get( resource_type )){
+						window.resource_option.set(resource_type,{});
+					}
+				}
+
 				
-				//let con = '';
-				let conOb = {};
 				if($('#save').hasClass('img_on') || ( $('#save').hasClass('img_off') && $('#check').hasClass('img_off') && $('#uncheck').hasClass('img_off') && $('#modify').hasClass('img_off') && $('#save').hasClass('img_off') && $('#dlt').hasClass('img_off')  )){
 					
-					$(config2).each(function(i,v){
-						conOb[v] = $('#'+v).val();
-			
-						/*
-						if(con == ''){
-							 con += v+'='+$('#'+v).val();
-						}else{
-							 con += '&'+v+'='+$('#'+v).val();
-						}*/
+					let conOb = {};
+
+					$('.bill_head input').each(function(){
+						let tmpId = $(this).attr('id');
+						conOb[tmpId] = $.trim($(this).val());
 					});
+
+					conOb.resource = [];
+					if($('#save').hasClass('img_on')){
+						$('#table tr').each(function(){
+							let tmp = {};
+							tmp.resource_id   = $(this).data('resource_id');
+							tmp.resource_type = $(this).data('resource_type');
+							if(tmp.resource_id > 0 ) conOb.resource.push(tmp);
+						});
+					}
+					
+					window.resource_option.set(resource_type,conOb);
+	
+					
 				}
+
 				
-				conOb.resource = [];
-				if($('#save').hasClass('img_on')){
-					$('#table tr').each(function(){
-						let tmp = {};
-						tmp.resource_id   = $(this).data('resource_id');
-						tmp.resource_type = $(this).data('resource_type');
-						if(tmp.resource_id > 0 ) conOb.resource.push(tmp);
-						
-					});
-				}
-				
-				window.condition = conOb;
 			
 				top.layer.open({
 					title:'<span class	= "hint1" style = "font-size:12px">源单<span>',
 					area: [top.mainPage.layerWidth,'100%'],
-					shade1Close:false,
+					shadeClose:true,
 					isOutAnim: false ,
 					maxmin: false,
 					type: 2, 
@@ -1118,6 +1119,10 @@ var form  = {
 					success:function(layero, index){
 						resource_layero = top[layero.find('iframe')[0]['name']];
 						resource_layero.config = config;
+						let h = '<div class = "row resource_icon_con" style = "padding:0;font-size:12px;height:42px;width:800px;position:absolute;top:0;left:200px"><div class = "col s8"> <span id = "resource_confirm"  class = "resource_icon img_on"><span >确定</span> <img src = "'+imgUrl+'confirm.png"  class = "height18" /></span> <span id = "resource_clear" class = "resource_icon img_on"><span >清除</span> <img src = "'+imgUrl+'clear.png"  class = "height18" /></span><span id = "resource_research" class = "resource_icon img_on"><span >查询</span> <img src = "'+imgUrl+'research.png"  class = "height18" /></span></div><div class ="col s4"><span  style = "position:relative"><input id = "table_research" type = "text" class = " aya-input" style = " text-indent:10px;padding-right:20px;width:200px;margin-top:5px" placeholder = "表单内搜素" /><img src = "'+top.publicUrl+'/image/search.png"  class = "height18" style = "position:absolute;right:0;top:0px" /></span></div></div>';
+						layero.append(h);
+						top[layero.find('iframe')[0]['name']].loaded(layero.find('#resource_confirm'),layero.find('#resource_clear'),layero.find('#resource_research'),layero.find('img'));
+						//top[layero.find('iframe')[0]['name']].resource_option = window.resource_option.get(resource_type);
 					}
 				});
 			}

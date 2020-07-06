@@ -605,7 +605,7 @@ a.page:hover{background:#303030;color:#ffffff}
 a.page_current{border:1px solid #000000;font-weight:bold}
 
 div.resource_icon_con{
-	padding:0;font-size:12px;height:42px;width:800px;position:absolute;top:0;
+	
 }
 span.resource_icon{
 	margin-left:12px;cursor:pointer;display:inline-block;height:32px;width:66px;float:left;line-height:32px;margin-top:5px;text-align:center;border-radius:4px;

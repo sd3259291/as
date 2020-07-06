@@ -753,4 +753,34 @@ class Po extends Model{
 
 
 
+
+	public function resourcePoToPoArriveSearch($post){
+		halt($post);
+		$w = " 1 = 1 ";
+		if(is_set($post,'option_ddh')){
+			$w .= " &&  b.ddh = '".sprintf('%08d',$post['option_ddh'])."' ";
+		}
+		if(is_set($post,'option_vendor_code')){
+			$w .= " && b.vendor_code = '".$post['option_vendor_code']."' ";
+		}
+		if(is_set($post,'option_inventory_code')){
+			$w .= " && a.inventory_code = '".$post['option_inventory_code']."' ";
+		}
+		$totle = Db::table('s_po_list')->alias('a')->join('s_po b','a.id = b.id')->where($w)->count();
+			
+		$page['totles'] = $totle;     //总记录数 返回
+		$page['totle_page'] = ceil($totle / $post['n']);  //总页数 返回
+		$page['n'] = $post['n'];
+		$page['current_page'] = $post['page'];     //当前页 返回	
+
+		$r = Db::table('s_po_list')->alias('a')->join('s_po b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','b.vendor_code = v.code')->join('s_unit u','i.unit_id = u.id')->field('b.ddh,b.date,b.maker,b.status,b.flow_id,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.price,a.tax,a.tax_price,a.qty,a.arrive_date,a.sum,u.name unit_name')->where($w)->page($post['page'],$post['n'])->order('a.id desc,a.listid asc')->select()->toArray();
+		
+		return array(
+			'r' => $r,
+			'page' => $page
+		);
+	}
+
+
+
 }

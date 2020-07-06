@@ -1,0 +1,369 @@
+<!DOCTYPE html>{__NOLAYOUT__}
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A</title>
+	
+	<link href="__PUBLIC__/css/iconfont/material-icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="__PUBLIC__/materialize/css/materialize.min.css" media="screen,projection" />
+    <link href="__PUBLIC__/css/bootstrap.css" rel="stylesheet" />
+    <link href="__PUBLIC__/css/font-awesome.css" rel="stylesheet" />
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/media/css/jquery.dataTables.min.css">
+	<link rel="stylesheet" href="__PUBLIC__/js/DataTables-1.10.0/FixedColumns-3.2.4/css/fixedColumns.bootstrap.css">
+	<link href="__PUBLIC__/css/custom-styles.css" rel="stylesheet" />
+    
+	<script src="__PUBLIC__/js/jquery-3.4.1.js"></script>
+	<script src="__PUBLIC__/js/layer/src/layer.js"></script>
+	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/DataTables-1.10.0/media/js/jquery.dataTables.min.js"></script>
+	<script src="__PUBLIC__/js/tool.js"></script>
+
+	<style type="text/css">
+		body{
+			padding:0;
+			background:#ffffff	
+		}
+		div.resource-tip{
+			font-size:12px;
+			text-align:center;
+			padding-top:32px
+		}
+		table.table-resource thead th{
+			padding-top:5px;
+			padding-bottom:5px;
+		}
+		table.dataTable thead tr th{
+			background: #14253b99 !important;
+			COLOR:#ffffff !important;
+		}
+		
+		table#resource_body_table tbody tr td{
+			border-color:#ababab;
+			
+		}
+		div.row{margin-left:0;margin-right:0}
+	</style>
+</head>
+<body>
+
+							<div class = "row" style='margin:0;'>
+
+								<div class = 'col s1'>
+									<div class = 'resource-tip'>
+										采购订单<br /><br />表头
+									</div>
+								</div>
+								
+								<div class = "col s11">
+									<table class = 'dataTable table-small centered cell-border noselect table-resource' id = 'resource_head_table'>
+										<thead id = 'resource_head_thead'>
+										<tr>
+											<th style = 'width:30px'></th>
+											<th style = 'white-space:nowrap;'>单据号</th>
+											<th style = 'white-space:nowrap'>日期</th>
+											<th style = 'white-space:nowrap'>供应商编码</th>
+											<th style = 'white-space:nowrap'>供应商名称</th>
+											<th style = 'white-space:nowrap'>采购类型</th>
+											<th style = 'white-space:nowrap'>制单人</th>
+										</tr>
+										</thead>
+										<tbody id = 'resource_head_tbody'>
+											
+										</tbody>
+									</table>
+
+									{include file='public/page/page' /}
+
+								</div>
+							</div> 
+
+
+							<div class = "row" style='margin:0;'>
+
+
+								<div class = 'col s1'>
+									<div class = 'resource-tip'>
+										表单明细
+									</div>
+								</div>
+								
+								<div class = "col s11">
+								
+									<table class = 'dataTable table-small centered cell-border noselect table-resource' id = 'resource_body_table'>
+										<thead id = 'resource_body_thead'>
+										
+										<tr>
+											<th style='white-space:nowrap;width:30px'><input type = 'checkbox' class = 'aya-checkbox' id = 'select_all' /></th>
+											<th style = 'white-space:nowrap'>先特批号</th>
+											<th style = 'white-space:nowrap'>单据号</th>
+											<th style = 'white-space:nowrap'>物料编码</th>
+											<th style = 'white-space:nowrap'>物料名称</th>
+											<th style='white-space:nowrap'>规格型号</th>
+											<th style='white-space:nowrap;width:30px'>单位</th>
+											<th style='white-space:nowrap;width:40px;'>总数量</th>
+											<th style='white-space:nowrap;width:40px'>未到货</th>
+										</tr>
+										</thead>
+										<tbody id = 'resource_body_tbody'>
+											
+										</tbody>
+
+										
+
+									</table>
+									
+								</div>
+							</div>
+							
+</body>
+<script>
+
+	var type = 'potopoarrive';
+
+	var resource_option;
+	
+	let condition = {};
+	//此 变量 依附于此页面 resource_po，重新打开将重置
+	//重置后，根据父页面的选项，自动填充参数
+	//搜索时候，除了看n（每页记录数）和page（第几页）参数以外，还要参照此参数（供应商，日期等）
+	//打开此layer层的时候，根据父页的内容，先进行一次筛选
+	//按“搜索”按钮，然后再按“确定”，返回的参数写入此condition
+	condition = get_parent().resource_option.get(type);
+
+	resource_research(condition);
+
+	var h1 = $(window).height() - $('.page-container').length * $('.page-container').eq(0).height() - 42 - $('#resource_head_thead').height() - $('#resource_body_thead').height();
+	
+	
+	var setting = {
+			paging: false,
+			scrollY: h1 * 0.45,
+			info:false,
+			dom:'t',
+		};
+	
+	let resource_table = $('#resource_head_table').DataTable(setting);
+	select_tr3('resource_head_table','new2');
+	var setting2 = {
+			paging: false,
+			scrollY: h1 * 0.55,
+			//ordering:false,
+			info:false,
+			dom:'t',
+		};	
+	let resource_table2 = $('#resource_body_table').DataTable(setting2);
+
+
+	
+
+	select_tr3('resource_body_table','new2',function(){
+		let rows = $('#resource_body_tbody tr').length;
+		let rows_selected = $('#resource_body_tbody tr.new2').length;
+		if(rows == 0) rows = '-';
+		if(rows_selected == 0) rows_selected = '-';
+		$('#rows').text(rows);
+		$('#rows_selected').text(rows_selected);
+	});
+
+	$('#resource_head_table tbody').on('click','tr',function(){
+		let flag = false;
+		let vendor = '';
+		let type   = '';
+		$('#resource_head_table tbody tr.new2').each(function(i,v){
+			if(i == 0){
+				vendor = $(this).children().eq(3).text();
+				type   = $(this).children().eq(4).text();
+			}else{
+				if($(this).children().eq(3).text() != vendor || $(this).children().eq(4).text() != type){
+					layer.msg("不同<span class = 'hint2'>供应商</span>或<span class = 'hint2'>采购类型</span>的订单不能合并",{'icon':2,time:2000,offset:'30%'});
+					flag = true;
+					return false;
+				}		
+			}
+		});
+		if(flag){
+			$(this).removeClass('new2');
+			$(this).children().eq(0).find('input').eq(0).prop('checked',false);
+		}else{
+			let o = {};
+			o.id = $(this).data('id');
+			
+			
+			if(typeof condition.resource != 'undefined') o.resource = JSON.stringify(condition.resource);
+			if($(this).hasClass('new2')){
+				$.post('__URL__/resource_po_details',o,function(d){
+					if(d.status == 's'){
+						resource_table2.rows.add($(d.data)).draw();
+						fresh_selected_rows();
+					}else{
+						layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
+					}
+				});
+			}else{
+				resource_table2.rows('.id'+o.id).remove().draw();
+				fresh_selected_rows();
+			}
+		}
+	});
+
+	
+	$('#select_all').click(function(){
+		let flag = $('#resource_body_tbody tr').eq(0).children().eq(0).find('input').prop('checked');
+		if(flag == true){
+			$('#resource_body_tbody tr').removeClass('new2');
+			$('#resource_body_tbody').find('input[type = checkbox]').prop('checked',false);
+			$(this).prop('checked',false);
+		}else{
+			$('#resource_body_tbody tr').addClass('new2');
+			$('#resource_body_tbody').find('input[type = checkbox]').prop('checked',true);
+			$(this).prop('checked',true);
+		}
+	});
+	
+
+	function fresh_selected_rows(){
+		let rows =  resource_table2.column( 0 ).data().length;
+		let rows_selected = $('#resource_body_tbody tr.new2').length;
+		if(rows == 0) rows = '-';
+		if(rows_selected == 0) rows_selected = '-';
+		$('#rows').text(rows);
+		$('#rows_selected').text(rows_selected);
+	}
+
+	//page(resource_query);
+	
+	function resource_research(o){
+		for(let k in o){
+			condition[k] = o[k];
+		}
+		let n = parseInt($('#number_page').val());
+		if(isNaN(n) || n <= 0 ) n = $('#number_page').data('d');
+		o.n = n;
+		o.page = 1;
+		resource_query(o);
+	}
+
+	function resource_query(o){
+		
+		for(let k in condition){
+			if(k != 'resource' && k != 'n' && k != 'page') o[k] = condition[k];
+		}
+		let index = parent.layer.load(2,{offset:'30%'});
+		
+		let newO = {};
+
+		for(let key in o ){
+			newO[key] = o[key];
+		}
+
+		if(condition.resource.length > 0) newO.resource = JSON.stringify(condition.resource);
+		
+		$.post('__APP__/purchase/resourcePoToPoArriveSearch',newO,function(d){
+
+			if(d.status == 's'){
+				let table = d.data.table;
+				let page  = d.data.page;
+				resource_table.clear();
+				resource_table.rows.add($(table)).draw();
+				set_page(page);
+			}else{
+				layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
+			}
+			parent.layer.close(index);
+		});
+	}
+
+	
+	
+		//TITLE heigh 42px
+
+	
+	function loaded(confirm,clear,search,imgs){
+
+		confirm.click(function(){
+			
+		});
+
+
+
+
+	}
+	
+
+	
+	
+	top.$('#resource_confirm').click(function(){
+		let o = {};
+		o.vendor_name = $('#resource_head_table tbody tr.new2').eq(0).children().eq(4).text();
+		o.vendor_code = $('#resource_head_table tbody tr.new2').eq(0).children().eq(3).text();
+		o.purchasetype_name = $('#resource_head_table tbody tr.new2').eq(0).children().eq(5).text();
+		o.purchasetype_code = $('#resource_head_table tbody tr.new2').eq(0).data('purchasetype_code');
+		o.data = [];
+		$('#resource_body_tbody tr.new2').each(function(){
+			let tmp = {};
+			let child = $(this).children();
+			tmp.cDefine22 = child.eq(1).text();
+			tmp.inventory_code = child.eq(3).text();
+			tmp.inventory_name = child.eq(4).find('input').eq(0).val();
+			tmp.inventory_std  = child.eq(5).find('input').eq(0).val();
+			tmp.inventory_unit = child.eq(6).text();
+			tmp.qty = child.eq(8).text();
+			tmp.resource_type = 'cgddtodhd';  //采购订单 - 到货单
+			tmp.resource_id = $(this).data('id');
+			tmp.cordercode = child.eq(2).text();
+			o.data.push(tmp);
+		});
+		
+		get_parent().form.resource_fill(o);
+		get_parent().update_totle();
+		var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+		parent.layer.close(index); //再执行关闭   
+	});
+
+	parent.$('#resource_clear').click(function(){
+		$('#resource_head_tbody tr.new2').each(function(){
+			$(this).removeClass('new2');
+			$(this).children().eq(0).find('input').prop('checked',false);
+		});
+		resource_table2.clear().draw();
+		$('#rows_selected').text('-');
+		$('#rows').text('-');
+		
+	});
+
+	parent.$('#resource_research').click(function(){
+			parent.layer.open({
+			title:'<span style = "font-size:12px">查询方案</span>',
+			area: ['700px','100%'],
+			shadeClose:true,
+			isOutAnim: false ,
+			maxmin: true,
+			type: 2, 
+			content:'__URL__/condition_cgdd',
+			success:function(layero, index){
+				var iframeWin = parent.window[layero.find('iframe')[0]['name']];
+				iframeWin.set_condition(condition);
+			}
+		});
+	});
+
+
+	parent.$('#table_research').keypress(function(e){
+		let v = $.trim($(this).val());
+		if(e.keyCode==13){
+			resource_table.search(v).draw();
+		}
+	});
+
+	
+	$('#table_body_research').keypress(function(e){
+		let v = $.trim($(this).val());
+		if(e.keyCode==13){
+			resource_table2.search(v).draw();
+		}
+	});
+
+</script>
+</html>

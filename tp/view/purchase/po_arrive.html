@@ -1,0 +1,457 @@
+{php}
+	$session = session();
+	if($session['multi'] == 1 && !isset($_GET['nolayout']) ){
+{/php}
+{include file='public/form_js' /}
+{php}
+}
+{/php}
+<style type="text/css">
+		table.dataTable thead th{padding-left:0;padding-right:0}
+	</style>
+
+	<input type = 'hidden' value = '' id = 'ddh_hidden' />
+	<input type = 'hidden' value = '' id = 'update_time' />
+			<div class="card">
+				
+					<div class="card-content" >
+							
+							<div class = "row bill_head" >
+								<div class = "col s1 center" >
+									<div id = 'state_info' style = 'display:none'>
+										<span id = 'state_info_img'>
+										<img src = '__PUBLIC__/image/erp/status_saved.png' class = '' />
+										<span>
+										<br />
+										<span id = 'state_info_text'>
+										已审核
+										</span>
+									</div>
+								</div>
+
+
+								<div class = "col s3 center" >
+									<div class = 'row'>
+										<div class = 'col s3 erp-head'>
+											日期
+										</div>
+										<div class = 'col s9 erp-head'>
+											<input type = 'text' class = 'aya-input center vendor_code date border-bottom' data-hasdatefunction = 'off' readonly data-d = '' id = 'date' >
+										</div>	
+									</div>
+
+
+									<div class = 'row'>
+										<div class = 'col s3 erp-head'>
+											制单人
+										</div>
+										<div class = 'col s9 erp-head'>
+											<input type = 'text' class = 'aya-input center maker border-bottom' id = 'maker'    readonly   data-df = '{$Request.session.userinfo.name}'>
+										</div>
+									</div>
+								</div>
+								
+								<div class = "col s1 c1enter" ></div>
+
+								<div class = "col s3 c1enter" >
+
+									<div class = 'row'>
+										<div class = 'col s3 erp-head'>
+											单号
+										</div>
+										<div class = 'col s9 erp-head' id = 'erp-head-ddh'>
+											<input type = 'text' class = 'aya-input center ddh border-bottom' id = 'ddh' data-last = ''     value = '' >
+											<img src = '__PUBLIC__/image/erp/arrow-up.png' class = ' height14' style = 'top:5px;right:0' id = 'ddh-next' />
+											<img src = '__PUBLIC__/image/erp/arrow-down.png' class = ' height14' style = 'top:17px;right:0' id = 'ddh-prev' />
+
+										</div>	
+									</div>
+
+
+									<div class = 'row'>
+										<div class = 'col s3 erp-head'>
+											供应商
+										</div>
+										<div class = 'col s9 erp-head'>
+											 <input type = 'hidden' class = 'vendor_code'   id = 'vendor_code'  data-df = '' value = '' />
+											<input type = 'text' class = 'aya-input center  border-bottom edit vendor_name' id = 'vendor_name' data-last = ''     value = '' readonly />
+
+											<img src = '__PUBLIC__/image/erp/selectu8.png' class = 'input-hint height14 img-vendor select' />
+
+								
+
+										</div>	
+									</div>
+
+								</div>
+								
+								<div class = "col s1 c1enter" ></div>
+								
+								
+								<div class = "col s3 ">
+									
+									<div class = 'row'>
+
+										<div class = 'col s2' style = 'padding:0;margin:0'>
+											<div class = 'erp-head-div-new-container' style = 'width:40px;' >
+												<div class = 'erp-head-div-new-top' id = 'new'>
+													<img src = '__PUBLIC__/image/erp/new.png' />
+												</div>
+												<div class = 'erp-head-div-new-bottom' id = 'new_resource' >
+													新增<br />▼
+												</div>
+											</div>
+										</div>
+
+										<div class = 'col s10' style = 'padding:0;margin:0'>
+											
+
+											
+											<div class = 'erp-head-div-container'>
+												<div class = 'erp-head-div-container-top'>
+													<span class = 'erp-head-div-container-span-con img_off' id = 'save'>
+														<span class = 'erp-head-div-container-span'>保存</span>
+														<img src = '__PUBLIC__/image/erp/save_off.png'  class = 'height18' />
+													<span>
+												</div>
+												
+												<div class = 'erp-head-div-container-top'>
+													<span class = 'erp-head-div-container-span-con img_off' id = 'modify'>
+														<span class = 'erp-head-div-container-span'>修改</span>
+														<img src = '__PUBLIC__/image/erp/modify_off.png'  class = 'height18' />
+													</span>
+												</div>
+											</div>
+
+											<div class = 'erp-head-div-container'>
+												<div class = 'erp-head-div-container-top'>
+													<span class = 'erp-head-div-container-span-con img_off' id = 'check'>
+														<span class = 'erp-head-div-container-span'>审核</span><img src = '__PUBLIC__/image/erp/check_off.png'  class = 'height18' />
+													<span>
+												</div>
+												<div class = 'erp-head-div-container-top'>
+													<span class = 'erp-head-div-container-span-con img_off' id = 'uncheck'>
+														<span class = 'erp-head-div-container-span'>弃审</span><img src = '__PUBLIC__/image/erp/uncheck_off.png'  class = 'height18' />
+													</span>
+												</div>
+											</div>
+
+											<div class = 'erp-head-div-container'>
+												<div class = 'erp-head-div-container-top'>
+													<span class = 'erp-head-div-container-span-con img_off' id = 'giveup'>
+														<span class = 'erp-head-div-container-span'>放弃</span><img src = '__PUBLIC__/image/erp/giveup_off.png'  class = 'height18' />
+													<span>
+												</div>
+											</div>
+											
+											<div class = 'erp-head-div-container'>
+												<div class = 'erp-head-div-container-top'>
+													<span class = 'erp-head-div-container-span-con img_off' id = 'dlt'>
+														<span class = 'erp-head-div-container-span'>删除</span><img src = '__PUBLIC__/image/erp/dlt_off.png'  class = 'height18' />
+													<span>
+												</div>
+											</div>
+
+											<div class = 'erp-head-div-container'>
+												<div class = 'erp-head-div-container-top'>
+													<span class = 'erp-head-div-container-span-con img_off' id = 'flow'>
+														<span class = 'erp-head-div-container-span'>流程</span><img src = '__PUBLIC__/image/erp/flow_off.png'  class = 'height18' />
+													<span>
+												</div>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+
+							</div>
+							
+
+
+							<div class = 'row'>
+								<div class = "col s12" style = 'text-align:left' id = 'table-con'>
+									<table style = 'width:auto;margin-left:0' class = "dataTable centered cell-border hover table-small noselect aya-sort" id='table'  >
+										<thead>
+											<tr>
+												<th style='min-width:50px;white-space:nowrap;'>序号</th>
+
+												<th style='min-width:100px;white-space:nowrap;'>物料编码</th>
+												<th style='min-width:120px;white-space:nowrap;'>物料名称</th>
+												<th style='min-width:120px;white-space:nowrap;'>规格型号</th>
+												<th style='min-width:50px;white-space:nowrap;'>单位</th>
+
+												<th style='min-width:80px;white-space:nowrap;'>价格（元）</th>
+												<th style='min-width:60px;white-space:nowrap;'>税率</th>
+												<th style='min-width:80px;white-space:nowrap;'>含税价（元）</th>
+												<th style='min-width:80px;white-space:nowrap;'>数量</th>
+												<th style='min-width:80px;white-space:nowrap;'>价税合计（元）</th>
+												<th style='min-width:100px;white-space:nowrap;'>交货期</th>
+												<th style='min-width:50px;white-space:nowrap;'>操作</th>
+											</tr>
+										</thead>
+										<tbody id = 'tbody'>
+											<tr>
+										
+												<td>1</td>
+												
+												<td class = 'td-input-img'>
+													<input type = 'text' class = 'aya-input2 center inventory_code input-background center edit' data-last = '' readonly>
+													<img src = '__PUBLIC__/image/erp/selectu8.png' class = 'input-hint height14  img-inventory select pointer' />
+												</td>
+
+
+												<td class ='td-input-img'>
+													<input type = 'text' class = 'aya-input2 inventory_name center' readonly>
+												</td>
+											
+												<td class ='td-input-img'>
+													<input type = 'text' class = 'aya-input2 inventory_std center' readonly>
+												</td>
+												<td class ='td-input-img'>
+													<input type = 'text' class = 'aya-input2 inventory_unit center' readonly>
+												</td>
+
+											
+
+												<td class = 'td-input-img'>
+													<input type = 'text' class = 'aya-input2 input-background center edit price mul-num' readonly>
+												</td>
+												<td class = 'td-input-img'>
+													<select class = 'browser-default center tax'>
+														<option value = '0'>0</option>
+														<option value = '3'>3</option>
+														<option value = '6'>6</option>
+														<option value = '13' selected>13</option>
+
+													</select>
+												</td>
+
+												
+
+												<td class = 'td-input-img'>
+													<input type = 'text' class = 'aya-input2  center  tax_price edit input-background' readonly>
+												</td>
+
+												<td class = 'td-input-img'>
+													<input type = 'text' class = 'aya-input2  center  qty input-background edit' readonly>
+												</td>
+
+												<td class = 'td-input-img'>
+													<input type = 'text' class = 'aya-input2  center  sum ' readonly>
+												</td>
+
+												<td class = 'td-input-img'>
+													<input type = 'text' class = 'aya-input2  center  arrive_date date' readonly>
+
+													<img src = '__PUBLIC__/image/erp/syn.png' class = 'input-hint img-syn select pointer' />
+												</td>
+
+												<td style='padding:0'><img src = '__PUBLIC__/image/erp/erase.png' class = 'height16 tr_dlt' /> <img src = '__PUBLIC__/image/erp/add.png' class = 'height16 tr_add_next'  />
+															
+
+												</td>
+											</tr>
+										</tbody>
+	
+									</table>
+
+								</div>
+							</div>
+
+							
+							<div class = 'row' id = 'foot'>
+								<div class = 'col s1' style = 'padding:10px;text-align:right;font-size:12px'>
+									备注：
+								</div>
+								<div class = 'col s11'>
+									<input type = 'text' class = 'aya-input' id = 'remark' style = 'border-top:0;border-left:0;border-right:0' />
+								</div>
+							</di>
+					
+				</div>
+			</div>
+	
+<script>
+	
+
+
+
+
+	var resource_layero = {};
+
+	var erpConfig = {
+
+		type : 'page',  // page or list
+		
+		name : 'po',
+
+		iniWithDdh : true,
+
+		bodySort : true,
+
+		head:[
+			{type : 'date' , id : 'date' , callback:''},
+			{type : 'text' , id : 'maker', callback:''},
+			{type : 'erp'  , type2 : 'vendor' , id : 'vendor_name', callback:''},
+			
+		],
+		body:[
+			{type : 'erp' , type2:'inventory',callback : update_price},
+			
+		],
+		dataTableConfig:{scrollX:true,autoWidth:false,bAutoWidth: false},
+		resource:[
+			{
+                'name' : '采购订单',
+                'url' : '__APP__/Purchase/resourcePoToPoArrive',
+                'config' : ['vendor_code','vendor_name'],
+				'resource_type' : 'potopoarrive'
+            }
+		],
+		get:{
+			url : '__APP__/purchase/getPo',
+			callback : ''
+		},
+		canModify:{
+			url : '__APP__/purchase/canModifyPo',
+			callback : ''
+		},
+		check:{
+			url : '__APP__/purchase/checkPo',
+			callback : ''
+		},         
+		uncheck:{
+			url : '__APP__/purchase/uncheckPo',
+			callback : ''
+		},       
+		dlt:{
+			url : '__APP__/purchase/dltPo',
+			callback : ''
+		},             
+		nextPrev : '__APP__/purchase/nextPrevPo',
+		save : { url : '__APP__/Purchase/savePo' },
+		saveField : {
+			main : ['date','remark','vendor_code'],
+			listMust : ['inventory_code'],
+			list : ['inventory_code','price','tax','tax_price','arrive_date','qty']
+		},
+	};
+
+	add_tr('table',30);
+	
+	form.new_page_ini(erpConfig);
+
+	$('#new').trigger('click');
+
+	$('#tbody tr input.qty').keyup(function(){
+		change_ptq(this);
+	});
+
+	$('#tbody tr input.price').keyup(function(){
+		change_ptq(this);
+	});
+
+
+	$('#tbody tr input.tax_price').keyup(function(){
+		change_ptq2(this);
+	});
+
+
+	function update_price(updated_tr_index){
+		let o = {};
+		let oo = [];
+
+		$(updated_tr_index).each(function(i,v){
+			let tmp = {};
+			tmp.vendor_code = $('#vendor_code').val();
+			tmp.inventory_code = $.trim( $('#tbody tr').eq( updated_tr_index ).find('input.inventory_code').val() );
+			tmp.index  = v;
+			if(tmp.code != '') oo.push(tmp);
+		});
+		
+		if(oo.length > 0){
+			o.data = JSON.stringify(oo);
+			$.post('__APP__/purchase/getVendorPriceByData',o,function(d){
+				if(d.status == 's'){
+
+					for(let i = 0; i < oo.length ; i++){
+
+						if( d.data[oo[i].index] ){
+							$('#tbody').children().eq(oo[i].index).find('.price').val(d.data[oo[i].index]['origin_price']);
+							$('#tbody').children().eq(oo[i].index).find('.tax').val(d.data[oo[i].index]['origin_tax']);
+						}else{
+							$('#tbody').children().eq(oo[i].index).find('.price').val('');
+						}
+						change_ptq($('#tbody').children().eq(oo[i].index).find('.price'));
+					}
+				}else{
+					layer.msg(d.info,{time:2000,offset:'30%'});
+				}
+			});
+		}else{
+			
+		}
+	}
+	
+	
+
+	function change_ptq(t){
+		let tr = $(t).parents('tr');
+		let price = parseFloat($.trim(tr.find('.price').val()));
+		let tax = parseInt(tr.find('.tax').val());
+		let qty = parseFloat($.trim(tr.find('.qty').val()));
+		
+		if( isNaN(price)){
+			tr.find('.sum').val('');
+			tr.find('.tax_price').val('');
+		}else{
+			let tax_price = decimal(price * ( 1 + tax / 100 ),2);
+			tr.find('.tax_price').val( tax_price );
+			if(isNaN(qty)){
+				tr.find('.sum').val( '' );
+			}else{
+				let sum = decimal( tax_price * qty,2 );
+				tr.find('.sum').val( sum );
+			}
+		}
+	}
+
+	function change_ptq2(t){
+		let tr = $(t).parents('tr');
+		let tax_price = parseFloat($.trim(tr.find('.tax_price').val()));
+		let tax = parseInt(tr.find('.tax').val());
+		let qty = parseFloat($.trim(tr.find('.qty').val()));
+		
+		if( isNaN(tax_price)){
+			tr.find('.sum').val('');
+			tr.find('.price').val('');
+		}else{
+			let price = decimal(tax_price / ( 1 + tax / 100 ),2);
+			tr.find('.price').val( price );
+			if(isNaN(qty)){
+				tr.find('.sum').val( '' );
+			}else{
+				let sum = decimal( tax_price * qty,2 );
+				tr.find('.sum').val( sum );
+			}
+		}
+	}
+
+	$('#tbody').on('click','.img-syn',function(d){
+		let date = $(this).parents('td').find('input').val();
+		if(date == '') return false;
+		$('#tbody tr').each(function(){
+			if($(this).find('.inventory_code').val() != ''){
+				$(this).find('.arrive_date').val(date);
+			}
+		});
+		
+	});
+
+	
+
+
+
+
+
+</script>
