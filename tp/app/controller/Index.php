@@ -51,8 +51,10 @@ class Index extends BaseController
 
 		}
 		
-		if(Session::get('userinfo')['username'] == 'admin') $list = array_merge($list,$this->adminList);		
-		View::assign('name',Session::get('Authinfo')['name']);
+		if(Session::get('userinfo')['username'] == 'admin') $list = array_merge($list,$this->adminList);	
+
+		
+		View::assign('name',Session::get('userinfo')['name']);
 		View::assign('lists',$list );
 		return View::fetch();
 	
