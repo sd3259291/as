@@ -175,10 +175,18 @@ class Purchase
 	public function resourcePoToPoArrive(){
 		return View::fetch();
 	}
-
+	/**
+     * 源单 采购订单 -> 到货单 搜索
+     */
 	public function resourcePoToPoArriveSearch(Po $p){
-		gp();
 		return $p->resourcePoToPoArriveSearch($_POST);
+	}
+	/**
+     * 源单 采购订单 -> 到货单 明细
+     */
+	public function resourcePoToPoArriveDetail(Po $p){
+		//gp();
+		return $p->resourcePoToPoArriveDetail($_POST);
 	}
 
 	/**

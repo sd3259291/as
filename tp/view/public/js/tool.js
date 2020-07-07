@@ -325,7 +325,7 @@ function page(url,table = '',option = {} ){
 		if(totle_page == 1) return false;
 		o.page = 1;
 		o.n = $('#number_page').data('d');
-		page_callback(o,url,table);
+		page_callback(url,table,o);
 	});
 
 	$('#last_page').click(function(){
@@ -336,7 +336,7 @@ function page(url,table = '',option = {} ){
 		if(current_page == totle_page || totle_page == 0) return false;
 		o.page = totle_page;
 		o.n = $('#number_page').data('d');
-		page_callback(o,url,table);
+		page_callback(url,table,o);
 	});
 	
 	$('#prev_page').click(function(){
@@ -348,7 +348,7 @@ function page(url,table = '',option = {} ){
 		if(totle_page == 1) return false;
 		o.page = current_page - 1;
 		o.n = $('#number_page').data('d');
-		page_callback(o,url,table);
+		page_callback(url,table,o);
 	});
 
 	$('#next_page').click(function(){
@@ -359,7 +359,7 @@ function page(url,table = '',option = {} ){
 		if(current_page == totle_page || totle_page == 0) return false;
 		o.page = current_page + 1;
 		o.n = $('#number_page').data('d');
-		page_callback(o,url,table);
+		page_callback(url,table,o);
 	});
 	
 	$('#modify_number_page').click(function(){
@@ -371,13 +371,18 @@ function page(url,table = '',option = {} ){
 		$('#number_page').data('d',n);
 		o.page = 1;
 		o.n = n;
-		page_callback(o,url,table);
+		page_callback(url,table,o);
 	});
 }
 
-function page_callback(o,url,table){
+function page_callback(url,table,o){
+
+	if(typeof o.n == 'undefined'){
+		o.n = parseInt($('#number_page').val());
+		o.page = 1;
+	}
+
 	let index = layer.load(1,{offset:['30%']});
-	
 	$.post(url,o,function(d){
 		if(d.status == 's'){
 			set_page(d.data.page);

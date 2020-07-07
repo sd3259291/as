@@ -179,13 +179,14 @@
 												<th style='min-width:120px;white-space:nowrap;'>物料名称</th>
 												<th style='min-width:120px;white-space:nowrap;'>规格型号</th>
 												<th style='min-width:50px;white-space:nowrap;'>单位</th>
-
-												<th style='min-width:80px;white-space:nowrap;'>价格（元）</th>
-												<th style='min-width:60px;white-space:nowrap;'>税率</th>
-												<th style='min-width:80px;white-space:nowrap;'>含税价（元）</th>
-												<th style='min-width:80px;white-space:nowrap;'>数量</th>
-												<th style='min-width:80px;white-space:nowrap;'>价税合计（元）</th>
 												<th style='min-width:100px;white-space:nowrap;'>交货期</th>
+												<th style='min-width:80px;white-space:nowrap;'>采购数量</th>
+
+												
+												<th style='min-width:80px;white-space:nowrap;'>到货数量</th>
+												<th style='min-width:80px;white-space:nowrap;'>采购订单号</th>
+				
+												
 												<th style='min-width:50px;white-space:nowrap;'>操作</th>
 											</tr>
 										</thead>
@@ -195,7 +196,7 @@
 												<td>1</td>
 												
 												<td class = 'td-input-img'>
-													<input type = 'text' class = 'aya-input2 center inventory_code input-background center edit' data-last = '' readonly>
+													<input type = 'text' class = 'aya-input2 center inventory_code input-background center edit resource' data-last = '' readonly>
 													<img src = '__PUBLIC__/image/erp/selectu8.png' class = 'input-hint height14  img-inventory select pointer' />
 												</td>
 
@@ -211,44 +212,23 @@
 													<input type = 'text' class = 'aya-input2 inventory_unit center' readonly>
 												</td>
 
-											
-
 												<td class = 'td-input-img'>
-													<input type = 'text' class = 'aya-input2 input-background center edit price mul-num' readonly>
-												</td>
-												<td class = 'td-input-img'>
-													<select class = 'browser-default center tax'>
-														<option value = '0'>0</option>
-														<option value = '3'>3</option>
-														<option value = '6'>6</option>
-														<option value = '13' selected>13</option>
-
-													</select>
-												</td>
-
-												
-
-												<td class = 'td-input-img'>
-													<input type = 'text' class = 'aya-input2  center  tax_price edit input-background' readonly>
+													<input type = 'text' class = 'aya-input2 arrive_date center' readonly>
 												</td>
 
 												<td class = 'td-input-img'>
-													<input type = 'text' class = 'aya-input2  center  qty input-background edit' readonly>
+													<input type = 'text' class = 'aya-input2 po_qty center' readonly>
 												</td>
 
 												<td class = 'td-input-img'>
-													<input type = 'text' class = 'aya-input2  center  sum ' readonly>
+													<input type = 'text' class = 'aya-input2 qty center' readonly>
 												</td>
-
 												<td class = 'td-input-img'>
-													<input type = 'text' class = 'aya-input2  center  arrive_date date' readonly>
-
-													<img src = '__PUBLIC__/image/erp/syn.png' class = 'input-hint img-syn select pointer' />
+													<input type = 'text' class = 'aya-input2 po_ddh center' readonly>
 												</td>
 
 												<td style='padding:0'><img src = '__PUBLIC__/image/erp/erase.png' class = 'height16 tr_dlt' /> <img src = '__PUBLIC__/image/erp/add.png' class = 'height16 tr_add_next'  />
-															
-
+			
 												</td>
 											</tr>
 										</tbody>

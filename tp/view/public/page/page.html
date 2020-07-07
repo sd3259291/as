@@ -1,4 +1,4 @@
-	<div class = 'row' style = 'line-height:24px;height:36px;line-height:36px;-moz-user-select: none' id = 'page'>
+	<div class = 'row page-container' style = 'line-height:24px;height:36px;line-height:36px;-moz-user-select: none' id = 'page'>
 		<div class = 'col s4 center'>共 <span id = 'totles'> {$page.totles ?? '-'} </span> 条记录 </div>
 		<div class = 'col s4 center'>
 			每页显示 <input id = 'number_page' type = 'text' class = 'aya-input'  style = 'text-indent:1px;width:48px;height:24px;text-align:center' value = '{$page.n ?? 1000}' data-d = '{$page.n ?? "1000"}' /> 条 <button class = 'btn btn-default btn-noshadow height32 ' style = 'padding-left:7px;padding-right:7px;height:26px;line-height:24px;padding-top:0;margin-top:-3px' id = 'modify_number_page'>GO</button>

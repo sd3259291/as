@@ -755,30 +755,63 @@ class Po extends Model{
 
 
 	public function resourcePoToPoArriveSearch($post){
-		halt($post);
+
+		
 		$w = " 1 = 1 ";
-		if(is_set($post,'option_ddh')){
-			$w .= " &&  b.ddh = '".sprintf('%08d',$post['option_ddh'])."' ";
+		
+		if(is_set($post,'vendor_code')){
+			$w .= " && b.vendor_code = '".$post['vendor_code']."' ";
 		}
-		if(is_set($post,'option_vendor_code')){
-			$w .= " && b.vendor_code = '".$post['option_vendor_code']."' ";
+		
+		$totle = Db::table('s_po_list')->alias('a')->join('s_po b','a.id = b.id')->where($w)->field('distinct(b.id) n')->select();
+		if($totle){
+			$totle = count($totle->toArray());
+		}else{
+			$totle = 0;
 		}
-		if(is_set($post,'option_inventory_code')){
-			$w .= " && a.inventory_code = '".$post['option_inventory_code']."' ";
-		}
-		$totle = Db::table('s_po_list')->alias('a')->join('s_po b','a.id = b.id')->where($w)->count();
+		
 			
 		$page['totles'] = $totle;     //总记录数 返回
 		$page['totle_page'] = ceil($totle / $post['n']);  //总页数 返回
 		$page['n'] = $post['n'];
-		$page['current_page'] = $post['page'];     //当前页 返回	
+		$page['current_page'] = $post['page'];     //当前页 返回
 
-		$r = Db::table('s_po_list')->alias('a')->join('s_po b','a.id = b.id')->join('s_inventory i','a.inventory_code = i.code')->join('s_vendor v','b.vendor_code = v.code')->join('s_unit u','i.unit_id = u.id')->field('b.ddh,b.date,b.maker,b.status,b.flow_id,i.code inventory_code,i.name inventory_name,i.std inventory_std,v.code vendor_code,v.name vendor_name,a.price,a.tax,a.tax_price,a.qty,a.arrive_date,a.sum,u.name unit_name')->where($w)->page($post['page'],$post['n'])->order('a.id desc,a.listid asc')->select()->toArray();
+		$tbody = '';
+
+		if($totle > 0){
+			$r = Db::query("select p.id, p.ddh,v.code vendor_code,v.name vendor_name,p.date,v.maker from s_po p join s_vendor v on p.vendor_code = v.code where p.id in (select distinct(a.id) from s_po_list a join s_po b on a.id = b.id where $w) order by p.id desc limit ".($page['n'] * ($page['current_page']-1) ).",".$page['n']);
+
+			foreach($r as $k => $v){
+				$tbody .= "<tr data-id = ".$v['id']." ><td><input type = 'checkbox' class = 'aya-checkbox' /></td><td>".$v['ddh']."</td><td>".$v['date']."</td><td>".$v['vendor_code']."</td><td>".$v['vendor_name']."</td><td>".$v['maker']."</td></tr>";
+			}
+		}
+
+		return a(['tbody' => $tbody,'page' => $page ],'','s');
+				
+	}
+
+	public function resourcePoToPoArriveDetail($post){
+		$id = $post['id'];
+		$resource = json_decode($post['resource'],true);
+		$r = Db::table('s_po_list')->alias('a')->join('s_inventory i','a.inventory_code = i.code')->join('s_unit u','i.unit_id = u.id')->join('s_po p ','a.id = p.id')->where('a.id = '.$id)->field('a.arrive_qty,a.arrive_date,a.listid,p.ddh,i.code inventory_code,i.name inventory_name,i.std inventory_std,u.name unit_name,a.qty')->select();
 		
-		return array(
-			'r' => $r,
-			'page' => $page
-		);
+		$tbody = '';
+		if($r){
+			$checkbox = "";
+			foreach($r as $k => $v){
+				
+				if(in_array($v['listid'],$resource)){
+					$checkbox = "";
+				}else{
+					$checkbox = "<input type = 'checkbox' class = 'aya-checkbox' />";
+				}
+				$tbody .= "<tr class = 'id".$id."' data-listid = ".$v['listid']."><td>".$checkbox."</td><td>".$v['ddh']."</td><td>".$v['inventory_code']."</td><td>".$v['inventory_name']."</td><td>".$v['inventory_std']."</td><td>".$v['unit_name']."</td><td>".($v['qty']*1)."</td><td>".($v['qty'] - $v['arrive_qty'])."</td><td>".$v['arrive_date']."</td></tr>";
+			}
+		}
+
+		
+		return a($tbody,'','s');
+
 	}
 
 
