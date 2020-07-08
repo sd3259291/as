@@ -185,7 +185,7 @@ class Purchase
      * 源单 采购订单 -> 到货单 明细
      */
 	public function resourcePoToPoArriveDetail(Po $p){
-		//gp();
+	
 		return $p->resourcePoToPoArriveDetail($_POST);
 	}
 

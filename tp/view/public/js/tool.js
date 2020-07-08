@@ -292,13 +292,14 @@ function select_tr2(tableid,selectClass = 'selected',callback = function(){},fla
 function select_tr3(tableid,selectClass = 'selected',callback = function(){}){
 	
 	$('#'+tableid+' tbody').on('click','tr',function(){
+		if($(this).hasClass('no_select_tr')) return true;
 		t = $(this);
 		if(t.hasClass(selectClass)){
 			$(t).removeClass(selectClass).children().eq(0).find('input').prop('checked',false);
 		}else{
 			$(t).addClass(selectClass).children().eq(0).find('input').prop('checked',true);
 		}
-		callback();
+		callback(this);
 	});
 	$('#'+tableid+' tbody').on('click','input.aya-checkbox',function(e){
 		e.stopPropagation();
@@ -377,11 +378,13 @@ function page(url,table = '',option = {} ){
 
 function page_callback(url,table,o){
 
+	
+
 	if(typeof o.n == 'undefined'){
 		o.n = parseInt($('#number_page').val());
 		o.page = 1;
 	}
-
+	
 	let index = layer.load(1,{offset:['30%']});
 	$.post(url,o,function(d){
 		if(d.status == 's'){

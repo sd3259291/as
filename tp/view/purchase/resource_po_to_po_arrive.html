@@ -1,6 +1,5 @@
-<!DOCTYPE html>{__NOLAYOUT__}
+{__NOLAYOUT__}<!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,6 +18,7 @@
 	<script src="__PUBLIC__/js/laydate/laydate.js"></script>
 	<script type="text/javascript" src="__PUBLIC__/js/DataTables-1.10.0/media/js/jquery.dataTables.min.js"></script>
 	<script src="__PUBLIC__/js/tool.js"></script>
+	<script src="__PUBLIC__/js/form.js"></script>
 
 	<style type="text/css">
 		body{
@@ -56,7 +56,7 @@
 								</div>
 								
 								<div class = "col s11">
-									<table class = 'dataTable table-small centered cell-border noselect table-resource' id = 'resource_head_table'>
+									<table class = 'dataTable table-small centered cell-border noselect table-resource' id = 'table'>
 										<thead id = 'resource_head_thead'>
 										<tr>
 											<th style = 'width:30px'></th>
@@ -112,6 +112,8 @@
 										</tbody>
 
 									</table>
+
+									{include file='public/page/resource_selected_info' /}
 									
 								</div>
 							</div>
@@ -119,74 +121,100 @@
 </body>
 <script>
 
-	var type = 'potopoarrive';
 
-	var resource_option;       // 父页面带来的option
 
-	var resource_super_option = {}; //高级搜索的option
+	var config =  {
 
-	var current_option = {}; //搜索后的当前option
+		type : 'resource',
 
-	var searchUrl = '__APP__/purchase/resourcePoToPoArriveSearch';
+		name : 'potopoarrive',
 
-	var detailUrl = '__APP__/purchase/resourcePoToPoArriveDetail';
+		detailUrl : '__APP__/purchase/resourcePoToPoArriveDetail',
 
-	// 两种搜索OPTION，一种是点开源单以后第一次搜索进行的，用resource_option
-	// 还有一种是点“查询”后，再点确认后用的
-	// 两种option都保存在parent页面
-	// resource_option 的获得，根据parent页面的一些信息（表头和表体的resouse_id)
-	// resource_super_option 的获得，第一次如果存在default 则用default，点super搜索以后，用当时搜索的条件
-	
-
-	current_option = resource_option = get_parent().resource_option.get(type);
-
+		search : {
+			url : '__APP__/purchase/resourcePoToPoArriveSearch',
+			relation : {},
+			superSearch : [
+				[
+					{ name : '订单号' , option : 'option_ddh' , type : 'text' , },
+				],
+				[
+					{ name : '供应商编码', option : 'vendor_code',clas : 'vendor_code',type : 'erp' , type2 : 'vendor'},
+					{ name : '供应商名称', option : 'vendor_name',clas : 'vendor_name',type : 'erp' , readonly : true},
+								
+				],
+				[
+					{ name : '物料编码', option : 'inventory_code',clas : 'inventory_code',type : 'erp' , type2 : 'inventory'},
+					{ name : '物料名称', option : 'inventory_name',clas : 'inventory_name',type : 'erp' , readonly : true},
+								
+				],
+			]	
+		}
+	};
 
 	var h1 = $(window).height() - $('.page-container').length * $('.page-container').eq(0).height() - 42 - $('#resource_head_thead').height() - $('#resource_body_thead').height();
-
-
-	
 	var setting = {paging: false,scrollY: h1 * 0.45,info:false,dom:'t',};
-
-	var setting2 = {paging: false,scrollY: h1 * 0.55,info:false,dom:'t',};	
-	
-	let resource_head = $('#resource_head_table').DataTable(setting);
-
-	page(searchUrl,resource_head,current_option);
-
-	page_callback(searchUrl,resource_head,resource_option);
-
-	select_tr3('resource_head_table','new2');
-
-	let resource_head2 = $('#resource_body_table').DataTable(setting2);
-
-
+	var setting2 = {paging: false,scrollY: h1 * 0.55,info:false,dom:'t',columnDefs: [{ "orderable": false, "targets": 0 }]};	
+	form.resource_head = $('#table').DataTable(setting);
 
 	// ---------------------------------------------------------------//
 
 
+	function loaded(confirm,clear,search,table_research){
+		confirm.click(function(){
+			let o = {};
+			o.data = [];
+			$('#resource_body_tbody tr').each(function(){
+				if( $(this).children().eq(0).find('input').length < 1 || !$(this).children().eq(0).find('input').is(':checked')){
+					return true;
+				}
+				let tmp = {};
+				let child = $(this).children();
+				tmp.inventory_code = child.eq(2).text();
+				tmp.inventory_name = child.eq(3).text();
+				tmp.inventory_std  = child.eq(4).text();
+				tmp.inventory_unit = child.eq(5).text();
+				tmp.po_qty = child.eq(6).text();
+				tmp.qty = child.eq(7).text();
+				tmp.arrive_date = child.eq(8).text();
+				tmp.resource_type = config.type;
+				tmp.resource_listid = $(this).data('listid');
+				tmp.po_ddh = child.eq(1).text();
+				o.data.push(tmp);
+			});
+			get_parent().form.resource_fill(o);
+			var index = top.layer.getFrameIndex(window.name);
+			top.layer.close(index);   
+		});
+
+
+		clear.click(function(){
+			$('#resource_body_tbody tr').each(function(){
+				if( $(this).children().eq(0).find('input').length < 1){
+					return true;
+				}
+				$(this).removeClass('new2');
+				$(this).children().eq(0).find('input').prop('checked',false);
+			});
+		});
+
+		table_research.keypress(function(e){
+			let v = $.trim(table_research.val());
+			if(e.keyCode==13){
+				form.resource_head.search(v).draw();
+			}
+		});
+
+		form.resource_ini( config ,search );
+
+	}
 
 
 
-
-
-
-
-
-
-
-	select_tr3('resource_body_table','new2',function(){
-		let rows = $('#resource_body_tbody tr').length;
-		let rows_selected = $('#resource_body_tbody tr.new2').length;
-		if(rows == 0) rows = '-';
-		if(rows_selected == 0) rows_selected = '-';
-		$('#rows').text(rows);
-		$('#rows_selected').text(rows_selected);
-	});
-
-	$('#resource_head_table tbody').on('click','tr',function(){
+	select_tr3('table','new2',function(that){
 		let flag = false;
 		let vendor = '';
-		$('#resource_head_table tbody tr.new2').each(function(i,v){
+		$('#table tbody tr.new2').each(function(i,v){
 			if(i == 0){
 				vendor = $(this).children().eq(3).text();
 			}else{
@@ -198,66 +226,32 @@
 			}
 		});
 		if(flag){
-			$(this).removeClass('new2');
-			$(this).children().eq(0).find('input').eq(0).prop('checked',false);
+			$(that).removeClass('new2');
+			$(that).children().eq(0).find('input').eq(0).prop('checked',false);
 		}else{
 			let o = {};
-			o.id = $(this).data('id');
-			o.resource = JSON.stringify(current_option.resource);
-			
-			if($(this).hasClass('new2')){
-				$.post(detailUrl,o,function(d){
+			o.id = $(that).data('id');
+			log(form.selectedSourceId);
+			o.resource = JSON.stringify(form.selectedSourceId);
+		
+			if($(that).hasClass('new2')){
+				
+				$.post(config.detailUrl,o,function(d){
+					
 					if(d.status == 's'){
-
-						resource_head2.rows.add($(d.data)).draw();
-
-
-						
-
-
-
-
-
-
-						//fresh_selected_rows();
+						form.resource_head2.rows.add($(d.data)).draw();
 					}else{
 						layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
 					}
 				});
 			}else{
-				resource_head2.rows('.id'+o.id).remove().draw();
-				fresh_selected_rows();
+				form.resource_head2.rows('.id'+o.id).remove().draw();
 			}
 		}
 	});
 
-	
-	$('#select_all').click(function(){
-		let flag = $('#resource_body_tbody tr').eq(0).children().eq(0).find('input').prop('checked');
-		if(flag == true){
-			$('#resource_body_tbody tr').removeClass('new2');
-			$('#resource_body_tbody').find('input[type = checkbox]').prop('checked',false);
-			$(this).prop('checked',false);
-		}else{
-			$('#resource_body_tbody tr').addClass('new2');
-			$('#resource_body_tbody').find('input[type = checkbox]').prop('checked',true);
-			$(this).prop('checked',true);
-		}
-	});
-	
 
-	function fresh_selected_rows(){
-		let rows =  resource_head2.column( 0 ).data().length;
-		let rows_selected = $('#resource_body_tbody tr.new2').length;
-		if(rows == 0) rows = '-';
-		if(rows_selected == 0) rows_selected = '-';
-		$('#rows').text(rows);
-		$('#rows_selected').text(rows_selected);
-	}
 
-	//page(resource_query);
-
-	
 	
 	function resource_research(o){
 		let n = parseInt($('#number_page').val());
@@ -269,7 +263,7 @@
 
 	function resource_query(o){	
 		let index = top.layer.load(2,{offset:'30%'});	
-		$.post(searchUrl,o,function(d){
+		$.post(config.search.searchUrl,o,function(d){
 
 			if(d.status == 's'){
 				let head = d.data.tbody;
@@ -285,70 +279,11 @@
 	}
 
 	
-
-	
-	function loaded(confirm,clear,search,imgs){
-
-		confirm.click(function(){
-			let o = {};
-			o.data = [];
-			$('#resource_body_tbody tr.new2').each(function(){
-				let tmp = {};
-				let child = $(this).children();
-			
-				tmp.inventory_code = child.eq(2).text();
-				tmp.inventory_name = child.eq(3).text();
-				tmp.inventory_std  = child.eq(4).text();
-				tmp.inventory_unit = child.eq(5).text();
-				tmp.po_qty = child.eq(6).text();
-				tmp.qty = child.eq(7).text();
-				tmp.arrive_date = child.eq(8).text();
-				tmp.resource_type = type;
-				tmp.resource_listid = $(this).data('listid');
-				tmp.po_ddh = child.eq(1).text();
-				o.data.push(tmp);
-			});
-			
-			get_parent().form.resource_fill(o);
-
-			var index = top.layer.getFrameIndex(window.name);
-			top.layer.close(index);   
-		});
-
-
-	}
-	
-
-	
-	
-	top.$('#resource_confirm').click(function(){
-		let o = {};
-		o.vendor_name = $('#resource_head_table tbody tr.new2').eq(0).children().eq(4).text();
-		o.vendor_code = $('#resource_head_table tbody tr.new2').eq(0).children().eq(3).text();
-		o.purchasetype_name = $('#resource_head_table tbody tr.new2').eq(0).children().eq(5).text();
-		o.purchasetype_code = $('#resource_head_table tbody tr.new2').eq(0).data('purchasetype_code');
-		o.data = [];
-		
-		
-		get_parent().form.resource_fill(o);
-		get_parent().update_totle();
-		
-	});
-
-	
-
 	
 
 
 	
-
 	
-	$('#table_body_research').keypress(function(e){
-		let v = $.trim($(this).val());
-		if(e.keyCode==13){
-			resource_head2.search(v).draw();
-		}
-	});
 
 </script>
 </html>

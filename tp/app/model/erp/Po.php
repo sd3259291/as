@@ -797,15 +797,17 @@ class Po extends Model{
 		
 		$tbody = '';
 		if($r){
-			$checkbox = "";
+			$checkbox = $class = "";
 			foreach($r as $k => $v){
 				
 				if(in_array($v['listid'],$resource)){
-					$checkbox = "";
+					$checkbox = "-";
+					$class = "no_select_tr";
 				}else{
 					$checkbox = "<input type = 'checkbox' class = 'aya-checkbox' />";
+					$class = "";
 				}
-				$tbody .= "<tr class = 'id".$id."' data-listid = ".$v['listid']."><td>".$checkbox."</td><td>".$v['ddh']."</td><td>".$v['inventory_code']."</td><td>".$v['inventory_name']."</td><td>".$v['inventory_std']."</td><td>".$v['unit_name']."</td><td>".($v['qty']*1)."</td><td>".($v['qty'] - $v['arrive_qty'])."</td><td>".$v['arrive_date']."</td></tr>";
+				$tbody .= "<tr class = '$class id".$id."' data-listid = ".$v['listid']."><td>".$checkbox."</td><td>".$v['ddh']."</td><td>".$v['inventory_code']."</td><td>".$v['inventory_name']."</td><td>".$v['inventory_std']."</td><td>".$v['unit_name']."</td><td>".($v['qty']*1)."</td><td>".($v['qty'] - $v['arrive_qty'])."</td><td>".$v['arrive_date']."</td></tr>";
 			}
 		}
 

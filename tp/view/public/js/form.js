@@ -840,6 +840,9 @@ var form  = {
 
 	new_page_ini : function ( config ){
 
+		form.searchOption = {};
+
+
 		window.resource_layero = {};
 
 		form.config = config;
@@ -1007,14 +1010,10 @@ var form  = {
 			code = $(this).find('input.inventory_code').eq(0).val();
 			o.code = code;
 			o.type = $('#erptips').data('type');
-			
 			if(o.type == undefined) return false;
 			if(o.type == 'stock' && o.code == '') return false;
-
 			let  url = window.location.protocol + '//' + window.location.host +  '/a1.php/index/U7/tips'
-
 			$.post(url,o,function(d){
-				
 				$('#erptips').html(d.data);
 			});
 		});
@@ -1028,9 +1027,7 @@ var form  = {
 				let thisconfig = '';
 				$(config.resource[i]['config']).each(function(i,v){
 					thisconfig += v + ',';
-					
 				});
-			
 				if(config != '') thisconfig = thisconfig.substr(0,thisconfig.length - 1);
 				div += "<li class = 'li_new_resource' data-resource_type = '"+config.resource[i]['resource_type']+"' data-config = '"+thisconfig+"' data-url = '"+config.resource[i]['url']+"' data-callback = '"+config.resource[i]['callback']+"'><img src = '"+imgUrl+"blank.png' /><span>"+config.resource[i]['name']+"</span></li>";
 			}
@@ -1077,7 +1074,8 @@ var form  = {
 						window.resource_option.set(resource_type,{});
 					}
 				}
-
+				
+				form.selectedSourceId = [];
 				
 				if($('#save').hasClass('img_on') || ( $('#save').hasClass('img_off') && $('#check').hasClass('img_off') && $('#uncheck').hasClass('img_off') && $('#modify').hasClass('img_off') && $('#save').hasClass('img_off') && $('#dlt').hasClass('img_off')  )){
 					
@@ -1099,6 +1097,7 @@ var form  = {
 							tmp.resource_type = $(this).data('resource_type');
 							if(resource_type == tmp.resource_type && tmp.resource_listid > 0){
 								conOb.resource.push(tmp.resource_listid);
+								form.selectedSourceId.push(tmp.resource_listid);
 							}
 							
 						});
@@ -1119,10 +1118,13 @@ var form  = {
 					content:url,
 					success:function(layero, index){
 						resource_layero = top[layero.find('iframe')[0]['name']];
-						resource_layero.config = config;
+						//resource_layero.config = config;
 						let h = '<div class = "row resource_icon_con" style = "padding:0;font-size:12px;height:42px;width:800px;position:absolute;top:0;left:200px"><div class = "col s8"> <span id = "resource_confirm"  class = "resource_icon img_on"><span >确定</span> <img src = "'+imgUrl+'confirm.png"  class = "height18" /></span> <span id = "resource_clear" class = "resource_icon img_on"><span >清除</span> <img src = "'+imgUrl+'clear.png"  class = "height18" /></span><span id = "resource_research" class = "resource_icon img_on"><span >查询</span> <img src = "'+imgUrl+'research.png"  class = "height18" /></span></div><div class ="col s4"><span  style = "position:relative"><input id = "table_research" type = "text" class = " aya-input" style = " text-indent:10px;padding-right:20px;width:200px;margin-top:5px" placeholder = "表单内搜素" /><img src = "'+top.publicUrl+'/image/search.png"  class = "height18" style = "position:absolute;right:0;top:0px" /></span></div></div>';
 						layero.append(h);
-						top[layero.find('iframe')[0]['name']].loaded(layero.find('#resource_confirm'),layero.find('#resource_clear'),layero.find('#resource_research'),layero.find('img'));
+						top[layero.find('iframe')[0]['name']].loaded(layero.find('#resource_confirm'),layero.find('#resource_clear'),layero.find('#resource_research'),layero.find('#table_research'));
+						top[layero.find('iframe')[0]['name']].form.selectedSourceId = form.selectedSourceId;
+						
+						
 						
 					}
 				});
@@ -1286,7 +1288,96 @@ var form  = {
 		
 	},
 
-	list_ini : function (config){
+	selectedInfo : function(){
+		let rows = $('#resource_body_tbody tr').length;
+		let rows_selected = $('#resource_body_tbody tr.new2').length;
+		if(rows == 0) rows = '-';
+		if(rows_selected == 0) rows_selected = '-';
+		$('#rows').text(rows);
+		$('#rows_selected').text(rows_selected);
+	},
+
+	resource_ini : function( config,super_search_button ){
+
+		form.searchOption = {};
+		form.superSearchOption = null;
+		form.superSearchSelectOption = null;
+
+		form.config = config;
+		
+		page(config.search.url,form.resource_head,form.searchOption);
+
+	
+		form.resource_head2 = $('#resource_body_table').DataTable(setting2);
+		form.list_table = form.resource_head;
+
+		$('#select_all').click(function(){
+			let selectAll = true;
+			$('#resource_body_tbody tr').each(function(){
+				if( $(this).children().eq(0).find('input').length == 1 && !$(this).children().eq(0).find('input').is(':checked') ){
+					selectAll = false;
+					return false;
+				}
+			});
+			if(selectAll){
+				$('#resource_body_tbody').find("input[type='checkbox']").each(function(){
+					$(this).prop('checked',false);
+					$(this).parents('tr').removeClass('new2');
+				});
+				$('#select_all').prop('check',false);
+			}else{
+				$('#resource_body_tbody').find("input[type='checkbox']").each(function(){
+					$(this).prop('checked',true);
+					$(this).parents('tr').addClass('new2');
+				});
+				$('#select_all').prop('check',true);
+			}
+			form.selectedInfo();
+			return false;
+		});
+
+		select_tr3('resource_body_table','new2',function(){form.selectedInfo()});
+
+		$('#table_body_research').keypress(function(e){
+			let v = $.trim($(this).val());
+			if(e.keyCode==13){
+				form.resource_head2.search(v).draw();
+				selectedInfo();
+			}
+		});
+
+
+		if(get_parent().form.searchOption[config.name] == null){//第一次打开选单号
+			
+			form.searchOption = get_parent().resource_option.get(config.name);
+			get_parent().form.searchOption[config.name] = form.searchOption;
+			
+		}else{
+			form.searchOption = get_parent().form.searchOption[config.name];
+		}
+
+		page_callback(config.search.url,form.resource_head,form.searchOption);
+
+
+		$(super_search_button).click(function(){
+			if( form.superSearchSelectOption == null ){
+				let o = {};
+				o.name = form.config.name;
+				$.post(top.mainUrl + '/PublicGet/getOptions',o,function(d){
+					form.superSearchSelectOption = d.data;
+					form.super_search_frame( form.superSearchSelectOption );
+				});
+			}else{
+
+				form.super_search_frame( form.superSearchSelectOption );
+			}
+		});
+
+		
+	},
+
+	list_ini : function (config ){
+
 
 		form.searchOption = {};
 
@@ -1398,7 +1489,6 @@ var form  = {
 		});
 
 		$('#super_search').click(function(){
-
 			if( form.superSearchSelectOption == null ){
 				let o = {};
 				o.name = form.config.name;
@@ -1406,7 +1496,6 @@ var form  = {
 					form.superSearchSelectOption = d.data;
 					form.super_search_frame( form.superSearchSelectOption );
 				});
-
 			}else{
 				form.super_search_frame( form.superSearchSelectOption );
 			}
@@ -1428,7 +1517,6 @@ var form  = {
 					top.mainPage.add_iframe(url + '?ddh=' + ddh ,ttl,id,ddh);
 				}
 			}
-		
 			
 		});
 
@@ -1481,6 +1569,8 @@ var form  = {
 			}
 			
 		});
+
+	
 		
 		let imgUrl = top.publicUrl + '/image/erp/';
 
@@ -1498,7 +1588,6 @@ var form  = {
 						if(vv.relation){
 							// 有关联的INPUT ，例如 inventory ,只显示inventory_name，而inventory_code 隐藏起来
 
-							
 							content += "<div class = 'col s2' style = 'text-align:right;line-height:32px'>"+vv.name+"</div><div class= 'col s4 relative option-container2' ><div><input type = 'text' data-type = '"+vv.type+"' data-type2 = '"+(vv.type2?vv.type2:'')+"'  data-option = '"+vv.option+"' class = 'aya-input border-bottom erp "+vv.clas+"' style = 'width:100%'   />";
 
 							content += "<img src = '"+imgUrl+"selectu8.png' class = 'input-hint height14 img-vendor select'/>";
@@ -1566,8 +1655,6 @@ var form  = {
 								
 							});
 
-
-
 							top.layer.msg('设置成功',{'icon':1,time:1500,offset:'30%'});
 						}else{
 							top.layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
@@ -1583,8 +1670,17 @@ var form  = {
 					form.set_super_option( $(this).val() );
 				});
 
-				if( form.superSearchOption != null ){
-					form.set_super_search_option( form.superSearchOption );
+				let tmpOption ;
+
+				if(form.config.type == 'resource'){
+					tmpOption = get_parent().form.searchOption[form.config.name];
+				}else if(form.config.type == 'list'){
+					tmpOption = form.superSearchOption;
+				}
+			
+				if( tmpOption != null ){
+					
+					form.set_super_search_option( tmpOption );
 					let tmp = form.get_option('#option-container');
 					delete tmp.merge;
 					tmp = JSON.stringify(tmp);
@@ -1646,8 +1742,12 @@ var form  = {
 				});
 					
 				top.$('#condition_confirm').click(function(){
+					
 					form.superSearchOption = form.get_option(top.$('#option-container'));
 					form.searchOption = form.superSearchOption;
+					if(form.config.type == 'resource'){
+						get_parent().form.searchOption[form.config.name] = form.superSearchOption;
+					}
 					$('#search').removeClass('searchedButton');
 					$('#super_search').addClass('searchedButton');
 					form.search();
@@ -1703,7 +1803,11 @@ var form  = {
 	},
 
 	set_super_search_option : function(option){
-		$('#option-container').find('input').each(function(){
+
+		
+		
+		top.$('#option-container').find('input').each(function(){
+			
 			let tmp = $(this).data('option');
 			if( tmp && option[ tmp ]){
 				$(this).val(option[tmp]).data('d',option[tmp]);
@@ -2704,20 +2808,20 @@ var form  = {
 	},
 
 	search : function (o = {}){
-		
+
 		o = $.extend(o,form.searchOption);
 		o = $.extend(o,get_page());
 		o.merge = $('#merge').hasClass('merged')?1:0;
-
-		
-
 
 		form.query(o);	
 	},
 
 	query : function (o){
+		
 		if(typeof o.page == 'undefined') o.page = 1;
 		let index = parent.layer.load(2,{offset:['20%']});
+
+		
 
 		$.post(form.config.search.url,o,function(d){
 
