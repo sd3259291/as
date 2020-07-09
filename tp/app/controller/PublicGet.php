@@ -365,6 +365,21 @@ class PublicGet extends BaseController{
 	public function dltOption(ErpOption $o){
 		return $o->dltOption($_POST);
 	}
+	public function getDefaultOption($names){
+		$dft = [];
+		foreach($names as $k => $v){
+			$dft[$v] = null;
+		}
+		$r = Db::table('s_erp_option')->where("dft = 1 && username = '".Session::get('userinfo')['username']."' && name in (".get_w($names).")")->field('name,option')->select();
+		
+		if($r){
+			foreach($r as $k => $v){
+				$dft[$v['name']] = json_decode($v['option'],true);
+			}
+		}
+		return $dft;
+		
+	}
 
 	public function excel($excel,$data){
 		$spreadsheet = new Spreadsheet();
@@ -395,7 +410,6 @@ class PublicGet extends BaseController{
 	}
 
 	public function download(){
-		
 		$path = $_GET['path'];
 		$name = $_GET['name'];
 		$url = $path.$name;
@@ -404,8 +418,6 @@ class PublicGet extends BaseController{
 		if ( !file_exists ( $url )) {
 			echo "文件找不到";
 		} else {
-			
-
 			//打开文件
 			$file = fopen ( $url, "r" );
 			//输入文件标签
@@ -419,8 +431,9 @@ class PublicGet extends BaseController{
 			fclose ( $file );
 
 		}
-
 	}
+
+
 	
 	
 }

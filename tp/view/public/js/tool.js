@@ -385,7 +385,7 @@ function page_callback(url,table,o){
 		o.page = 1;
 	}
 	
-	let index = layer.load(1,{offset:['30%']});
+	let index = layer.load(1);
 	$.post(url,o,function(d){
 		if(d.status == 's'){
 			set_page(d.data.page);

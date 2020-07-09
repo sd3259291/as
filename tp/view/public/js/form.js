@@ -842,6 +842,7 @@ var form  = {
 
 		form.searchOption = {};
 
+		if(config.defaultResourceSearchOption) form.searchOption = config.defaultResourceSearchOption;
 
 		window.resource_layero = {};
 
@@ -856,6 +857,8 @@ var form  = {
 				 ayaResearch.show();
 			}
 		});
+
+		
 
 		$('#print').click(function(){form.print_prepare();window.print();});
 
@@ -1031,9 +1034,9 @@ var form  = {
 				if(config != '') thisconfig = thisconfig.substr(0,thisconfig.length - 1);
 				div += "<li class = 'li_new_resource' data-resource_type = '"+config.resource[i]['resource_type']+"' data-config = '"+thisconfig+"' data-url = '"+config.resource[i]['url']+"' data-callback = '"+config.resource[i]['callback']+"'><img src = '"+imgUrl+"blank.png' /><span>"+config.resource[i]['name']+"</span></li>";
 			}
-			if(typeof config.research != 'undefined'){
+			//if(typeof config.research != 'undefined'){
 				//ayaResearch.ini(config);
-			}
+			//}
 		}
 		
 		
@@ -1061,8 +1064,6 @@ var form  = {
 
 				//if($('#recoil').hasClass('img_on')) return false;
 
-
-
 				let url = $(this).data('url');
 				let name = $(this).text();
 				let config2 = $(this).data('config').split(',');
@@ -1087,7 +1088,6 @@ var form  = {
 					});
 
 					conOb.resource = [];
-
 					
 					if($('#save').hasClass('img_on')){
 
@@ -1099,14 +1099,12 @@ var form  = {
 								conOb.resource.push(tmp.resource_listid);
 								form.selectedSourceId.push(tmp.resource_listid);
 							}
-							
 						});
 					}
 					
 					window.resource_option.set(resource_type,conOb);
 				}
 
-				
 			
 				top.layer.open({
 					title:'<span class	= "hint1" style = "font-size:12px">源单<span>',
@@ -1123,12 +1121,10 @@ var form  = {
 						layero.append(h);
 						top[layero.find('iframe')[0]['name']].loaded(layero.find('#resource_confirm'),layero.find('#resource_clear'),layero.find('#resource_research'),layero.find('#table_research'));
 						top[layero.find('iframe')[0]['name']].form.selectedSourceId = form.selectedSourceId;
-						
-						
-						
 					}
 				});
 			}
+
 			$('#div_resource').hide();
 		});	
 
@@ -1307,8 +1303,7 @@ var form  = {
 		
 		page(config.search.url,form.resource_head,form.searchOption);
 
-	
-		form.resource_head2 = $('#resource_body_table').DataTable(setting2);
+		
 		form.list_table = form.resource_head;
 
 		$('#select_all').click(function(){
@@ -1348,16 +1343,13 @@ var form  = {
 
 
 		if(get_parent().form.searchOption[config.name] == null){//第一次打开选单号
-			
 			form.searchOption = get_parent().resource_option.get(config.name);
 			get_parent().form.searchOption[config.name] = form.searchOption;
-			
 		}else{
 			form.searchOption = get_parent().form.searchOption[config.name];
 		}
 
 		page_callback(config.search.url,form.resource_head,form.searchOption);
-
 
 		$(super_search_button).click(function(){
 			if( form.superSearchSelectOption == null ){
@@ -1368,7 +1360,6 @@ var form  = {
 					form.super_search_frame( form.superSearchSelectOption );
 				});
 			}else{
-
 				form.super_search_frame( form.superSearchSelectOption );
 			}
 		});
@@ -1567,11 +1558,8 @@ var form  = {
 			}else{
 				tmp += "<option value = '"+v.id+"' >"+v.title+"</option>";
 			}
-			
 		});
 
-	
-		
 		let imgUrl = top.publicUrl + '/image/erp/';
 
 		let content = "<div id = 'option-container'><div class = 'row' style = 'margin:0;padding:0'><div class = 'col s12'><div class = 'row' style = 'border-bottom:2px solid #428bca;padding:20px 20px'><div class = 'col s1'><img src = '"+imgUrl+"condition.png'  class = 'height24' /></div><div class = 'col s5'><select class = 'browser-default' id = 'condition'><option value = ''>无方案</option>"+tmp+"</select></div><div class = 'col s6 btn-group'><button class = 'btn btn-primary height32' id = 'condition_confirm'>确认</button><button class = 'btn btn-default height32' id = 'condition_set_default'>设为默认</button><button class = 'btn btn-default height32' id = 'condition_save'>保存方案</button><button class = 'btn btn-default height32' id = 'condition_dlt'>删除方案</button></div></div></div></div>";
@@ -1679,14 +1667,15 @@ var form  = {
 				}
 			
 				if( tmpOption != null ){
-					
+
 					form.set_super_search_option( tmpOption );
-					let tmp = form.get_option('#option-container');
+					let tmp = form.get_option($(layero).find('#option-container'));
 					delete tmp.merge;
+					
 					tmp = JSON.stringify(tmp);
 					$.each(form.superSearchSelectOption,function(k,v){
 						if( v.option == tmp){
-							top.$('#option-container #condition').val(v.id);
+							$(layero).find('#option-container #condition').val(v.id);
 						}
 					});
 				}else{
@@ -1774,8 +1763,7 @@ var form  = {
 										form.superSearchSelectOption.push(d.data);
 										top.$('#option-container #condition').append("<option data-dft value = '"+d.data.id+"'>"+d.data.title+"</option>");
 
-										log(d);
-										log(form.superSearchSelectOption,false);
+										
 									}else{
 										for(let i = 0; i<form.superSearchSelectOption.length ; i++){
 											if( form.superSearchSelectOption[i].id == d.data.id){
@@ -1855,7 +1843,7 @@ var form  = {
 
 		if(o.ddh == '') return false;
 
-		let index = parent.layer.load(2,{offset:'30%'});
+		let index = parent.layer.load(1,{offset:'30%'});
 
 		$.post(form.config.get.url,o,function(d){
 			
@@ -1997,7 +1985,7 @@ var form  = {
 		}
 		
 		o.type = 'check';
-		let index = layer.load(2,{offset:'30%'});
+		let index = layer.load(1,{offset:'30%'});
 		
 		$.post(form.config.canModify.url,o,function(d){
 			if(d.status == 's'){
@@ -2600,7 +2588,7 @@ var form  = {
 			}
 
 			parent.layer.close(index);
-			let index2 = parent.layer.load(2,{offset:'30%'});
+			let index2 = parent.layer.load(1,{offset:'30%'});
 
 			
 			$.post(form.config.dlt.url,o,function(d){
@@ -2742,10 +2730,14 @@ var form  = {
 
 	resource_fill : function (o){
 		let P = get_parent();
+		
 		if(o.data.length == 0) return false;
 		if(P.$('#save').hasClass('img_off')){
 				P.form.n();
 		}
+
+	
+
 		for(let k in o){
 			if(k != 'data'){
 				if(P.$('#'+k).data('last') != undefined){
@@ -2773,6 +2765,7 @@ var form  = {
 						if(kk == 'resource_type'){
 							 P.$('#tbody tr').eq(i).data('resource_type',data[kk]);
 						}else if(kk == 'resource_listid'){
+							
 							 P.$('#tbody tr').eq(i).data('resource_listid',data[kk]);
 						}else{
 							let ipt = P.$('#tbody tr').eq(i).find('.'+kk).eq(0);
@@ -2819,7 +2812,7 @@ var form  = {
 	query : function (o){
 		
 		if(typeof o.page == 'undefined') o.page = 1;
-		let index = parent.layer.load(2,{offset:['20%']});
+		let index = parent.layer.load(1,{offset:['20%']});
 
 		
 
@@ -2883,7 +2876,11 @@ var form  = {
 			});
 			tmp.index =   $(this).children().eq(0).text();
 			tmp.listid = $(this).data('listid')?$(this).data('listid'):'';
+			tmp.resource_type = $(this).data('resource_type')?$(this).data('resource_type'):'';
+			tmp.resource_listid = $(this).data('resource_listid')?$(this).data('resource_listid'):'';
+
 			let a = true;
+			
 			$(form.config.saveField.listMust).each(function(i,v){
 				if(tmp[v] == ''){
 					 a = false;

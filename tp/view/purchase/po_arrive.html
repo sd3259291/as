@@ -256,10 +256,14 @@
 
 
 
+	
 
-	var resource_layero = {};
+	
+	
 
 	var erpConfig = {
+
+		defaultResourceSearchOption : {$resource_dft|raw},
 
 		type : 'page',  // page or list
 		
@@ -272,11 +276,11 @@
 		head:[
 			{type : 'date' , id : 'date' , callback:''},
 			{type : 'text' , id : 'maker', callback:''},
-			{type : 'erp'  , type2 : 'vendor' , id : 'vendor_name', callback:''},
+			{type : 'erp'  , type2 : 'vendor' , id : 'vendor_name'},
 			
 		],
 		body:[
-			{type : 'erp' , type2:'inventory',callback : update_price},
+			{type : 'erp' , type2:'inventory' },
 			
 		],
 		dataTableConfig:{scrollX:true,autoWidth:false,bAutoWidth: false},
@@ -289,31 +293,31 @@
             }
 		],
 		get:{
-			url : '__APP__/purchase/getPo',
+			url : '__APP__/purchase/getPoArrive',
 			callback : ''
 		},
 		canModify:{
-			url : '__APP__/purchase/canModifyPo',
+			url : '__APP__/purchase/canModifyPoArrive',
 			callback : ''
 		},
 		check:{
-			url : '__APP__/purchase/checkPo',
+			url : '__APP__/purchase/checkPoArrive',
 			callback : ''
 		},         
 		uncheck:{
-			url : '__APP__/purchase/uncheckPo',
+			url : '__APP__/purchase/uncheckPoArrive',
 			callback : ''
 		},       
 		dlt:{
-			url : '__APP__/purchase/dltPo',
+			url : '__APP__/purchase/dltPoArrive',
 			callback : ''
 		},             
-		nextPrev : '__APP__/purchase/nextPrevPo',
-		save : { url : '__APP__/Purchase/savePo' },
+		nextPrev : '__APP__/purchase/nextPrevPoArrive',
+		save : { url : '__APP__/Purchase/savePoArrive' },
 		saveField : {
 			main : ['date','remark','vendor_code'],
 			listMust : ['inventory_code'],
-			list : ['inventory_code','price','tax','tax_price','arrive_date','qty']
+			list : ['inventory_code','qty']
 		},
 	};
 
@@ -321,112 +325,7 @@
 	
 	form.new_page_ini(erpConfig);
 
-	$('#new').trigger('click');
-
-	$('#tbody tr input.qty').keyup(function(){
-		change_ptq(this);
-	});
-
-	$('#tbody tr input.price').keyup(function(){
-		change_ptq(this);
-	});
-
-
-	$('#tbody tr input.tax_price').keyup(function(){
-		change_ptq2(this);
-	});
-
-
-	function update_price(updated_tr_index){
-		let o = {};
-		let oo = [];
-
-		$(updated_tr_index).each(function(i,v){
-			let tmp = {};
-			tmp.vendor_code = $('#vendor_code').val();
-			tmp.inventory_code = $.trim( $('#tbody tr').eq( updated_tr_index ).find('input.inventory_code').val() );
-			tmp.index  = v;
-			if(tmp.code != '') oo.push(tmp);
-		});
-		
-		if(oo.length > 0){
-			o.data = JSON.stringify(oo);
-			$.post('__APP__/purchase/getVendorPriceByData',o,function(d){
-				if(d.status == 's'){
-
-					for(let i = 0; i < oo.length ; i++){
-
-						if( d.data[oo[i].index] ){
-							$('#tbody').children().eq(oo[i].index).find('.price').val(d.data[oo[i].index]['origin_price']);
-							$('#tbody').children().eq(oo[i].index).find('.tax').val(d.data[oo[i].index]['origin_tax']);
-						}else{
-							$('#tbody').children().eq(oo[i].index).find('.price').val('');
-						}
-						change_ptq($('#tbody').children().eq(oo[i].index).find('.price'));
-					}
-				}else{
-					layer.msg(d.info,{time:2000,offset:'30%'});
-				}
-			});
-		}else{
-			
-		}
-	}
 	
-	
-
-	function change_ptq(t){
-		let tr = $(t).parents('tr');
-		let price = parseFloat($.trim(tr.find('.price').val()));
-		let tax = parseInt(tr.find('.tax').val());
-		let qty = parseFloat($.trim(tr.find('.qty').val()));
-		
-		if( isNaN(price)){
-			tr.find('.sum').val('');
-			tr.find('.tax_price').val('');
-		}else{
-			let tax_price = decimal(price * ( 1 + tax / 100 ),2);
-			tr.find('.tax_price').val( tax_price );
-			if(isNaN(qty)){
-				tr.find('.sum').val( '' );
-			}else{
-				let sum = decimal( tax_price * qty,2 );
-				tr.find('.sum').val( sum );
-			}
-		}
-	}
-
-	function change_ptq2(t){
-		let tr = $(t).parents('tr');
-		let tax_price = parseFloat($.trim(tr.find('.tax_price').val()));
-		let tax = parseInt(tr.find('.tax').val());
-		let qty = parseFloat($.trim(tr.find('.qty').val()));
-		
-		if( isNaN(tax_price)){
-			tr.find('.sum').val('');
-			tr.find('.price').val('');
-		}else{
-			let price = decimal(tax_price / ( 1 + tax / 100 ),2);
-			tr.find('.price').val( price );
-			if(isNaN(qty)){
-				tr.find('.sum').val( '' );
-			}else{
-				let sum = decimal( tax_price * qty,2 );
-				tr.find('.sum').val( sum );
-			}
-		}
-	}
-
-	$('#tbody').on('click','.img-syn',function(d){
-		let date = $(this).parents('td').find('input').val();
-		if(date == '') return false;
-		$('#tbody tr').each(function(){
-			if($(this).find('.inventory_code').val() != ''){
-				$(this).find('.arrive_date').val(date);
-			}
-		});
-		
-	});
 
 	
 

@@ -83,8 +83,10 @@
 
 
 								<div class = 'col s1'>
-									<div class = 'resource-tip'>
-										表单明细
+									<div class = 'resource-tip' style = 'padding-top:0'>
+										<button class = 'btn btn-default btn-default-1' id = 'confirm'>  <i class="material-icons text-color2" style = 'color:' >save</i> 确定</button>
+
+										<div style = 'padding-top:40px'>表单明细</div>
 									</div>
 								</div>
 								
@@ -156,46 +158,56 @@
 	var setting = {paging: false,scrollY: h1 * 0.45,info:false,dom:'t',};
 	var setting2 = {paging: false,scrollY: h1 * 0.55,info:false,dom:'t',columnDefs: [{ "orderable": false, "targets": 0 }]};	
 	form.resource_head = $('#table').DataTable(setting);
+	form.resource_head2 = $('#resource_body_table').DataTable(setting2);
 
 	// ---------------------------------------------------------------//
 
 
+	function resource_confirm(){
+
+		
+
+		let o = {};
+
+        o.vendor_name = $('#table tbody tr.new2').eq(0).children().eq(4).text();
+        o.vendor_code = $('#table tbody tr.new2').eq(0).children().eq(3).text();
+
+		o.data = [];
+		$('#resource_body_tbody tr').each(function(){
+			if( $(this).children().eq(0).find('input').length < 1 || !$(this).children().eq(0).find('input').is(':checked')){
+				return true;
+			}
+			let tmp = {};
+			let child = $(this).children();
+			tmp.inventory_code = child.eq(2).text();
+			tmp.inventory_name = child.eq(3).text();
+			tmp.inventory_std  = child.eq(4).text();
+			tmp.inventory_unit = child.eq(5).text();
+			tmp.po_qty = child.eq(6).text();
+			tmp.qty = child.eq(7).text();
+			tmp.arrive_date = child.eq(8).text();
+			tmp.resource_type = config.name;
+			tmp.resource_listid = $(this).data('listid');
+			tmp.po_ddh = child.eq(1).text();
+			o.data.push(tmp);
+		});
+		get_parent().form.resource_fill(o);
+		var index = top.layer.getFrameIndex(window.name);
+		top.layer.close(index);   
+	}
+
+	$('#confirm').click(function(){resource_confirm();});
+
+
 	function loaded(confirm,clear,search,table_research){
 		confirm.click(function(){
-			let o = {};
-			o.data = [];
-			$('#resource_body_tbody tr').each(function(){
-				if( $(this).children().eq(0).find('input').length < 1 || !$(this).children().eq(0).find('input').is(':checked')){
-					return true;
-				}
-				let tmp = {};
-				let child = $(this).children();
-				tmp.inventory_code = child.eq(2).text();
-				tmp.inventory_name = child.eq(3).text();
-				tmp.inventory_std  = child.eq(4).text();
-				tmp.inventory_unit = child.eq(5).text();
-				tmp.po_qty = child.eq(6).text();
-				tmp.qty = child.eq(7).text();
-				tmp.arrive_date = child.eq(8).text();
-				tmp.resource_type = config.type;
-				tmp.resource_listid = $(this).data('listid');
-				tmp.po_ddh = child.eq(1).text();
-				o.data.push(tmp);
-			});
-			get_parent().form.resource_fill(o);
-			var index = top.layer.getFrameIndex(window.name);
-			top.layer.close(index);   
+			resource_confirm();
 		});
 
-
 		clear.click(function(){
-			$('#resource_body_tbody tr').each(function(){
-				if( $(this).children().eq(0).find('input').length < 1){
-					return true;
-				}
-				$(this).removeClass('new2');
-				$(this).children().eq(0).find('input').prop('checked',false);
-			});
+			$("#resource_head_tbody tr input[type='checkbox']").prop('checked',false);
+			$("#resource_head_tbody tr.new2").removeClass('new2');
+			form.resource_head2.clear().draw();
 		});
 
 		table_research.keypress(function(e){
@@ -231,18 +243,18 @@
 		}else{
 			let o = {};
 			o.id = $(that).data('id');
-			log(form.selectedSourceId);
+			
 			o.resource = JSON.stringify(form.selectedSourceId);
 		
 			if($(that).hasClass('new2')){
-				
+				let index = layer.load(2);
 				$.post(config.detailUrl,o,function(d){
-					
 					if(d.status == 's'){
 						form.resource_head2.rows.add($(d.data)).draw();
 					}else{
 						layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
 					}
+					layer.close(index);
 				});
 			}else{
 				form.resource_head2.rows('.id'+o.id).remove().draw();
@@ -251,32 +263,6 @@
 	});
 
 
-
-	
-	function resource_research(o){
-		let n = parseInt($('#number_page').val());
-		if(isNaN(n) || n <= 0 ) n = $('#number_page').data('d');
-		o.n = n;
-		o.page = 1;
-		resource_query(o);
-	}
-
-	function resource_query(o){	
-		let index = top.layer.load(2,{offset:'30%'});	
-		$.post(config.search.searchUrl,o,function(d){
-
-			if(d.status == 's'){
-				let head = d.data.tbody;
-				let page = d.data.page;
-				resource_head.clear();
-				resource_head.rows.add($(head)).draw();
-				set_page(page);
-			}else{
-				layer.msg(d.info,{'icon':2,time:2000,offset:'30%'});
-			}
-			top.layer.close(index);
-		});
-	}
 
 	
 	

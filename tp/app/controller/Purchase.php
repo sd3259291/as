@@ -10,6 +10,8 @@ use app\model\erp\VendorPriceJust;
 use app\model\erp\VendorPrice;
 use app\model\erp\Po;
 use app\model\erp\PoList;
+use app\controller\PublicGet;
+use app\model\erp\PoArrive;
 
 class Purchase
 {
@@ -185,7 +187,6 @@ class Purchase
      * 源单 采购订单 -> 到货单 明细
      */
 	public function resourcePoToPoArriveDetail(Po $p){
-	
 		return $p->resourcePoToPoArriveDetail($_POST);
 	}
 
@@ -193,9 +194,18 @@ class Purchase
      * 到货单 - 新增
      */
 	public function poArrive(){
+		$resource_name = ['potopoarrive'];
+		$pg = new PublicGet;
+		View::assign('resource_dft',json_encode($pg->getDefaultOption($resource_name)));
 		return View::fetch();
 	}
-
+	/**
+     * 到货单 - 保存
+     */
+	public function savePoArrive(PoArrive $pa){
+		gp();
+		return $pa->saveBill($_POST);
+	}
 	
 
 
