@@ -2426,11 +2426,12 @@ var form  = {
 							layer.msg('弃审成功！',{icon:1,time:1500,offset:'30%'});
 							form.ddh();
 						}else{
-							layer.msg( v.msg ,{icon:2,time:2000,offset:'30%'});
+							layer_error( {info :v.msg} );
 						}
 					});
 						
 				}else{
+					
 						let length = 0;
 						$.each(d.data,function(k,v){length++});
 						if( length == 1 ){
@@ -2874,7 +2875,7 @@ var form  = {
 			$(form.config.saveField.list).each(function(i,v){
 				tmp[v] = $.trim( $(that).find('.' + v).eq(0).val() );
 			});
-			tmp.index =   $(this).children().eq(0).text();
+			tmp.index =   $(this).index() + 1;
 			tmp.listid = $(this).data('listid')?$(this).data('listid'):'';
 			tmp.resource_type = $(this).data('resource_type')?$(this).data('resource_type'):'';
 			tmp.resource_listid = $(this).data('resource_listid')?$(this).data('resource_listid'):'';

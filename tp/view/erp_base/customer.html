@@ -136,7 +136,7 @@
 						let o = get_page();
 						o.basicClassId = treeNode.id;
 						app.searchOption.basicClassId = treeNode.id;
-						page_callback(o,'__APP__/ErpBase/getCustomer',app.table);
+						page_callback('__APP__/ErpBase/getCustomer',app.table,o);
 					},
 				}
 			};

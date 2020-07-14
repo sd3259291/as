@@ -17,7 +17,8 @@ class Inventory extends Model{
 		'basic_class_id' => 'int',
 		'end_date' => 'date',
 		'create_date' => 'date',
-		'maker' =>'varchar'
+		'maker' =>'varchar',
+		'is_qc' => 'tinyint'
 	];
 
 	public function tree(){

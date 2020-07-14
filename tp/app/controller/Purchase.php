@@ -10,8 +10,8 @@ use app\model\erp\VendorPriceJust;
 use app\model\erp\VendorPrice;
 use app\model\erp\Po;
 use app\model\erp\PoList;
-use app\controller\PublicGet;
 use app\model\erp\PoArrive;
+use app\controller\PublicGet;
 
 class Purchase
 {
@@ -114,6 +114,7 @@ class Purchase
      * 采购订单 - 保存
      */
 	public function savePo(Po $p){
+		gp();
 		return $p->saveBill($_POST);
 	}
 	/**
@@ -126,13 +127,12 @@ class Purchase
      * 删除采购订单
      */
 	public function dltPo(Po $p){
-
 		return $p->dltBill($_POST);
 	}
 	/**
      * 是否可以删除 采购订单
      */
-	public function canPo(Po $p){
+	public function canModifyPo(Po $p){
 		return $p->canModify($_POST);
 	}
 	/**
@@ -203,10 +203,45 @@ class Purchase
      * 到货单 - 保存
      */
 	public function savePoArrive(PoArrive $pa){
-		gp();
 		return $pa->saveBill($_POST);
 	}
+	/**
+     * 根据订单号等，获取采购才货单
+     */
+	 public function getPoArrive(PoArrive $pa){
+		return $pa->get($_POST);
+	 }
+	 /**
+     * 获取下一个，上一个采购到货单
+     */
+	public function nextPrevPoArrive(PoArrive $pa){
+		return $pa->nextPrev($_POST);
+	}
+	/**
+     * 审核采购到货单
+     */
+	public function checkPoArrive(PoArrive $pa){
+		return $pa->checkBill($_POST);
+	}
+	/**
+     * 弃审采购到货单
+     */
+	public function uncheckPoArrive(PoArrive $pa){
+		return $pa->uncheckBill($_POST);
+	}
+	/**
+     * 删除采购到货单
+     */
+	public function dltPoArrive(PoArrive $pa){
+		return $pa->dltBill($_POST);
+	}
+
 	
+
+	public function test(){
+		dump(Cache::get('tmp1'));
+	}
+
 
 
 

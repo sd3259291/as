@@ -4,10 +4,8 @@ use think\Model;
 use think\facade\Session;
 use think\facade\Db;
 use think\facade\Cache;
-use app\validate\erp\PoValidate;
-use app\validate\erp\PoListValidate;
-use think\exception\ValidateException;
 use app\model\erp\ErpConfig;
+use app\model\erp\PoArriveList;
 use app\model\erp\PoList;
 use app\controller\Fs;
 use app\model\erp\VendorPrice;
@@ -42,14 +40,14 @@ class PoArrive extends Model{
 		$r = Vendor::where("code = '".$main->vendor_code."'")->find()->toArray();
 		$main->vendor_name = $r['name'];
 		if(!$main) return a('','表单不存在','e');
-		$list = Db::table('s_po_list')->alias('a')->join('s_inventory i','a.inventory_code = i.code')->join('s_unit u','i.unit_id = u.id')->where('a.id = '.$main->id)->field('a.listid,a.inventory_code,i.name inventory_name,i.std inventory_std,u.name inventory_unit,a.price,a.tax,a.tax_price,a.qty,a.arrive_date,a.sum')->select()->toArray();
+		$list = Db::table('s_po_arrive_list')->alias('a')->join('s_inventory i','a.inventory_code = i.code')->join('s_unit u','i.unit_id = u.id')->leftJoin('s_po_list p','a.resource_listid = p.listid')->where('a.id = '.$main->id)->field('a.listid,a.inventory_code,i.name inventory_name,i.std inventory_std,u.name inventory_unit,a.qty,a.po_ddh,p.arrive_date,p.qty po_qty')->select()->toArray();
 		$main = $main->toArray();
 		if($main['flow_id'] > 0){
 			$fs = new Fs;
 			$tmp = $fs->check1($main['flow_id']);
 			$main = array_merge($main,$tmp);
 		}
-		$zero = ['price','tax_price','qty','sum'];
+		$zero = ['qty','po_qty'];
 		return a($this->dlt_zero($list,$zero),$main,'s');
 	}
 
@@ -80,8 +78,12 @@ class PoArrive extends Model{
 		foreach($ddh as $k => $v){
 			$checkResult[$v] = [ 'ok' => false , 'msg' => '表单不存在' ];
 		}
-
+		
+		$listIds = [];
 		$r = $this::where("ddh in (".get_w($ddh).")")->field('id,ddh,status,maker_number,flow_id,update_time')->select()->toArray();
+		foreach($r as $k => $v){
+			$listIds[$v['id']] = $v['ddh'];
+		}
 
 		$flowsId = array();
 		
@@ -142,6 +144,8 @@ class PoArrive extends Model{
 
 		}else if($type == 'uncheck'){
 
+			
+
 			foreach($r as $k => $v){
 				if($v['flow_id']){
 					if($v['status'] >= 9){
@@ -177,6 +181,12 @@ class PoArrive extends Model{
 					$checkResult[$ddh[0]] = ['ok' => false ,'msg' => '订单已被修改，请重新载入'];
 				}
 			}
+
+			if(count($listIds) > 0){
+				
+			}
+
+			
 			
 		}else if($type == 'modify'){
 
@@ -211,47 +221,43 @@ class PoArrive extends Model{
 			'remark' => trim($post['remark']),
 			'vendor_code' => $post['vendor_code']
 		);
-
-
 		
 
-	
-		
-		$data = json_decode($post['data'],true);
+		$r = $this->validate(json_decode($post['data'],true));
+
+		if(!$r['ok']) return a('',$r['msg'],'e');
 
 
-		dump($post);
+		$data = $r['data'];
 
-		dump($data);
+		$resourceAfterSave = $r['resourceAfterSave'];
 
-		exit();
-
-		
 		Db::startTrans();
 		try {
-
 			$r = array();
-
 			$bill = $this::create($main);
 			$id = $bill->id;
 			$ddh = sprintf('%08d',$id);
 			$bill->ddh = $ddh;
 			$bill->save();
-
 			if(count($data) == 0) throw new \Exception("表体数据不能为空");
 			foreach($data as $k => $v){
 				$data[$k]['id'] = $id;
 				unset($data[$k]['listid']);
-				$data[$k]['sum']  = decimal($v['qty'] * $v['price'] * ( 1 + $v['tax'] / 100 ) , 2);
 			}
-
-			$poList = new PoList;
-			$poList->saveAll($data);
-
-			
+			$poArriveList = new PoArriveList;
+			$poArriveList->saveAll($data);
 
 			$isFlow = Db::table('s_erp_config')->where(" `key` = '".$this->type."_flow' && value = 1 ")->field('id')->find();
-
+			
+			foreach($resourceAfterSave as $k => $v){
+				switch ($k){
+					case 'potopoarrive' :
+						$poList = new PoList;
+						$poList->saveAll($v);
+					break;
+				}		
+			}
 
 			
 
@@ -287,6 +293,7 @@ class PoArrive extends Model{
 			'ddh' => json_encode( [$post['ddh']] )
 		];
 		$main = $this::where("ddh = '".$post['ddh']."'")->find();
+		
 		if($main->update_time != $post['update_time']) return a('','订单已被修改，请重新载入','e');
 		
 		$id = $main['id'];
@@ -375,11 +382,13 @@ class PoArrive extends Model{
 
 
 	public function dltBill($post){
+		
+		
+		
 
 		$checkResult = $this->canModify($post,'dlt');
 
 
-		
 
 		$ddh = array();
 		foreach($checkResult as $k => $v){
@@ -388,10 +397,51 @@ class PoArrive extends Model{
 		}
 
 		
-
+		
+		
+		
 
 
 		if( count($ddh) > 0 ){
+
+			$r = Db::query("select b.resource_type,b.resource_listid,qty from s_po_arrive a join s_po_arrive_list b on a.id = b.id where a.ddh in (".get_w($ddh).")");
+
+			$resourceAfterDlt = [];
+			
+			foreach($r as $k => $v){
+				if($v['resource_type']){
+					if(!isset($resourceAfterDlt[$v['resource_type']])){
+						$resourceAfterDlt[$v['resource_type']] = [];
+					}
+					
+					if(!isset($resourceAfterDlt[$v['resource_type']][$v['resource_listid']])){
+						$resourceAfterDlt[$v['resource_type']][$v['resource_listid']] = 0;
+					}
+					
+					$resourceAfterDlt[$v['resource_type']][$v['resource_listid']] -= $v['qty'];
+				}
+			}
+
+			if(count($resourceAfterDlt) > 0){
+				foreach($resourceAfterDlt as $k => $v){
+					switch($k){
+						case 'potopoarrive' :
+							$r = Db::table('s_po_list')->where('listid in ('.get_w($v,false,false).')')->field('listid,qty,arrive_qty')->select();
+							
+							$tmp = [];
+							foreach($r as $k1 => $v1){
+								$tmp[] = ['listid' => $v1['listid'],'arrive_qty' => $v1['arrive_qty'] + $resourceAfterDlt[$k][$v1['listid']]];
+							}
+
+							$poList = new PoList;
+							$poList->saveAll($tmp);
+
+						break;
+
+					}
+				}
+			}
+			
 			$r = $this::where("ddh in (".get_w($ddh).")")->field('id,flow_id')->select()->toArray();
 			$id = $flowId = array();
 			foreach($r as $k => $v){
@@ -400,8 +450,8 @@ class PoArrive extends Model{
 			}
 			if(count($id) > 0){
 				$ids = get_w($id,false);
-				Db::table('s_po')->where(" id in ( $ids ) ")->delete();
-				Db::table('s_po_list')->where(" id in ( $ids ) ")->delete();
+				Db::table('s_po_arrive')->where(" id in ( $ids ) ")->delete();
+				Db::table('s_po_arrive_list')->where(" id in ( $ids ) ")->delete();
 			}
 			if(count($flowId) > 0){
 				$fs = new Fs();
@@ -438,9 +488,8 @@ class PoArrive extends Model{
 		}
 
 		if($w != ''){
-			Db::execute(" update s_po set status = case ddh $q end where ddh in (".substr($w,0,-1).")");
+			Db::execute(" update s_po_arrive set status = case ddh $q end where ddh in (".substr($w,0,-1).")");
 		}
-		//$this->afterCheckBill($checkResult);
 
 		return a($checkResult);
 	}
@@ -496,7 +545,7 @@ class PoArrive extends Model{
 			$w .= "'".$k."',";
 		}
 
-		if($w != '') Db::execute(" update s_po set status = case ddh $q end where ddh in (".substr($w,0,-1).")");
+		if($w != '') Db::execute(" update s_po_arrive set status = case ddh $q end where ddh in (".substr($w,0,-1).")");
 	
 		return a($checkResult,'','s');
 		
@@ -553,36 +602,84 @@ class PoArrive extends Model{
 	}
 
 
-	private function validate($postData,$id){
-		$data = array();
-		$w = '';
-		foreach($postData as $k => $v){
-			$tmp = array();
-			$tmp['id'] = $id;
-			$tmp['vendor_code'] = $v['vendor_code'];
-			$tmp['inventory_code'] = $v['inventory_code'];
-			$tmp['origin_price'] = $v['origin_price'];
-			$tmp['price'] = floatval($v['price']);
-			$tmp['origin_tax'] = $v['origin_tax'];
-			$tmp['tax'] = $v['tax'];
-			$tmp['origin_tax_price'] = $v['origin_tax_price'];
-			$tmp['tax_price'] = $v['tax_price'];
-			if($v['price'] == '' || $tmp['price'] < 0) return array('ok' => false,'msg' => '第'.$v['index'].'行价格错误');
-			$data[] = $tmp;
-			if(!$v['listid']) $w .= "(a.vendor_code = '".$v['vendor_code']."' && a.inventory_code = '".$v['inventory_code']."') || ";
+	private function validate($data){
+
+	
+		
+		$resourceAfterSave = $resource = $resourceId = $resourceId2 =  $origin = $tmp = $tmp1 = [];
+
+		// $resource 源单的信息
+		// $resourceAfterSave 保存后，源单的更新信息
+	
+		foreach($data as $k => $v){
+			if($v['listid']){
+				$tmp[] = $v['listid'];
+			}
+			if(isset($v['resource_listid']) && $v['resource_listid']){
+				$resourceId[$v['resource_type']][] = $v['resource_listid'];
+			}
 		}
 
-		if($w != ''){
-			 $w = substr($w,0,-3);
-			 $r = Db::table('s_vendor_price_just_list')->alias('a')->join(['s_vendor_price_just' => 'b'],'a.id = b.id')->field('b.ddh,a.inventory_code,a.vendor_code')->where(" b.status = 5 && ( $w ) ")->select()->toArray();
-			 $tmp = "存在相同 <span class = 'text-color3'>供应商</span> 和 <span class = 'text-color3'>物料编码</span> 的未审核完的表单：<br />";
-			 foreach($r as $k => $v){
-				$tmp .= "表单号：".$v['ddh']."，供应商编码：".$v['vendor_code']."，物料编码：".$v['inventory_code']."<br />";
-			 }
-			 $tmp = "<span style = 'font-size:12px'>".$tmp."</span>";
-			 if(count($r) > 0 ) return array('ok' => false,'msg' => $tmp);
+
+		foreach($resourceId as $k => $v){
+			switch($k){
+				case 'potopoarrive':
+					$r = Db::query("select a.listid,a.qty,a.arrive_qty,b.ddh from s_po_list a join s_po b on a.id = b.id where a.listid in (".get_w($v).")");
+					$resourceId2[$k] = $r;
+				break;
+			}
 		}
-		return array('ok' => true,'data' => $data);
+
+		
+		foreach($resourceId2 as $k => $v){
+			foreach($v as $k1 => $v1){
+				$resource[$k][$v1['listid']] = $v1;
+				$resourceAfterSave[$k][$v1['listid']] = ['arrive_qty' => $v1['arrive_qty'],'listid' => $v1['listid']];
+			}
+		}
+
+		
+
+
+		if(count($tmp) > 0){
+			$r = Db::table('s_po_arrive')->where("listid in (".get_w($tmp,false).")")->field('listid qty')->select();
+			foreach($r as $k => $v){
+				$origin[$v['listid']] = $v;
+			}
+		}
+
+
+		foreach($data as $k => $v){
+			$v['qty'] *= 1;
+			if($v['qty'] == 0) return [ 'ok' => false,'msg' => '第'.$v['index'].'行到货数量错误，不能保存' ];
+			
+			$data[$k]['po_ddh'] = '';
+
+
+			if($v['resource_type']){
+				switch($v['resource_type']){
+					case 'potopoarrive':
+
+						if( isset($resource[$v['resource_type']]) && isset($resource[$v['resource_type']][$v['resource_listid']]) ){
+							$data[$k]['po_ddh'] = $resource[$v['resource_type']][$v['resource_listid']]['ddh'];
+						}
+
+						if($v['listid']){
+							$resourceAfterSave[$v['resource_type']][$v['resource_listid']]['arrive_qty'] = $resourceAfterSave[$v['resource_type']][$v['resource_listid']]['arrive_qty'] - $origin[$v['listid']]['qty'] + $v['qty'];
+						}else{
+							$resourceAfterSave[$v['resource_type']][$v['resource_listid']]['arrive_qty'] += $v['qty'];
+						}
+						
+						if($resourceAfterSave[$v['resource_type']][$v['resource_listid']]['arrive_qty'] > $resource[$v['resource_type']][$v['resource_listid']]['qty']){
+							return array('ok' => false,'msg' => '到货数量不能大于采购数量');
+						}
+						
+					break;
+				}
+			}
+		}
+		
+		return array('ok' => true,'data' => $data,'resourceAfterSave' => $resourceAfterSave);
 	}
 
 	public function nextPrev($post){

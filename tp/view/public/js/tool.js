@@ -384,7 +384,7 @@ function page_callback(url,table,o){
 		o.n = parseInt($('#number_page').val());
 		o.page = 1;
 	}
-	
+
 	let index = layer.load(1);
 	$.post(url,o,function(d){
 		if(d.status == 's'){

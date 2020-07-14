@@ -21,7 +21,8 @@ class System extends BaseController
 			'name' => '采购',
 			'children' => [
 				['type' => 'vendorPrice' , 'name' => '供应商价格表'],
-				['type' => 'po' , 'name' => '采购订单']
+				['type' => 'po' , 'name' => '采购订单'],
+				['type' => 'poarrive' , 'name' => '采购到货单']
 			]
 		],
 		[

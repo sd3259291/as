@@ -4,7 +4,7 @@ namespace app\model\erp;
 
 use think\Model;
 
-class PoList extends Model{
+class PoArriveList extends Model{
 
 	protected $pk = 'listid';
   
@@ -12,13 +12,12 @@ class PoList extends Model{
 		'listid' => 'int',
 		'id'	=> 'int',
 		'inventory_code' => 'varchar',
-		'price'	=> 'numeric',
-		'tax' => 'int',
-		'tax_price' => 'numeric',
-		'arrive_date' => 'date',
 		'qty' => 'numeric',
-		'sum' => 'numeric',
-		'arrive_qty' => 'numeric'
+		'is_qc' => 'int',
+		'resource_type' => 'varchar',
+		'resource_listid' => 'int',
+		'po_ddh' => 'varchar'
+		
 	];
 
 	

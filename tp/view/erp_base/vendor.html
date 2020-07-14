@@ -135,7 +135,7 @@
 					onClick:function(event, treeId, treeNode){
 						let o = get_page();
 						app.searchOption.basicClassId = treeNode.id;
-						page_callback($.extend(o,app.searchOption),'__APP__/ErpBase/getVendor',app.table);
+						page_callback('__APP__/ErpBase/getVendor',app.table,$.extend(o,app.searchOption));
 					},
 				}
 			};

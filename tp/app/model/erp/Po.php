@@ -65,6 +65,7 @@ class Po extends Model{
 	}
 
 	public function saveBill($post){
+
 		if($post['ddh'] == ''){
 			return $this->insertBill($post);
 		}else{
@@ -81,8 +82,13 @@ class Po extends Model{
 		foreach($ddh as $k => $v){
 			$checkResult[$v] = [ 'ok' => false , 'msg' => '表单不存在' ];
 		}
+		
+		$listIds = [];
 
 		$r = $this::where("ddh in (".get_w($ddh).")")->field('id,ddh,status,maker_number,flow_id,update_time')->select()->toArray();
+		foreach($r as $k => $v){
+			$listIds[$v['id']] = $v['ddh'];
+		}
 
 		$flowsId = array();
 		
@@ -157,7 +163,7 @@ class Po extends Model{
 				}
 			}
 
-
+			
 			// 流程相关的判断
 			if(count($flowsId) > 0){
 				$fs = new Fs;
@@ -178,6 +184,25 @@ class Po extends Model{
 					$checkResult[$ddh[0]] = ['ok' => false ,'msg' => '订单已被修改，请重新载入'];
 				}
 			}
+
+
+			if(count($listIds) > 0){
+				$list = Db::table('s_po_list')->where('id in ('.get_w($listIds,false,false).')')->field('arrive_qty,id')->select();
+				
+				if($list){
+					foreach($list->toArray() as $k => $v){
+						if($v['arrive_qty'] > 0){
+							if($checkResult[$listIds[$v['id']]]['ok']){
+							
+								$checkResult[$listIds[$v['id']]] = ['ok' => false,'msg' => '订单已被到货单关联，不能弃审'];
+							}
+						}
+					}
+				}
+			}
+			
+		
+			
 			
 		}else if($type == 'modify'){
 
@@ -212,6 +237,8 @@ class Po extends Model{
 			'remark' => trim($post['remark']),
 			'vendor_code' => $post['vendor_code']
 		);
+
+
 
 		try {
             validate(PoValidate::class)->check($main);
@@ -251,13 +278,8 @@ class Po extends Model{
 
 			$poList = new PoList;
 			$poList->saveAll($data);
-
-			
-
+	
 			$isFlow = Db::table('s_erp_config')->where(" `key` = '".$this->type."_flow' && value = 1 ")->field('id')->find();
-
-
-			
 
 			if($isFlow){
 				$fs = new Fs();
@@ -285,21 +307,43 @@ class Po extends Model{
 
 	}
 
+	public function reCal($data){
+		foreach($data as $k => $v){
+			$data[$k]['tax_price'] = decimal($v['price'] * (1 + $v['tax'] / 100),3);
+			$data[$k]['sum'] = decimal($v['price'] * (1 + $v['tax'] / 100) * $v['qty'],2);
+		}
+		return $data;
+	}
+
 	public function modifyBill($post){
 		$checkData = [
 			'type' => 'modify',
 			'ddh' => json_encode( [$post['ddh']] )
 		];
 		$main = $this::where("ddh = '".$post['ddh']."'")->find();
-		if($main->update_time != $post['update_time']) return a('','订单已被修改，请重新载入','e');
+		//if($main->update_time != $post['update_time']) return a('','订单已被修改，请重新载入','e');
+		
+
+		try {
+            validate(PoValidate::class)->check($main->toArray());
+        } catch (ValidateException $e) {
+            return a('',$e->getError(),'e');
+        }
+		
+		$data = $this->reCal(json_decode($post['data'],true));
+
+		foreach($data as $k => $v){
+			try {
+				validate(PoListValidate::class)->check($v);
+			} catch (ValidateException $e) {
+				return a('',$e->getError(),'e');
+			}
+		}
+
 		
 		$id = $main['id'];
-		
-		$data = json_decode($post['data'],true);
-		$validata = $this->validate($data,$id);
-		if(!$validata['ok']) return a('',$validata['msg'],'e');
-	
-		$list = Db::table('s_vendor_price_just_list')->where('id = '.$id)->field('listid')->select()->toArray();
+
+		$list = Db::table('s_po_list')->where('id = '.$id)->field('listid')->select()->toArray();	
 		if( count($list) == 0 ) return a('','表单错误','e');
 		$checkList = array();
 		foreach($list as $k => $v){
@@ -328,51 +372,18 @@ class Po extends Model{
 		if( count($list) + count($insert) - count($dlt) == 0 ) return a('','表单数据不能为零','e');
 
 		if(count($dlt) > 0){
-			Db::table('s_vendor_price_just_list')->where("listid in (".get_w($dlt,false,false).")")->delete();
+			Db::table('s_po_list')->where("listid in (".get_w($dlt,false,false).")")->delete();
 		}
 
-		if(count($insert) > 0){
-			Db::table('s_vendor_price_just_list')->insertAll($insert);
+		if(count($insert) > 0 || count($update) > 0){
+			$poList = new PoList;
+			$poList->saveAll(array_merge($update,$insert));
 		}
-
-		if(count($update) > 0){
-			$tmp = array('vendor_code','inventory_code','origin_price','origin_tax','origin_tax_price','price','tax','tax_price');
-
-			$zero = array('origin_price','origin_tax','origin_tax_price');
-
-			$sql = array();
-			$s = $w = "";
-
-			foreach($tmp as $k => $v){
-				$sql[$v] = " ".$v." = case listid ";
-			}
-
-			foreach($update as $k => $v){
-				foreach($zero as $k1 => $v1){
-					if(!$v[$v1]) $v[$v1] = 0;
-				}
-				$w .= $v['listid'].',';
-				foreach($tmp as $k1 => $v1){
-					$sql[$v1] .= " when ".$v['listid']." then '".$v[$v1]."' ";
-				}
-			}
-
-			foreach($sql as $k => $v){
-				$sql[$k] .= "end,";
-			}
-
-			foreach($sql as $k => $v){
-				$s .= $v;
-			}
-
-			$s = substr($s,0,-1);
-			$w = substr($w,0,-1);
-
-			Db::execute(" update s_vendor_price_just_list set $s where listid in ( $w ) ");
-		}
-
-		$this::update(['date' => $post['date'],'remark' => $post['remark']],['ddh' => $main['ddh']]);
-
+		
+		$main->date = $post['date'];
+		$main->remark = $post['remark'];
+		$main->vendor_code = $post['vendor_code'];
+		$main->save();
 
 		return a($main['ddh']);
 	}
@@ -487,6 +498,7 @@ class Po extends Model{
 				if($r['ok'] === true){
 					$checkResult[$k] = array('ok' => true,'status' => $r['status']);
 				}else{
+					
 					if($r['ok'] === false)  $checkResult[$k] = array( 'ok' => false , 'msg' => $r['msg']);
 				}
 			}
@@ -757,7 +769,7 @@ class Po extends Model{
 	public function resourcePoToPoArriveSearch($post){
 
 		
-		$w = " 1 = 1 ";
+		$w = " a.arrive_qty < a.qty && b.status = 9";
 		
 		if(is_set($post,'vendor_code')){
 			$w .= " && b.vendor_code = '".$post['vendor_code']."' ";
